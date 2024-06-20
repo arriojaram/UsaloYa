@@ -1,0 +1,313 @@
+{
+	"info": {
+		"_postman_id": "7ea70290-67c1-4422-ac7a-cdfde8c7d52e",
+		"name": "LocalApi",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "5261619"
+	},
+	"item": [
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "SetPassword",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "*/*"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userName\":\"\",\n  \"userId\": 2,\n  \"token\": \"1234\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:7290/api/User/SetToken",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7290",
+							"path": [
+								"api",
+								"User",
+								"SetToken"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SaveUser",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"UserId\": 2,\n  \"UserName\": \"johnwick\",\n  \"Token\": \"1234\",\n  \"FirstName\": \"John\",\n  \"LastName\": \"Wick\",\n  \"CompanyId\": 1,\n  \"GroupId\": 1,\n  \"LastAccess\": \"2024-06-19T14:32:00\",\n  \"IsEnabled\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:7290/api/User/SaveUser",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7290",
+							"path": [
+								"api",
+								"User",
+								"SaveUser"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetUser",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:7290/api/User/GetUser?userId=1",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7290",
+							"path": [
+								"api",
+								"User",
+								"GetUser"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UserGetAll",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "accept",
+								"value": "*/*"
+							}
+						],
+						"url": {
+							"raw": "https://localhost:7290/api/User/GetAll?name=-1",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7290",
+							"path": [
+								"api",
+								"User",
+								"GetAll"
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": "wick",
+									"disabled": true
+								},
+								{
+									"key": "name",
+									"value": "-1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userName\": \"johnwick\",\n  \"token\": \"1234\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:7290/api/User/Validate",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7290",
+							"path": [
+								"api",
+								"User",
+								"Validate"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Product",
+			"item": [
+				{
+					"name": "AddProduct",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"productId\": 0,\n    \"name\": \"Nuevo Producto 3\",\n    \"description\": \"Descripción del nuevo producto 1\",\n    \"categoryId\": 1,\n    \"supplierId\": 2,\n    \"unitPrice\": 10.99,\n    \"unitsInStock\": 100,\n    \"discontinued\": false,\n    \"imgUrl\": \"https://example.com/image.jpg\",\n    \"weight\": 1.5,\n    \"sku\": \"\",\n    \"barcode\": \"3\",\n    \"brand\": \"Marca\",\n    \"color\": \"Rojo\",\n    \"size\": \"M\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:7290/api/Product/AddProduct?companyId=1",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7290",
+							"path": [
+								"api",
+								"Product",
+								"AddProduct"
+							],
+							"query": [
+								{
+									"key": "companyId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetProduct",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:7290/api/Product/GetProduct?companyid=1&productid=2",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7290",
+							"path": [
+								"api",
+								"Product",
+								"GetProduct"
+							],
+							"query": [
+								{
+									"key": "companyid",
+									"value": "1"
+								},
+								{
+									"key": "productid",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SearchProduct",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:7290/api/Product/SearchProduct?companyId=1&keyword=5",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7290",
+							"path": [
+								"api",
+								"Product",
+								"SearchProduct"
+							],
+							"query": [
+								{
+									"key": "companyId",
+									"value": "1"
+								},
+								{
+									"key": "keyword",
+									"value": "5"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Test",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:7290/api/User/HelloWorld",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7290",
+					"path": [
+						"api",
+						"User",
+						"HelloWorld"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
