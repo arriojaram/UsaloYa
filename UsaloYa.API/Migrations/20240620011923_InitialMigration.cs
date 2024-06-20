@@ -26,25 +26,6 @@ namespace UsaloYa.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Sales",
-                columns: table => new
-                {
-                    SaleId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    CustomerId = table.Column<int>(type: "int", nullable: true),
-                    SaleDate = table.Column<DateTime>(type: "datetime", nullable: false, defaultValueSql: "(getdate())"),
-                    PaymentMethod = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false, defaultValueSql: "('Efectivo')"),
-                    Tax = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
-                    Status = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false, defaultValueSql: "('Completada')"),
-                    TotalSale = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
-                    Notes = table.Column<string>(type: "varchar(500)", unicode: false, maxLength: 500, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Sales", x => x.SaleId);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Groups",
                 columns: table => new
                 {
@@ -106,18 +87,19 @@ namespace UsaloYa.API.Migrations
                     UserId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserName = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
-                    Token = table.Column<string>(type: "char(50)", unicode: false, fixedLength: true, maxLength: 50, nullable: false),
+                    Token = table.Column<string>(type: "varchar(100)", unicode: false, maxLength: 100, nullable: false),
                     FirstName = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
                     LastName = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
                     CompanyId = table.Column<int>(type: "int", nullable: false),
                     GroupId = table.Column<int>(type: "int", nullable: false),
-                    LastAccess = table.Column<DateTime>(type: "datetime", nullable: true)
+                    LastAccess = table.Column<DateTime>(type: "datetime", nullable: true),
+                    IsEnabled = table.Column<bool>(type: "bit", nullable: false, defaultValueSql: "(CONVERT([bit],(0)))")
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Users", x => new { x.UserId, x.UserName });
+                    table.PrimaryKey("PK_User_Id", x => x.UserId);
                     table.ForeignKey(
-                        name: "FK_Users_Company1",
+                        name: "FK_Users_Company",
                         column: x => x.CompanyId,
                         principalTable: "Company",
                         principalColumn: "CompanyId");
@@ -126,6 +108,31 @@ namespace UsaloYa.API.Migrations
                         column: x => x.GroupId,
                         principalTable: "Groups",
                         principalColumn: "GroupId");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Sales",
+                columns: table => new
+                {
+                    SaleId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CustomerId = table.Column<int>(type: "int", nullable: true),
+                    SaleDate = table.Column<DateTime>(type: "datetime", nullable: false, defaultValueSql: "(getdate())"),
+                    PaymentMethod = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false, defaultValueSql: "('Efectivo')"),
+                    Tax = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
+                    Status = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false, defaultValueSql: "('Completada')"),
+                    TotalSale = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
+                    Notes = table.Column<string>(type: "varchar(500)", unicode: false, maxLength: 500, nullable: true),
+                    UserId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Sales", x => x.SaleId);
+                    table.ForeignKey(
+                        name: "FK_Sales_Users",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "UserId");
                 });
 
             migrationBuilder.CreateTable(
@@ -147,7 +154,7 @@ namespace UsaloYa.API.Migrations
                         principalTable: "Products",
                         principalColumn: "ProductId");
                     table.ForeignKey(
-                        name: "FK_SaleDetails_SaleDetails",
+                        name: "FK_Sale_SaleDetails",
                         column: x => x.SaleId,
                         principalTable: "Sales",
                         principalColumn: "SaleId");
@@ -164,6 +171,13 @@ namespace UsaloYa.API.Migrations
                 columns: new[] { "Name", "Description" });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Products_Barcode_SKU",
+                table: "Products",
+                columns: new[] { "Barcode", "SKU" },
+                unique: true,
+                filter: "([Barcode] IS NOT NULL AND [SKU] IS NOT NULL)");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Products_CompanyId",
                 table: "Products",
                 column: "CompanyId");
@@ -174,6 +188,11 @@ namespace UsaloYa.API.Migrations
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Sales_UserId",
+                table: "Sales",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Users_CompanyId",
                 table: "Users",
                 column: "CompanyId");
@@ -182,6 +201,12 @@ namespace UsaloYa.API.Migrations
                 name: "IX_Users_GroupId",
                 table: "Users",
                 column: "GroupId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_UserName",
+                table: "Users",
+                column: "UserName",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -191,13 +216,13 @@ namespace UsaloYa.API.Migrations
                 name: "SaleDetails");
 
             migrationBuilder.DropTable(
-                name: "Users");
-
-            migrationBuilder.DropTable(
                 name: "Products");
 
             migrationBuilder.DropTable(
                 name: "Sales");
+
+            migrationBuilder.DropTable(
+                name: "Users");
 
             migrationBuilder.DropTable(
                 name: "Groups");

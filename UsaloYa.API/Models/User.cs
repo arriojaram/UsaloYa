@@ -1,10 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace UsaloYa.API.Models;
 
-[Index(nameof(UserName), IsUnique = true)]
 public partial class User
 {
     public int UserId { get; set; }
@@ -23,9 +21,11 @@ public partial class User
 
     public DateTime? LastAccess { get; set; }
 
+    public bool? IsEnabled { get; set; }
+
     public virtual Company Company { get; set; } = null!;
 
     public virtual Group Group { get; set; } = null!;
 
-    public virtual bool IsEnabled {get; set;} = true;
+    public virtual ICollection<Sale> Sales { get; set; } = new List<Sale>();
 }

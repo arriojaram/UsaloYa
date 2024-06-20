@@ -43,6 +43,8 @@ public partial class DBContext : DbContext
 
         modelBuilder.Entity<Group>(entity =>
         {
+            entity.HasIndex(e => e.CompanyId, "IX_Groups_CompanyId");
+
             entity.Property(e => e.Description)
                 .HasMaxLength(250)
                 .IsUnicode(false);
@@ -60,6 +62,12 @@ public partial class DBContext : DbContext
         modelBuilder.Entity<Product>(entity =>
         {
             entity.HasIndex(e => new { e.Name, e.Description }, "IX_Products");
+
+            entity.HasIndex(e => new { e.Barcode, e.Sku }, "IX_Products_Barcode_SKU")
+                .IsUnique()
+                .HasFilter("([Barcode] IS NOT NULL AND [SKU] IS NOT NULL)");
+
+            entity.HasIndex(e => e.CompanyId, "IX_Products_CompanyId");
 
             entity.Property(e => e.Barcode)
                 .HasMaxLength(50)
@@ -119,11 +127,23 @@ public partial class DBContext : DbContext
                 .HasDefaultValueSql("('Completada')");
             entity.Property(e => e.Tax).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.TotalSale).HasColumnType("decimal(10, 2)");
+
+            entity.HasOne(d => d.Company).WithMany(p => p.Sales)
+                .HasForeignKey(d => d.CompanyId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Sale_Company");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Sales)
+              .HasForeignKey(d => d.UserId)
+              .OnDelete(DeleteBehavior.ClientSetNull)
+              .HasConstraintName("FK_Sales_Users");
         });
 
         modelBuilder.Entity<SaleDetail>(entity =>
         {
             entity.HasKey(e => new { e.SaleId, e.ProductId });
+
+            entity.HasIndex(e => e.ProductId, "IX_SaleDetails_ProductId");
 
             entity.Property(e => e.TotalPrice).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.UnitPrice).HasColumnType("decimal(10, 2)");
@@ -136,22 +156,25 @@ public partial class DBContext : DbContext
             entity.HasOne(d => d.Sale).WithMany(p => p.SaleDetails)
                 .HasForeignKey(d => d.SaleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_SaleDetails_SaleDetails");
+                .HasConstraintName("FK_Sale_SaleDetails");
         });
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => new { e.UserId });
-            entity.HasKey(e => new { e.UserName });
+            entity.HasKey(e => e.UserId).HasName("PK_User_Id");
 
-            entity.Property(e => e.UserId).ValueGeneratedOnAddOrUpdate();
-            entity.Property(e => e.UserName)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+            entity.HasIndex(e => e.CompanyId, "IX_Users_CompanyId");
+
+            entity.HasIndex(e => e.GroupId, "IX_Users_GroupId");
+
+            entity.HasIndex(e => e.UserName, "IX_Users_UserName").IsUnique();
 
             entity.Property(e => e.FirstName)
                 .HasMaxLength(50)
                 .IsUnicode(false);
+            entity.Property(e => e.IsEnabled)
+                .IsRequired()
+                .HasDefaultValueSql("(CONVERT([bit],(0)))");
             entity.Property(e => e.LastAccess).HasColumnType("datetime");
             entity.Property(e => e.LastName)
                 .HasMaxLength(50)
@@ -159,11 +182,14 @@ public partial class DBContext : DbContext
             entity.Property(e => e.Token)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+            entity.Property(e => e.UserName)
+                .HasMaxLength(50)
+                .IsUnicode(false);
 
             entity.HasOne(d => d.Company).WithMany(p => p.Users)
                 .HasForeignKey(d => d.CompanyId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Users_Company1");
+                .HasConstraintName("FK_Users_Company");
 
             entity.HasOne(d => d.Group).WithMany(p => p.Users)
                 .HasForeignKey(d => d.GroupId)

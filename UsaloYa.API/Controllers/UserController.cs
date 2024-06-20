@@ -8,13 +8,13 @@ namespace UsaloYa.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class UsaloYaApiController : ControllerBase
+    public class UserController : ControllerBase
     {
        
-        private readonly ILogger<UsaloYaApiController> _logger;
+        private readonly ILogger<UserController> _logger;
         private readonly DBContext _dBContext;
 
-        public UsaloYaApiController(DBContext dBContext,  ILogger<UsaloYaApiController> logger)
+        public UserController(DBContext dBContext,  ILogger<UserController> logger)
         {
             _logger = logger;
             _dBContext = dBContext;
@@ -52,7 +52,7 @@ namespace UsaloYa.API.Controllers
                 }
                 else
                 {
-                    var user = await _dBContext.Users.FindAsync(userDto.UserName);
+                    var user = await _dBContext.Users.FindAsync(userDto.UserId);
                     if (user == null) 
                         return NotFound();
 
@@ -64,7 +64,7 @@ namespace UsaloYa.API.Controllers
                     user.LastAccess = userDto.LastAccess;
 
                     _dBContext.Users.Update(user);
-                    //_dBContext.Entry(user).Property(u => u.UserId).IsModified = false;
+                 
                 }
 
                 await _dBContext.SaveChangesAsync();
@@ -114,7 +114,7 @@ namespace UsaloYa.API.Controllers
             var userResponseDto = new UserResponseDto()
             {
                 UserId = u.UserId,
-                IsEnabled = u.IsEnabled,
+                IsEnabled = (bool)u.IsEnabled,
                 UserName = u.UserName,
                 FirstName = u.FirstName,
                 LastName = u.LastName,
@@ -141,7 +141,7 @@ namespace UsaloYa.API.Controllers
             var userDtos = users.Select(u => new UserResponseDto
             {
                 UserId = u.UserId,
-                IsEnabled = u.IsEnabled,
+                IsEnabled = (bool)u.IsEnabled,
                 UserName = u.UserName,
                 FirstName = u.FirstName,
                 LastName = u.LastName,

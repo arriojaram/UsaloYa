@@ -12,8 +12,8 @@ using UsaloYa.API.Models;
 namespace UsaloYa.API.Migrations
 {
     [DbContext(typeof(DBContext))]
-    [Migration("20240619181816_IncreasePasswordColLenght")]
-    partial class IncreasePasswordColLenght
+    [Migration("20240620012839_AddCompanyToSale")]
+    partial class AddCompanyToSale
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -77,7 +77,7 @@ namespace UsaloYa.API.Migrations
 
                     b.HasKey("GroupId");
 
-                    b.HasIndex("CompanyId");
+                    b.HasIndex(new[] { "CompanyId" }, "IX_Groups_CompanyId");
 
                     b.ToTable("Groups");
                 });
@@ -165,9 +165,13 @@ namespace UsaloYa.API.Migrations
 
                     b.HasKey("ProductId");
 
-                    b.HasIndex("CompanyId");
-
                     b.HasIndex(new[] { "Name", "Description" }, "IX_Products");
+
+                    b.HasIndex(new[] { "Barcode", "Sku" }, "IX_Products_Barcode_SKU")
+                        .IsUnique()
+                        .HasFilter("([Barcode] IS NOT NULL AND [SKU] IS NOT NULL)");
+
+                    b.HasIndex(new[] { "CompanyId" }, "IX_Products_CompanyId");
 
                     b.ToTable("Products");
                 });
@@ -179,6 +183,9 @@ namespace UsaloYa.API.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SaleId"));
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("int");
 
                     b.Property<int?>("CustomerId")
                         .HasColumnType("int");
@@ -215,7 +222,14 @@ namespace UsaloYa.API.Migrations
                     b.Property<decimal>("TotalSale")
                         .HasColumnType("decimal(10, 2)");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("SaleId");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Sales");
                 });
@@ -239,17 +253,18 @@ namespace UsaloYa.API.Migrations
 
                     b.HasKey("SaleId", "ProductId");
 
-                    b.HasIndex("ProductId");
+                    b.HasIndex(new[] { "ProductId" }, "IX_SaleDetails_ProductId");
 
                     b.ToTable("SaleDetails");
                 });
 
             modelBuilder.Entity("UsaloYa.API.Models.User", b =>
                 {
-                    b.Property<string>("UserName")
-                        .HasMaxLength(50)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(50)");
+                    b.Property<int>("UserId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
 
                     b.Property<int>("CompanyId")
                         .HasColumnType("int");
@@ -263,8 +278,11 @@ namespace UsaloYa.API.Migrations
                     b.Property<int>("GroupId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsEnabled")
-                        .HasColumnType("bit");
+                    b.Property<bool?>("IsEnabled")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValueSql("(CONVERT([bit],(0)))");
 
                     b.Property<DateTime?>("LastAccess")
                         .HasColumnType("datetime");
@@ -277,22 +295,24 @@ namespace UsaloYa.API.Migrations
 
                     b.Property<string>("Token")
                         .IsRequired()
-                        .HasMaxLength(500)
+                        .HasMaxLength(100)
                         .IsUnicode(false)
-                        .HasColumnType("char(500)")
-                        .IsFixedLength();
+                        .HasColumnType("varchar(100)");
 
-                    b.Property<int>("UserId")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("int");
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(50)");
 
-                    b.HasKey("UserName");
+                    b.HasKey("UserId")
+                        .HasName("PK_User_Id");
 
-                    b.HasIndex("CompanyId");
+                    b.HasIndex(new[] { "CompanyId" }, "IX_Users_CompanyId");
 
-                    b.HasIndex("GroupId");
+                    b.HasIndex(new[] { "GroupId" }, "IX_Users_GroupId");
 
-                    b.HasIndex("UserName")
+                    b.HasIndex(new[] { "UserName" }, "IX_Users_UserName")
                         .IsUnique();
 
                     b.ToTable("Users");
@@ -320,6 +340,25 @@ namespace UsaloYa.API.Migrations
                     b.Navigation("Company");
                 });
 
+            modelBuilder.Entity("UsaloYa.API.Models.Sale", b =>
+                {
+                    b.HasOne("UsaloYa.API.Models.Company", "Company")
+                        .WithMany("Sales")
+                        .HasForeignKey("CompanyId")
+                        .IsRequired()
+                        .HasConstraintName("FK_Sale_Company");
+
+                    b.HasOne("UsaloYa.API.Models.User", "User")
+                        .WithMany("Sales")
+                        .HasForeignKey("UserId")
+                        .IsRequired()
+                        .HasConstraintName("FK_Sales_Users");
+
+                    b.Navigation("Company");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("UsaloYa.API.Models.SaleDetail", b =>
                 {
                     b.HasOne("UsaloYa.API.Models.Product", "Product")
@@ -332,7 +371,7 @@ namespace UsaloYa.API.Migrations
                         .WithMany("SaleDetails")
                         .HasForeignKey("SaleId")
                         .IsRequired()
-                        .HasConstraintName("FK_SaleDetails_SaleDetails");
+                        .HasConstraintName("FK_Sale_SaleDetails");
 
                     b.Navigation("Product");
 
@@ -345,7 +384,7 @@ namespace UsaloYa.API.Migrations
                         .WithMany("Users")
                         .HasForeignKey("CompanyId")
                         .IsRequired()
-                        .HasConstraintName("FK_Users_Company1");
+                        .HasConstraintName("FK_Users_Company");
 
                     b.HasOne("UsaloYa.API.Models.Group", "Group")
                         .WithMany("Users")
@@ -364,6 +403,8 @@ namespace UsaloYa.API.Migrations
 
                     b.Navigation("Products");
 
+                    b.Navigation("Sales");
+
                     b.Navigation("Users");
                 });
 
@@ -380,6 +421,11 @@ namespace UsaloYa.API.Migrations
             modelBuilder.Entity("UsaloYa.API.Models.Sale", b =>
                 {
                     b.Navigation("SaleDetails");
+                });
+
+            modelBuilder.Entity("UsaloYa.API.Models.User", b =>
+                {
+                    b.Navigation("Sales");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,0 +1,1 @@
+Scaffold-DbContext "Data Source=DESKTOP-PL9432I\MSSQLSERVER01;Initial Catalog=Avatar;Integrated Security=True;TrustServerCertificate=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models

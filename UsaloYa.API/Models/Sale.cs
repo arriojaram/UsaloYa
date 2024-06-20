@@ -21,5 +21,13 @@ public partial class Sale
 
     public string? Notes { get; set; }
 
+    public int UserId { get; set; }
+
+    public int CompanyId { get; set; }
+
     public virtual ICollection<SaleDetail> SaleDetails { get; set; } = new List<SaleDetail>();
+
+    public virtual User User { get; set; } = null!;
+
+    public virtual Company Company { get; set; } = null!;
 }
