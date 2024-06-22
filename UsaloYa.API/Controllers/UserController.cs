@@ -29,6 +29,7 @@ namespace UsaloYa.API.Controllers
         [HttpPost("SaveUser")]
         public async Task<ActionResult> SaveUser([FromBody] UserDto userDto)
         {
+            int userId = 0;
             try
             {
                 if (userDto.UserId == 0)
@@ -49,6 +50,7 @@ namespace UsaloYa.API.Controllers
                         IsEnabled = true
                     };
                     _dBContext.Users.Add(user);
+                    userId = user.UserId;
                 }
                 else
                 {
@@ -64,11 +66,11 @@ namespace UsaloYa.API.Controllers
                     user.LastAccess = userDto.LastAccess;
 
                     _dBContext.Users.Update(user);
-                 
+                    userId = user.UserId;
                 }
 
                 await _dBContext.SaveChangesAsync();
-                return Ok();
+                return Ok(userId);
             }
             catch (Exception ex)
             {

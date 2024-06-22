@@ -78,6 +78,7 @@ namespace UsaloYa.API.Controllers
         [HttpPost("AddProduct")]
         public async Task<IActionResult> AddProduct([FromBody] ProductDto productDto, int companyId)
         {
+            
             try
             {
                 if (productDto.Equals(default(ProductDto)) || companyId <= 0)
@@ -109,18 +110,19 @@ namespace UsaloYa.API.Controllers
                         UnitsInStock = productDto.UnitsInStock,
                         Discontinued = productDto.Discontinued,
                         ImgUrl = productDto.ImgUrl,
-                        DateModified = DateTime.Now,
+                        DateModified = Utils.Util.GetMxDateTime(),
                         Weight = productDto.Weight,
                         Sku = productDto.SKU,
                         Barcode = productDto.Barcode,
                         Brand = productDto.Brand,
                         Color = productDto.Color,
                         Size = productDto.Size,
-                        DateAdded = DateTime.Now,
+                        DateAdded = Utils.Util.GetMxDateTime(),
                         CompanyId = companyId
                     };
 
                     _dBContext.Products.Add(existingProduct);
+                    
                 }
                 else if (existingProduct != null)
                 {
@@ -132,7 +134,7 @@ namespace UsaloYa.API.Controllers
                     existingProduct.UnitsInStock = productDto.UnitsInStock;
                     existingProduct.Discontinued = productDto.Discontinued;
                     existingProduct.ImgUrl = productDto.ImgUrl;
-                    existingProduct.DateModified = DateTime.Now;
+                    existingProduct.DateModified = Utils.Util.GetMxDateTime();
                     existingProduct.Weight = productDto.Weight;
                     existingProduct.Sku = productDto.SKU;
                     existingProduct.Barcode = productDto.Barcode;
@@ -141,6 +143,7 @@ namespace UsaloYa.API.Controllers
                     existingProduct.Size = productDto.Size;
 
                     _dBContext.Products.Update(existingProduct);
+                    
                 }
                 else
                 {

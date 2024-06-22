@@ -1,5 +1,6 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
+using UsaloYa.API.Models;
 
 namespace UsaloYa.API.Utils
 {
@@ -17,6 +18,20 @@ namespace UsaloYa.API.Utils
                 }
                 return builder.ToString();
             }
+        }
+
+        public static DateTime GetMxDateTime()
+        {
+            // Obtener la zona horaria de México
+            TimeZoneInfo mexicoTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time (Mexico)");
+
+            // Obtener la fecha y hora actual en UTC
+            DateTime utcNow = DateTime.UtcNow;
+
+            // Convertir la fecha y hora actual en UTC a la hora local de México
+            DateTime mexicoTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, mexicoTimeZone);
+
+            return mexicoTime;
         }
     }
 }

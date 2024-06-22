@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using UsaloYa.API.Security;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,6 +33,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<TokenValidationMiddleware>();
 
 app.UseHttpsRedirection();
 
