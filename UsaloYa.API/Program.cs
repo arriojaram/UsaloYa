@@ -25,8 +25,22 @@ builder.Services.AddDbContext<UsaloYa.API.Models.DBContext>(
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
     });
 
-var app = builder.Build();
+// Configure CORS
+var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<List<string>>(); // List of allowed URLS through CONFIG file
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin",
+        builder =>
+        {
+            if (allowedOrigins != null)
+                builder.WithOrigins(allowedOrigins.ToArray())  // Add or remove URLs from appsettings
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+        });
+});
+var app = builder.Build();
+app.UseCors("AllowSpecificOrigin");
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -41,5 +55,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+
 
 app.Run();
