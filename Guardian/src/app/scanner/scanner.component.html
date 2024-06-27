@@ -1,0 +1,35 @@
+<div class="card">
+    <div class="card-body">
+        <h3>Captura o escanea el código del producto</h3>
+
+        <form [formGroup]="formVenta" (ngSubmit)="procesar()">
+            <div class="mb-2 mt-4">
+                <label class="form-label">
+                    Código
+                </label>
+                <input type="number" formControlName="codigo" class="form-control" placeholder="Ingresa el código de barras">
+            </div>
+            <button type="submit" class="btn btn-primary" [disabled]="formVenta.invalid">
+                Agregar
+            </button> 
+        </form>
+           
+        <button class="btn btn-warning" (click)="setScannerStatus()">
+            {{scannerBtnLabel}}
+        </button>
+        
+        <div [class]="messageClass" [hidden]="isHidden">
+            {{ label_productoAdded }}
+        </div>
+    
+    </div>
+</div>
+
+<app-lista-venta></app-lista-venta>
+
+<div>
+    <zxing-scanner [formats]="this.allowedFormats" 
+        [enable]="isScannerEnabled"
+        (scanSuccess)="onCodeResult($event)">
+    </zxing-scanner>
+</div>
