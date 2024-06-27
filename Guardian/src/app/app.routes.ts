@@ -2,10 +2,12 @@ import { Routes } from '@angular/router';
 import { ScannerComponent } from './scanner/scanner.component';
 import { LoginComponent } from './login/login.component';
 import { AuthGuard } from './shared/auth-guard.guard';
+import { ProductManagementComponent } from './admin/product-management/product-management.component';
 
 export const routes: Routes = [
-    {path: '', redirectTo: '/login', pathMatch: 'full'},
-    {path: 'login', component: LoginComponent},
+    {path: '', redirectTo: '/login', pathMatch: 'full' },
+    {path: 'login', component: LoginComponent },
     //{path: 'main', component: ScannerComponent}
-    {path: 'main', component: ScannerComponent, canActivate: [AuthGuard]}
+    { path: 'productos', component: ProductManagementComponent, canActivate: [AuthGuard] },
+    { path: 'main', component: ScannerComponent, canActivate: [AuthGuard] }
 ];

@@ -28,7 +28,12 @@ namespace UsaloYa.API.Controllers
                     return BadRequest(new { Message = "$_InvalidCompanyOrProduct" });
                 }
                 keyword = keyword.Trim();
-                var products = await _dBContext.Products
+                var products = string.Equals(keyword, "-1", StringComparison.OrdinalIgnoreCase)
+                    ? await _dBContext.Products
+                    .Where(p => p.CompanyId == companyId).Take(50)
+                    .ToListAsync()
+
+                    : await _dBContext.Products
                     .Where(p => p.CompanyId == companyId &&
                                 (p.Name.Contains(keyword) || keyword.Contains(p.Name)
                                     || p.Description != null && p.Description.Contains(keyword)

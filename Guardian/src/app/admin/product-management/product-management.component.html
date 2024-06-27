@@ -1,1 +1,86 @@
-<p>product-management works!</p>
+<div class="container mt-5">
+    <div class="row">
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body">
+            <h3 class="card-title">Buscar Productos</h3>
+            <div class="input-group mb-3">
+              <input type="text" class="form-control" placeholder="Buscar..." (input)="searchProducts($event)">
+              <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button">Buscar</button>
+              </div>
+            </div>
+            <ul class="list-group mt-3">
+              <li *ngFor="let product of products" class="list-group-item list-group-item-action" (click)="selectProduct(product.productId)">
+                {{ product.name }}
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-8">
+        <div class="card">
+          <div class="card-body">
+            <h3 class="card-title">Detalles del Producto</h3>
+            <form [formGroup]="productForm">
+              <div class="form-group">
+                <label for="name">Nombre</label>
+                <input id="name" type="text" class="form-control" formControlName="name">
+                <div *ngIf="productForm.get('name')?.invalid && productForm.get('name')?.touched" class="text-danger">
+                  Nombre es obligatorio.
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="description">Descripción</label>
+                <textarea id="description" class="form-control" formControlName="description"></textarea>
+                <div *ngIf="productForm.get('description')?.invalid && productForm.get('description')?.touched" class="text-danger">
+                  Descripción es obligatorio.
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="unitPrice">Precio Unitario</label>
+                <input id="unitPrice" type="number" class="form-control" formControlName="unitPrice">
+              </div>
+              <div class="form-group">
+                <label for="unitsInStock">Unidades en Stock</label>
+                <input id="unitsInStock" type="number" class="form-control" formControlName="unitsInStock">
+                <div *ngIf="productForm.get('unitsInStock')?.invalid && productForm.get('unitsInStock')?.touched" class="text-danger">
+                  Unidades en Stock es obligatorio.
+                </div>
+              </div>
+              <div class="form-check mb-3">
+                <input id="discontinued" type="checkbox" class="form-check-input" formControlName="discontinued">
+                <label for="discontinued" class="form-check-label">Descontinuado</label>
+                <div *ngIf="productForm.get('discontinued')?.invalid && productForm.get('discontinued')?.touched" class="text-danger">
+                  Descontinuado es obligatorio.
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="barcode">Código de Barras</label>
+                <input id="barcode" type="text" class="form-control" formControlName="barcode">
+                <div *ngIf="productForm.get('barcode')?.invalid && productForm.get('barcode')?.touched" class="text-danger">
+                  Código de Barras es obligatorio.
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="companyId">ID de la Compañía</label>
+                <input id="companyId" type="number" class="form-control" formControlName="companyId">
+                <div *ngIf="productForm.get('companyId')?.invalid && productForm.get('companyId')?.touched" class="text-danger">
+                  ID de la Compañía es obligatorio.
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="imgUrl">URL de Imagen</label>
+                <input id="imgUrl" type="text" class="form-control" formControlName="imgUrl">
+              </div>
+              <div class="d-flex justify-content-end">
+                <button type="button" class="btn btn-secondary mr-2" (click)="newProduct()">Nuevo</button>
+                <button type="button" class="btn btn-primary" (click)="saveProduct()">Guardar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  

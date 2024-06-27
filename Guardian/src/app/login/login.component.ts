@@ -2,9 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { NgIf } from '@angular/common';
-import { AuthServiceService } from '../services/authorization.service';
+import { AuthorizationService } from '../services/authorization.service';
 import { Router, RouterModule } from '@angular/router';
-import { UserService } from '../services/user.service';
+import { UserStateService } from '../services/userState.service';
+import { NavigationService } from '../services/navigation.service';
+import { userStateDto } from '../dto/userDto';
+import { catchError, of, switchMap } from 'rxjs';
 
 
 @Component({
@@ -19,8 +22,9 @@ export class LoginComponent implements OnInit {
 
   constructor(private fb: FormBuilder, 
     private router: Router,
-    private authService: AuthServiceService,
-    private userService: UserService
+    private authService: AuthorizationService,
+    private userService: UserStateService,
+    private navigation: NavigationService
   ) {
     this.loginForm = this.fb.group({
       username: ['', Validators.required],
@@ -31,34 +35,37 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {}
 
   onSubmit(): void {
-    
     if (this.loginForm.valid) {
       const loginData = this.loginForm.value;
-      let isLoggedIn = this.authService.login(loginData).subscribe({
-        next: (loginResults) => {
-          console.log('user:' + isLoggedIn);
-        },
-        complete: () =>
-        {
-          try
-          {
-            this.userService.getUser();
-            this.router.navigate(['/main'])
-          }
-          catch(e)
-          {
-            console.error(e);
-          }
-        },
-        error: (e) => 
-        {
+
+      this.authService.login(loginData).pipe(
+        switchMap((loginResults) => {
+          return this.userService.loadUser(loginResults);
+        }),
+        catchError((e) => {
+          this.navigation.showUIMessage(e.message);
           console.error('login() | ' + e);
+          return of(null); // Retornamos un observable nulo para continuar el flujo
+        })
+      ).subscribe({
+        next: (userResults: userStateDto | null) => {
+          if (userResults) {
+            this.userService.setUserState(userResults);
+          }
+        },
+        complete: () => 
+        {
+          this.router.navigate(['/main']); 
+        },
+        error: (e) => {
+          // Este error es para cualquier error en la cadena de observables
+          this.navigation.showUIMessage(e);
+          console.error(e);
         }
       });
+    } else {
+      this.navigation.showUIMessage('Formulario inválido');
     }
-    else
-    {
-      console.log('Form invalido');
-    }    
   }
+  
 }

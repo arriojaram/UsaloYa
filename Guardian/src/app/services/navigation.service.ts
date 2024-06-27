@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../environments/enviroment';
+import {  MatSnackBar, MatSnackBarConfig  } from '@angular/material/snack-bar'
+import { userStateDto } from '../dto/userDto';
 
 @Injectable({
   providedIn: 'root'
@@ -7,10 +9,12 @@ import { environment } from '../environments/enviroment';
 export class NavigationService {
   
   apiBaseUrl: string = '';
-  userId: number = 0;
-  userName: string = '';
+  userState?: userStateDto = undefined;
 
-  constructor() {
+  constructor(
+    private _snackBar: MatSnackBar
+  ) 
+  {
     this.apiBaseUrl = environment.apiUrlBase;
     if(this.apiBaseUrl.endsWith('/'))
     {
@@ -18,9 +22,40 @@ export class NavigationService {
     }
   }
 
-  updateUserInfo()
+  setItemWithExpiry(key: string, value: string): void {
+    const now = new Date();
+    const item = {
+        value: value,
+        expiry: now.getTime() + (environment.sessionDurationMinutes * 60 * 1000) // as miliseconds
+    };
+
+    localStorage.setItem(key, JSON.stringify(item));
+  }
+
+  getItemWithExpiry(key: string): string | null {
+    const itemStr = localStorage.getItem(key);
+
+    if (!itemStr) {
+        return null;
+    }
+
+    const item = JSON.parse(itemStr);
+    const now = new Date();
+
+    if (now.getTime() > item.expiry) {
+        // El ítem ha expirado, removemos del localStorage
+        localStorage.removeItem(key);
+        return null;
+    }
+
+    return item.value;
+  }
+
+  showUIMessage(message: string)
   {
-    this.userName = localStorage.getItem('username')?? "";
-    this.userId = Number(localStorage.getItem('userid')?? 0);
+    this._snackBar.open(message, 'X', {
+      duration: 3000
+      //panelClass: ["custom-snackbar"]
+    });
   }
 }

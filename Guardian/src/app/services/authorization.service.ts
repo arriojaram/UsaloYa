@@ -8,7 +8,7 @@ import { NavigationService } from './navigation.service';
 @Injectable({
   providedIn: 'root'
 })
-export class AuthServiceService {
+export class AuthorizationService {
 
   constructor(
     private http: HttpClient,
@@ -26,19 +26,13 @@ export class AuthServiceService {
 
     return this.http.post<any>(url, data, httpOptions).pipe(
       map(response => { 
-        
-        const parsedObject = JSON.parse(JSON.stringify(data));
-        const username = parsedObject.username;
-
-        localStorage.setItem('isAuthenticated', 'true');  
-        localStorage.setItem('username', username);
-        localStorage.setItem('userid', response);
-        
+        this.navigation.setItemWithExpiry('isAuthenticated', 'true'); 
+        return response; 
       }), 
       catchError(error => {
         this.clearStorageVariables();
         console.error('login() | ', error);
-        return error;
+        throw error;
       })
     ); 
   }
@@ -49,13 +43,21 @@ export class AuthServiceService {
   }
 
   checkAuthentication(): boolean {
-    return localStorage.getItem('isAuthenticated') === 'true';
+    let authenticationValue = this.navigation.getItemWithExpiry('isAuthenticated');
+    let isAuthenticated = false;
+
+    if(authenticationValue)
+      isAuthenticated = this.navigation.getItemWithExpiry('isAuthenticated') === 'true';
+    
+    if(!isAuthenticated)
+      this.navigation.showUIMessage("Sesión expirada, vuelve a iniciar sesión en la aplicación.");
+    
+    return isAuthenticated;
   }
 
   clearStorageVariables()
   {
     localStorage.removeItem('isAuthenticated');  
-    localStorage.removeItem('username');
-    localStorage.removeItem('userid');
+    localStorage.removeItem('userState');
   }
 }
