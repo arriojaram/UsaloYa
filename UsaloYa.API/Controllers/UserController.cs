@@ -87,7 +87,7 @@ namespace UsaloYa.API.Controllers
             try
             {
                
-                var user = await _dBContext.Users.FirstOrDefaultAsync(u => u.UserId == token.UserId);
+                var user = await _dBContext.Users.FirstOrDefaultAsync(u => u.UserName == token.UserName);
                 if (user == null)
                     return NotFound();
 
@@ -163,9 +163,9 @@ namespace UsaloYa.API.Controllers
                 .FirstOrDefaultAsync(u => u.UserName == token.UserName && u.Token == encryptedPassword);
 
             if (user == null) 
-                return Unauthorized();
+                return Unauthorized("Usuario o contraseña invalidos");
 
-            return Ok(new { Message = "Validation successful" });
+            return Ok(user.UserId);
         }
     }
 }
