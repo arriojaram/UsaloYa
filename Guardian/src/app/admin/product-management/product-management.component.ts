@@ -19,6 +19,7 @@ export class ProductManagementComponent implements OnInit {
   products: Producto[] = [];
   selectedProduct: Producto | null = null;
   userState: userStateDto;
+  isSearchPanelHidden = false;
 
   constructor(
     private fb: FormBuilder, 
@@ -77,11 +78,23 @@ export class ProductManagementComponent implements OnInit {
   }
 
   saveProduct(): void {
+    if (this.productForm.invalid) {
+      this.productForm.markAllAsTouched();
+      return;
+    }
     if (this.productForm.valid) {
       const product: Producto = this.productForm.value;
-      this.productService.saveProduct(this.userState.companyId, product).subscribe(savedProduct => {
-        this.searchProductsInternal('-1');
-        this.selectProduct(savedProduct.productId);
+      product.companyId = this.userState.companyId;
+      
+      this.productService.saveProduct(this.userState.companyId, product).subscribe({
+        next: (savedProduct) => {
+          this.searchProductsInternal('-1');
+          this.selectProduct(savedProduct.productId);
+        },
+        error: (e) => 
+        {
+          this.navigationService.showUIMessage(e.error.message);
+        }
       });
     } else {
       this.navigationService.showUIMessage('Proporciona toda la información requerida');
@@ -92,5 +105,14 @@ export class ProductManagementComponent implements OnInit {
     this.selectedProduct = null;
     this.productForm.reset();
     this.productForm.patchValue({ productId: 0, companyId: this.userState.companyId, unitsInStock: 0, discontinued: false });
+  }
+
+  toggleSearchPanel(): void {
+    this.isSearchPanelHidden = !this.isSearchPanelHidden;
+  }
+
+  isFieldInvalid(field: string): boolean {
+    const control = this.productForm.get(field);
+    return control ? control.invalid && control.touched : false;
   }
 }

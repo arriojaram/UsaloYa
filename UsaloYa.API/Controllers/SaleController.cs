@@ -26,7 +26,7 @@ namespace UsaloYa.API.Controllers
             {
                 if (sale.Equals(default(SaleDto)) || sale.CompanyId == 0)
                 {
-                    return BadRequest(new { Message = "$_InvalidCompanyOrSale" });
+                    return BadRequest(new { Message = "$_EmpresaOventaInvalida" });
                 }
 
                 var newSale = new Sale() 
@@ -53,7 +53,7 @@ namespace UsaloYa.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "AddSale.ApiError");
-                return StatusCode(500, new { message = "$_SeeEventLog" });
+                return StatusCode(500, new { message = "$_ExcepcionOcurrida" });
             }
         }
 
@@ -93,7 +93,7 @@ namespace UsaloYa.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "AddSaleDetails.ApiError");
-                return StatusCode(500, new { message = "$_SeeEventLog" });
+                return StatusCode(500, new { message = "$_ExcepcionOcurrida" });
             }
         }
 
@@ -118,7 +118,7 @@ namespace UsaloYa.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "UpdateTotalSale.ApiError");
-                return StatusCode(500, new { message = "$_SeeEventLog" });
+                return StatusCode(500, new { message = "$_ExcepcionOcurrida" });
             }
         }
     }

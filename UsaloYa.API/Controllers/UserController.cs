@@ -36,7 +36,7 @@ namespace UsaloYa.API.Controllers
                 {
                     var existingUser = await _dBContext.Users.AnyAsync(u => u.UserName == userDto.UserName);
                     if (existingUser)
-                        return Conflict(new { message = "$_DuplicatedUserName" });
+                        return Conflict(new { message = "$_NombreDeUsuarioDuplicado" });
 
                     var user = new User
                     {
@@ -77,7 +77,7 @@ namespace UsaloYa.API.Controllers
                 _logger.LogError(ex, "SaveUser.ApiError");
 
                 // Return a 500 Internal Server Error with a custom message
-                return StatusCode(500, new { message = "$_SeeEventLog" });
+                return StatusCode(500, new { message = "$_ExcepcionOcurrida" });
             }
         }
 
@@ -102,7 +102,7 @@ namespace UsaloYa.API.Controllers
                 _logger.LogError(ex, "SetToken.ApiError");
 
                 // Return a 500 Internal Server Error with a custom message
-                return StatusCode(500, new { message = "$_SeeEventLog" });
+                return StatusCode(500, new { message = "$_ExcepcionOcurrida" });
             }
         }
 

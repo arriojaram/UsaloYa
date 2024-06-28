@@ -25,7 +25,7 @@ namespace UsaloYa.API.Controllers
             {
                 if (string.IsNullOrEmpty(keyword) || companyId <= 0)
                 {
-                    return BadRequest(new { Message = "$_InvalidCompanyOrProduct" });
+                    return BadRequest(new { Message = "$_EmpresaOProductoInvalido" });
                 }
                 keyword = keyword.Trim();
                 var products = string.Equals(keyword, "-1", StringComparison.OrdinalIgnoreCase)
@@ -50,7 +50,7 @@ namespace UsaloYa.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "SearchProduct.ApiError");
-                return StatusCode(500, new { message = "$_SeeEventLog" });
+                return StatusCode(500, new { message = "$_ExcepcionOcurrida" });
             }
         }
 
@@ -61,7 +61,7 @@ namespace UsaloYa.API.Controllers
             {
                 if (productId <= 0 || companyId <= 0)
                 {
-                    return BadRequest(new { Message = "$_InvalidCompanyOrProduct" });
+                    return BadRequest(new { Message = "$_EmpresaOProductoInvalido" });
                 }
 
                 var product = await _dBContext.Products.FirstOrDefaultAsync(p => p.ProductId == productId && p.CompanyId == companyId);
@@ -76,7 +76,7 @@ namespace UsaloYa.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "GetProduct.ApiError");
-                return StatusCode(500, new { message = "$_SeeEventLog" });
+                return StatusCode(500, new { message = "$_ExcepcionOcurrida" });
             }
         }
 
@@ -88,7 +88,7 @@ namespace UsaloYa.API.Controllers
             {
                 if (productDto.Equals(default(ProductDto)) || companyId <= 0)
                 {
-                    return BadRequest(new { Message = "$_InvalidCompanyOrProduct" });
+                    return BadRequest(new { Message = "$_EmpresaOProductoInvalido" });
                 }
 
                 var existingProduct = await _dBContext.Products
@@ -100,7 +100,7 @@ namespace UsaloYa.API.Controllers
 
                 if (productWithSameBarcodeAndSku != null && productWithSameBarcodeAndSku.ProductId != productDto.ProductId)
                 {
-                    return Conflict(new { Message = "$_ProductWithSameBarcodeAndSkuExists" });
+                    return Conflict(new { Message = "$_ProductoConMismoCodigoDeBarrasYaExiste" });
                 }
 
                 if (existingProduct == null && productDto.ProductId == 0)
@@ -152,7 +152,7 @@ namespace UsaloYa.API.Controllers
                 }
                 else
                 {
-                    return NotFound("$_InvalidCompanyOrProduct");
+                    return NotFound("$_EmpresaOProductoInvalido");
                 }
                 await _dBContext.SaveChangesAsync();
                 return Ok(existingProduct);
@@ -160,7 +160,7 @@ namespace UsaloYa.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "AddProduct.ApiError");
-                return StatusCode(500, new { message = "$_SeeEventLog" });
+                return StatusCode(500, new { message = "$_ExcepcionOcurrida" });
             }
         }
 
