@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core"; 
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
-import { VentaService } from "../services/venta.service";  
+import { SaleService } from "../services/sale.service";  
 import { CommonModule } from "@angular/common"; 
 import { ZXingScannerModule } from "@zxing/ngx-scanner";
 import { BarcodeFormat } from "@zxing/library";
@@ -16,7 +16,7 @@ import { ListaVentaComponent } from "../lista-venta/lista-venta.component";
 
 export class ScannerComponent implements OnInit {
 
-    constructor(public ventasService: VentaService) 
+    constructor(public ventasService: SaleService) 
     {
         this.allowedFormats = [  BarcodeFormat.CODE_128,
             BarcodeFormat.DATA_MATRIX,
@@ -44,7 +44,7 @@ export class ScannerComponent implements OnInit {
     
     onCodeResult(resultString: string) {
         this.codigo.setValue(resultString);
-        this.procesar();
+        this.addProductToSaleList();
     }
    
     setScannerStatus()
@@ -61,10 +61,8 @@ export class ScannerComponent implements OnInit {
         return this.formVenta.get('codigo') as FormControl;
     }
 
-    procesar()
+    addProductToSaleList()
     {
-        // TODO get this information from a WS
-        
         var isAdded = this.ventasService.addProduct(this.codigo.value);
         this.isHidden = false;
 

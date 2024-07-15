@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
-import { VentaService } from '../services/venta.service';
+import { SaleService } from '../services/sale.service';
 import { CommonModule } from '@angular/common';
-import { DbService } from '../services/db.service';
-import { Producto } from '../dto/producto';
+import { OfflineDbStore } from '../services/offline-db-store.service';
 
 @Component({
   selector: 'app-lista-venta',
@@ -12,7 +11,10 @@ import { Producto } from '../dto/producto';
   styleUrl: './lista-venta.component.css'
 })
 export class ListaVentaComponent {
-  constructor(public ventaService: VentaService, public dbService: DbService)
+  constructor(
+    public ventaService: SaleService,
+    public offlineDbStore: OfflineDbStore
+  )
   {
     this.isHidden = true;
   }
@@ -24,7 +26,7 @@ export class ListaVentaComponent {
   canFinishSale()
   {
     var terminarVenta = false;
-    if(this.ventaService.ventaProductos.length > 0)
+    if(this.ventaService.saleProducts.length > 0)
       terminarVenta = true;
     
     return !terminarVenta;
@@ -32,34 +34,32 @@ export class ListaVentaComponent {
   
   async finalizarVenta()
   {
-    const newProduct = this.ventaService.ventaProductos[0];
-
     this.isHidden = false;
          
-    this.ventaService.saveVenta(newProduct).subscribe(
+    this.ventaService.finishSale().subscribe(
       {
         next: (response) => 
         {
           this.message = `Venta registrada: ${JSON.stringify(response)}`;
           this.messageClass = "alert  alert-success mt-2";
-          this.ventaService.ventaProductos = [];
+          this.ventaService.saleProducts = [];
         },
         error: async (error) => {
           this.messageClass = "alert  alert-warning mt-2";
           
           try {
-            const id = await this.dbService.addProduct(newProduct);
+            const id = await this.offlineDbStore.AddSale(this.ventaService.getCurrentSale());
             console.log('Added product with id:', id);
-            this.message = `Venta registrada: ${JSON.stringify(error)}`;
+            this.message = `Venta registrada temporalmente: ${JSON.stringify(error)}`;
           } catch (error) {
             console.error('Error adding product:', error);
           }
         }
     });
-    this.ventaService.ventaProductos = [];
+    this.ventaService.saleProducts = [];
     setTimeout(() => {
       this.isHidden = true; // Oculta el div después de X segundos
-  }, 5000);
+  }, 15000);
   }
 
 }

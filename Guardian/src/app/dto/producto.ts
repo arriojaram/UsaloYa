@@ -2,9 +2,9 @@ export interface Producto {
   productId: number;
   name: string;
   description: string;
-  categoryId?: number;
-  supplierId?: number;
-  unitPrice?: number;
+  categoryId: number;
+  supplierId: number;
+  unitPrice: number;
   unitsInStock: number;
   discontinued: boolean;
   imgUrl: string;

@@ -30,7 +30,7 @@ namespace UsaloYa.API.Controllers
                 keyword = keyword.Trim();
                 var products = string.Equals(keyword, "-1", StringComparison.OrdinalIgnoreCase)
                     ? await _dBContext.Products
-                    .Where(p => p.CompanyId == companyId).Take(50)
+                    .Where(p => p.CompanyId == companyId).Take(500)
                     .ToListAsync()
 
                     : await _dBContext.Products

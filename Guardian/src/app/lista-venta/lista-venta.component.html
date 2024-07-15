@@ -2,20 +2,20 @@
     <table class="table">
       <thead>
         <tr>
-          <th>Cantidad</th>
           <th>Código</th>
           <th>Nombre</th>
+          <th>Descripción</th>
           <th>Precio</th>
           <th>Total</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let producto of ventaService.ventaProductos">
+        <tr *ngFor="let producto of ventaService.saleProducts">
           <td>{{ producto.barcode }}</td>
-          <td>{{ producto.barcode }}</td>
-          <td>{{ producto.barcode }}</td>
-          <td>{{ producto.barcode | currency }}</td>
-          <td>{{ producto.barcode | currency }}</td>
+          <td>{{ producto.name }}</td>
+          <td>{{ producto.description }}</td>
+          <td>{{ producto.unitPrice | currency }}</td>
+          <td>{{ producto.unitPrice | currency }}</td>
         </tr>
       </tbody>
     </table>
