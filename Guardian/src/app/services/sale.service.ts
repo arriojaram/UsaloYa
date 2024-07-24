@@ -1,23 +1,25 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, catchError } from 'rxjs';
+import { Observable, catchError, from } from 'rxjs';
 import { Producto } from '../dto/producto';
 import { ProductService } from './product.service';
 import { UserStateService } from './userState.service';
-import { userStateDto } from '../dto/userDto';
 import { NavigationService } from './navigation.service';
 import { environment } from '../environments/enviroment';
 import { Sale, SaleDetail } from '../dto/sale';
+import Dexie from 'dexie';
 
 @Injectable({
   providedIn: 'root'
 })
-export class SaleService {
+export class SaleService extends Dexie {
+  productCatalogTable: Dexie.Table<Producto, number>;
+  migrationsTable: Dexie.Table<Date, number>;
 
-  userState: userStateDto;
   private baseUrl = environment.apiUrlBase + '/api/Sale';
   private httpOptions;
   private currentSale: Sale;
+
   constructor(
     private httpClient: HttpClient,
     private productService: ProductService,
@@ -25,15 +27,26 @@ export class SaleService {
     private navigationService: NavigationService
   ) 
   {
+    super('catalog' +  environment.databaseName);
+    this.version(environment.databaseVersion).stores({
+      productCatalogTable: 'productId, name, description, barcode, companyId',
+      migrationsTable: '++id, migrationDate'
+  });
+
+  // Create relationships
+  this.productCatalogTable = this.table('productCatalogTable');
+  this.migrationsTable = this.table('migrationsTable');
+
     this.currentSale = {
-      SaleId: 0,
-      CustomerId: 0,
-      PaymentMethod: '',
-      CompanyId: 0,
-      Tax: 0,
-      Notes: '',
-      UserId: 0,
-      SaleDetailsList: []
+      id: 0,
+      saleId: 0,
+      customerId: 0,
+      paymentMethod: '',
+      companyId: 0,
+      tax: 0,
+      notes: '',
+      userId: 0,
+      saleDetailsList: []
     };
 
     this.httpOptions = {
@@ -42,26 +55,39 @@ export class SaleService {
       })
     };
     
-    this.userState = userService.getUserState();
-    this.cacheProductCatalog();
   }
 
   ngOnInit():void{}
 
   saleProducts: Producto [] = []
-  productCatalog: any [] = []
+  productCatalog: Producto[] | any[] = []
 
   getCurrentSale(): Sale
   {
     return this.currentSale;
   }
 
-  addProduct(barcode: string)
+ 
+  async addProduct(barcode: string, companyId: number)
   {
-    const productForSale: Producto = this.productCatalog.find(
-      p => p.barcode == barcode
-              && p.companyId == this.userState.companyId
-    );
+    let productForSale: any = undefined;
+    console.log('longitud: ' + this.productCatalog.length);
+    if(this.productCatalog.length == 0)
+    {
+      console.log('Buscar producto offline');
+      const cachedProduct = await this.productCatalogTable.where('barcode').equals(barcode.toString()).toArray();
+      if(cachedProduct && cachedProduct.length > 0)
+      {
+        productForSale = cachedProduct[0];
+      }
+    }
+    else
+    {
+      productForSale = this.productCatalog.find(
+        p => p.barcode == barcode
+                && p.companyId == companyId
+      );
+    }
 
     if(productForSale === undefined)
     {
@@ -70,12 +96,13 @@ export class SaleService {
     }
     else
     {
+      console.log(productForSale);
       this.saleProducts.push(productForSale);
       return true;
     }
   }
   
-  private buildSale(): Sale
+  private buildSale(userId: number, companyId: number): Sale
   {
     let saleDetail: SaleDetail[] = new Array(this.saleProducts.length-1);
     for (let index = 0; index < this.saleProducts.length; index++) {
@@ -85,23 +112,24 @@ export class SaleService {
     }
 
     const sale: Sale = {
-      SaleId: 0,
-      CustomerId: 0,
-      PaymentMethod: "Efectivo",
-      Tax: 0.00,
-      Notes: "",
-      UserId: this.userState.userId,
-      CompanyId: this.userState.companyId,
-      SaleDetailsList: saleDetail
+      id: 0,
+      saleId: 0,
+      customerId: 0,
+      paymentMethod: "Efectivo",
+      tax: 0.00,
+      notes: "",
+      userId: userId,
+      companyId: companyId,
+      saleDetailsList: saleDetail
     };
 
     this.currentSale = sale;
     return sale;
   }
 
-   finishSale(): Observable<Sale> {
+   finishSale(userId: number, companyId: number): Observable<Sale> {
     const apiUrl = `${this.baseUrl}/AddSale`;
-    const sale = this.buildSale();
+    const sale = this.buildSale(userId, companyId);
     return this.httpClient.post<Sale>(apiUrl, sale, this.httpOptions).pipe(
       catchError(error => {
         console.error('finishSale() | ', error);
@@ -120,17 +148,25 @@ export class SaleService {
     );
   }
 
-  private cacheProductCatalog()
+  public cacheProductCatalog(companyId: number)
   {
-    this.productService.searchProducts(this.userState.companyId, "-1").subscribe({
-      next: (products) => {
+    console.log("Cached Catalog");
+    this.productService.searchProducts(companyId, "-1").subscribe({
+      next: async (products: Producto[]) => {
         this.productCatalog = products;
+        
+        // Remove any existing record
+        this.productCatalogTable.clear();
+        // Update products variable
+        await this.transaction('rw', this.productCatalogTable, async () => {
+          await this.productCatalogTable.bulkAdd(products);
+        })
       },
       complete: () => {
         
       },
       error:(err) => {
-        this.navigationService.showUIMessage(err);
+        this.navigationService.showUIMessage(err.message);
       },
     });
   }

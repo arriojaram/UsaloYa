@@ -1,78 +1,41 @@
 import { Injectable } from '@angular/core';
 import Dexie from 'dexie';
-import { Sale, SaleDetail } from '../dto/sale';
-import { from, mergeMap } from 'rxjs';
-import { SaleService } from './sale.service';
+import { from, Observable, tap } from 'rxjs';
+import { Sale } from '../dto/sale';
+import { environment } from '../environments/enviroment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class OfflineDbStore extends Dexie {
   sales: Dexie.Table<Sale, number>;
-  
-  constructor(
-    public saleService: SaleService
-  ) 
-  {
-    super('salesDbOfflinev1');
 
-    this.version(1).stores({
-        sales: '++id, sale'
+  constructor() {
+    super('sales' + environment.databaseName);
+    this.version(environment.databaseVersion).stores({
+      sales: '++id'
     });
-
-    // Create relationships
     this.sales = this.table('sales');
-    
-  
-    // Abre la base de datos.
-    this.open().catch((err) => {
-      console.error(`Open failed: ${err.stack}`);
-    });
   }
 
-  async AddSale(sale: Sale): Promise<number> {
-    const saleId = await this.transaction('rw', this.sales, async () => {
-        const id = await this.sales.add(sale);
-        return id;
-    });
-    return saleId;
+  AddSale(sale: Sale): Observable<number> {
+    return from(this.transaction('rw', this.sales, () => {
+      return this.sales.add(sale);
+    }));
   }
 
-  async DeleteSale(saleId: number): Promise<void> {
-      await this.transaction('rw', this.sales, async () => {
-          await this.sales.delete(saleId);
-      });
+  DeleteSale(id: number): Observable<void> {
+    console.log("Delete record-id: " + id);
+    return from(this.transaction('rw', this.sales, () => {
+      return this.sales.delete(id);
+    }));
   }
 
-  async GetSale(saleId: number): Promise<Sale | undefined> {
-      const sale = await this.sales.where({ id: saleId }).first();
-     
-      return sale;
+  GetSale(saleId: number): Observable<Sale | undefined> {
+    return from(this.sales.where({ id: saleId }).first());
   }
 
-  async GetSales(): Promise<Sale[]> {
-      const sales = await this.sales.toArray();
-     
-      return sales;
-  }
-
-  public migrateSales() {
-    from(this.GetSales()).pipe(
-      mergeMap(sales => from(sales)),
-      mergeMap(sale =>
-        this.saleService.completeTemporalSale(sale).pipe(
-          mergeMap(response => {
-            if (response && response.SaleId) {
-              return from(this.DeleteSale(response.SaleId));
-            } else {
-              throw new Error('Sale migration failed: No response SaleId');
-            }
-          })
-        )
-      )
-    ).subscribe(
-      () => console.log('Migration successful for a sale.'),
-      error => console.error('Error in migrating sales:', error)
-    );
+  GetSales(): Observable<Sale[]> {
+    return from(this.sales.toArray()).pipe();
   }
 }

@@ -5,6 +5,7 @@ import { CommonModule } from "@angular/common";
 import { ZXingScannerModule } from "@zxing/ngx-scanner";
 import { BarcodeFormat } from "@zxing/library";
 import { ListaVentaComponent } from "../lista-venta/lista-venta.component";
+import { UserStateService } from "../services/userState.service";
 
 @Component({
     selector: 'app-scanner',
@@ -16,18 +17,24 @@ import { ListaVentaComponent } from "../lista-venta/lista-venta.component";
 
 export class ScannerComponent implements OnInit {
 
-    constructor(public ventasService: SaleService) 
+    constructor(
+        public ventasService: SaleService,
+        private userState: UserStateService
+    ) 
     {
         this.allowedFormats = [  BarcodeFormat.CODE_128,
             BarcodeFormat.DATA_MATRIX,
             BarcodeFormat.EAN_13,]    
 
-            this.scannerBtnLabel = "Abrir escaner";
-            this.isScannerEnabled = false;
+        this.scannerBtnLabel = "Abrir escaner";
+        this.isScannerEnabled = false;  
+        this.isHidden = true;
+        const companyId = this.userState.getUserState().companyId;
+        this.ventasService.cacheProductCatalog(companyId);
     }
 
     ngOnInit(): void {
-        this.isHidden = true;
+      
     }    
 
     isScannerEnabled: boolean;
@@ -61,9 +68,9 @@ export class ScannerComponent implements OnInit {
         return this.formVenta.get('codigo') as FormControl;
     }
 
-    addProductToSaleList()
+    async addProductToSaleList()
     {
-        var isAdded = this.ventasService.addProduct(this.codigo.value);
+        var isAdded = await this.ventasService.addProduct(this.codigo.value, this.userState.getUserState().companyId);
         this.isHidden = false;
 
         if(isAdded)

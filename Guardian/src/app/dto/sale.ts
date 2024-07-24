@@ -7,12 +7,13 @@ export interface SaleDetail {
 }
   
 export interface Sale {
-    SaleId: number,
-    CustomerId: number;
-    PaymentMethod: string;
-    Tax: number;
-    Notes: string;
-    UserId: number;
-    CompanyId: number;
-    SaleDetailsList: SaleDetail[];
+    id: number, /*Used for internal offline management */
+    saleId: number,
+    customerId: number;
+    paymentMethod: string;
+    tax: number;
+    notes: string;
+    userId: number;
+    companyId: number;
+    saleDetailsList: SaleDetail[];
 }
