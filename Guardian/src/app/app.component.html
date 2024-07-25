@@ -1,3 +1,70 @@
-<h1>Guardian - {{ this.status }} </h1>
-<mat-spinner *ngIf="loading_i$ | async" class="loading-spinner"></mat-spinner>
-<router-outlet></router-outlet>
+
+
+
+<nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
+    <!-- Navbar Brand-->
+    <a class="navbar-brand ps-3" href="main">
+        Guardian - {{ this.status }} 
+    </a>
+    <!-- Sidebar Toggle-->
+    <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
+    
+    <div class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0"></div>
+    
+    <div class="px-4">
+        <a class="" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="true">
+            Salir
+        </a>
+    </div>    
+            
+    
+</nav>
+<div id="layoutSidenav">
+    <div id="layoutSidenav_nav">
+        <nav class="sb-sidenav accordion sb-sidenav-light" id="sidenavAccordion">
+            <div class="sb-sidenav-menu">
+                <div class="nav">
+                    <div class="sb-sidenav-menu-heading">Accesos</div>
+                    <a class="nav-link" href="main">
+                        <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                        Punto de Venta
+                    </a>
+                    <a class="nav-link" href="productos">
+                        <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                        Productos
+                    </a>
+                </div>
+            </div>
+            <div class="sb-sidenav-footer">
+                <div class="small">Has entrado como:</div>
+                <i class="fas fa-user fa-fw"></i> Usuario 1
+            </div>
+        </nav>
+    </div>
+    <div id="layoutSidenav_content">
+        <main>
+            <div class="container-fluid px-4">
+                <h1 class="mt-4"> PATH</h1>
+                
+                <div class="card-body">
+                    <mat-spinner *ngIf="loading_i$ | async" class="loading-spinner"></mat-spinner>
+                    <router-outlet></router-outlet>
+                </div>
+            
+                
+            </div>
+        </main>
+        <footer class="py-4 bg-light mt-auto">
+            <div class="container-fluid px-4">
+                <div class="d-flex align-items-center justify-content-between small">
+                    <div class="text-muted">Copyright &copy; Usalo-Ya 2024</div>
+                    <div>
+                        <a href="#">Política de Privacidad</a>
+                        &middot;
+                        <a href="#">Terminos &amp; Condiciones</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</div>
