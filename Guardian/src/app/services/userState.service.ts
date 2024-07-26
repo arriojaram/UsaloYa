@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnInit } from '@angular/core';
 import { NavigationService } from './navigation.service';
-import { Observable, catchError } from 'rxjs';
+import { BehaviorSubject, Observable, catchError } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../environments/enviroment';
 import { userStateDto } from '../dto/userDto';
@@ -11,6 +11,7 @@ import { AuthorizationService } from './authorization.service';
 })
 export class UserStateService {
   private httpOptions;
+
   constructor(
     private navigation: NavigationService,
     private http: HttpClient,
@@ -21,7 +22,7 @@ export class UserStateService {
       headers: new HttpHeaders({
         'Authorization': environment.apiToken
       })
-    };
+    };    
   }
 
   setUserState(userInfo: userStateDto)
@@ -40,7 +41,8 @@ export class UserStateService {
     else
     {
       console.error('No se puede cargar la información del usuario. Usuario no encontrado');
-      this.authorizationService.clearStorageVariables();
+      this.authorizationService.logout();
+
       throw new Error("Usuario invalido");
     }
   }

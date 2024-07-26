@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../environments/enviroment';
-import {  MatSnackBar, MatSnackBarConfig  } from '@angular/material/snack-bar'
+import {  MatSnackBar  } from '@angular/material/snack-bar'
 import { userStateDto } from '../dto/userDto';
+
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,7 @@ export class NavigationService {
   
   apiBaseUrl: string = '';
   userState?: userStateDto = undefined;
-
+  
   constructor(
     private _snackBar: MatSnackBar
   ) 

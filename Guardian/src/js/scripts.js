@@ -9,18 +9,27 @@
 
 window.addEventListener('DOMContentLoaded', event => {
 
-    // Toggle the side navigation
     const sidebarToggle = document.body.querySelector('#sidebarToggle');
     if (sidebarToggle) {
-        // Uncomment Below to persist sidebar toggle between refreshes
-        // if (localStorage.getItem('sb|sidebar-toggle') === 'true') {
-        //     document.body.classList.toggle('sb-sidenav-toggled');
-        // }
+        // Esta función verifica si la pantalla es de un tamaño pequeño
+        const isMobile = checkIfMobile();
+    
+        // Si es móvil, esconde la barra lateral al cargar la página
+        if (isMobile) {
+            document.body.classList.remove('sb-sidenav-toggled');
+        } 
+    
         sidebarToggle.addEventListener('click', event => {
             event.preventDefault();
             document.body.classList.toggle('sb-sidenav-toggled');
             localStorage.setItem('sb|sidebar-toggle', document.body.classList.contains('sb-sidenav-toggled'));
         });
     }
-
+    
+     // Función para determinar si la navegación es desde un dispositivo móvil
+     function checkIfMobile() {
+        if (navigator.userAgent.match(/iPhone/i)   || navigator.userAgent.match(/iPad/i)  || navigator.userAgent.match(/Android/i)) 
+            return true;
+        return false;
+    }
 });

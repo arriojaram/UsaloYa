@@ -23,6 +23,8 @@ public partial class User
 
     public bool? IsEnabled { get; set; }
 
+    public int StatusId { get; set; }
+
     public virtual Company Company { get; set; } = null!;
 
     public virtual Group Group { get; set; } = null!;

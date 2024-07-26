@@ -53,11 +53,8 @@ export class LoginComponent implements OnInit {
         next: (userResults: userStateDto | null) => {
           if (userResults) {
             this.userService.setUserState(userResults);
+            this.router.navigate(['/main']); 
           }
-        },
-        complete: () => 
-        {
-          this.router.navigate(['/main']); 
         },
         error: (e) => {
           // Este error es para cualquier error en la cadena de observables

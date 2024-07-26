@@ -1,23 +1,24 @@
 <div class="card">
     <div class="card-body">
-        <h3>Captura o escanea el código del producto</h3>
+        <h5>Punto de Venta - Captura o escanea el código del producto</h5>
 
-        <form [formGroup]="formVenta" (ngSubmit)="addProductToSaleList()">
+        <form [formGroup]="formVenta" (ngSubmit)="addProductToSaleList()" class="d-flex flex-column">
             <div class="mb-2 mt-4">
                 <label class="form-label">
-                    Código
+                    Código del producto
                 </label>
-                <input type="number" formControlName="codigo" class="form-control" placeholder="Ingresa el código de barras">
+                <input type="text" formControlName="codigo" class="form-control" placeholder="Ingresa el código de barras">
             </div>
-            <button type="submit" class="btn btn-primary" [disabled]="formVenta.invalid">
-                Agregar
-            </button> 
-        </form>
+            <div class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-warning" [disabled]="formVenta.invalid">
+                    Agregar a la venta
+                </button>
+                <button type="button" class="btn btn-primary" (click)="setScannerStatus()">
+                    {{scannerBtnLabel}}
+                </button>
+            </div>
+        </form>      
            
-        <button class="btn btn-warning" (click)="setScannerStatus()">
-            {{scannerBtnLabel}}
-        </button>
-        
         <div [class]="messageClass" [hidden]="isHidden">
             {{ label_productoAdded }}
         </div>

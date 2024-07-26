@@ -34,33 +34,40 @@ export class ListaVentaComponent {
     return !terminarVenta;
   }
   
-    async finalizarVenta()
-    {
-      this.isHidden = false;
-      let userState = this.userState.getUserState();
-      this.ventaService.finishSale(userState.userId, userState.companyId).subscribe(
+  resetListaVenta()
+  {
+    this.ventaService.saleProducts = [];
+    this.ventaService.saleProductsGrouped = [];
+  }
+  
+  async finalizarVenta()
+  {
+    this.isHidden = false;
+    let userState = this.userState.getUserState();
+    this.ventaService.finishSale(userState.userId, userState.companyId).subscribe(
+      {
+        next: (response) => 
         {
-          next: (response) => 
-          {
-            this.message = `Venta registrada: ${JSON.stringify(response)}`;
-            this.messageClass = "alert  alert-success mt-2";
-            this.ventaService.saleProducts = [];
-          },
-          error: async (error) => {
-            this.messageClass = "alert  alert-warning mt-2";
-            
-            try {
-              const id = await this.offlineDbStore.AddSale(this.ventaService.getCurrentSale());
-              this.message = `Venta registrada: ${id} (en proceso de sincronización)`;
-            } catch (error) {
-              console.error('Error adding product:', error);
-            }
+          this.message = `Venta registrada: ${JSON.stringify(response)}`;
+          this.messageClass = "alert  alert-success mt-2";
+          this.resetListaVenta();
+        },
+        error: async (error) => {
+          this.messageClass = "alert  alert-warning mt-2";
+          
+          try {
+            const id = await this.offlineDbStore.AddSale(this.ventaService.getCurrentSale());
+            this.message = `Venta registrada: ${id} (en proceso de sincronización)`;
+            this.resetListaVenta();
+          } catch (error) {
+            console.error('Error adding product:', error);
           }
-      });
-      this.ventaService.saleProducts = [];
-      setTimeout(() => {
-        this.isHidden = true; // Oculta el div después de X segundos
-    }, 15000);
+        }
+    });
+
+    setTimeout(() => {
+      this.isHidden = true; // Oculta el div después de X segundos
+    }, 10000);
   }
 
  

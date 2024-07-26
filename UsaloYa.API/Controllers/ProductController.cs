@@ -83,7 +83,7 @@ namespace UsaloYa.API.Controllers
         [HttpPost("AddProduct")]
         public async Task<IActionResult> AddProduct([FromBody] ProductDto productDto, int companyId)
         {
-            
+   
             try
             {
                 if (productDto.Equals(default(ProductDto)) || companyId <= 0)

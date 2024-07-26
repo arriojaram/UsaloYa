@@ -90,6 +90,7 @@ export class ProductManagementComponent implements OnInit {
         next: (savedProduct) => {
           this.searchProductsInternal('-1');
           this.selectProduct(savedProduct.productId);
+          this.navigationService.showUIMessage("Producto guardado (" + savedProduct.productId + ")");
         },
         error: (e) => 
         {

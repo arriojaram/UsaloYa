@@ -17,4 +17,7 @@ export interface Producto {
   color: string;
   size: string;
   companyId: number;
+
+  count: number;
+  total: number;
 }

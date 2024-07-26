@@ -1,12 +1,15 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { RouterLink, RouterModule, RouterOutlet } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router, RouterLink, RouterModule, RouterOutlet } from '@angular/router';
 import { ConnectionService } from 'ngx-connection-service';
-import { BehaviorSubject, Observable, Subject, catchError, debounceTime, from, mergeMap, takeUntil, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, catchError, debounceTime, filter, from, mergeMap, takeUntil, throwError } from 'rxjs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { LoadingService } from './services/loading.service';
 import { CommonModule, NgIf } from '@angular/common';
 import { SaleService } from './services/sale.service';
 import { OfflineDbStore } from './services/offline-db-store.service';
+import { UserStateService } from './services/userState.service';
+import { userStateDto } from './dto/userDto';
+import { AuthorizationService } from './services/authorization.service';
 
 @Component({
   selector: 'app-root',
@@ -15,27 +18,35 @@ import { OfflineDbStore } from './services/offline-db-store.service';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent implements OnDestroy {
+export class AppComponent implements OnInit, OnDestroy {
 
   hasNetworkConnection: boolean = true;
   hasInternetAccess: boolean = true;
-  status: string = "";
+  appOnlineStatus: string = "OFFLINE";
+  userStateUI: userStateDto;
 
   private unsubscribe$: Subject<void> = new Subject();
   loading_i$: Observable<boolean>;
-  
-  
+  currentPath: string = "/";
+
   private migrating: boolean;
+  private LOGGED_OUT: number = 0;
+  LOGGED_IN: number = 1;
 
   constructor(
     private connectionService: ConnectionService,
     private loadingService: LoadingService,
     private salesService: SaleService,
-    private offlineDbService: OfflineDbStore
+    private offlineDbService: OfflineDbStore,
+    private userStateService: UserStateService,
+    private authService: AuthorizationService,
+    private router: Router, 
+    private activatedRoute: ActivatedRoute
   ) 
   {
     this.loading_i$ = this.loadingService.loading$;
     this.migrating = false;
+    this.userStateUI = {userId:0, companyId:0, groupId:0, statusId:0};
 
     this.connectionService.monitor()
       .pipe(debounceTime(5000), takeUntil(this.unsubscribe$))
@@ -43,9 +54,8 @@ export class AppComponent implements OnDestroy {
         this.hasNetworkConnection = currentState.hasNetworkConnection;
         this.hasInternetAccess = currentState.hasInternetAccess;
         let isOnline = this.hasNetworkConnection && this.hasInternetAccess; 
-        this.status = isOnline ? 'ONLINE' : 'OFFLINE';
-        console.log(`${this.status} - ${new Date()}`);
-
+        this.appOnlineStatus = isOnline ? 'ONLINE' : 'OFFLINE';
+                
         if(isOnline && this.migrating == false){
           try{
             this.migrateSales();
@@ -54,25 +64,71 @@ export class AppComponent implements OnDestroy {
           {
             console.error("Error en la migración de ventas al servidor.");
           }
-        }
-          
-          
+        }          
       });
   }
 
+  ngOnInit(): void {
+    console.log("On App init");
+   
+    
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      this.currentPath = this.getCurrentRoute(this.activatedRoute);
+      switch (this.currentPath) {
+        case "/":
+          this.currentPath = "Bienvenido";
+          break;
+        default:
+          console.log("Set UserState");
+          this.setUserDetailsUI();
+          this.currentPath = "";
+          break;
+      }
+    });
+  }
+
+  private getCurrentRoute(route: ActivatedRoute): string {
+    while (route.firstChild) {
+      route = route.firstChild;
+    }
+    return route.snapshot.routeConfig ? route.snapshot.routeConfig.path ?? '/' : '/';
+  }
+  
   ngOnDestroy(): void {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
-    console.log(`Unsuscribe - ${this.status} - ${new Date()}`);
+    console.log(`Unsuscribe - ${this.appOnlineStatus} - ${new Date()}`);
   }
 
   title = 'Guardian';
   
+  public logoutApp()
+  {
+    this.authService.logout();
+    //Manage UI
+    this.userStateUI.statusId = this.LOGGED_OUT;
+  }
+
+  setUserDetailsUI()
+  {
+    try
+    {
+      this.userStateUI = this.userStateService.getUserState();
+      this.userStateUI.statusId = this.LOGGED_IN;
+    }
+    catch(e)
+    {
+      //TODO: not sure what to do here currently, the getUserState Exception is logged
+    }
+  }
+
   migrateSales() {
     this.migrating = true;
     this.offlineDbService.GetSales().subscribe({
       next: (sales) => {
-        console.log("Init Migration");
+        
         if (sales.length > 0) {
           for (let i = 0; i < sales.length; i++) {
             const sale1 = sales[i];
@@ -93,13 +149,10 @@ export class AppComponent implements OnDestroy {
             });
             console.log(sale1);
           }
-          
         }
       },
       complete:() => {
-        
         this.migrating = false;
-        console.log("Finish Migration");
       },
       error: (err) => 
       {
@@ -109,26 +162,5 @@ export class AppComponent implements OnDestroy {
     });
   }
 
-  migrateSales22(): Observable<any> {
-    console.log("Init Migration");
-    return from(this.offlineDbService.GetSales()).pipe(
-      mergeMap(sales => from(sales)), 
-      mergeMap(sale => this.salesService.completeTemporalSale(sale).pipe(
-          mergeMap(response => {
-            console.log("Migrated " + JSON.stringify(response));
-            if (response && response.saleId) {
-              return from(this.offlineDbService.DeleteSale(response.saleId));
-            } else {
-              return throwError(() => new Error('Sale migration failed: No response SaleId'));
-            }
-          })
-        )
-      ),
-      catchError(error => {
-        console.error('Error en la migración de ventas:', error);
-        return throwError(() => error); // Propagamos el error
-      })
-    );
-  }
 }
 

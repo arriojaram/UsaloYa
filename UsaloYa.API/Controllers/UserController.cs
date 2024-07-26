@@ -122,7 +122,8 @@ namespace UsaloYa.API.Controllers
                 LastName = u.LastName,
                 CompanyId = u.CompanyId,
                 GroupId = u.GroupId,
-                LastAccess = u.LastAccess
+                LastAccess = u.LastAccess,
+                StatusId = u.StatusId
             };
             return Ok(userResponseDto);
         }

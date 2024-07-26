@@ -60,6 +60,7 @@ export class SaleService extends Dexie {
   ngOnInit():void{}
 
   saleProducts: Producto [] = []
+  saleProductsGrouped: Producto [] = []
   productCatalog: Producto[] | any[] = []
 
   getCurrentSale(): Sale
@@ -96,18 +97,38 @@ export class SaleService extends Dexie {
     }
     else
     {
-      console.log(productForSale);
       this.saleProducts.push(productForSale);
+      this.groupProducts();
       return true;
     }
   }
   
+  private groupProducts(): void {
+    const productMap = new Map();
+    
+    this.saleProducts.forEach((product) => {
+      if (productMap.has(product.barcode)) {
+        let group = productMap.get(product.barcode);
+        group.count += 1;
+        group.total += product.unitPrice;
+      } else {
+        productMap.set(product.barcode, {
+          ...product,
+          count: 1,
+          total: product.unitPrice
+        });
+      }
+    });
+
+    this.saleProductsGrouped = Array.from(productMap.values());
+  }
+
   private buildSale(userId: number, companyId: number): Sale
   {
-    let saleDetail: SaleDetail[] = new Array(this.saleProducts.length-1);
-    for (let index = 0; index < this.saleProducts.length; index++) {
-      const p = this.saleProducts[index];
-      const sd: SaleDetail = {SaleId:0 ,ProductId: p.productId, Quantity:1, TotalPrice:p.unitPrice, UnitPrice:p.unitPrice};
+    let saleDetail: SaleDetail[] = new Array(this.saleProductsGrouped.length-1);
+    for (let index = 0; index < this.saleProductsGrouped.length; index++) {
+      const p = this.saleProductsGrouped[index];
+      const sd: SaleDetail = {SaleId:0 ,ProductId: p.productId, Quantity:p.count, TotalPrice:p.total, UnitPrice:p.unitPrice};
       saleDetail[index] = sd; 
     }
 
