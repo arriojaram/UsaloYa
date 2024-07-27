@@ -5,7 +5,7 @@ import { CommonModule } from "@angular/common";
 import { ZXingScannerModule } from "@zxing/ngx-scanner";
 import { BarcodeFormat } from "@zxing/library";
 import { ListaVentaComponent } from "../lista-venta/lista-venta.component";
-import { UserStateService } from "../services/userState.service";
+import { UserStateService } from "../services/user-state.service";
 
 @Component({
     selector: 'app-scanner',

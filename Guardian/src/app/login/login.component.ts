@@ -4,9 +4,9 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgIf } from '@angular/common';
 import { AuthorizationService } from '../services/authorization.service';
 import { Router, RouterModule } from '@angular/router';
-import { UserStateService } from '../services/userState.service';
+import { UserStateService } from '../services/user-state.service';
 import { NavigationService } from '../services/navigation.service';
-import { userStateDto } from '../dto/userDto';
+import { userDto } from '../dto/userDto';
 import { catchError, of, switchMap } from 'rxjs';
 
 
@@ -50,7 +50,7 @@ export class LoginComponent implements OnInit {
           return of(null); // Retornamos un observable nulo para continuar el flujo
         })
       ).subscribe({
-        next: (userResults: userStateDto | null) => {
+        next: (userResults: userDto | null) => {
           if (userResults) {
             this.userService.setUserState(userResults);
             this.router.navigate(['/main']); 

@@ -1,0 +1,94 @@
+<div class="container mt-1">
+    <div class="row">
+      <div class="col-12 d-flex justify-content-between align-items-center">
+        <h5 class="my-3">Gestión de Productos</h5>
+      </div>
+    </div>
+    <div class="row">
+        <div class="hamburger-menu" (click)="toggleSearchPanel()">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        <div class="col-md-4 search-panel" [class.hidden]="isSearchPanelHidden">
+            <div class="card">
+            <div class="card-body">
+                <h6 class="card-title">Buscar Usuarios</h6>
+                <div class="input-group mb-3">
+                <input type="text" class="form-control" placeholder="Buscar..." (input)="searchUsers($event)">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button">Buscar</button>
+                </div>
+                </div>
+                <ul class="list-group mt-3">
+                <li *ngFor="let user of userList" class="list-group-item list-group-item-action" (click)="selectUser(user.userId)">
+                    {{ user.firstName + ' ' + user.lastName }}
+                </li>
+                </ul>
+            </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">Detalles del Usuario</h6>
+                    <div class="user-edit-container">
+                        <form [formGroup]="userForm" (ngSubmit)="saveUser()">
+                            <div class="form-group col-md-12 d-flex">
+                                <div class="col-md-8 mb-2 pr-2">
+                                    <input class="form-control" formControlName="userName" placeholder="Nombre de usuario">
+                                    <div *ngIf="userForm.get('userName')?.invalid && userForm.get('userName')?.touched" class="invalid-feedback">
+                                        Nombre de usuario es obligatorio.
+                                    </div>
+                                </div>
+                                <div class="col-md-4 d-flex align-items-end pl-2 mx-2 mb-3">
+                                    <input class="form-check-input form-check-input-lg" formControlName="isEnabled" type="checkbox"> Habilitado
+                                   
+                                </div>
+                            </div>
+                            <div class="form-group mb-2">
+                                <input class="form-control" formControlName="firstName" placeholder="Nombre">
+                                <div *ngIf="userForm.get('firstName')?.invalid && userForm.get('firstName')?.touched" class="invalid-feedback">
+                                    Nombre es obligatorio.
+                                </div>
+                            </div>    
+                            <div class="form-group mb-2">
+                                <input class="form-control" formControlName="lastName" placeholder="Apellido">
+                                <div *ngIf="userForm.get('lastName')?.invalid && userForm.get('lastName')?.touched" class="invalid-feedback">
+                                    Apellido es obligatorio.
+                                </div>
+                            </div>    
+                            <div class="form-group mb-2">
+                                <input class="form-control" formControlName="companyId" placeholder="Compañia">
+                                <div *ngIf="userForm.get('companyId')?.invalid && userForm.get('companyId')?.touched" class="invalid-feedback">
+                                    Compañia es obligatorio.
+                                </div>
+                            </div>    
+                            <div class="form-group mb-2">
+                                <input class="form-control" formControlName="groupId" placeholder="Grupo">
+                                <div *ngIf="userForm.get('groupId')?.invalid && userForm.get('groupId')?.touched" class="invalid-feedback">
+                                    Grupo es obligatorio.
+                                </div>
+                            </div>    
+                            <div class="form-group mb-2">
+                                <input formControlName="lastAccess" class="form-control w-50" placeholder="Ultimo Acceso" >
+                            </div>    
+                            <div class="form-group mb-2">
+                                <input formControlName="statusId" class="form-control w-50" placeholder="Estatus" >
+                            </div>    
+                            <div class="d-flex justify-content-end my-3">
+                                <button type="button" class="btn btn-primary mx-2 btn-floating-secondary" (click)="newUser()">Nuevo</button>
+                                <button type="submit" class="btn btn-success btn-floating">Save User</button>
+                            </div>    
+                        </form>
+
+                        <form [formGroup]="passwordForm" (ngSubmit)="setPassword()">
+                            <input formControlName="password" type="password" placeholder="Password">
+                            <button type="submit">Update Password</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

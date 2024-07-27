@@ -7,8 +7,8 @@ import { LoadingService } from './services/loading.service';
 import { CommonModule, NgIf } from '@angular/common';
 import { SaleService } from './services/sale.service';
 import { OfflineDbStore } from './services/offline-db-store.service';
-import { UserStateService } from './services/userState.service';
-import { userStateDto } from './dto/userDto';
+import { UserStateService } from './services/user-state.service';
+import { userDto } from './dto/userDto';
 import { AuthorizationService } from './services/authorization.service';
 
 @Component({
@@ -23,7 +23,7 @@ export class AppComponent implements OnInit, OnDestroy {
   hasNetworkConnection: boolean = true;
   hasInternetAccess: boolean = true;
   appOnlineStatus: string = "OFFLINE";
-  userStateUI: userStateDto;
+  userStateUI: userDto;
 
   private unsubscribe$: Subject<void> = new Subject();
   loading_i$: Observable<boolean>;
@@ -46,7 +46,7 @@ export class AppComponent implements OnInit, OnDestroy {
   {
     this.loading_i$ = this.loadingService.loading$;
     this.migrating = false;
-    this.userStateUI = {userId:0, companyId:0, groupId:0, statusId:0};
+    this.userStateUI = {userId:0, userName:'', companyId:0, groupId:0, statusId:0};
 
     this.connectionService.monitor()
       .pipe(debounceTime(5000), takeUntil(this.unsubscribe$))

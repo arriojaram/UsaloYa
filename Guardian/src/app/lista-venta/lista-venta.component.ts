@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { SaleService } from '../services/sale.service';
 import { CommonModule } from '@angular/common';
 import { OfflineDbStore } from '../services/offline-db-store.service';
-import { UserStateService } from '../services/userState.service';
+import { UserStateService } from '../services/user-state.service';
 
 @Component({
   selector: 'app-lista-venta',

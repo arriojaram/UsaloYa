@@ -3,7 +3,7 @@ import { NavigationService } from './navigation.service';
 import { BehaviorSubject, Observable, catchError } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../environments/enviroment';
-import { userStateDto } from '../dto/userDto';
+import { userDto } from '../dto/userDto';
 import { AuthorizationService } from './authorization.service';
 
 @Injectable({
@@ -25,17 +25,17 @@ export class UserStateService {
     };    
   }
 
-  setUserState(userInfo: userStateDto)
+  setUserState(userInfo: userDto)
   {
     this.navigation.setItemWithExpiry('userState', JSON.stringify(userInfo));  
   }
 
-  getUserState() : userStateDto
+  getUserState() : userDto
   {
     const userInfo = this.navigation.getItemWithExpiry('userState');
     if(userInfo)
     {
-      const userState: userStateDto = JSON.parse(userInfo);
+      const userState: userDto = JSON.parse(userInfo);
       return userState;
     }
     else

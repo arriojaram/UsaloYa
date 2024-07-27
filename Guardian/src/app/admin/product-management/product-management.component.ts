@@ -3,8 +3,8 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ProductService } from '../../services/product.service';
 import { Producto } from '../../dto/producto';
 import { NgFor, NgIf } from '@angular/common';
-import { UserStateService } from '../../services/userState.service';
-import { userStateDto } from '../../dto/userDto';
+import { UserStateService } from '../../services/user-state.service';
+import { userDto } from '../../dto/userDto';
 import { NavigationService } from '../../services/navigation.service';
 
 @Component({
@@ -18,7 +18,7 @@ export class ProductManagementComponent implements OnInit {
   productForm: FormGroup;
   products: Producto[] = [];
   selectedProduct: Producto | null = null;
-  userState: userStateDto;
+  userState: userDto;
   isSearchPanelHidden = false;
 
   constructor(

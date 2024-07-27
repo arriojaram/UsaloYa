@@ -1,9 +1,13 @@
-export interface userStateDto{
+export interface userDto{
     userId: number,
-    userName?: string,
+    userName: string,
     firstName?: string,
     lastName?: string,
     companyId: number,
     groupId: number,
-    statusId: number
+    statusId: number,
+
+    lastAccess?: Date,
+    isEnabled?: boolean,
+    token?: string
 }

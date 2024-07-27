@@ -29,16 +29,16 @@ namespace UsaloYa.API.Controllers
         [HttpPost("SaveUser")]
         public async Task<ActionResult> SaveUser([FromBody] UserDto userDto)
         {
-            int userId = 0;
+            User userToSave = null;
             try
             {
                 if (userDto.UserId == 0)
                 {
-                    var existingUser = await _dBContext.Users.AnyAsync(u => u.UserName == userDto.UserName);
-                    if (existingUser)
+                    var existsUser = await _dBContext.Users.AnyAsync(u => u.UserName == userDto.UserName);
+                    if (existsUser)
                         return Conflict(new { message = "$_NombreDeUsuarioDuplicado" });
 
-                    var user = new User
+                    userToSave = new User
                     {
                         UserName = userDto.UserName.Trim(),
                         Token = Guid.NewGuid().ToString(),
@@ -49,28 +49,27 @@ namespace UsaloYa.API.Controllers
                         LastAccess = userDto.LastAccess,
                         IsEnabled = true
                     };
-                    _dBContext.Users.Add(user);
-                    userId = user.UserId;
+                    _dBContext.Users.Add(userToSave);
                 }
                 else
                 {
-                    var user = await _dBContext.Users.FindAsync(userDto.UserId);
-                    if (user == null) 
+                    userToSave = await _dBContext.Users.FindAsync(userDto.UserId);
+                    if (userToSave == null) 
                         return NotFound();
 
-                    user.IsEnabled = userDto.IsEnabled;
-                    user.FirstName = userDto.FirstName.Trim();
-                    user.LastName = userDto.LastName.Trim();
-                    user.CompanyId = userDto.CompanyId;
-                    user.GroupId = userDto.GroupId;
-                    user.LastAccess = userDto.LastAccess;
+                    userToSave.IsEnabled = userDto.IsEnabled;
+                    userToSave.FirstName = userDto.FirstName.Trim();
+                    userToSave.LastName = userDto.LastName.Trim();
+                    userToSave.CompanyId = userDto.CompanyId;
+                    userToSave.GroupId = userDto.GroupId;
+                    userToSave.LastAccess = userDto.LastAccess;
 
-                    _dBContext.Users.Update(user);
-                    userId = user.UserId;
+                    _dBContext.Users.Update(userToSave);
+                    
                 }
 
                 await _dBContext.SaveChangesAsync();
-                return Ok(userId);
+                return Ok(userToSave);
             }
             catch (Exception ex)
             {
@@ -129,16 +128,17 @@ namespace UsaloYa.API.Controllers
         }
 
         [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll([FromQuery] string name = "-1")
+        public async Task<IActionResult> GetAll([FromQuery] int companyId, string name = "-1")
         {
             var users = (string.IsNullOrEmpty(name) || string.Equals(name, "-1", StringComparison.OrdinalIgnoreCase))
-                ? await _dBContext.Users.OrderByDescending(u => u.UserId).Take(20).ToListAsync()
+                ? await _dBContext.Users.Where(c=> (c.CompanyId == companyId || companyId == 0)).OrderByDescending(u => u.UserId).Take(50).ToListAsync()
                 : await _dBContext.Users
                     .Where(u => u.FirstName.Contains(name) || u.LastName.Contains(name)
-                            || name.Contains(u.FirstName) || name.Contains(u.LastName) )
+                            || name.Contains(u.FirstName) || name.Contains(u.LastName) 
+                            && (u.CompanyId == companyId || companyId == 0))
                     .OrderBy(u => u.FirstName)
                     .ThenBy(u => u.LastName)
-                    .Take(20)
+                    .Take(50)
                     .ToListAsync();
 
             var userDtos = users.Select(u => new UserResponseDto
