@@ -24,6 +24,7 @@
     "@types/pouchdb-browser": "^6.1.5",
     "@zxing/ngx-scanner": "^18.0.0",
     "bootstrap": "^5.3.3",
+    "date-fns": "^3.6.0",
     "dexie": "^3.2.7",
     "ng-connection-service": "^9.0.3",
     "ngx-connection-service": "^17.0.1",

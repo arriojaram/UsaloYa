@@ -43,7 +43,7 @@ export class ListaVentaComponent {
   async finalizarVenta()
   {
     this.isHidden = false;
-    let userState = this.userState.getUserState();
+    let userState = this.userState.getUserStateLocalStorage();
     this.ventaService.finishSale(userState.userId, userState.companyId).subscribe(
       {
         next: (response) => 

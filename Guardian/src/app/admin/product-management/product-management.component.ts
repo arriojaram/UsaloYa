@@ -28,7 +28,7 @@ export class ProductManagementComponent implements OnInit {
     private navigationService: NavigationService
   ) 
   {
-    this.userState = userService.getUserState();
+    this.userState = userService.getUserStateLocalStorage();
     this.productForm = this.initProductForm();
   }
 

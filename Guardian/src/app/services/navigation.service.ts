@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../environments/enviroment';
-import {  MatSnackBar  } from '@angular/material/snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { userDto } from '../dto/userDto';
+import { BehaviorSubject } from 'rxjs';
 
 
 @Injectable({
@@ -10,7 +11,9 @@ import { userDto } from '../dto/userDto';
 export class NavigationService {
   
   apiBaseUrl: string = '';
-  userState?: userDto = undefined;
+  private userStateSource = new BehaviorSubject<userDto>({userId:0, userName:'', companyId:0, groupId:0, statusId:0});
+  // Crea un observable público para exponer el BehaviorSubject
+  public userState$ = this.userStateSource.asObservable();
   
   constructor(
     private _snackBar: MatSnackBar
@@ -33,16 +36,26 @@ export class NavigationService {
     localStorage.setItem(key, JSON.stringify(item));
   }
 
-  getItemWithExpiry(key: string): string | null {
-    const itemStr = localStorage.getItem(key);
+  setUserState(userDto: userDto)
+  {
+    this.userStateSource.next(userDto);
+  }
 
+  getItemWithExpiry(key: string, isUserState: boolean = false): string | null {
+    const itemStr = localStorage.getItem(key);
+   
     if (!itemStr) {
         return null;
     }
 
     const item = JSON.parse(itemStr);
     const now = new Date();
-
+    if(isUserState)
+    {
+      const parsedState: userDto = item;
+      this.userStateSource.next(parsedState);
+    }
+    
     if (now.getTime() > item.expiry) {
         // El ítem ha expirado, removemos del localStorage
         localStorage.removeItem(key);

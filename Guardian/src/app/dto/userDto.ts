@@ -6,8 +6,9 @@ export interface userDto{
     companyId: number,
     groupId: number,
     statusId: number,
-
+    statusIdStr?: string,
     lastAccess?: Date,
+    lastAccess4UI?: string,
     isEnabled?: boolean,
     token?: string
 }

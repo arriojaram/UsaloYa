@@ -1,0 +1,94 @@
+<div *ngIf="showMainReport" class="container mt-3">
+    <form [formGroup]="reportForm">
+        <div class="row mb-2">
+            <div class="col-12 col-md">
+                <input type="date" class="form-control" formControlName="dateFrom" placeholder="Fecha Desde">
+                <div *ngIf="reportForm.get('dateFrom')?.errors" class="invalid-feedback">
+                    La fecha de inicio es requerida.
+                </div>
+            </div>
+            <div class="col-12 col-md mt-2 mt-md-0">
+                <input type="date" class="form-control" formControlName="dateTo" placeholder="Fecha Hasta">
+                <div *ngIf="reportForm.get('dateTo')?.errors" class="invalid-feedback">
+                    La fecha de fin es requerida.
+                </div>
+            </div>
+            <div class="col-12 col-md mt-2 mt-md-0">
+                <button class="btn btn-primary btn-block" (click)="getSales()">Generar Reporte</button>
+            </div>
+        </div>  
+        <div class="row justify-content-start">
+            <div class="col-6">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">
+                            <i class="bi bi-search"></i> <!-- Icono de búsqueda de Bootstrap Icons -->
+                        </span>
+                    </div>
+                    <input type="text" [value]="filterText" (keyup)="filterSales($event)" class="form-control" placeholder="Filtrar ventas...">
+                </div>
+            </div>
+        </div>        
+    </form>
+    <table class="table table-striped mt-3">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th class="d-none d-md-table-cell">Fecha</th>
+                <th class="d-none d-md-table-cell">Usuario</th>
+                <th>Nombre</th>
+                <th class="d-none d-md-table-cell">Notas</th>
+                <th class="d-none d-md-table-cell">Estado</th>
+                <th>Total</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let sale of filteredSales">
+                <td>{{ sale.saleID }}</td>
+                <td class="d-none d-md-table-cell">{{ sale.saleDate | date:'medium' }}</td>
+                <td class="d-none d-md-table-cell">{{ sale.userName }}</td>
+                <td>{{ sale.fullName }}</td>
+                <td class="d-none d-md-table-cell">{{ sale.notes }}</td>
+                <td class="d-none d-md-table-cell">{{ sale.status }}</td>
+                <td>{{ sale.totalSale | currency:'MXN' }}</td>
+                <td>
+                    <button class="btn btn-sm btn-primary" (click)="redirectToDetails(sale.saleID)">Ver Detalle</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div *ngIf="!showMainReport" class="container mt-3">
+    <button (click)="goBack()" class="btn-primary">Regresar</button>
+    <div class="row">
+        <div class="col">
+            <input type="text" [value]="filterText" (keyup)="filterProducts($event)" class="form-control" placeholder="Filtrar productos...">
+        </div>
+    </div>
+
+    <table class="table table-striped mt-3">
+        <thead>
+        <tr>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Cantidad</th>
+            <th>Precio</th>
+            <th>Fecha Venta</th>
+            <th>Total $</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let sale of filteredProducts">
+            <td>{{ sale.barcode }}</td>
+            <td>{{ sale.productName }}</td>
+            <td>{{ sale.quantity }}</td>
+            <td>{{ sale.totalPrice | currency:'MXN' }}</td>
+            <td>{{ sale.saleDate | date:'medium' }}</td>
+            <td>{{ sale.totalSale | currency:'MXN' }}</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+

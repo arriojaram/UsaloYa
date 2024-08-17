@@ -10,6 +10,7 @@ import { OfflineDbStore } from './services/offline-db-store.service';
 import { UserStateService } from './services/user-state.service';
 import { userDto } from './dto/userDto';
 import { AuthorizationService } from './services/authorization.service';
+import { NavigationService } from './services/navigation.service';
 
 @Component({
   selector: 'app-root',
@@ -41,7 +42,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private userStateService: UserStateService,
     private authService: AuthorizationService,
     private router: Router, 
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private navigationService: NavigationService
   ) 
   {
     this.loading_i$ = this.loadingService.loading$;
@@ -69,9 +71,6 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    console.log("On App init");
-   
-    
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
@@ -81,12 +80,17 @@ export class AppComponent implements OnInit, OnDestroy {
           this.currentPath = "Bienvenido";
           break;
         default:
-          console.log("Set UserState");
+          
           this.setUserDetailsUI();
           this.currentPath = "";
           break;
       }
     });
+
+    this.navigationService.userState$.subscribe(state => {
+      //this.userStateUI = state;
+    });
+ 
   }
 
   private getCurrentRoute(route: ActivatedRoute): string {
@@ -104,18 +108,28 @@ export class AppComponent implements OnInit, OnDestroy {
 
   title = 'Guardian';
   
-  public logoutApp()
+  public logoutApp(event: MouseEvent)
   {
-    this.authService.logout();
-    //Manage UI
-    this.userStateUI.statusId = this.LOGGED_OUT;
+    event.preventDefault(); // Detiene la navegación
+   
+    this.authService.logout(this.userStateUI.userName).subscribe({
+      next: (value) => {
+        //Manage UI
+        this.userStateUI.statusId = this.LOGGED_OUT;
+        this.authService.clearStorageVariables();
+        this.router.navigate(['/login']);
+      },
+      error: (e) =>{
+        this.navigationService.showUIMessage(e);
+      }
+    });
   }
 
   setUserDetailsUI()
   {
     try
     {
-      this.userStateUI = this.userStateService.getUserState();
+      this.userStateUI = this.userStateService.getUserStateLocalStorage();
       this.userStateUI.statusId = this.LOGGED_IN;
     }
     catch(e)

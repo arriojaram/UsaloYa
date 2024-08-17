@@ -29,12 +29,12 @@ export class ScannerComponent implements OnInit {
         this.scannerBtnLabel = "Abrir escaner";
         this.isScannerEnabled = false;  
         this.isHidden = true;
-        const companyId = this.userState.getUserState().companyId;
+        const companyId = this.userState.getUserStateLocalStorage().companyId;
         this.ventasService.cacheProductCatalog(companyId);
     }
 
     ngOnInit(): void {
-      
+      console.log("On Scanner");
     }    
 
     isScannerEnabled: boolean;
@@ -56,7 +56,6 @@ export class ScannerComponent implements OnInit {
    
     setScannerStatus()
     {
-        console.log("set status");
         this.isScannerEnabled = !this.isScannerEnabled;
         if(this.isScannerEnabled)
             this.scannerBtnLabel = "Apagar escaner";
@@ -70,7 +69,7 @@ export class ScannerComponent implements OnInit {
 
     async addProductToSaleList()
     {
-        var isAdded = await this.ventasService.addProduct(this.codigo.value, this.userState.getUserState().companyId);
+        var isAdded = await this.ventasService.addProduct(this.codigo.value, this.userState.getUserStateLocalStorage().companyId);
         this.isHidden = false;
 
         if(isAdded)

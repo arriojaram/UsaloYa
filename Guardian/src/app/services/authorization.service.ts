@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
 import { environment } from '../environments/enviroment';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, catchError, map } from 'rxjs';
 import { NavigationService } from './navigation.service';
-
+import { TokenDto } from '../dto/set-token';
 @Injectable({
   providedIn: 'root'
 })
@@ -12,7 +11,6 @@ export class AuthorizationService {
 
   constructor(
     private http: HttpClient,
-    private router: Router,
     private navigation: NavigationService
   ) {}
 
@@ -37,12 +35,29 @@ export class AuthorizationService {
     ); 
   }
 
-  logout(): void {
-    this.clearStorageVariables();
-    this.router.navigate(['/login']);
+  logout(userName: string): Observable<any> {
+    const url = this.navigation.apiBaseUrl + '/api/User/LogOut';
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Authorization': environment.apiToken
+      })
+    };
+    const setTokenData : TokenDto = {userName:userName, token:'', userId:0};
+    return this.http.post<any>(url, setTokenData, httpOptions).pipe(
+      map(response => { 
+        this.navigation.setItemWithExpiry('isAuthenticated', 'false'); 
+        return response;
+      }), 
+      catchError(error => {
+        console.error('logout() | ', error);
+        this.clearStorageVariables();
+        throw error;
+      })
+    ); 
   }
 
   checkAuthentication(): boolean {
+    console.log("checkAuthentication");
     let authenticationValue = this.navigation.getItemWithExpiry('isAuthenticated');
     let isAuthenticated = false;
 

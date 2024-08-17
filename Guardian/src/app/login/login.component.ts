@@ -23,7 +23,7 @@ export class LoginComponent implements OnInit {
   constructor(private fb: FormBuilder, 
     private router: Router,
     private authService: AuthorizationService,
-    private userService: UserStateService,
+    private userStateService: UserStateService,
     private navigation: NavigationService,
     
   ) {
@@ -42,7 +42,7 @@ export class LoginComponent implements OnInit {
 
       this.authService.login(loginData).pipe(
         switchMap((loginResults) => {
-          return this.userService.loadUser(loginResults);
+          return this.userStateService.loadUser(loginResults);
         }),
         catchError((e) => {
           this.navigation.showUIMessage(e.message);
@@ -52,7 +52,8 @@ export class LoginComponent implements OnInit {
       ).subscribe({
         next: (userResults: userDto | null) => {
           if (userResults) {
-            this.userService.setUserState(userResults);
+            this.userStateService.setUserStateLocalStorage(userResults);
+            this.navigation.setUserState(userResults);
             this.router.navigate(['/main']); 
           }
         },

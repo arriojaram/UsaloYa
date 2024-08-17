@@ -25,14 +25,14 @@ export class UserStateService {
     };    
   }
 
-  setUserState(userInfo: userDto)
+  setUserStateLocalStorage(userInfo: userDto)
   {
     this.navigation.setItemWithExpiry('userState', JSON.stringify(userInfo));  
   }
 
-  getUserState() : userDto
+  getUserStateLocalStorage() : userDto
   {
-    const userInfo = this.navigation.getItemWithExpiry('userState');
+    const userInfo = this.navigation.getItemWithExpiry('userState', true);
     if(userInfo)
     {
       const userState: userDto = JSON.parse(userInfo);
@@ -41,7 +41,7 @@ export class UserStateService {
     else
     {
       console.error('No se puede cargar la información del usuario. Usuario no encontrado');
-      this.authorizationService.logout();
+      //this.authorizationService.logout();
 
       throw new Error("Usuario invalido");
     }

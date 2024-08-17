@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 using UsaloYa.API.DTO;
 using UsaloYa.API.Models;
 
@@ -46,8 +45,9 @@ namespace UsaloYa.API.Controllers
                         LastName = userDto.LastName.Trim(),
                         CompanyId = userDto.CompanyId,
                         GroupId = userDto.GroupId,
-                        LastAccess = userDto.LastAccess,
-                        IsEnabled = true
+                        LastAccess = null,
+                        IsEnabled = true,
+                        StatusId = (int)Enumerations.UserStatus.Desconocido
                     };
                     _dBContext.Users.Add(userToSave);
                 }
@@ -85,7 +85,6 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-               
                 var user = await _dBContext.Users.FirstOrDefaultAsync(u => u.UserName == token.UserName);
                 if (user == null)
                     return NotFound();
@@ -130,43 +129,94 @@ namespace UsaloYa.API.Controllers
         [HttpGet("GetAll")]
         public async Task<IActionResult> GetAll([FromQuery] int companyId, string name = "-1")
         {
-            var users = (string.IsNullOrEmpty(name) || string.Equals(name, "-1", StringComparison.OrdinalIgnoreCase))
-                ? await _dBContext.Users.Where(c=> (c.CompanyId == companyId || companyId == 0)).OrderByDescending(u => u.UserId).Take(50).ToListAsync()
-                : await _dBContext.Users
-                    .Where(u => u.FirstName.Contains(name) || u.LastName.Contains(name)
-                            || name.Contains(u.FirstName) || name.Contains(u.LastName) 
-                            && (u.CompanyId == companyId || companyId == 0))
-                    .OrderBy(u => u.FirstName)
-                    .ThenBy(u => u.LastName)
-                    .Take(50)
-                    .ToListAsync();
-
-            var userDtos = users.Select(u => new UserResponseDto
+            try
             {
-                UserId = u.UserId,
-                IsEnabled = (bool)u.IsEnabled,
-                UserName = u.UserName,
-                FirstName = u.FirstName,
-                LastName = u.LastName,
-                CompanyId = u.CompanyId,
-                GroupId = u.GroupId,
-                LastAccess = u.LastAccess
-            });
+                var users = (string.IsNullOrEmpty(name) || string.Equals(name, "-1", StringComparison.OrdinalIgnoreCase))
+                    ? await _dBContext.Users.Where(c => (c.CompanyId == companyId || companyId == 0)).OrderByDescending(u => u.UserId).Take(50).ToListAsync()
+                    : await _dBContext.Users
+                        .Where(u => u.FirstName.Contains(name) || u.LastName.Contains(name)
+                                || name.Contains(u.FirstName) || name.Contains(u.LastName)
+                                && (u.CompanyId == companyId || companyId == 0))
+                        .OrderBy(u => u.FirstName)
+                        .ThenBy(u => u.LastName)
+                        .Take(50)
+                        .ToListAsync();
 
-            return Ok(userDtos);
+                var userDtos = users.Select(u => new UserResponseDto
+                {
+                    UserId = u.UserId,
+                    IsEnabled = (bool)u.IsEnabled,
+                    UserName = u.UserName,
+                    FirstName = u.FirstName,
+                    LastName = u.LastName,
+                    CompanyId = u.CompanyId,
+                    GroupId = u.GroupId,
+                    LastAccess = u.LastAccess
+                    ,
+                    StatusId = u.StatusId
+                });
+
+                return Ok(userDtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "GetAll.ApiError");
+
+                // Return a 500 Internal Server Error with a custom message
+                return StatusCode(500, new { message = "$_ExcepcionOcurrida" });
+            }
         }
 
         [HttpPost("Validate")]
         public async Task<IActionResult> Validate([FromBody] UserTokenDto token)
         {
-            var encryptedPassword = Utils.Util.EncryptPassword(token.Token);
-            var user = await _dBContext.Users
-                .FirstOrDefaultAsync(u => u.UserName == token.UserName && u.Token == encryptedPassword);
+            try
+            {
+                var encryptedPassword = Utils.Util.EncryptPassword(token.Token);
+                var user = await _dBContext.Users
+                    .FirstOrDefaultAsync(u => u.UserName == token.UserName && u.Token == encryptedPassword);
 
-            if (user == null) 
-                return Unauthorized("Usuario o contraseña invalidos");
+                if (user == null)
+                {
+                    return Unauthorized("Usuario o contraseña inválidos");
+                }
+                else
+                {
+                    user.LastAccess = DateTime.Now;
+                    user.StatusId = (int)Enumerations.UserStatus.Conectado;
+                    await _dBContext.SaveChangesAsync();
+                }
+
+                return Ok(user.UserId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Validate.ApiError");
+
+                // Return a 500 Internal Server Error with a custom message
+                return StatusCode(500, new { message = "$_ExcepcionOcurrida" });
+            }
+        }
+
+        [HttpPost("LogOut")]
+        public async Task<IActionResult> Logout([FromBody] UserTokenDto token)
+        {
+            var user = await _dBContext.Users
+                .FirstOrDefaultAsync(u => u.UserName == token.UserName);
+
+            if (user == null)
+            {
+                return Unauthorized("Usuario inválido");
+            }
+            else
+            {
+                user.LastAccess = DateTime.Now;
+                user.StatusId = (int)Enumerations.UserStatus.Desconectado;
+                await _dBContext.SaveChangesAsync();
+            }
 
             return Ok(user.UserId);
         }
+
     }
 }
