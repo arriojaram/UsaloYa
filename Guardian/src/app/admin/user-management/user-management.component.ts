@@ -7,6 +7,7 @@ import { NavigationService } from '../../services/navigation.service';
 import { UserStateService } from '../../services/user-state.service';
 import { NgFor, NgIf } from '@angular/common';
 import { format } from 'date-fns';
+import { first } from 'rxjs';
 
 @Component({
   selector: 'app-user-management',
@@ -72,7 +73,8 @@ export class UserManagementComponent {
   }
 
   selectUser(userId: number): void {
-    this.userService.getUser(userId).subscribe(user => {
+    this.userService.getUser(userId).pipe(first())
+    .subscribe(user => {
       user.lastAccess4UI = undefined;
       if(user.lastAccess != null)
         user.lastAccess4UI = format(user.lastAccess, 'dd-MMM-yyyy hh:mm a');
@@ -108,7 +110,8 @@ export class UserManagementComponent {
       const user: userDto = this.userForm.value;
       user.token = "a-Fc1C149Afbf4c8--996++";
      
-      this.userService.saveUser(user).subscribe({
+      this.userService.saveUser(user).pipe(first())
+      .subscribe({
         next: (result) => {
           this.searchUsersInternal("-1");
           this.selectUser(result.userId);
@@ -137,7 +140,8 @@ export class UserManagementComponent {
     if(this.selectedUser != null){
       const username = this.selectedUser.userName;
 
-      this.userService.setPassword(username, this.passwordForm.value.password).subscribe(result => {
+      this.userService.setPassword(username, this.passwordForm.value.password).pipe(first())
+      .subscribe(result => {
         this.navigationService.showUIMessage("Password actualizado.");
       });
     } 
@@ -149,7 +153,8 @@ export class UserManagementComponent {
   }
   
   private searchUsersInternal(name: string): void {
-    this.userService.getAllUser(this.userState.companyId, name).subscribe(users => {
+    this.userService.getAllUser(this.userState.companyId, name).pipe(first())
+    .subscribe(users => {
       this.userList = users;
     });
   }

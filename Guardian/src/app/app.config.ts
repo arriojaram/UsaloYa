@@ -7,6 +7,7 @@ import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http'
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { LoadingInterceptor } from './interceptors/loading.interceptor';
+import { ConnectionServiceOptions, ConnectionServiceOptionsToken } from 'ngx-connection-service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -17,7 +18,17 @@ export const appConfig: ApplicationConfig = {
       {
         enabled: !isDevMode(),
         registrationStrategy: 'registerWhenStable:30000'
-      }), 
+      }),
+      {
+        provide: ConnectionServiceOptionsToken,
+        useValue: {
+          heartbeatUrl: '/assets/ping.json', // URL que verifica el estado de conexión.
+          heartbeatInterval: 30000, // Intervalo en milisegundos. Aquí lo configuramos a 20 segundos.
+          heartbeatRetryInterval: 20000,
+          requestMethod: 'get', // Método de la petición HTTP para el heartbeat.
+        } as ConnectionServiceOptions
+      } 
+      ,
     provideAnimationsAsync()
   ]
 };

@@ -16,7 +16,6 @@ import { UserStateService } from "../services/user-state.service";
 })
 
 export class ScannerComponent implements OnInit {
-
     constructor(
         public ventasService: SaleService,
         private userState: UserStateService
@@ -34,7 +33,7 @@ export class ScannerComponent implements OnInit {
     }
 
     ngOnInit(): void {
-      console.log("On Scanner");
+     
     }    
 
     isScannerEnabled: boolean;

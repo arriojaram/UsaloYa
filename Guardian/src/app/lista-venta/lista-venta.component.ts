@@ -3,6 +3,7 @@ import { SaleService } from '../services/sale.service';
 import { CommonModule } from '@angular/common';
 import { OfflineDbStore } from '../services/offline-db-store.service';
 import { UserStateService } from '../services/user-state.service';
+import { first } from 'rxjs';
 
 @Component({
   selector: 'app-lista-venta',
@@ -40,11 +41,16 @@ export class ListaVentaComponent {
     this.ventaService.saleProductsGrouped = [];
   }
   
+  removeProduct(productId: number): void {
+    this.ventaService.removeProductFromList(productId);
+  }
+
   async finalizarVenta()
   {
     this.isHidden = false;
     let userState = this.userState.getUserStateLocalStorage();
-    this.ventaService.finishSale(userState.userId, userState.companyId).subscribe(
+    this.ventaService.finishSale(userState.userId, userState.companyId).pipe(first())
+    .subscribe(
       {
         next: (response) => 
         {
@@ -57,7 +63,8 @@ export class ListaVentaComponent {
           
           try {
             const id = await this.offlineDbStore.AddSale(this.ventaService.getCurrentSale());
-            this.message = `Venta registrada: ${id} (en proceso de sincronización)`;
+            console.log('offlineID: ' + id);
+            this.message = `Venta registrada (en proceso de sincronización...)`;
             this.resetListaVenta();
           } catch (error) {
             console.error('Error adding product:', error);
@@ -67,7 +74,7 @@ export class ListaVentaComponent {
 
     setTimeout(() => {
       this.isHidden = true; // Oculta el div después de X segundos
-    }, 10000);
+    }, 20000);
   }
 
  

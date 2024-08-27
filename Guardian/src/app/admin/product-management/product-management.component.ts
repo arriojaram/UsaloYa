@@ -6,6 +6,7 @@ import { NgFor, NgIf } from '@angular/common';
 import { UserStateService } from '../../services/user-state.service';
 import { userDto } from '../../dto/userDto';
 import { NavigationService } from '../../services/navigation.service';
+import { first, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-product-management',
@@ -19,8 +20,8 @@ export class ProductManagementComponent implements OnInit {
   products: Producto[] = [];
   selectedProduct: Producto | null = null;
   userState: userDto;
-  isSearchPanelHidden = false;
-
+  isSearchPanelHidden: boolean;
+  
   constructor(
     private fb: FormBuilder, 
     private productService: ProductService,
@@ -30,6 +31,7 @@ export class ProductManagementComponent implements OnInit {
   {
     this.userState = userService.getUserStateLocalStorage();
     this.productForm = this.initProductForm();
+    this.isSearchPanelHidden = true;
   }
 
   initProductForm() : FormGroup
@@ -65,13 +67,15 @@ export class ProductManagementComponent implements OnInit {
   }
   
   private searchProductsInternal(name: string): void {
-    this.productService.searchProducts(this.userState.companyId, name).subscribe(products => {
+    this.productService.searchProducts(this.userState.companyId, name).pipe(first())
+    .subscribe(products => {
       this.products = products;
     });
   }
 
   selectProduct(productId: number): void {
-    this.productService.getProduct(this.userState.companyId, productId).subscribe(product => {
+    this.productService.getProduct(this.userState.companyId, productId).pipe(first())
+    .subscribe(product => {
       this.selectedProduct = product;
       this.productForm.patchValue(product);
     });
@@ -86,11 +90,13 @@ export class ProductManagementComponent implements OnInit {
       const product: Producto = this.productForm.value;
       product.companyId = this.userState.companyId;
       
-      this.productService.saveProduct(this.userState.companyId, product).subscribe({
+      this.productService.saveProduct(this.userState.companyId, product).pipe(first())
+      .subscribe({
         next: (savedProduct) => {
           this.searchProductsInternal('-1');
           this.selectProduct(savedProduct.productId);
           this.navigationService.showUIMessage("Producto guardado (" + savedProduct.productId + ")");
+          window.scrollTo(0, 0);
         },
         error: (e) => 
         {
@@ -106,6 +112,7 @@ export class ProductManagementComponent implements OnInit {
     this.selectedProduct = null;
     this.productForm.reset();
     this.productForm.patchValue({ productId: 0, companyId: this.userState.companyId, unitsInStock: 0, discontinued: false });
+    window.scrollTo(0, 0);
   }
 
   toggleSearchPanel(): void {

@@ -15,3 +15,8 @@ dotnet ef migrations script --idempotent --output "avatarDbMigrations.sql"
 
 // Command to map the DB from Powershell in VS - Database first
 dotnet ef dbcontext scaf
+
+// Run as offline mode in VS
+npm install -g http-server
+http-server -p 8082
+ serve -s .\dist\pwa\browser\ 

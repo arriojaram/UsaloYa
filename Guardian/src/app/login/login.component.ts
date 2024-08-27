@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { NgIf } from '@angular/common';
@@ -7,7 +7,7 @@ import { Router, RouterModule } from '@angular/router';
 import { UserStateService } from '../services/user-state.service';
 import { NavigationService } from '../services/navigation.service';
 import { userDto } from '../dto/userDto';
-import { catchError, of, switchMap } from 'rxjs';
+import { catchError, of, Subject, switchMap, takeUntil } from 'rxjs';
 
 
 @Component({
@@ -17,9 +17,10 @@ import { catchError, of, switchMap } from 'rxjs';
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
   loginForm: FormGroup;
-
+  private unsubscribe$: Subject<void> = new Subject();
+  
   constructor(private fb: FormBuilder, 
     private router: Router,
     private authService: AuthorizationService,
@@ -36,11 +37,16 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {}
 
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
+  }
+
   onSubmit(): void {
     if (this.loginForm.valid) {
       const loginData = this.loginForm.value;
 
-      this.authService.login(loginData).pipe(
+      this.authService.login(loginData).pipe(takeUntil(this.unsubscribe$),
         switchMap((loginResults) => {
           return this.userStateService.loadUser(loginResults);
         }),

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, catchError, from } from 'rxjs';
+import { Observable, catchError, first, from } from 'rxjs';
 import { Producto } from '../dto/producto';
 import { ProductService } from './product.service';
 import { UserStateService } from './user-state.service';
@@ -15,6 +15,7 @@ import Dexie from 'dexie';
 export class SaleService extends Dexie {
   productCatalogTable: Dexie.Table<Producto, number>;
   migrationsTable: Dexie.Table<Date, number>;
+  totalVenta: number = 0;
 
   private baseUrl = environment.apiUrlBase + '/api/Sale';
   private httpOptions;
@@ -37,23 +38,23 @@ export class SaleService extends Dexie {
   this.productCatalogTable = this.table('productCatalogTable');
   this.migrationsTable = this.table('migrationsTable');
 
-    this.currentSale = {
-      id: 0,
-      saleId: 0,
-      customerId: 0,
-      paymentMethod: '',
-      companyId: 0,
-      tax: 0,
-      notes: '',
-      userId: 0,
-      saleDetailsList: []
-    };
+  this.currentSale = {
+    id: undefined,
+    saleId: 0,
+    customerId: 0,
+    paymentMethod: '',
+    companyId: 0,
+    tax: 0,
+    notes: '',
+    userId: 0,
+    saleDetailsList: []
+  };
 
-    this.httpOptions = {
-      headers: new HttpHeaders({
-        'Authorization': environment.apiToken
-      })
-    };
+  this.httpOptions = {
+    headers: new HttpHeaders({
+      'Authorization': environment.apiToken
+    })
+  };
     
   }
 
@@ -68,11 +69,30 @@ export class SaleService extends Dexie {
     return this.currentSale;
   }
 
- 
+  getTotalVenta(): number {
+    return this.totalVenta;
+  }
+
+  removeProductFromList(productId: number): void {
+    const productIndex = this.saleProducts.findIndex(product => product.productId === productId);
+    
+    if (productIndex !== -1) {
+        // Si el producto existe en la lista, ajustar el count o eliminar si necesario.
+        if (this.saleProducts[productIndex].count > 1) {
+            // Disminuir el count si es mayor que 1.
+            this.saleProducts[productIndex].count -= 1;
+        } else {
+            // Si el count es 1, eliminar el producto completamente.
+            this.saleProducts.splice(productIndex, 1);
+        }
+        this.groupProducts(); // Asumo que necesitas agrupar productos después de cualquier modificación.
+    } 
+}
+
   async addProduct(barcode: string, companyId: number)
   {
     let productForSale: any = undefined;
-    console.log('longitud: ' + this.productCatalog.length);
+    
     if(this.productCatalog.length == 0)
     {
       console.log('Buscar producto offline');
@@ -105,18 +125,21 @@ export class SaleService extends Dexie {
   
   private groupProducts(): void {
     const productMap = new Map();
-    
+    this.totalVenta = 0;
     this.saleProducts.forEach((product) => {
+      
       if (productMap.has(product.barcode)) {
         let group = productMap.get(product.barcode);
         group.count += 1;
         group.total += product.unitPrice;
+        this.totalVenta += group.total;
       } else {
         productMap.set(product.barcode, {
           ...product,
           count: 1,
           total: product.unitPrice
         });
+        this.totalVenta += product.unitPrice;
       }
     });
 
@@ -133,7 +156,7 @@ export class SaleService extends Dexie {
     }
 
     const sale: Sale = {
-      id: 0,
+      id: undefined,
       saleId: 0,
       customerId: 0,
       paymentMethod: "Efectivo",
@@ -171,8 +194,8 @@ export class SaleService extends Dexie {
 
   public cacheProductCatalog(companyId: number)
   {
-    console.log("Cached Catalog");
-    this.productService.searchProducts(companyId, "-1").subscribe({
+    this.productService.searchProducts(companyId, "-1").pipe(first())
+    .subscribe({
       next: async (products: Producto[]) => {
         this.productCatalog = products;
         

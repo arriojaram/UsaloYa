@@ -68,7 +68,7 @@ export class NavigationService {
   showUIMessage(message: string)
   {
     this._snackBar.open(message, 'X', {
-      duration: 3000
+      duration: 1000 * 20
       //panelClass: ["custom-snackbar"]
     });
   }

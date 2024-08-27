@@ -7,7 +7,7 @@ export interface SaleDetail {
 }
   
 export interface Sale {
-    id: number, /*Used for internal offline management */
+    id: number | undefined, /*Used for internal offline sync management */
     saleId: number,
     customerId: number;
     paymentMethod: string;

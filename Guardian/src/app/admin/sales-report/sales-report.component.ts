@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ProductSaleDetailReport, SaleDetailReport } from '../../dto/sale-detail-report';
 import { HttpClient } from '@angular/common/http';
 import { ReportsService } from '../../services/reports.service';
@@ -8,6 +8,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { UserStateService } from '../../services/user-state.service';
 import { userDto } from '../../dto/userDto';
 import { Router } from '@angular/router';
+import { first, Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-sales-report',
@@ -16,7 +17,7 @@ import { Router } from '@angular/router';
   templateUrl: './sales-report.component.html',
   styleUrl: './sales-report.component.css'
 })
-export class SalesReportComponent implements OnInit {
+export class SalesReportComponent implements OnInit, OnDestroy {
   sales: SaleDetailReport[] = [];
   filteredSales: SaleDetailReport[] = [];
   reportForm: FormGroup;
@@ -25,7 +26,8 @@ export class SalesReportComponent implements OnInit {
   saleProducts: ProductSaleDetailReport[] = [];
   filteredProducts: ProductSaleDetailReport[] = [];
   showMainReport: boolean;
-
+  private unsubscribe$: Subject<void> = new Subject();
+  
   constructor(private fb: FormBuilder,
     private http: HttpClient,
     private reportService: ReportsService,
@@ -40,10 +42,16 @@ export class SalesReportComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.reportForm.get('dateFrom')?.valueChanges.subscribe(newDate => {
+    this.reportForm.get('dateFrom')?.valueChanges.pipe(takeUntil(this.unsubscribe$)
+    ).subscribe(newDate => {
       // Establecer 'dateTo' igual a 'dateFrom'
       this.reportForm.get('dateTo')?.setValue(newDate);
     });
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 
   private initForm(): FormGroup {
@@ -52,7 +60,6 @@ export class SalesReportComponent implements OnInit {
     refDate.setDate(refDate.getDate() + 1);
     const tomorrow = refDate.toISOString().substring(0, 10); // 'yyyy-MM-dd'
 
-    console.log(today +' - ' +tomorrow);
     return this.fb.group({
       dateFrom: [today, [Validators.required]],
       dateTo: [tomorrow, [Validators.required]]
@@ -73,7 +80,8 @@ export class SalesReportComponent implements OnInit {
   getSale(saleId: number): void {
     const userId = 0;
 
-    this.reportService.getProductSalesDetails(saleId, this.userState.companyId).subscribe({
+    this.reportService.getProductSalesDetails(saleId, this.userState.companyId).pipe(first())
+    .subscribe({
       next:(data) => {
         if(data.length > 0)
         {
@@ -116,7 +124,8 @@ export class SalesReportComponent implements OnInit {
     const toDate = this.reportForm.get('dateTo')?.value ?? new Date();
     const userId = 0;
 
-    this.reportService.getSales(fromDate, toDate, this.userState.companyId, userId).subscribe({
+    this.reportService.getSales(fromDate, toDate, this.userState.companyId, userId).pipe(first())
+    .subscribe({
       next:(data) => {
         if(data.length > 0)
         {

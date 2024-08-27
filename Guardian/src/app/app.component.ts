@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router, RouterLink, RouterModule, RouterOutlet } from '@angular/router';
 import { ConnectionService } from 'ngx-connection-service';
-import { BehaviorSubject, Observable, Subject, catchError, debounceTime, filter, from, mergeMap, takeUntil, throwError } from 'rxjs';
+import { Observable, Subject, Subscription, catchError, debounceTime, filter, finalize, first, forkJoin, from, interval, mergeMap, of, startWith, switchMap, takeUntil, throwError } from 'rxjs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { LoadingService } from './services/loading.service';
 import { CommonModule, NgIf } from '@angular/common';
@@ -11,6 +11,7 @@ import { UserStateService } from './services/user-state.service';
 import { userDto } from './dto/userDto';
 import { AuthorizationService } from './services/authorization.service';
 import { NavigationService } from './services/navigation.service';
+import { Sale } from './dto/sale';
 
 @Component({
   selector: 'app-root',
@@ -21,16 +22,17 @@ import { NavigationService } from './services/navigation.service';
 })
 export class AppComponent implements OnInit, OnDestroy {
 
-  hasNetworkConnection: boolean = true;
-  hasInternetAccess: boolean = true;
-  appOnlineStatus: string = "OFFLINE";
-  userStateUI: userDto;
-
+  hasNetworkConnection: boolean | undefined;
+  hasInternetAccess: boolean | undefined;
+  appOnlineStatus: string = "ONLINE";
+  userStateUI: userDto | undefined;
+  isOnline: boolean | undefined;
+  title = 'Guardian';
+  
   private unsubscribe$: Subject<void> = new Subject();
-  loading_i$: Observable<boolean>;
+  loading_i$: Observable<boolean> | undefined;
   currentPath: string = "/";
 
-  private migrating: boolean;
   private LOGGED_OUT: number = 0;
   LOGGED_IN: number = 1;
 
@@ -46,33 +48,28 @@ export class AppComponent implements OnInit, OnDestroy {
     private navigationService: NavigationService
   ) 
   {
-    this.loading_i$ = this.loadingService.loading$;
-    this.migrating = false;
-    this.userStateUI = {userId:0, userName:'', companyId:0, groupId:0, statusId:0};
-
-    this.connectionService.monitor()
-      .pipe(debounceTime(5000), takeUntil(this.unsubscribe$))
-      .subscribe(currentState => {
-        this.hasNetworkConnection = currentState.hasNetworkConnection;
-        this.hasInternetAccess = currentState.hasInternetAccess;
-        let isOnline = this.hasNetworkConnection && this.hasInternetAccess; 
-        this.appOnlineStatus = isOnline ? 'ONLINE' : 'OFFLINE';
-                
-        if(isOnline && this.migrating == false){
-          try{
-            this.migrateSales();
-          }
-          catch(e)
-          {
-            console.error("Error en la migración de ventas al servidor.");
-          }
-        }          
-      });
+   
   }
 
   ngOnInit(): void {
+    
+    this.loading_i$ = this.loadingService.loading$;
+    this.userStateUI = {userId:0, userName:'', companyId:0, groupId:0, statusId:0};
+
+    
+    // Init network status monitor
+    this.connectionService.monitor()
+    .pipe(debounceTime(10000), takeUntil(this.unsubscribe$))
+    .subscribe(currentState => {
+      this.hasNetworkConnection = currentState.hasNetworkConnection;
+      this.hasInternetAccess = currentState.hasInternetAccess;
+      this.isOnline = this.hasNetworkConnection && this.hasInternetAccess; 
+      this.appOnlineStatus = this.isOnline ? 'ONLINE' : 'OFFLINE';
+    });
+
+    // Init the navigation end to manage the UI
     this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
+      filter(event => event instanceof NavigationEnd), takeUntil(this.unsubscribe$)
     ).subscribe(() => {
       this.currentPath = this.getCurrentRoute(this.activatedRoute);
       switch (this.currentPath) {
@@ -87,10 +84,7 @@ export class AppComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.navigationService.userState$.subscribe(state => {
-      //this.userStateUI = state;
-    });
- 
+    this.initMigrationService();
   }
 
   private getCurrentRoute(route: ActivatedRoute): string {
@@ -106,75 +100,88 @@ export class AppComponent implements OnInit, OnDestroy {
     console.log(`Unsuscribe - ${this.appOnlineStatus} - ${new Date()}`);
   }
 
-  title = 'Guardian';
+
   
   public logoutApp(event: MouseEvent)
   {
-    event.preventDefault(); // Detiene la navegación
-   
-    this.authService.logout(this.userStateUI.userName).subscribe({
-      next: (value) => {
-        //Manage UI
-        this.userStateUI.statusId = this.LOGGED_OUT;
-        this.authService.clearStorageVariables();
-        this.router.navigate(['/login']);
-      },
-      error: (e) =>{
-        this.navigationService.showUIMessage(e);
-      }
-    });
+    if(this.userStateUI)
+    {
+      event.preventDefault(); // Detiene la navegación
+    
+      this.authService.logout(this.userStateUI.userName).pipe(first()).subscribe({
+        next: (value) => {
+          //Manage UI
+          if(this.userStateUI)
+          {
+            this.userStateUI.statusId = this.LOGGED_OUT;
+            this.authService.clearStorageVariables();
+            this.router.navigate(['/login']);
+          }
+        },
+        error: (e) =>{
+          this.navigationService.showUIMessage(e);
+          console.log('logout error', e);
+        }
+      });
+    }
   }
 
   setUserDetailsUI()
   {
     try
     {
-      this.userStateUI = this.userStateService.getUserStateLocalStorage();
+      var storedUserInfo = this.userStateService.getUserStateLocalStorage();
+      this.userStateUI = storedUserInfo;
       this.userStateUI.statusId = this.LOGGED_IN;
     }
     catch(e)
-    {
-      //TODO: not sure what to do here currently, the getUserState Exception is logged
+    {      
+      if((e as Error).message === '$Invalid_User')
+        console.log('/SigIn');
+      else
+        console.error('setUserDetailsUI()', e);
     }
   }
 
-  migrateSales() {
-    this.migrating = true;
-    this.offlineDbService.GetSales().subscribe({
-      next: (sales) => {
-        
+  initMigrationService() {
+    interval(1000 * 60 * 5) // 300,000 ms = 5 minutes
+    .pipe(
+      switchMap(() => this.offlineDbService.GetSales()),
+      switchMap(sales => {
+        console.log('Migration service running');
         if (sales.length > 0) {
-          for (let i = 0; i < sales.length; i++) {
-            const sale1 = sales[i];
-            this.salesService.completeTemporalSale(sale1).subscribe({
-              next:(completed) => {
-                this.offlineDbService.DeleteSale(sale1.id).subscribe({
-                  next(value) {
-                    console.log("Sale migrated " + sale1);
-                  },
-                  error(err) {
-                    console.error("Error al eliminar la venta" + sale1);    
-                  },
-                });
-              },
-              error:(err) => {
-                console.error("Error al migrar la venta" + sale1);
-              },
-            });
-            console.log(sale1);
-          }
+          return this.processSales(sales);
+        } else {
+          return of(null); // No sales to process, just a placeholder to keep the stream alive
         }
-      },
-      complete:() => {
-        this.migrating = false;
-      },
-      error: (err) => 
-      {
-        this.migrating = false;
-        console.error('Failed migration:', err)
-      }
-    });
+      }),
+      catchError(err => {
+        console.error('Migración fallida:', err);
+        return of(null); // Handle error but continue the stream
+      }),
+      finalize(() => {
+        console.log("El proceso de migración ha terminado.");
+      }),
+      takeUntil(this.unsubscribe$) // This will allow us to stop the migration when needed
+    )
+    .subscribe();
+}
+
+  private processSales(sales : Sale []) {
+    const tasks = sales.map(sale => this.completeAndDeleteSale(sale));
+    return forkJoin(tasks); // Execute all tasks concurrently and wait for all of them to complete
   }
+
+  private completeAndDeleteSale(sale: Sale) {
+    return this.salesService.completeTemporalSale(sale).pipe(
+      switchMap(completed => this.offlineDbService.DeleteSale(sale.id?? 0)),
+      catchError(err => {
+        console.error('Error al migrar la venta', sale, err);
+        return of(null); // Continue processing other sales even if one fails
+      })
+    );
+  }
+
 
 }
 

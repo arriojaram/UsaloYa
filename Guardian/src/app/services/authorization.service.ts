@@ -57,7 +57,6 @@ export class AuthorizationService {
   }
 
   checkAuthentication(): boolean {
-    console.log("checkAuthentication");
     let authenticationValue = this.navigation.getItemWithExpiry('isAuthenticated');
     let isAuthenticated = false;
 

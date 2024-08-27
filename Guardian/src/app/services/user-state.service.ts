@@ -41,9 +41,8 @@ export class UserStateService {
     else
     {
       console.error('No se puede cargar la información del usuario. Usuario no encontrado');
-      //this.authorizationService.logout();
-
-      throw new Error("Usuario invalido");
+     
+      throw new Error("$Invalid_User");
     }
   }
 

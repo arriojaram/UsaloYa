@@ -1,53 +1,62 @@
-<nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
+<nav class="sb-topnav navbar navbar-expand navbar-dark bg-success">
     <!-- Navbar Brand-->
     <a class="navbar-brand ps-3" href="main">
+        <picture>
+            <!-- Imágenes para diferentes resoluciones -->
+            <source srcset="assets/icons/logos/logo.png" media="(max-width: 320px)">
+            <source srcset="assets/icons/logos/logo_192x192.png" media="(max-width: 480px)">
+            <img src="assets/icons/logos/logo_512x512.png" alt="Logo" style="height: 40px;">
+        </picture>
         Guardian - {{ this.appOnlineStatus }} 
     </a>
     <!-- Sidebar Toggle-->
-    <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
+    <button class="btn btn-link btn-sm order-1 order-lg-0 ms-3 ms-lg-1" id="sidebarToggle" href="#!" style="color: white; opacity: 1;">
+        <i class="fas fa-bars"></i>
+    </button>
     
     <div class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0"></div>
     
-    <div class="navbar-nav nav-link  px-4" *ngIf="this.userStateUI.statusId === LOGGED_IN">
+    <div class="navbar-nav nav-link px-4" *ngIf="this.userStateUI?.statusId === LOGGED_IN">
         <span class="d-flex align-items-center justify-content-center">
-            {{ this.userStateUI.userName }} -
+            <span class="d-none d-md-inline">{{ this.userStateUI?.userName }} -</span>
             <a class="nav-link px-2" id="navbarDropdown" href="#" (click)="logoutApp($event)" role="button">
-              Salir
+                Salir
             </a>
-          </span>          
+        </span>
     </div>
+    
 </nav>
 <div id="layoutSidenav">
-    <div id="layoutSidenav_nav" *ngIf="this.userStateUI.statusId === LOGGED_IN">
+    <div id="layoutSidenav_nav" *ngIf="this.userStateUI?.statusId === LOGGED_IN">
         <nav class="sb-sidenav accordion sb-sidenav-light" id="sidenavAccordion">
             <div class="sb-sidenav-menu">
                 <div class="nav">
                     <div class="sb-sidenav-menu-heading">Accesos</div>
                   
-                    <a class="nav-link" href="main" *ngIf="this.userStateUI.groupId === 1">
-                      <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                    <a class="nav-link" href="main" *ngIf="this.userStateUI?.groupId === 1">
+                      <div class="sb-nav-link-icon"><i class="bi bi-cash-stack fs-6"></i></div>
                       Punto de Venta
                     </a>
                   
-                    <a class="nav-link" href="productos" *ngIf="this.userStateUI.groupId === 1">
-                      <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                    <a class="nav-link" href="productos" *ngIf="this.userStateUI?.groupId === 1">
+                      <div class="sb-nav-link-icon"><i class="bi bi-box-seam fs-6"></i></div>
                       Productos
                     </a>
 
-                    <a class="nav-link" href="usuarios" *ngIf="this.userStateUI.groupId === 1">
-                        <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                    <a class="nav-link" href="usuarios" *ngIf="this.userStateUI?.groupId === 1">
+                        <div class="sb-nav-link-icon"><i class="bi bi-people fs-6"></i></div>
                         Usuarios
                     </a>
                     
-                    <a class="nav-link" href="reporteventas" *ngIf="this.userStateUI.groupId === 1">
-                        <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                    <a class="nav-link" href="reporteventas" *ngIf="this.userStateUI?.groupId === 1">
+                        <div class="sb-nav-link-icon"><i class="bi bi-graph-up fs-6"></i></div>
                         Reporte Ventas
                     </a>
                   </div>
             </div>
             <div class="sb-sidenav-footer">
                 <div class="small">Has entrado como:</div>
-                <i class="fas fa-user fa-fw px-2 text-success"></i> {{ this.userStateUI.firstName + ' ' + this.userStateUI.lastName }}
+                <i class="fas fa-user fa-fw px-2 text-success"></i> {{ this.userStateUI?.firstName + ' ' + this.userStateUI?.lastName }}
             </div>
         </nav>
     </div>
