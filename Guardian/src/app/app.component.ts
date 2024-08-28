@@ -52,10 +52,8 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    
     this.loading_i$ = this.loadingService.loading$;
     this.userStateUI = {userId:0, userName:'', companyId:0, groupId:0, statusId:0};
-
     
     // Init network status monitor
     this.connectionService.monitor()

@@ -14,10 +14,12 @@
                 </div>
             </div>
             <div class="col-12 col-md mt-2 mt-md-0">
-                <button class="btn btn-primary btn-block" (click)="getSales()">Generar Reporte</button>
+                <button class="btn btn-primary btn-block" (click)="getSales()">
+                    <i class="bi bi-file-bar-graph"></i> Generar Reporte
+                </button>
             </div>
-        </div>  
-        <div class="row justify-content-start">
+        </div>
+        <div class="row justify-content-start align-items-stretch">
             <div class="col-6">
                 <div class="input-group">
                     <div class="input-group-prepend">
@@ -28,7 +30,10 @@
                     <input type="text" [value]="filterText" (keyup)="filterSales($event)" class="form-control" placeholder="Filtrar ventas...">
                 </div>
             </div>
-        </div>        
+            <div id="d1" class="col-6 d-flex align-items-center fs-4" style="font-weight: bold;">
+                Total de la Venta: {{ this.totalVentas | currency }}
+            </div>
+        </div>
     </form>
     <table class="table table-striped mt-3">
         <thead>
@@ -38,7 +43,8 @@
                 <th class="d-none d-md-table-cell">Usuario</th>
                 <th>Nombre</th>
                 <th class="d-none d-md-table-cell">Notas</th>
-                <th class="d-none d-md-table-cell">Estado</th>
+                <th class="d-none d-md-table-cell">Pago</th>
+                <th class="d-none d-md-table-cell">Estatus</th>
                 <th>Total</th>
                 <th></th>
             </tr>
@@ -50,7 +56,18 @@
                 <td class="d-none d-md-table-cell">{{ sale.userName }}</td>
                 <td>{{ sale.fullName }}</td>
                 <td class="d-none d-md-table-cell">{{ sale.notes }}</td>
-                <td class="d-none d-md-table-cell">{{ sale.status }}</td>
+                <td class="d-none d-md-table-cell">{{ sale.payment }}</td>
+                <td>
+                    <div class="form-check form-switch" 
+                    [ngClass]="{'toggle-completado': sale.status === 'Completada', 'toggle-cancelado': sale.status !== 'Completada'}">
+                        <input class="form-check-input" type="checkbox" id="sale{{sale.saleID}}" 
+                            (change)="this.updateSaleStatus(sale.saleID, sale.status)" [checked]="sale.status === 'Completada'">
+                        <label class="form-check-label" for="sale{{sale.saleID}}" [title]="sale.status" data-bs-toggle="tooltip" data-bs-placement="top">
+                            <i *ngIf="sale.status === 'Completada'" class="bi bi-cart-check"></i>
+                            <i *ngIf="sale.status !== 'Completada'" class="bi bi-x-circle"></i>
+                        </label>
+                    </div>
+                </td>
                 <td>{{ sale.totalSale | currency:'MXN' }}</td>
                 <td>
                     <button class="btn btn-sm btn-primary" (click)="redirectToDetails(sale.saleID)">Ver Detalle</button>

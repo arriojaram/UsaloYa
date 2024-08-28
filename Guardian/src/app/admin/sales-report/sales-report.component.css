@@ -16,4 +16,13 @@
     background-color: #0056b3; /* Cambia el color al pasar el mouse */
   }
   
+  /* Clases personalizadas para el color del toggle */
+.toggle-completado .form-check-input {
+  background-color: #28a745 !important; /* Verde */
+}
+
+.toggle-cancelado .form-check-input {
+  background-color: #dc3545 !important; /* Rojo */
+}
+
   

@@ -7,6 +7,7 @@ export interface SaleDetailReport {
     notes: string;
     status: string;
     totalSale: number;
+    payment: string;
   }
   
   

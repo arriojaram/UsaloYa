@@ -155,7 +155,7 @@ export class UserManagementComponent {
   private searchUsersInternal(name: string): void {
     this.userService.getAllUser(this.userState.companyId, name).pipe(first())
     .subscribe(users => {
-      this.userList = users;
+      this.userList = users.sort((a,b) => (a.firstName?? '').localeCompare((b.firstName?? '')));
     });
   }
 

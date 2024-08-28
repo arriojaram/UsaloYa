@@ -10,7 +10,6 @@ import { SalesReportComponent } from './admin/sales-report/sales-report.componen
 export const routes: Routes = [
     {path: '', redirectTo: '/login', pathMatch: 'full' },
     {path: 'login', component: LoginComponent },
-    //{path: 'main', component: ScannerComponent}
     { path: 'reporteventas', component: SalesReportComponent, canActivate: [AuthGuard] },
     
     { path: 'productos', component: ProductManagementComponent, canActivate: [AuthGuard] },

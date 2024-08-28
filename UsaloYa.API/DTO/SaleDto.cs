@@ -13,4 +13,6 @@
 
         public List<SaleDetailsDto> SaleDetailsList { get; set; }
     }
+
+   
 }

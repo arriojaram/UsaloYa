@@ -16,6 +16,14 @@ import { UserStateService } from "../services/user-state.service";
 })
 
 export class ScannerComponent implements OnInit {
+    isScannerEnabled: boolean = false;
+    scannerBtnLabel: string | undefined;
+    allowedFormats: BarcodeFormat [];
+    qrResultString: string = "init";
+    isHidden?: boolean;
+    label_productoAdded?: string;
+    messageClass: string = "alert  alert-success mt-2";
+
     constructor(
         public ventasService: SaleService,
         private userState: UserStateService
@@ -25,24 +33,18 @@ export class ScannerComponent implements OnInit {
             BarcodeFormat.DATA_MATRIX,
             BarcodeFormat.EAN_13,]    
 
+    }
+
+    ngOnInit(): void {
+       
         this.scannerBtnLabel = "Abrir escaner";
         this.isScannerEnabled = false;  
         this.isHidden = true;
         const companyId = this.userState.getUserStateLocalStorage().companyId;
         this.ventasService.cacheProductCatalog(companyId);
-    }
-
-    ngOnInit(): void {
-     
     }    
 
-    isScannerEnabled: boolean;
-    scannerBtnLabel: string;
-    allowedFormats: BarcodeFormat [];
-    qrResultString: string = "init";
-    isHidden?: boolean;
-    label_productoAdded?: string;
-    messageClass: string = "alert  alert-success mt-2";
+   
 
     formVenta = new FormGroup({
         codigo : new FormControl('', Validators.required)

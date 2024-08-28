@@ -1,14 +1,14 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ProductSaleDetailReport, SaleDetailReport } from '../../dto/sale-detail-report';
-import { HttpClient } from '@angular/common/http';
 import { ReportsService } from '../../services/reports.service';
 import { NavigationService } from '../../services/navigation.service';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UserStateService } from '../../services/user-state.service';
 import { userDto } from '../../dto/userDto';
-import { Router } from '@angular/router';
 import { first, Subject, takeUntil } from 'rxjs';
+import { SaleService } from '../../services/sale.service';
+import { StatusVentaEnum } from '../../dto/enums';
 
 @Component({
   selector: 'app-sales-report',
@@ -26,14 +26,15 @@ export class SalesReportComponent implements OnInit, OnDestroy {
   saleProducts: ProductSaleDetailReport[] = [];
   filteredProducts: ProductSaleDetailReport[] = [];
   showMainReport: boolean;
+  totalVentas: number | undefined;
+
   private unsubscribe$: Subject<void> = new Subject();
   
   constructor(private fb: FormBuilder,
-    private http: HttpClient,
+    private salesService: SaleService,
     private reportService: ReportsService,
     private navigationService: NavigationService,
     private userService: UserStateService,
-    private router: Router
   ) 
   {
     this.reportForm = this.initForm();
@@ -75,6 +76,35 @@ export class SalesReportComponent implements OnInit, OnDestroy {
 
   goBack(): void {
     this.showMainReport = true;
+  }
+
+  private resolveSaleStatus(status: string): string
+  {
+    if(status === StatusVentaEnum[StatusVentaEnum.Completada])
+    {
+      return StatusVentaEnum[StatusVentaEnum.Cancelada];
+    }
+    return StatusVentaEnum[StatusVentaEnum.Completada];
+  }
+
+  updateSaleStatus(saleId: number, status: string)
+  {
+    const newStatus = this.resolveSaleStatus(status);
+    console.log(status + ' > ' + newStatus );
+    this.salesService.updateSaleStatus(saleId, newStatus).pipe(
+      first()
+    ).subscribe({
+      complete:() => {
+        const sale = this.sales.find(s => s.saleID === saleId);
+        if (sale) {
+            sale.status = newStatus;
+        }
+      },
+      error: (err) => {
+        console.error(err);
+        this.navigationService.showUIMessage("Error de disponibilidad de red, intenta mas tarde.");
+      },
+    });
   }
 
   getSale(saleId: number): void {
@@ -123,21 +153,23 @@ export class SalesReportComponent implements OnInit, OnDestroy {
     const fromDate = this.reportForm.get('dateFrom')?.value ?? new Date();
     const toDate = this.reportForm.get('dateTo')?.value ?? new Date();
     const userId = 0;
-
     this.reportService.getSales(fromDate, toDate, this.userState.companyId, userId).pipe(first())
     .subscribe({
-      next:(data) => {
+      next:(data: SaleDetailReport[]) => {
         if(data.length > 0)
         {
           this.sales = data;
           this.filteredSales = data;
+          this.totalVentas = data.reduce((acumulado, newItem) => acumulado + newItem.totalSale, 0);
         }
         else
         {
+          this.totalVentas = 0;
           this.navigationService.showUIMessage('No hay registro de ventas entre las fechas ' + fromDate.toString() + ' - ' + toDate.toString() );  
         }
       },
       error:(err) => {
+        this.totalVentas = 0;
         this.navigationService.showUIMessage(err.message);
       },
     });
@@ -160,6 +192,4 @@ export class SalesReportComponent implements OnInit, OnDestroy {
       );
     }
   }
-
-  
 }

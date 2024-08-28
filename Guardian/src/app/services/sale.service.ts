@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, catchError, first, from } from 'rxjs';
+import { Observable, catchError, first, from, tap } from 'rxjs';
 import { Producto } from '../dto/producto';
 import { ProductService } from './product.service';
 import { UserStateService } from './user-state.service';
@@ -8,6 +8,7 @@ import { NavigationService } from './navigation.service';
 import { environment } from '../environments/enviroment';
 import { Sale, SaleDetail } from '../dto/sale';
 import Dexie from 'dexie';
+import { UpdateSaleStatus } from '../dto/update-sale-status';
 
 @Injectable({
   providedIn: 'root'
@@ -91,7 +92,7 @@ export class SaleService extends Dexie {
 
   async addProduct(barcode: string, companyId: number)
   {
-    let productForSale: any = undefined;
+    let productForSale: Producto | any = undefined;
     
     if(this.productCatalog.length == 0)
     {
@@ -126,27 +127,33 @@ export class SaleService extends Dexie {
   private groupProducts(): void {
     const productMap = new Map();
     this.totalVenta = 0;
+
     this.saleProducts.forEach((product) => {
-      
+      this.totalVenta += product.unitPrice;
+      if(product.unitsInStock <= 0)
+      {
+        this.navigationService.showUIMessage('Producto agotado en almacén ('+ product.name +')');
+      }
+
       if (productMap.has(product.barcode)) {
         let group = productMap.get(product.barcode);
         group.count += 1;
         group.total += product.unitPrice;
-        this.totalVenta += group.total;
+        
       } else {
         productMap.set(product.barcode, {
           ...product,
           count: 1,
           total: product.unitPrice
         });
-        this.totalVenta += product.unitPrice;
+        
       }
     });
 
     this.saleProductsGrouped = Array.from(productMap.values());
   }
 
-  private buildSale(userId: number, companyId: number): Sale
+  private buildSale(userId: number, companyId: number, notes: string, metodoPago: string): Sale
   {
     let saleDetail: SaleDetail[] = new Array(this.saleProductsGrouped.length-1);
     for (let index = 0; index < this.saleProductsGrouped.length; index++) {
@@ -159,9 +166,9 @@ export class SaleService extends Dexie {
       id: undefined,
       saleId: 0,
       customerId: 0,
-      paymentMethod: "Efectivo",
+      paymentMethod: metodoPago,
       tax: 0.00,
-      notes: "",
+      notes: notes,
       userId: userId,
       companyId: companyId,
       saleDetailsList: saleDetail
@@ -171,12 +178,27 @@ export class SaleService extends Dexie {
     return sale;
   }
 
-   finishSale(userId: number, companyId: number): Observable<Sale> {
+   finishSale(userId: number, companyId: number, notas: string, metodoPago: string): Observable<Sale> {
     const apiUrl = `${this.baseUrl}/AddSale`;
-    const sale = this.buildSale(userId, companyId);
+    const sale = this.buildSale(userId, companyId, notas, metodoPago);
     return this.httpClient.post<Sale>(apiUrl, sale, this.httpOptions).pipe(
+      tap(() => {
+        this.totalVenta = 0;
+      }),
       catchError(error => {
         console.error('finishSale() | ', error);
+        throw error;
+      })
+    );
+  }
+
+  updateSaleStatus(saleId: number, status: string): Observable<void> {
+    const saleStatus: UpdateSaleStatus = {SaleId: saleId, Status: status};
+    const apiUrl = `${this.baseUrl}/UpdateSaleStatus`;
+    
+    return this.httpClient.post<void>(apiUrl, saleStatus, this.httpOptions).pipe(
+      catchError(error => {
+        console.error('updateSaleStatus() | ', error);
         throw error;
       })
     );
@@ -205,9 +227,6 @@ export class SaleService extends Dexie {
         await this.transaction('rw', this.productCatalogTable, async () => {
           await this.productCatalogTable.bulkAdd(products);
         })
-      },
-      complete: () => {
-        
       },
       error:(err) => {
         this.navigationService.showUIMessage(err.message);

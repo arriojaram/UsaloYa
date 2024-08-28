@@ -39,6 +39,7 @@ namespace UsaloYa.API.Controllers
                                  UserName = u.UserName,
                                  FullName = u.FirstName + ' ' +u.LastName,
                                  Notes = s.Notes,
+                                 Payment = s.PaymentMethod,
                                  Status = s.Status,
                                  TotalSale = s.TotalSale
                              };

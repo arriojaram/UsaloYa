@@ -1,30 +1,40 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { SaleService } from '../services/sale.service';
 import { CommonModule } from '@angular/common';
 import { OfflineDbStore } from '../services/offline-db-store.service';
 import { UserStateService } from '../services/user-state.service';
 import { first } from 'rxjs';
+import { Router } from '@angular/router';
+
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-lista-venta',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './lista-venta.component.html',
   styleUrl: './lista-venta.component.css'
 })
-export class ListaVentaComponent {
+export class ListaVentaComponent implements OnInit {
   constructor(
+    private router: Router,
     public ventaService: SaleService,
     private offlineDbStore: OfflineDbStore,
     private userState: UserStateService
   )
   {
     this.isHidden = true;
+    this.metodoPago = "";
   }
-
+  metodoPago: string;
+  notaVenta: string = "";
   isHidden?: boolean;
   message?: string;
   messageClass: string = "alert  alert-success mt-2";
+  
+  ngOnInit(): void {
+    this.metodoPago = "Efectivo";  
+  }
 
   canFinishSale()
   {
@@ -39,8 +49,11 @@ export class ListaVentaComponent {
   {
     this.ventaService.saleProducts = [];
     this.ventaService.saleProductsGrouped = [];
+    this.ventaService.totalVenta = 0;
+    this.notaVenta = '';
+    this.metodoPago = 'Efectivo';
   }
-  
+ 
   removeProduct(productId: number): void {
     this.ventaService.removeProductFromList(productId);
   }
@@ -49,7 +62,8 @@ export class ListaVentaComponent {
   {
     this.isHidden = false;
     let userState = this.userState.getUserStateLocalStorage();
-    this.ventaService.finishSale(userState.userId, userState.companyId).pipe(first())
+    
+    this.ventaService.finishSale(userState.userId, userState.companyId, this.notaVenta?? '', this.metodoPago?? 'Efectivo').pipe(first())
     .subscribe(
       {
         next: (response) => 
@@ -57,6 +71,8 @@ export class ListaVentaComponent {
           this.message = `Venta registrada: ${JSON.stringify(response)}`;
           this.messageClass = "alert  alert-success mt-2";
           this.resetListaVenta();
+          // Reload catalog
+          this.ventaService.cacheProductCatalog(userState.companyId);
         },
         error: async (error) => {
           this.messageClass = "alert  alert-warning mt-2";

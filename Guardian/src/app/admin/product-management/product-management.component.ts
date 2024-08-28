@@ -31,7 +31,7 @@ export class ProductManagementComponent implements OnInit {
   {
     this.userState = userService.getUserStateLocalStorage();
     this.productForm = this.initProductForm();
-    this.isSearchPanelHidden = true;
+    this.isSearchPanelHidden = false;
   }
 
   initProductForm() : FormGroup
@@ -69,7 +69,7 @@ export class ProductManagementComponent implements OnInit {
   private searchProductsInternal(name: string): void {
     this.productService.searchProducts(this.userState.companyId, name).pipe(first())
     .subscribe(products => {
-      this.products = products;
+      this.products = products.sort((a,b) => a.name.localeCompare(b.name));
     });
   }
 

@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.Design;
 using UsaloYa.API.DTO;
 using UsaloYa.API.Models;
 using UsaloYa.API.Utils;
+using static UsaloYa.API.Enumerations;
 
 namespace UsaloYa.API.Controllers
 {
@@ -77,6 +79,7 @@ namespace UsaloYa.API.Controllers
                     };
 
                     _dBContext.SaleDetails.Add(product);
+                    await UpdateStock(product.ProductId, product.Quantity);
                 }
 
                 // Commit DB changes
@@ -86,6 +89,7 @@ namespace UsaloYa.API.Controllers
 
                     if (totalSale > 0)
                         await UpdateTotalSale(saleId, totalSale);
+
                 }
 
                 return Ok(saleId);
@@ -94,6 +98,31 @@ namespace UsaloYa.API.Controllers
             {
                 _logger.LogError(ex, "AddSaleDetails.ApiError");
                 return StatusCode(500, new { message = "$_ExcepcionOcurrida" });
+            }
+        }
+
+        /// <summary>
+        /// Updates the stock of the product information. This function works together with the function
+        /// AddProductsToSale where the DB commit action is executed.
+        /// </summary>
+        /// <param name="productId"></param>
+        /// <param name="selledItems"></param>
+        /// <returns></returns>
+        private async Task UpdateStock(int productId, int selledItems)
+        {
+            try
+            {
+                var existingProduct = await _dBContext.Products.FirstOrDefaultAsync(p => p.ProductId == productId);
+
+                if (existingProduct != null)
+                {
+                    existingProduct.UnitsInStock = existingProduct.UnitsInStock - selledItems;
+                    _dBContext.Products.Update(existingProduct);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "UpdateStock.ApiError");
             }
         }
 
@@ -108,12 +137,36 @@ namespace UsaloYa.API.Controllers
                 }
 
                 sale.SaleDate = Utils.Util.GetMxDateTime();
-                sale.Status = "Completada";
-                sale.PaymentMethod = "Efectivo";
+                sale.Status = SaleStatus.Completada.ToString();
+                
                 sale.TotalSale = totalSale;
                 _dBContext.Sales.Update(sale);
                 await _dBContext.SaveChangesAsync();
                 return Ok();    
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "UpdateTotalSale.ApiError");
+                return StatusCode(500, new { message = "$_ExcepcionOcurrida" });
+            }
+        }
+
+        [HttpPost("UpdateSaleStatus")]
+        public async Task<IActionResult> UpdateSaleStatus([FromBody] UpdateSaleDto saleStatus)
+        {
+            try
+            {
+                var sale = await _dBContext.Sales.FindAsync(saleStatus.SaleId);
+                if (sale == null)
+                {
+                    return NotFound();
+                }
+
+                sale.Status = saleStatus.Status.ToString();
+                
+                _dBContext.Sales.Update(sale);
+                await _dBContext.SaveChangesAsync();
+                return Ok();
             }
             catch (Exception ex)
             {

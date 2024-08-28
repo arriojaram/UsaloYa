@@ -10,5 +10,11 @@
             Desconocido = 3
 
         }
+
+        public enum SaleStatus
+        { 
+            Completada = 0,
+            Cancelada = 1
+        }
     }
 }

@@ -35,14 +35,31 @@
         <div [class]="messageClass" [hidden]="isHidden">
             {{ message }}
         </div>
-        <div class="d-flex justify-content-between">
-            <button class="btn btn-success" [disabled]="this.canFinishSale()" (click)="finalizarVenta()">
+        <div class="container-fluid">
+          <div class="row">
+              <div class="col-12 col-md-3 mb-2"> <!-- Colocamos mb-2 para margin-bottom en dispositivos móviles y desktop -->
+                  Método de pago
+                  <select [(ngModel)]="metodoPago" class="form-control">
+                      <option value="Efectivo">Efectivo</option>
+                      <option value="Tarjeta">Tarjeta</option>
+                      <option value="Transferencia">Transferencia</option>
+                  </select>
+              </div>
+              <div class="col-12 col-md-9 mb-2"> <!-- Usa todo el ancho en móviles y la mitad en pantallas medianas y grandes -->
+                  <textarea class="form-control form-control-md" placeholder="Notas de la venta - (Añadir notas aquí)" [(ngModel)]="notaVenta"></textarea>
+              </div>
+          </div>
+      </div>
+      
+        <div class="d-flex justify-content-between align-items-center">
+          <button class="btn btn-success" [disabled]="this.canFinishSale()" (click)="finalizarVenta()">
               <i class="bi bi-cart-check"></i> Finalizar Venta
-            </button>
-            <button class="btn btn-danger" routerLink="/home">
+          </button>
+          <button class="btn btn-danger" (click)="resetListaVenta()">
               <i class="bi bi-arrow-counterclockwise"></i> Reiniciar Venta
-            </button>
+          </button>
         </div>
+         
     </div>
 </div>
 
