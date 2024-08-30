@@ -22,7 +22,7 @@ export const appConfig: ApplicationConfig = {
       {
         provide: ConnectionServiceOptionsToken,
         useValue: {
-          heartbeatUrl: '/assets/ping.json', // URL que verifica el estado de conexión.
+          heartbeatUrl: 'assets/ping.json', // URL que verifica el estado de conexión.
           heartbeatInterval: 30000, // Intervalo en milisegundos. Aquí lo configuramos a 20 segundos.
           heartbeatRetryInterval: 20000,
           requestMethod: 'get', // Método de la petición HTTP para el heartbeat.

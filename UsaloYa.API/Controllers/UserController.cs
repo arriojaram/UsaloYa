@@ -123,8 +123,68 @@ namespace UsaloYa.API.Controllers
                 LastAccess = u.LastAccess,
                 StatusId = u.StatusId
             };
+
+            userResponseDto.CompanyName = await LoadCompany(userResponseDto.CompanyId);
+
             return Ok(userResponseDto);
         }
+
+        private async Task<string> LoadCompany(int companyId)
+        {
+            var company = await _dBContext.Companies.FirstAsync(c => c.CompanyId == companyId);
+            if (company != null)
+                return company.Name;
+            return "No-Company";
+
+        }
+
+        [HttpGet("GetGroups")]
+        public async Task<IActionResult> GetGroups()
+        {
+            try
+            {
+                var g = await _dBContext.Groups.ToListAsync();
+                var groupDtos = g.Select(u => new GroupDto
+                {
+                    GroupId = u.GroupId,
+                    Name = u.Name,
+                    Description = u.Description
+                });
+                return Ok(groupDtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "GetGroups.ApiError");
+
+                // Return a 500 Internal Server Error with a custom message
+                return StatusCode(500, new { message = "$_ExcepcionOcurrida" });
+            }
+        }
+
+        [HttpGet("GetCompanies")]
+        public async Task<IActionResult> GetCompanies()
+        {
+            try
+            {
+                var companies = await _dBContext.Companies.ToListAsync();
+                var companyDtos = companies.Select(u => new CompanyDto
+                {
+                   CompanyId = u.CompanyId,
+                   Name = u.Name,
+                   Address = u.Address
+                });
+
+                return Ok(companyDtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "GetCompanies.ApiError");
+
+                // Return a 500 Internal Server Error with a custom message
+                return StatusCode(500, new { message = "$_ExcepcionOcurrida" });
+            }
+        }
+
 
         [HttpGet("GetAll")]
         public async Task<IActionResult> GetAll([FromQuery] int companyId, string name = "-1")

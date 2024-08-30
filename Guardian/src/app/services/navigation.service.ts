@@ -11,7 +11,7 @@ import { BehaviorSubject } from 'rxjs';
 export class NavigationService {
   
   apiBaseUrl: string = '';
-  private userStateSource = new BehaviorSubject<userDto>({userId:0, userName:'', companyId:0, groupId:0, statusId:0});
+  private userStateSource = new BehaviorSubject<userDto>({userId:0, userName:'', companyId:0, groupId:0, statusId:0, companyName:""});
   // Crea un observable público para exponer el BehaviorSubject
   public userState$ = this.userStateSource.asObservable();
   
@@ -68,7 +68,7 @@ export class NavigationService {
   showUIMessage(message: string)
   {
     this._snackBar.open(message, 'X', {
-      duration: 1000 * 20
+      duration: environment.notificationsDisplayTimeSeconds
       //panelClass: ["custom-snackbar"]
     });
   }

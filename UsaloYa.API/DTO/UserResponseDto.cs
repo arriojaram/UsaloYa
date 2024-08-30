@@ -8,6 +8,7 @@
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public int CompanyId { get; set; }
+        public string CompanyName{ get; set; }
         public int GroupId { get; set; }
         public int StatusId { get; set; }
         public DateTime? LastAccess { get; set; }

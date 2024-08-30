@@ -1,7 +1,7 @@
 <div class="container mt-1">
     <div class="row">
       <div class="col-12 d-flex justify-content-between align-items-center">
-        <h5 class="my-3">Gestión de Productos</h5>
+        <h5 class="my-3">Gestión de Usuarios</h5>
       </div>
     </div>
     <div class="row">
@@ -36,7 +36,8 @@
                         <form [formGroup]="userForm" (ngSubmit)="saveUser()">
                             <div class="form-group col-md-12 d-flex">
                                 <div class="col-md-8 mb-2 pr-2">
-                                    <input class="form-control" formControlName="userName" placeholder="Nombre de usuario">
+                                    <label for="userName">user name</label>
+                                    <input id="userName" class="form-control" formControlName="userName" placeholder="Nombre de usuario">
                                     <div *ngIf="userForm.get('userName')?.invalid && userForm.get('userName')?.touched" class="invalid-feedback">
                                         Nombre de usuario es obligatorio.
                                     </div>
@@ -47,25 +48,37 @@
                                 </div>
                             </div>
                             <div class="form-group mb-2">
-                                <input class="form-control" formControlName="firstName" placeholder="Nombre">
+                                <label for="firstName">first name</label>
+                                <input id="firstName" class="form-control" formControlName="firstName" placeholder="Nombre">
                                 <div *ngIf="userForm.get('firstName')?.invalid && userForm.get('firstName')?.touched" class="invalid-feedback">
                                     Nombre es obligatorio.
                                 </div>
                             </div>    
                             <div class="form-group mb-2">
-                                <input class="form-control" formControlName="lastName" placeholder="Apellido">
+                                <label for="lastName">last name</label>
+                                <input id="lastName" class="form-control" formControlName="lastName" placeholder="Apellido">
                                 <div *ngIf="userForm.get('lastName')?.invalid && userForm.get('lastName')?.touched" class="invalid-feedback">
                                     Apellido es obligatorio.
                                 </div>
                             </div>    
                             <div class="form-group mb-2">
-                                <input class="form-control" formControlName="companyId" placeholder="Compañia">
+                                <label for="companyId">company Id</label>
+                                <select id="companyId" formControlName="companyId" class="form-control">
+                                    <option *ngFor="let company of companies" [value]="company.companyId">
+                                        {{ company.name }}
+                                      </option>
+                                </select>
                                 <div *ngIf="userForm.get('companyId')?.invalid && userForm.get('companyId')?.touched" class="invalid-feedback">
                                     Compañia es obligatorio.
                                 </div>
                             </div>    
                             <div class="form-group mb-2">
-                                <input class="form-control" formControlName="groupId" placeholder="Grupo">
+                                <label for="groupId">group Id</label>
+                                <select id="groupId" formControlName="groupId" class="form-control">
+                                    <option *ngFor="let group of groups" [value]="group.groupId">
+                                        {{ group.name }}
+                                      </option>
+                                </select>
                                 <div *ngIf="userForm.get('groupId')?.invalid && userForm.get('groupId')?.touched" class="invalid-feedback">
                                     Grupo es obligatorio.
                                 </div>

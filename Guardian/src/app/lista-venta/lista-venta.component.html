@@ -63,5 +63,40 @@
     </div>
 </div>
 
+<!-- Contenedor del ticket -->
+<div *ngIf="ticketVisible" class="d-flex align-items-center justify-content-center position-fixed w-100 h-100 bg-dark bg-opacity-50 top-0 start-0">
+  <div class="card text-center w-75 w-md-50">
+    <div class="card-header bg-light">
+      <img src="../../assets/icons/logos/logo_192x192.png" alt="Guardian_Logo" class="img-fluid mb-2" style="max-width: 50px;">
+      <h5 class="card-title mb-1">{{ this.getUserState().companyName}}</h5>
+      <p class="card-subtitle text-muted">{{ this.numVenta + ' | Fecha:' + fechaHora }}</p>
+    </div> 
+    <div class="card-body">
+      <div class="d-flex justify-content-between">
+        <span>ID</span>
+        <span>Nombre</span>
+        <span>Cantidad</span>
+        <span>Total</span>
+      </div>
+      <div *ngFor="let item of ventaService.saleProductsGrouped" class="d-flex justify-content-between">
+        <span>{{ item.barcode }}</span>
+        <span>{{ item.name }}</span>
+        <span>{{ item.count }}</span>
+        <span>{{ item.total | currency }}</span>
+      </div>
+      <hr>
+      <div class="d-flex justify-content-end mt-2">
+        <strong>Total:</strong> <span>{{  ventaService.getTotalVenta() | currency }}</span>
+      </div>
+      <div class="d-flex justify-content-start mt-2">
+        Cajero:&nbsp;<strong><span>{{this.getUserState().firstName + ' ' + this.getUserState().lastName }}</span></strong>
+      </div>
+    </div>
+    <div class="card-footer bg-light">
+      <p class="mb-0">¡Gracias por su compra!</p>
+    </div>
+  </div>
+</div>
+
 
   

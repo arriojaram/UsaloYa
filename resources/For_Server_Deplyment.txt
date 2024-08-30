@@ -1,0 +1,22 @@
+GO
+
+/****** Object:  Index [IX_Products_Barcode_SKU]    Script Date: 8/28/2024 8:57:20 AM ******/
+DROP INDEX [IX_Products_Barcode_SKU] ON [dbo].[Products]
+GO
+
+SET ANSI_PADDING ON
+GO
+
+/****** Object:  Index [IX_Products_Barcode_SKU]    Script Date: 8/28/2024 8:57:20 AM ******/
+CREATE UNIQUE NONCLUSTERED INDEX [IX_Products_Barcode_SKU] ON [dbo].[Products]
+(
+	[CompanyId] ASC,
+	[Barcode] ASC,
+	[SKU] ASC
+)
+WHERE ([Barcode] IS NOT NULL AND [SKU] IS NOT NULL)
+WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+
+
+// Revisar Default Value en Metodo Pago

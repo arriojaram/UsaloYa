@@ -4,6 +4,7 @@ export interface userDto{
     firstName?: string,
     lastName?: string,
     companyId: number,
+    companyName: string,
     groupId: number,
     statusId: number,
     statusIdStr?: string,

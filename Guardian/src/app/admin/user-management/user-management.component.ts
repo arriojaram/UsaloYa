@@ -1,18 +1,20 @@
 import { Component } from '@angular/core';
 import { UserService } from '../../services/user.service';
 import { ActivatedRoute } from '@angular/router';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { userDto } from '../../dto/userDto';
 import { NavigationService } from '../../services/navigation.service';
 import { UserStateService } from '../../services/user-state.service';
 import { NgFor, NgIf } from '@angular/common';
 import { format } from 'date-fns';
 import { first } from 'rxjs';
+import { adminGroupDto } from '../../dto/adminGroupDto';
+import { AdminCompanyDto } from '../../dto/adminCompanyDto';
 
 @Component({
   selector: 'app-user-management',
   standalone: true,
-  imports: [ReactiveFormsModule, NgFor, NgIf],
+  imports: [ReactiveFormsModule, FormsModule, NgFor, NgIf],
   templateUrl: './user-management.component.html',
   styleUrl: './user-management.component.css'
 })
@@ -24,7 +26,9 @@ export class UserManagementComponent {
   userList: userDto[] = [];
   userState: userDto;
   passwordErrorMsg: string;
-
+  groups: adminGroupDto [] = [];
+  companies: AdminCompanyDto [] = [];
+  
   constructor(
     private fb: FormBuilder,
     private userService: UserService,
@@ -44,6 +48,15 @@ export class UserManagementComponent {
     this.userForm.get('lastAccess')?.disable();
     this.userForm.get('statusId')?.disable();
     this.searchUsersInternal('-1');
+
+    this.userService.getGroups().subscribe((data) => {
+      this.groups = data;
+      console.log(data);
+    });
+
+    this.userService.getCompanies().subscribe((data) => {
+      this.companies = data;
+    });
   }
 
   private initUserForm(): FormGroup {

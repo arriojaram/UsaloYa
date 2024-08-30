@@ -33,22 +33,22 @@
                 <div class="nav">
                     <div class="sb-sidenav-menu-heading">Accesos</div>
                   
-                    <a class="nav-link" href="main" *ngIf="this.userStateUI?.groupId === 1">
+                    <a class="nav-link" href="main" *ngIf="(this.userStateUI?.groupId?? 0) >= 1">
                       <div class="sb-nav-link-icon"><i class="bi bi-cash-stack fs-6"></i></div>
                       Punto de Venta
                     </a>
                   
-                    <a class="nav-link" href="productos" *ngIf="this.userStateUI?.groupId === 1">
+                    <a class="nav-link" href="productos" *ngIf="(this.userStateUI?.groupId?? 0) >= 1">
                       <div class="sb-nav-link-icon"><i class="bi bi-box-seam fs-6"></i></div>
                       Productos
                     </a>
 
-                    <a class="nav-link" href="usuarios" *ngIf="this.userStateUI?.groupId === 1">
+                    <a class="nav-link" href="usuarios" *ngIf="(this.userStateUI?.groupId?? 0) === 1">
                         <div class="sb-nav-link-icon"><i class="bi bi-people fs-6"></i></div>
                         Usuarios
                     </a>
                     
-                    <a class="nav-link" href="reporteventas" *ngIf="this.userStateUI?.groupId === 1">
+                    <a class="nav-link" href="reporteventas" *ngIf="(this.userStateUI?.groupId?? 0) >= 1">
                         <div class="sb-nav-link-icon"><i class="bi bi-graph-up fs-6"></i></div>
                         Reporte Ventas
                     </a>

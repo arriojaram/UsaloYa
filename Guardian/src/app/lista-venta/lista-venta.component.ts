@@ -5,8 +5,9 @@ import { OfflineDbStore } from '../services/offline-db-store.service';
 import { UserStateService } from '../services/user-state.service';
 import { first } from 'rxjs';
 import { Router } from '@angular/router';
-
 import { FormsModule } from '@angular/forms';
+import { environment } from '../environments/enviroment';
+import { userDto } from '../dto/userDto';
 
 @Component({
   selector: 'app-lista-venta',
@@ -25,13 +26,27 @@ export class ListaVentaComponent implements OnInit {
   {
     this.isHidden = true;
     this.metodoPago = "";
+    this.numVenta = "-1";
   }
   metodoPago: string;
   notaVenta: string = "";
   isHidden?: boolean;
   message?: string;
+  numVenta: string;
   messageClass: string = "alert  alert-success mt-2";
   
+  /****************************************************/
+  ticketVisible = false;
+  fechaHora = new Date().toLocaleString();
+ 
+  showTicket() {
+    this.ticketVisible = true;
+    setTimeout(() => {
+      this.ticketVisible = false;
+      this.resetListaVenta();
+    }, environment.notificationsDisplayTimeSeconds);
+  }
+  /******************************************************** */
   ngOnInit(): void {
     this.metodoPago = "Efectivo";  
   }
@@ -58,19 +73,28 @@ export class ListaVentaComponent implements OnInit {
     this.ventaService.removeProductFromList(productId);
   }
 
+  getUserState(): userDto
+  {
+    let userState = this.userState.getUserStateLocalStorage();
+    return userState;
+  }
+
   async finalizarVenta()
   {
     this.isHidden = false;
-    let userState = this.userState.getUserStateLocalStorage();
+    let userState = this.getUserState();
     
     this.ventaService.finishSale(userState.userId, userState.companyId, this.notaVenta?? '', this.metodoPago?? 'Efectivo').pipe(first())
     .subscribe(
       {
         next: (response) => 
         {
-          this.message = `Venta registrada: ${JSON.stringify(response)}`;
+          console.log(response);
+          this.message = `Venta registrada: ${response}`;
+          this.numVenta = 'Num. Venta: ' + response;
           this.messageClass = "alert  alert-success mt-2";
-          this.resetListaVenta();
+          this.showTicket();
+         
           // Reload catalog
           this.ventaService.cacheProductCatalog(userState.companyId);
         },
@@ -78,8 +102,13 @@ export class ListaVentaComponent implements OnInit {
           this.messageClass = "alert  alert-warning mt-2";
           
           try {
-            const id = await this.offlineDbStore.AddSale(this.ventaService.getCurrentSale());
-            console.log('offlineID: ' + id);
+            const newGuid = this.ventaService.generateGUID();
+            
+            const saleTmp = this.ventaService.getCurrentSale();
+            saleTmp.notes = saleTmp.notes + ' -> TMP-:' + newGuid;
+            const id = await this.offlineDbStore.AddSale(saleTmp);
+            
+            this.numVenta = 'Num. Venta: TMP-' +  newGuid;
             this.message = `Venta registrada (en proceso de sincronización...)`;
             this.resetListaVenta();
           } catch (error) {
@@ -90,7 +119,7 @@ export class ListaVentaComponent implements OnInit {
 
     setTimeout(() => {
       this.isHidden = true; // Oculta el div después de X segundos
-    }, 20000);
+    }, environment.notificationsDisplayTimeSeconds);
   }
 
  

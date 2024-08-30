@@ -7,7 +7,7 @@ import { Router, RouterModule } from '@angular/router';
 import { UserStateService } from '../services/user-state.service';
 import { NavigationService } from '../services/navigation.service';
 import { userDto } from '../dto/userDto';
-import { catchError, of, Subject, switchMap, takeUntil } from 'rxjs';
+import { catchError, first, of, Subject, switchMap, takeUntil } from 'rxjs';
 
 
 @Component({
@@ -46,7 +46,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (this.loginForm.valid) {
       const loginData = this.loginForm.value;
 
-      this.authService.login(loginData).pipe(takeUntil(this.unsubscribe$),
+      this.authService.login(loginData).pipe(first(),
         switchMap((loginResults) => {
           return this.userStateService.loadUser(loginResults);
         }),

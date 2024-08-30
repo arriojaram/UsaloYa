@@ -65,6 +65,13 @@ export class SaleService extends Dexie {
   saleProductsGrouped: Producto [] = []
   productCatalog: Producto[] | any[] = []
 
+  generateGUID(): string {
+    return 'xxxxx4xyxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  }
+  
   getCurrentSale(): Sale
   {
     return this.currentSale;
@@ -178,12 +185,12 @@ export class SaleService extends Dexie {
     return sale;
   }
 
-   finishSale(userId: number, companyId: number, notas: string, metodoPago: string): Observable<Sale> {
+   finishSale(userId: number, companyId: number, notas: string, metodoPago: string): Observable<number> {
     const apiUrl = `${this.baseUrl}/AddSale`;
     const sale = this.buildSale(userId, companyId, notas, metodoPago);
-    return this.httpClient.post<Sale>(apiUrl, sale, this.httpOptions).pipe(
+    return this.httpClient.post<number>(apiUrl, sale, this.httpOptions).pipe(
       tap(() => {
-        this.totalVenta = 0;
+        //this.totalVenta = 0;
       }),
       catchError(error => {
         console.error('finishSale() | ', error);

@@ -63,7 +63,7 @@ public partial class DBContext : DbContext
         {
             entity.HasIndex(e => new { e.Name, e.Description }, "IX_Products");
 
-            entity.HasIndex(e => new { e.Barcode, e.Sku }, "IX_Products_Barcode_SKU")
+            entity.HasIndex(e => new { e.CompanyId, e.Barcode, e.Sku }, "IX_Products_Barcode_SKU")
                 .IsUnique()
                 .HasFilter("([Barcode] IS NOT NULL AND [SKU] IS NOT NULL)");
 

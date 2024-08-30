@@ -4,6 +4,8 @@ import { catchError, Observable } from 'rxjs';
 import { userDto as userDto } from '../dto/userDto';
 import { environment } from '../environments/enviroment';
 import { TokenDto } from '../dto/set-token';
+import { adminGroupDto } from '../dto/adminGroupDto';
+import { AdminCompanyDto } from '../dto/adminCompanyDto';
 
 
 @Injectable({
@@ -52,6 +54,28 @@ export class UserService {
     return this.http.get<userDto[]>(apiUrl, this.httpOptions).pipe(
       catchError(error => {
         console.error('getAllUser() | ', error);
+        throw error;
+      })
+    );
+  }
+
+  getCompanies(): Observable<AdminCompanyDto[]> {
+    const apiUrl =`${this.baseUrl}/GetCompanies`;
+    
+    return this.http.get<AdminCompanyDto[]>(apiUrl, this.httpOptions).pipe(
+      catchError(error => {
+        console.error('getCompanies() | ', error);
+        throw error;
+      })
+    );
+  }
+
+  getGroups(): Observable<adminGroupDto[]> {
+    const apiUrl =`${this.baseUrl}/GetGroups`;
+    
+    return this.http.get<adminGroupDto[]>(apiUrl, this.httpOptions).pipe(
+      catchError(error => {
+        console.error('getGroups() | ', error);
         throw error;
       })
     );

@@ -53,7 +53,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loading_i$ = this.loadingService.loading$;
-    this.userStateUI = {userId:0, userName:'', companyId:0, groupId:0, statusId:0};
+    this.userStateUI = {userId:0, userName:'', companyId:0, groupId:0, statusId:0, companyName:""};
     
     // Init network status monitor
     this.connectionService.monitor()
@@ -171,6 +171,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private completeAndDeleteSale(sale: Sale) {
+    
     return this.salesService.completeTemporalSale(sale).pipe(
       switchMap(completed => this.offlineDbService.DeleteSale(sale.id?? 0)),
       catchError(err => {
