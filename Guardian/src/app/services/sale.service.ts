@@ -77,6 +77,33 @@ export class SaleService extends Dexie {
     return this.currentSale;
   }
 
+  playBeep(): void {
+    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+
+    // Crear un oscilador que genera el tono
+    const oscillator = audioCtx.createOscillator();
+
+    // Configurar el tipo de onda y frecuencia
+    oscillator.type = 'sine'; // Puedes probar con 'square', 'sawtooth', 'triangle'
+    oscillator.frequency.setValueAtTime(440, audioCtx.currentTime); // Frecuencia en Hz (440 Hz es la nota A4)
+
+    // Conectar el oscilador al destino (altavoces)
+    oscillator.connect(audioCtx.destination);
+
+    // Iniciar y detener el oscilador después de un breve tiempo para crear un pitido
+    oscillator.start();
+    oscillator.stop(audioCtx.currentTime + 0.1); // Pitido de 0.1 segundos de duración
+  }
+  
+  getCambio(recibido: number)
+  {
+    if(recibido > 0.1)
+    {
+      return recibido - this.getTotalVenta();
+    }
+    return 0;
+  }
+
   getTotalVenta(): number {
     return this.totalVenta;
   }

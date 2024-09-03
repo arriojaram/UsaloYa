@@ -6,6 +6,7 @@ import { ZXingScannerModule } from "@zxing/ngx-scanner";
 import { BarcodeFormat } from "@zxing/library";
 import { ListaVentaComponent } from "../lista-venta/lista-venta.component";
 import { UserStateService } from "../services/user-state.service";
+import { barcodeFormats } from "../shared/barcode-s-formats";
 
 @Component({
     selector: 'app-scanner',
@@ -23,25 +24,23 @@ export class ScannerComponent implements OnInit {
     isHidden?: boolean;
     label_productoAdded?: string;
     messageClass: string = "alert  alert-success mt-2";
+    scanningAllowed: boolean | undefined;
 
     constructor(
         public ventasService: SaleService,
         private userState: UserStateService
     ) 
     {
-        this.allowedFormats = [  BarcodeFormat.CODE_128,
-            BarcodeFormat.DATA_MATRIX,
-            BarcodeFormat.EAN_13,]    
-
+        this.allowedFormats = barcodeFormats.allowedFormats;
     }
 
     ngOnInit(): void {
-       
         this.scannerBtnLabel = "Abrir escaner";
         this.isScannerEnabled = false;  
         this.isHidden = true;
         const companyId = this.userState.getUserStateLocalStorage().companyId;
         this.ventasService.cacheProductCatalog(companyId);
+        this.scanningAllowed = true;
     }    
 
    
@@ -50,9 +49,27 @@ export class ScannerComponent implements OnInit {
         codigo : new FormControl('', Validators.required)
     });
     
+    videoConstraints = {
+        facingMode: { ideal: 'environment' }, // Usa la cámara trasera por defecto
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
+      };
+
+      
     onCodeResult(resultString: string) {
-        this.codigo.setValue(resultString);
-        this.addProductToSaleList();
+        console.log('Scan: ' + resultString);
+        if (this.scanningAllowed) {
+            this.scanningAllowed = false; // Deshabilitar escaneo temporalmente
+        
+            this.codigo.setValue(resultString);
+            this.addProductToSaleList();
+            this.ventasService.playBeep();
+            
+            // Establecer el delay antes de permitir otro escaneo
+            setTimeout(() => {
+                this.scanningAllowed = true;
+            }, 3000); 
+        }
     }
    
     setScannerStatus()

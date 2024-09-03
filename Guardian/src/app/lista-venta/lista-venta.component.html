@@ -37,29 +37,37 @@
         </div>
         <div class="container-fluid">
           <div class="row">
+            <div class="col-12 col-md-3 mb-2">
+                <div>Dinero Recibido</div>
+                <input type="number" class="form-control fs-5" [(ngModel)]="pagoRecibido" (ngModelChange)="onInputChange($event)" 
+                        step="0.50" min="0" placeholder="Ingresa cantidad recibida"  (keydown.enter)="finalizarVenta()">
+            </div>
               <div class="col-12 col-md-3 mb-2"> <!-- Colocamos mb-2 para margin-bottom en dispositivos móviles y desktop -->
                   Método de pago
-                  <select [(ngModel)]="metodoPago" class="form-control">
+                  <select [(ngModel)]="metodoPago" class="form-control fs-5">
                       <option value="Efectivo">Efectivo</option>
                       <option value="Tarjeta">Tarjeta</option>
                       <option value="Transferencia">Transferencia</option>
                   </select>
               </div>
-              <div class="col-12 col-md-9 mb-2"> <!-- Usa todo el ancho en móviles y la mitad en pantallas medianas y grandes -->
+              <div class="col-12 col-md-6 mb-2"> <!-- Usa todo el ancho en móviles y la mitad en pantallas medianas y grandes -->
                   <textarea class="form-control form-control-md" placeholder="Notas de la venta - (Añadir notas aquí)" [(ngModel)]="notaVenta"></textarea>
               </div>
           </div>
       </div>
       
         <div class="d-flex justify-content-between align-items-center">
-          <button class="btn btn-success" [disabled]="this.canFinishSale()" (click)="finalizarVenta()">
+          <button id="finalizarVentaBtn" class="btn btn-success" [disabled]="!this.canFinishSale()" (click)="finalizarVenta()">
               <i class="bi bi-cart-check"></i> Finalizar Venta
           </button>
-          <button class="btn btn-danger" (click)="resetListaVenta()">
+          
+          <button class="btn btn-secondary" (click)="resetListaVenta()">
               <i class="bi bi-arrow-counterclockwise"></i> Reiniciar Venta
           </button>
         </div>
-         
+        <div class="mt-3 text-danger">
+          <h4>Cambio: {{  ventaService.getCambio(this.pagoRecibido?? 0) | currency }}</h4>
+        </div>
     </div>
 </div>
 
@@ -87,6 +95,9 @@
       <hr>
       <div class="d-flex justify-content-end mt-2">
         <strong>Total:</strong> <span>{{  ventaService.getTotalVenta() | currency }}</span>
+      </div>
+      <div class="d-flex justify-content-end mt-2 text-danger">
+        <strong>Cambio:</strong><span>{{  ventaService.getCambio(this.pagoRecibido?? 0) | currency }}</span>
       </div>
       <div class="d-flex justify-content-start mt-2">
         Cajero:&nbsp;<strong><span>{{this.getUserState().firstName + ' ' + this.getUserState().lastName }}</span></strong>

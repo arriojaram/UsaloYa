@@ -10,7 +10,7 @@
                 <input type="text" formControlName="codigo" class="form-control" placeholder="Ingresa el código de barras">
             </div>
             <div class="d-flex justify-content-between">
-                <button type="submit" class="btn btn-warning" [disabled]="formVenta.invalid">
+                <button type="submit" class="btn btn-warning" (click)="this.ventasService.playBeep()" [disabled]="formVenta.invalid">
                     Agregar a la venta
                 </button>
                 <button type="button" class="btn btn-primary" (click)="setScannerStatus()">
@@ -19,7 +19,7 @@
             </div>
         </form>      
            
-        <div [class]="messageClass" [hidden]="isHidden">
+        <div [class]="messageClass" [hidden]="isHidden" style="z-index: 2000;">
             {{ label_productoAdded }}
         </div>
     
@@ -28,9 +28,21 @@
 
 <app-lista-venta></app-lista-venta>
 
-<div>
-    <zxing-scanner [formats]="this.allowedFormats" 
-        [enable]="isScannerEnabled"
-        (scanSuccess)="onCodeResult($event)">
-    </zxing-scanner>
+<div *ngIf="this.isScannerEnabled" class="modal d-flex justify-content-center align-items-center show" tabindex="-1" style="display: block; background: rgba(0, 0, 0, 0.5);">
+    <div class="modal-dialog w-75 w-md-50 w-lg-50">
+        <div class="modal-content">
+            <div class="modal-body p-0">
+            <zxing-scanner [formats]="allowedFormats" 
+                [enable]="isScannerEnabled"
+                [videoConstraints]="videoConstraints"
+                (scanSuccess)="onCodeResult($event)">
+            </zxing-scanner>
+            </div>
+        <button type="button" class="btn btn-primary" (click)="setScannerStatus()">
+            {{scannerBtnLabel}}
+        </button>
+        </div>
+    </div>
 </div>
+
+

@@ -7,21 +7,28 @@ import { UserStateService } from '../../services/user-state.service';
 import { userDto } from '../../dto/userDto';
 import { NavigationService } from '../../services/navigation.service';
 import { first, Subscription } from 'rxjs';
+import { BarcodeFormat } from "@zxing/library";
+import { ZXingScannerModule } from "@zxing/ngx-scanner";
+import { barcodeFormats } from '../../shared/barcode-s-formats';
 
 @Component({
   selector: 'app-product-management',
   templateUrl: './product-management.component.html',
   styleUrls: ['./product-management.component.css'],
   standalone: true,
-  imports: [ReactiveFormsModule, NgFor, NgIf]
+  imports: [ReactiveFormsModule, NgFor, NgIf, ZXingScannerModule]
 })
 export class ProductManagementComponent implements OnInit {
+
   productForm: FormGroup;
   products: Producto[] = [];
   selectedProduct: Producto | null = null;
   userState: userDto;
   isSearchPanelHidden: boolean;
-  
+  isScannerEnabled: boolean = false;
+  allowedFormats: BarcodeFormat [];
+  qrResultString: string = "init";
+  scannerBtnLabel: string | undefined;
   constructor(
     private fb: FormBuilder, 
     private productService: ProductService,
@@ -32,6 +39,23 @@ export class ProductManagementComponent implements OnInit {
     this.userState = userService.getUserStateLocalStorage();
     this.productForm = this.initProductForm();
     this.isSearchPanelHidden = false;
+    this.allowedFormats = barcodeFormats.allowedFormats;    
+  }
+
+  setScannerStatus()
+  {
+      this.isScannerEnabled = !this.isScannerEnabled;
+      if(this.isScannerEnabled)
+          this.scannerBtnLabel = "Apagar escaner";
+      else
+          this.scannerBtnLabel = "Prender escaner";
+  }
+
+  onCodeResult(resultString: string) {
+    this.productForm.patchValue({
+      barcode: resultString
+    });
+    this.setScannerStatus();
   }
 
   initProductForm() : FormGroup
@@ -58,6 +82,7 @@ export class ProductManagementComponent implements OnInit {
 
   ngOnInit(): void {
     this.searchProductsInternal('-1');
+    this.scannerBtnLabel = "Abrir escaner";
   }
 
   searchProducts(event: Event): void {

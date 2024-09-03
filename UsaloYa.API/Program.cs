@@ -35,6 +35,7 @@ builder.Services.AddCors(options =>
         {
             if (allowedOrigins != null)
                 builder.WithOrigins(allowedOrigins.ToArray())  // Add or remove URLs from appsettings
+                    .AllowAnyOrigin()
                     .AllowAnyHeader()
                     .AllowAnyMethod();
         });

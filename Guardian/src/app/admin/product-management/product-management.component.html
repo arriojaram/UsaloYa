@@ -72,6 +72,9 @@
                   <div *ngIf="productForm.get('barcode')?.invalid && productForm.get('barcode')?.touched" class="invalid-feedback">
                     Código de Barras es obligatorio.
                   </div>
+                  <button type="button" class="btn btn-primary" (click)="setScannerStatus()">
+                    {{scannerBtnLabel}}
+                  </button>
                 </div>
 
                 <div class="form-group">
@@ -119,4 +122,20 @@
       </div>
     </div>
   </div>
+  <div *ngIf="this.isScannerEnabled" class="modal d-flex justify-content-center align-items-center show" tabindex="-1" style="display: block; background: rgba(0, 0, 0, 0.5);">
+    <div class="modal-dialog w-75 w-md-50 w-lg-50">
+        <div class="modal-content">
+            <div class="modal-body p-0">
+            <zxing-scanner [formats]="allowedFormats" 
+                [enable]="isScannerEnabled"
+                (scanSuccess)="onCodeResult($event)">
+            </zxing-scanner>
+            </div>
+        <button type="button" class="btn btn-primary" (click)="setScannerStatus()">
+            {{scannerBtnLabel}}
+        </button>
+        </div>
+    </div>
+</div>
+
   
