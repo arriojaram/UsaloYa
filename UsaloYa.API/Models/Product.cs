@@ -15,6 +15,8 @@ public partial class Product
 
     public int? SupplierId { get; set; }
 
+    public decimal? BuyPrice { get; set; }
+
     public decimal? UnitPrice { get; set; }
 
     public int UnitsInStock { get; set; }

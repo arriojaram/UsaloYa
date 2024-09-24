@@ -7,7 +7,7 @@
           <th>Descripción</th>
           <th>Precio</th>
           <th>Cantidad</th>
-          <th>Total</th>
+          <th>Importe</th>
         </tr>
       </thead>
       <tbody>
@@ -26,7 +26,7 @@
         </tr>
       </tbody>
     </table>
-    <div class="mt-3">
+    <div class="mt-3 text-danger">
       <h4>Total de la Venta: {{ ventaService.getTotalVenta() | currency }}</h4>
     </div>
   </div>
@@ -39,7 +39,7 @@
           <div class="row">
             <div class="col-12 col-md-3 mb-2">
                 <div>Dinero Recibido</div>
-                <input type="number" class="form-control fs-5" [(ngModel)]="pagoRecibido" (ngModelChange)="onInputChange($event)" 
+                <input type="number" class="form-control fs-5" style="background-color: rgba(255, 255, 0, 0.26);" [(ngModel)]="pagoRecibido" (ngModelChange)="onInputChange($event)" 
                         step="0.50" min="0" placeholder="Ingresa cantidad recibida"  (keydown.enter)="finalizarVenta()">
             </div>
               <div class="col-12 col-md-3 mb-2"> <!-- Colocamos mb-2 para margin-bottom en dispositivos móviles y desktop -->
@@ -65,7 +65,7 @@
               <i class="bi bi-arrow-counterclockwise"></i> Reiniciar Venta
           </button>
         </div>
-        <div class="mt-3 text-danger">
+        <div class="mt-3 text-danger" style="background-color: rgba(0, 128, 0, 0.123)">
           <h4>Cambio: {{  ventaService.getCambio(this.pagoRecibido?? 0) | currency }}</h4>
         </div>
     </div>

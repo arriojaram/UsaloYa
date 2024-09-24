@@ -58,6 +58,11 @@
                   </div>
                 </div>
                 <div class="form-group">
+                  <label for="buyPrice">Precio de Compra</label>
+                  <input id="buyPrice" type="number" class="form-control required-input" formControlName="buyPrice" min="0.01" max="10000.00">
+                </div>
+
+                <div class="form-group">
                   <label for="unitPrice">Precio Unitario</label>
                   <input id="unitPrice" type="number" class="form-control required-input" formControlName="unitPrice" min="0.01" max="10000.00">
                   <div *ngIf="productForm.get('unitPrice')?.invalid &&productForm.get('unitPrice')?.touched" class="invalid-feedback">

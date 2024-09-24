@@ -66,6 +66,7 @@ export class ProductManagementComponent implements OnInit {
       description: ['', Validators.required],
       categoryId: [null],
       supplierId: [null],
+      buyPrice: [0, null],
       unitPrice: [null],
       unitsInStock: [0, Validators.required],
       discontinued: [false, Validators.required],

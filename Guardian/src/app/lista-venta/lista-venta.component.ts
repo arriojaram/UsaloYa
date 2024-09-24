@@ -1,6 +1,6 @@
 import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { SaleService } from '../services/sale.service';
-import { CommonModule } from '@angular/common';
+import { CommonModule, CurrencyPipe } from '@angular/common';
 import { OfflineDbStore } from '../services/offline-db-store.service';
 import { UserStateService } from '../services/user-state.service';
 import { first } from 'rxjs';
@@ -46,11 +46,70 @@ export class ListaVentaComponent implements OnInit {
  
   showTicket() {
     this.ticketVisible = true;
+    
+    setTimeout(() => {
+      this.generatePrintableTicket();
+    }, 2);
+
     setTimeout(() => {
       this.ticketVisible = false;
       this.resetListaVenta();
     }, environment.notificationsDisplayTimeSeconds);
   }
+
+  generatePrintableTicket() {
+    const companyName = this.getUserState().companyName;
+    const ventaNumber = this.numVenta;
+    const fechaHora = new Date().toLocaleString();  // Asumiendo que `fechaHora` se calcula así
+    const products = this.ventaService.saleProductsGrouped;
+    const totalVenta = this.ventaService.getTotalVenta();
+    const cambio = this.ventaService.getCambio(this.pagoRecibido?? 0);
+    const cashierName = `${this.getUserState().firstName} ${this.getUserState().lastName}`;
+
+    let productList: string = '';
+    
+    products.forEach(product => {
+      const count = product.count.toString().padEnd(3, ' '); 
+      const name = product.name.length > 13 ? product.name.substring(0, 13) : product.name.padEnd(12, ' ');
+      const precio = product.unitPrice.toFixed(2).padEnd(6, ' '); 
+      const total = product.total.toFixed(2); 
+      productList += `${count}${name} ${precio} ${total}
+`;
+    });
+    
+
+    let ticket: string = `     *** ${companyName} ***
+${ventaNumber} 
+Fecha: ${fechaHora}
+Cant. Nombre   Precio   Importe
+${productList}
+Total: $${totalVenta.toFixed(2)}
+Recibido: $${this.pagoRecibido?.toFixed(2)}
+Cambio: $${cambio.toFixed(2)}    
+Cajero: ${cashierName}
+    ¡Gracias por su compra!`;
+    
+    this.sendToPrinter(ticket);
+  }
+
+  sendToPrinter(ticket: string)
+  {
+    try
+    {
+
+      const encodedText = encodeURI(ticket); // Codificar en Base64
+      console.log(encodedText);
+      var S = "#Intent;scheme=rawbt;";
+      var P =  "package=ru.a402d.rawbtprinter;end;";
+     
+      window.location.href="intent:"+encodedText+S+P;
+    }
+    catch(e)
+    {
+      console.error('Error al imprimir', e);
+    }
+  }
+
   /******************************************************** */
   ngOnInit(): void {
     this.metodoPago = "Efectivo";
@@ -81,6 +140,7 @@ export class ListaVentaComponent implements OnInit {
     this.ventaService.saleProducts = [];
     this.ventaService.saleProductsGrouped = [];
     this.ventaService.totalVenta = 0;
+    this.pagoRecibido = undefined;
     this.notaVenta = '';
     this.metodoPago = 'Efectivo';
   }

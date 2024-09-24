@@ -140,7 +140,7 @@ export class SaleService extends Dexie {
     else
     {
       productForSale = this.productCatalog.find(
-        p => p.barcode == barcode
+        p => p.barcode.toLowerCase() === barcode.toLowerCase()
                 && p.companyId == companyId
       );
     }

@@ -110,6 +110,7 @@ namespace UsaloYa.API.Controllers
                         Description = productDto.Description,
                         CategoryId = productDto.CategoryId,
                         SupplierId = productDto.SupplierId,
+                        BuyPrice = productDto.BuyPrice,
                         UnitPrice = productDto.UnitPrice,
                         UnitsInStock = productDto.UnitsInStock,
                         Discontinued = productDto.Discontinued,
@@ -134,6 +135,7 @@ namespace UsaloYa.API.Controllers
                     existingProduct.Description = productDto.Description;
                     existingProduct.CategoryId = productDto.CategoryId;
                     existingProduct.SupplierId = productDto.SupplierId;
+                    existingProduct.BuyPrice = productDto.BuyPrice;
                     existingProduct.UnitPrice = productDto.UnitPrice;
                     existingProduct.UnitsInStock = productDto.UnitsInStock;
                     existingProduct.Discontinued = productDto.Discontinued;

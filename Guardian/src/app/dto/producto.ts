@@ -4,6 +4,7 @@ export interface Producto {
   description: string;
   categoryId: number;
   supplierId: number;
+  buyPrice: number;
   unitPrice: number;
   unitsInStock: number;
   discontinued: boolean;
