@@ -27,6 +27,8 @@ public partial class DBContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
+    public virtual DbSet<Customer> Customers { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Company>(entity =>
@@ -138,6 +140,12 @@ public partial class DBContext : DbContext
               .HasForeignKey(d => d.UserId)
               .OnDelete(DeleteBehavior.ClientSetNull)
               .HasConstraintName("FK_Sales_Users");
+
+            entity.HasOne(d => d.Customer).WithMany(p => p.Sales)
+              .HasForeignKey(d => d.CustomerId)
+              .IsRequired(false)
+              .OnDelete(DeleteBehavior.SetNull)
+              .HasConstraintName("FK_Sales_Customers");
         });
 
         modelBuilder.Entity<SaleDetail>(entity =>
@@ -197,6 +205,45 @@ public partial class DBContext : DbContext
                 .HasForeignKey(d => d.GroupId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Users_Groups");
+        });
+
+        modelBuilder.Entity<Customer>(entity =>
+        {
+            entity.HasKey(e => e.CustomerId).HasName("PK_Customer_Id");
+
+            entity.HasIndex(e => e.CompanyId, "IX_Customer_CompanyId");
+
+            entity.HasIndex(e => e.FirstName, "IX_Customer_FirstName");
+
+            entity.HasIndex(e => e.LastName1, "IX_Customer_LastName1");
+
+            entity.Property(e => e.FirstName)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.LastName1)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.LastName2)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.Address)
+                .HasMaxLength(300)
+                .IsUnicode(false);
+            entity.Property(e => e.Notes)
+                .HasMaxLength(500)
+                .IsUnicode(false);
+            entity.Property(e => e.Notes)
+                .HasMaxLength(500)
+                .IsUnicode(false);
+
+            entity.Property(e => e.FullName)
+                      .HasComputedColumnSql("CONCAT(FirstName, ' ', LastName1,  COALESCE(LastName2 + ' ', ''))");
+
+            entity.HasOne(d => d.Company).WithMany(p => p.Customers)
+                .HasForeignKey(d => d.CompanyId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Customer_Company");
+
         });
 
         OnModelCreatingPartial(modelBuilder);

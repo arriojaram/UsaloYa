@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace UsaloYa.API.Models;
+﻿namespace UsaloYa.API.Models;
 
 public partial class Company
 {
@@ -18,4 +15,6 @@ public partial class Company
     public virtual ICollection<User> Users { get; set; } = new List<User>();
 
     public virtual ICollection<Sale> Sales { get; set; } = new List<Sale>();
+
+    public virtual ICollection<Customer> Customers { get; set; } = new List<Customer>();
 }
