@@ -47,6 +47,11 @@
                         <div class="sb-nav-link-icon"><i class="bi bi-people fs-6"></i></div>
                         Usuarios
                     </a>
+
+                    <a class="nav-link" href="clientes" *ngIf="(this.userStateUI?.groupId?? 0) === 1">
+                        <div class="sb-nav-link-icon"><i class="bi bi-person-circle fs-6"></i></div>
+                        Clientes
+                    </a>
                     
                     <a class="nav-link" href="reporteventas" *ngIf="(this.userStateUI?.groupId?? 0) >= 1">
                         <div class="sb-nav-link-icon"><i class="bi bi-graph-up fs-6"></i></div>
@@ -54,7 +59,9 @@
                     </a>
                   </div>
             </div>
+           
             <div class="sb-sidenav-footer">
+                <i class="bi bi-building"></i> {{ this.userStateUI?.companyName }}
                 <div class="small">Has entrado como:</div>
                 <i class="fas fa-user fa-fw px-2 text-success"></i> {{ this.userStateUI?.firstName + ' ' + this.userStateUI?.lastName }}
             </div>

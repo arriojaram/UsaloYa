@@ -15,10 +15,8 @@
             <div class="card-body">
                 <h6 class="card-title">Buscar Usuarios</h6>
                 <div class="input-group mb-3">
-                <input type="text" class="form-control" placeholder="Buscar..." (input)="searchUsers($event)">
-                <div class="input-group-append">
-                    <button class="btn btn-outline-secondary" type="button">Buscar</button>
-                </div>
+                <input type="text" class="form-control" placeholder="Escribe el nombre aqui..." (input)="searchUsers($event)">
+                
                 </div>
                 <ul class="list-group mt-3">
                 <li *ngFor="let user of userList" class="list-group-item list-group-item-action" (click)="selectUser(user.userId)">
@@ -36,7 +34,7 @@
                         <form [formGroup]="userForm" (ngSubmit)="saveUser()">
                             <div class="form-group col-md-12 d-flex">
                                 <div class="col-md-8 mb-2 pr-2">
-                                    <label for="userName">user name</label>
+                                    <label for="userName">Nombre de Usuario</label>
                                     <input id="userName" class="form-control" formControlName="userName" placeholder="Nombre de usuario">
                                     <div *ngIf="userForm.get('userName')?.invalid && userForm.get('userName')?.touched" class="invalid-feedback">
                                         Nombre de usuario es obligatorio.
@@ -48,22 +46,22 @@
                                 </div>
                             </div>
                             <div class="form-group mb-2">
-                                <label for="firstName">first name</label>
+                                <label for="firstName">Nombre</label>
                                 <input id="firstName" class="form-control" formControlName="firstName" placeholder="Nombre">
                                 <div *ngIf="userForm.get('firstName')?.invalid && userForm.get('firstName')?.touched" class="invalid-feedback">
                                     Nombre es obligatorio.
                                 </div>
                             </div>    
                             <div class="form-group mb-2">
-                                <label for="lastName">last name</label>
+                                <label for="lastName">Apellido</label>
                                 <input id="lastName" class="form-control" formControlName="lastName" placeholder="Apellido">
                                 <div *ngIf="userForm.get('lastName')?.invalid && userForm.get('lastName')?.touched" class="invalid-feedback">
                                     Apellido es obligatorio.
                                 </div>
                             </div>    
                             <div class="form-group mb-2">
-                                <label for="companyId">company Id</label>
-                                <select id="companyId" formControlName="companyId" class="form-control">
+                                <label for="companyId">Empresa</label>
+                                <select id="companyId" formControlName="companyId" class="form-select">
                                     <option *ngFor="let company of companies" [value]="company.companyId">
                                         {{ company.name }}
                                       </option>
@@ -73,8 +71,8 @@
                                 </div>
                             </div>    
                             <div class="form-group mb-2">
-                                <label for="groupId">group Id</label>
-                                <select id="groupId" formControlName="groupId" class="form-control">
+                                <label for="groupId">Grupo</label>
+                                <select id="groupId" formControlName="groupId" class="form-select">
                                     <option *ngFor="let group of groups" [value]="group.groupId">
                                         {{ group.name }}
                                       </option>
@@ -95,7 +93,7 @@
                             </div>    
                             <div class="d-flex justify-content-end my-3">
                                 <button type="button" class="btn btn-primary mx-2 btn-floating-secondary" (click)="newUser()">Nuevo</button>
-                                <button type="submit" class="btn btn-success btn-floating">Save User</button>
+                                <button type="submit" class="btn btn-success btn-floating">Guardar Usuario</button>
                             </div>    
                         </form>
 
@@ -105,7 +103,7 @@
                                 <div *ngIf="passwordForm.get('password')?.invalid && passwordForm.get('password')?.touched" class="invalid-feedback">
                                     {{this.passwordErrorMsg}}
                                 </div>
-                                <button type="submit">Update Password</button>
+                                <button type="submit">Actualiza Password</button>
                             </div>    
                         </form>
                     </div>

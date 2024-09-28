@@ -5,7 +5,7 @@
 namespace UsaloYa.API.Migrations
 {
     /// <inheritdoc />
-    public partial class AddCustomerTable : Migration
+    public partial class IncludeCustomerInformation : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -16,12 +16,15 @@ namespace UsaloYa.API.Migrations
                 {
                     CustomerId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Address = table.Column<string>(type: "varchar(300)", unicode: false, maxLength: 300, nullable: false),
-                    Notes = table.Column<string>(type: "varchar(500)", unicode: false, maxLength: 500, nullable: false),
+                    Address = table.Column<string>(type: "varchar(300)", unicode: false, maxLength: 300, nullable: true),
+                    Notes = table.Column<string>(type: "varchar(500)", unicode: false, maxLength: 500, nullable: true),
                     FirstName = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
                     LastName1 = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
-                    LastName2 = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
-                    FullName = table.Column<string>(type: "varchar(150)", nullable: false, computedColumnSql: "CONCAT(FirstName, ' ', LastName1,  COALESCE(LastName2 + ' ', ''))"),
+                    LastName2 = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: true),
+                    WorkPhoneNumber = table.Column<string>(type: "varchar(15)", unicode: false, maxLength: 15, nullable: true),
+                    CellPhoneNumber = table.Column<string>(type: "varchar(15)", unicode: false, maxLength: 15, nullable: true),
+                    Email = table.Column<string>(type: "varchar(35)", unicode: false, maxLength: 35, nullable: true),
+                    FullName = table.Column<string>(type: "varchar(150)", nullable: false, computedColumnSql: "CONCAT(FirstName, ' ', LastName1,  COALESCE(' ' + LastName2, ''))"),
                     CompanyId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -45,14 +48,19 @@ namespace UsaloYa.API.Migrations
                 column: "CompanyId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Customer_FirstName",
+                name: "IX_Customer_Email",
                 table: "Customers",
-                column: "FirstName");
+                column: "Email");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Customer_LastName1",
+                name: "IX_Customer_Name",
                 table: "Customers",
-                column: "LastName1");
+                columns: new[] { "FirstName", "LastName1", "LastName2" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Customer_Phone",
+                table: "Customers",
+                columns: new[] { "CellPhoneNumber", "WorkPhoneNumber" });
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Sales_Customers",

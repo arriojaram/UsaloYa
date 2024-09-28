@@ -5,6 +5,7 @@ import { AuthGuard } from './shared/auth-guard.guard';
 import { ProductManagementComponent } from './admin/product-management/product-management.component';
 import { UserManagementComponent } from './admin/user-management/user-management.component';
 import { SalesReportComponent } from './admin/sales-report/sales-report.component';
+import { CustomerManagementComponent } from './admin/customer-management/customer-management.component';
 
 export const routes: Routes = [
     {path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -13,6 +14,7 @@ export const routes: Routes = [
     
     { path: 'productos', component: ProductManagementComponent, canActivate: [AuthGuard] },
     { path: 'usuarios', component: UserManagementComponent, canActivate: [AuthGuard] },
+    { path: 'clientes', component: CustomerManagementComponent, canActivate: [AuthGuard] },
     { path: 'main', component: ScannerComponent, canActivate: [AuthGuard] }
 ];
 

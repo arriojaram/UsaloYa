@@ -1,0 +1,98 @@
+<div class="container mt-1">
+    <div class="row">
+      <div class="col-12 d-flex justify-content-between align-items-center">
+        <h5 class="my-3">Gestión de Clientes</h5>
+      </div>
+    </div>
+    <div class="row">
+        <div class="hamburger-menu" (click)="toggleSearchPanel()">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        <div class="col-md-4 search-panel" [class.hidden]="isSearchPanelHidden">
+            <div class="card">
+            <div class="card-body">
+                <h6 class="card-title">Buscar Clientes</h6>
+                <div class="input-group mb-3">
+                <input type="text" class="form-control" [(ngModel)]="searchWord" placeholder="Escribe el nombre aqui..." (input)="searchCustomers($event)">
+               
+                </div>
+                <ul class="list-group mt-3">
+                <li *ngFor="let c of customerList" class="list-group-item list-group-item-action" (click)="selectUser(c.customerId)">
+                    {{ c.firstName + ' ' + c.lastName1 + ' ' + c.lastName2 }}
+                </li>
+                </ul>
+            </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">Detalles del Usuario</h6>
+                    <div class="user-edit-container">
+                        <form [formGroup]="customerForm" (ngSubmit)="saveCustomer()">
+                            <div class="form-group mb-2">
+                              <label for="firstName">Nombre</label>
+                              <input id="firstName" formControlName="firstName" type="text" class="form-control required-input"/>
+                              <div *ngIf="customerForm.get('firstName')?.invalid && customerForm.get('firstName')?.touched" class="invalid-feedback">
+                                Nombre es obligatorio.
+                              </div>
+                            </div>
+                          
+                            <div class="form-group mb-2">
+                              <label for="lastName1">Apellido Paterno</label>
+                              <input id="lastName1" formControlName="lastName1" type="text" class="form-control required-input"/>
+                              <div *ngIf="customerForm.get('lastName1')?.invalid && customerForm.get('lastName1')?.touched" class="invalid-feedback">
+                                Apellido Paterno es obligatorio.
+                              </div>
+                            </div>
+                          
+                            <div class="form-group mb-2">
+                              <label for="lastName2">Apellido Materno</label>
+                              <input id="lastName2" formControlName="lastName2" type="text" class="form-control"/>
+                            </div>
+                          
+                            <div class="form-group mb-2">
+                                <label for="cellPhoneNumber">Celular</label>
+                                <input id="cellPhoneNumber" formControlName="cellPhoneNumber" type="text" class="form-control required-input"
+                                     minlength="10" maxlength="15" pattern="^[0-9]{10,15}$" required placeholder="Ingresa tu número de teléfono"/>
+                                <div *ngIf="customerForm.get('cellPhoneNumber')?.invalid && customerForm.get('cellPhoneNumber')?.touched" class="invalid-feedback">
+                                    Celular es obligatorio.
+                                  </div>
+                            </div>
+
+                            <div class="form-group mb-2">
+                                <label for="workPhoneNumber">Teléfono Casa/Trabajo</label>
+                                <input id="workPhoneNumber" formControlName="workPhoneNumber" type="text" class="form-control" 
+                                    minlength="10" maxlength="15" pattern="[0-9]{10, 15}" />
+                            </div>
+                          
+                            <div class="form-group mb-2">
+                                <label for="address">Dirección</label>
+                                <input id="address" formControlName="address" type="text" class="form-control"/>
+                            </div>
+
+                            <div class="form-group mb-2">
+                              <label for="email">Correo electrónico</label>
+                              <input id="email" formControlName="email" type="email" class="form-control"/>
+                            </div>
+                          
+                            <div class="form-group mb-2">
+                              <label for="notes">Notas</label>
+                              <textarea id="notes" formControlName="notes" class="form-control"></textarea>
+                            </div>
+                          
+                            <div class="d-flex justify-content-end my-3">
+                                <button type="button" class="btn btn-primary mx-2 btn-floating-secondary" (click)="newCustomer()">Nuevo</button>
+                                <button type="submit" [disabled]="customerForm.invalid" class="btn btn-success btn-floating">Guardar Cliente</button>
+                            </div>    
+                            
+                          </form>
+                          
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

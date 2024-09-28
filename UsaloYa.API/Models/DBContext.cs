@@ -213,9 +213,12 @@ public partial class DBContext : DbContext
 
             entity.HasIndex(e => e.CompanyId, "IX_Customer_CompanyId");
 
-            entity.HasIndex(e => e.FirstName, "IX_Customer_FirstName");
+            entity.HasIndex(e => new { e.FirstName, e.LastName1, e.LastName2 }, "IX_Customer_Name");
 
-            entity.HasIndex(e => e.LastName1, "IX_Customer_LastName1");
+            entity.HasIndex(e => new { e.CellPhoneNumber, e.WorkPhoneNumber }, "IX_Customer_Phone");
+
+            entity.HasIndex(e => e.Email, "IX_Customer_Email");
+
 
             entity.Property(e => e.FirstName)
                 .HasMaxLength(50)
@@ -225,6 +228,7 @@ public partial class DBContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.LastName2)
                 .HasMaxLength(50)
+                .IsRequired(false)
                 .IsUnicode(false);
             entity.Property(e => e.Address)
                 .HasMaxLength(300)
@@ -232,12 +236,19 @@ public partial class DBContext : DbContext
             entity.Property(e => e.Notes)
                 .HasMaxLength(500)
                 .IsUnicode(false);
-            entity.Property(e => e.Notes)
-                .HasMaxLength(500)
+            entity.Property(e => e.CellPhoneNumber)
+                .HasMaxLength(15)
+                .IsUnicode(false);
+            entity.Property(e => e.WorkPhoneNumber)
+                .HasMaxLength(15)
+                .IsUnicode(false);
+            entity.Property(e => e.Email)
+                .HasMaxLength(35)
                 .IsUnicode(false);
 
+
             entity.Property(e => e.FullName)
-                      .HasComputedColumnSql("CONCAT(FirstName, ' ', LastName1,  COALESCE(LastName2 + ' ', ''))");
+                      .HasComputedColumnSql("CONCAT(FirstName, ' ', LastName1,  COALESCE(' ' + LastName2, ''))");
 
             entity.HasOne(d => d.Company).WithMany(p => p.Customers)
                 .HasForeignKey(d => d.CompanyId)

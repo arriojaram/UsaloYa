@@ -129,6 +129,7 @@ namespace UsaloYa.API.Controllers
             return Ok(userResponseDto);
         }
 
+        //TODO: Move this controller to a System Controller
         private async Task<string> LoadCompany(int companyId)
         {
             var company = await _dBContext.Companies.FirstAsync(c => c.CompanyId == companyId);
@@ -138,6 +139,7 @@ namespace UsaloYa.API.Controllers
 
         }
 
+        //TODO: Move this controller to a System Controller
         [HttpGet("GetGroups")]
         public async Task<IActionResult> GetGroups()
         {
@@ -161,6 +163,7 @@ namespace UsaloYa.API.Controllers
             }
         }
 
+        //TODO: Move this controller to a System Controller
         [HttpGet("GetCompanies")]
         public async Task<IActionResult> GetCompanies()
         {
@@ -194,8 +197,10 @@ namespace UsaloYa.API.Controllers
                 var users = (string.IsNullOrEmpty(name) || string.Equals(name, "-1", StringComparison.OrdinalIgnoreCase))
                     ? await _dBContext.Users.Where(c => (c.CompanyId == companyId || companyId == 0)).OrderByDescending(u => u.UserId).Take(50).ToListAsync()
                     : await _dBContext.Users
-                        .Where(u => u.FirstName.Contains(name) || u.LastName.Contains(name)
+                        .Where(u => (
+                                   u.FirstName.Contains(name) || u.LastName.Contains(name)
                                 || name.Contains(u.FirstName) || name.Contains(u.LastName)
+                                ) 
                                 && (u.CompanyId == companyId || companyId == 0))
                         .OrderBy(u => u.FirstName)
                         .ThenBy(u => u.LastName)
@@ -211,8 +216,7 @@ namespace UsaloYa.API.Controllers
                     LastName = u.LastName,
                     CompanyId = u.CompanyId,
                     GroupId = u.GroupId,
-                    LastAccess = u.LastAccess
-                    ,
+                    LastAccess = u.LastAccess,
                     StatusId = u.StatusId
                 });
 

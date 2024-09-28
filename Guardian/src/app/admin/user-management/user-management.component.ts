@@ -28,6 +28,7 @@ export class UserManagementComponent {
   passwordErrorMsg: string;
   groups: adminGroupDto [] = [];
   companies: AdminCompanyDto [] = [];
+  searchWord: any;
   
   constructor(
     private fb: FormBuilder,
@@ -48,6 +49,7 @@ export class UserManagementComponent {
     this.userForm.get('lastAccess')?.disable();
     this.userForm.get('statusId')?.disable();
     this.searchUsersInternal('-1');
+    this.checkScreenSize();
 
     this.userService.getGroups().subscribe((data) => {
       this.groups = data;
@@ -85,6 +87,13 @@ export class UserManagementComponent {
     this.userForm.patchValue({userName:'', firstName:'', lastName:'', groupId:0, isEnabled:true, password:''});
   }
 
+  checkScreenSize() {
+    if (window.innerWidth < 768) {
+      this.isSearchPanelHidden = true;  // Ocultar búsqueda en pantallas pequeñas por defecto
+      this.searchWord = '';
+    }
+  }
+
   selectUser(userId: number): void {
     this.userService.getUser(userId).pipe(first())
     .subscribe(user => {
@@ -109,6 +118,7 @@ export class UserManagementComponent {
 
       this.selectedUser = user;
       this.userForm.patchValue(user);
+      this.checkScreenSize();
     });
   }
 

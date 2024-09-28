@@ -12,6 +12,9 @@ dotnet ef migrations remove
 // For the release, a SQL script must be created with the follow command and executed in the prod environment
 dotnet ef migrations script --idempotent --output "avatarDbMigrations.sql"
 
+dotnet ef migrations script 20240913161525_AddBuyPriceToSales 20240926234312_AddCustomerTable --idempotent --output "avatarDbMigrations.sql"
+
+
 
 // Command to map the DB from Powershell in VS - Database first
 dotnet ef dbcontext scaf

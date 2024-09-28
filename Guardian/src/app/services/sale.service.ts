@@ -199,13 +199,13 @@ export class SaleService extends Dexie {
     const sale: Sale = {
       id: undefined,
       saleId: 0,
-      customerId: 0,
       paymentMethod: metodoPago,
       tax: 0.00,
       notes: notes,
       userId: userId,
       companyId: companyId,
-      saleDetailsList: saleDetail
+      saleDetailsList: saleDetail,
+      customerId: undefined
     };
 
     this.currentSale = sale;

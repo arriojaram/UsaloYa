@@ -49,7 +49,7 @@ export class UserService {
   }
 
   getAllUser(companyId: number, name:string): Observable<userDto[]> {
-    const apiUrl =`${this.baseUrl}/GetAll?name=${name}&companyId${companyId}`;
+    const apiUrl =`${this.baseUrl}/GetAll?name=${name}&companyId=${companyId}`;
     
     return this.http.get<userDto[]>(apiUrl, this.httpOptions).pipe(
       catchError(error => {

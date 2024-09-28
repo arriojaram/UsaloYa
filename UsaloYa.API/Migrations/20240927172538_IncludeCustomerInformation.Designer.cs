@@ -12,8 +12,8 @@ using UsaloYa.API.Models;
 namespace UsaloYa.API.Migrations
 {
     [DbContext(typeof(DBContext))]
-    [Migration("20240926234312_AddCustomerTable")]
-    partial class AddCustomerTable
+    [Migration("20240927172538_IncludeCustomerInformation")]
+    partial class IncludeCustomerInformation
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -58,13 +58,22 @@ namespace UsaloYa.API.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CustomerId"));
 
                     b.Property<string>("Address")
-                        .IsRequired()
                         .HasMaxLength(300)
                         .IsUnicode(false)
                         .HasColumnType("varchar(300)");
 
+                    b.Property<string>("CellPhoneNumber")
+                        .HasMaxLength(15)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(15)");
+
                     b.Property<int>("CompanyId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(35)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(35)");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -76,7 +85,7 @@ namespace UsaloYa.API.Migrations
                         .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("varchar(150)")
-                        .HasComputedColumnSql("CONCAT(FirstName, ' ', LastName1,  COALESCE(LastName2 + ' ', ''))");
+                        .HasComputedColumnSql("CONCAT(FirstName, ' ', LastName1,  COALESCE(' ' + LastName2, ''))");
 
                     b.Property<string>("LastName1")
                         .IsRequired()
@@ -85,25 +94,30 @@ namespace UsaloYa.API.Migrations
                         .HasColumnType("varchar(50)");
 
                     b.Property<string>("LastName2")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .IsUnicode(false)
                         .HasColumnType("varchar(50)");
 
                     b.Property<string>("Notes")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .IsUnicode(false)
                         .HasColumnType("varchar(500)");
+
+                    b.Property<string>("WorkPhoneNumber")
+                        .HasMaxLength(15)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(15)");
 
                     b.HasKey("CustomerId")
                         .HasName("PK_Customer_Id");
 
                     b.HasIndex(new[] { "CompanyId" }, "IX_Customer_CompanyId");
 
-                    b.HasIndex(new[] { "FirstName" }, "IX_Customer_FirstName");
+                    b.HasIndex(new[] { "Email" }, "IX_Customer_Email");
 
-                    b.HasIndex(new[] { "LastName1" }, "IX_Customer_LastName1");
+                    b.HasIndex(new[] { "FirstName", "LastName1", "LastName2" }, "IX_Customer_Name");
+
+                    b.HasIndex(new[] { "CellPhoneNumber", "WorkPhoneNumber" }, "IX_Customer_Phone");
 
                     b.ToTable("Customers");
                 });
