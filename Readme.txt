@@ -14,6 +14,8 @@ dotnet ef migrations script --idempotent --output "avatarDbMigrations.sql"
 
 dotnet ef migrations script 20240913161525_AddBuyPriceToSales 20240926234312_AddCustomerTable --idempotent --output "avatarDbMigrations.sql"
 
+// Regresar a una version especifica de DB
+dotnet ef database update 20240913161525_AddBuyPriceToSales
 
 
 // Command to map the DB from Powershell in VS - Database first

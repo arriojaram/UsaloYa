@@ -21,4 +21,5 @@ export interface Producto {
 
   count: number;
   total: number;
+  editing?: boolean;
 }

@@ -58,26 +58,12 @@
                   </div>
                 </div>
                 <div class="form-group">
-                  <label for="buyPrice">Precio de Compra</label>
-                  <input id="buyPrice" type="number" class="form-control required-input" formControlName="buyPrice" min="0.01" max="10000.00">
-                </div>
-
-                <div class="form-group">
-                  <label for="unitPrice">Precio Unitario</label>
-                  <input id="unitPrice" type="number" class="form-control required-input" formControlName="unitPrice" min="0.01" max="10000.00">
-                  <div *ngIf="productForm.get('unitPrice')?.invalid &&productForm.get('unitPrice')?.touched" class="invalid-feedback">
-                    Precio es obligatorio.
-                  </div>
-                </div>
-                
-              
-                <div class="form-group">
                   <label for="barcode">Código de Barras</label>
                   <input id="barcode" type="text" class="form-control required-input" formControlName="barcode">
                   <div *ngIf="productForm.get('barcode')?.invalid && productForm.get('barcode')?.touched" class="invalid-feedback">
                     Código de Barras es obligatorio.
                   </div>
-                  <button type="button" class="btn btn-primary" (click)="setScannerStatus()">
+                  <button type="button" class="btn btn-dark" (click)="setScannerStatus()">
                     {{scannerBtnLabel}}
                   </button>
                 </div>
@@ -89,7 +75,31 @@
                     Unidades en Stock es obligatorio.
                   </div>
                 </div>
-                
+                <div class="form-group">
+                  <label for="buyPrice">Precio de Compra</label>
+                  <input id="buyPrice" type="number" class="form-control required-input" formControlName="buyPrice" min="0.01" max="10000.00">
+                </div>
+
+                <div class="form-group">
+                  <label for="unitPrice">Precio Unitario</label>
+                  <input id="unitPrice" type="number" class="form-control required-input" formControlName="unitPrice" min="0.01" max="10000.00">
+                  <div *ngIf="productForm.get('unitPrice')?.invalid &&productForm.get('unitPrice')?.touched" class="invalid-feedback">
+                    Precio es obligatorio.
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="unitPrice">Precio Cliente - 1</label>
+                  <input id="unitPrice1" type="number" class="form-control" formControlName="unitPrice1" min="0.01" max="10000.00">
+                </div>
+                <div class="form-group">
+                  <label for="unitPrice">Precio Cliente - 2</label>
+                  <input id="unitPrice2" type="number" class="form-control" formControlName="unitPrice2" min="0.01" max="10000.00">
+                </div>
+                <div class="form-group">
+                  <label for="unitPrice">Precio Cliente - 3</label>
+                  <input id="unitPrice3" type="number" class="form-control" formControlName="unitPrice3" min="0.01" max="10000.00">
+                </div>
+              
                 <div class="form-group">
                   <label for="size">Talla</label>
                   <select id="size" class="form-control" formControlName="size">

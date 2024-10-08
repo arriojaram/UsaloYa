@@ -9,6 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { environment } from '../environments/enviroment';
 import { userDto } from '../dto/userDto';
 import { NavigationService } from '../services/navigation.service';
+import { Producto } from '../dto/producto';
 
 @Component({
   selector: 'app-lista-venta',
@@ -39,7 +40,8 @@ export class ListaVentaComponent implements OnInit {
   numVenta: string;
   messageClass: string = "alert  alert-success mt-2";
  
-  
+  @ViewChild('inputNumber') inputNumber?: ElementRef;
+  tempProductCounter: number | undefined;
   /****************************************************/
   ticketVisible = false;
   fechaHora = new Date().toLocaleString();
@@ -127,7 +129,7 @@ Cajero: ${cashierName}
   canFinishSale(): boolean
   {
     var terminarVenta = false;
-    if(this.ventaService.saleProducts.length > 0 && 
+    if(this.ventaService.saleProductsGrouped.length > 0 && 
         (this.pagoRecibido?? 0) >= this.ventaService.getTotalVenta())
     {
       terminarVenta = true;
@@ -137,7 +139,6 @@ Cajero: ${cashierName}
   
   resetListaVenta()
   {
-    this.ventaService.saleProducts = [];
     this.ventaService.saleProductsGrouped = [];
     this.ventaService.totalVenta = 0;
     this.pagoRecibido = undefined;
@@ -145,6 +146,37 @@ Cajero: ${cashierName}
     this.metodoPago = 'Efectivo';
   }
  
+  enableEditing(item: any) {
+    item.editing = true;
+    this.tempProductCounter = item.count;
+    setTimeout(() => {
+      this.inputNumber?.nativeElement.focus();
+      this.inputNumber?.nativeElement.select();
+    }, 0);
+  }
+
+  disableEditing(item: Producto, event: any) {
+    const newValue = this.inputNumber?.nativeElement.value;
+    if (newValue > 0 && newValue != this.tempProductCounter) 
+    {
+      item.count = newValue; // Acepta el nuevo valor si es mayor que cero
+      item.editing = false;  // Desactiva el modo de edición
+      
+      this.ventaService.updateNumOfProductos(item.productId, newValue);
+    } 
+    else 
+    {
+      if(newValue <= 0)
+      {
+        this.navigationService.showUIMessage('El valor debe ser mayor que cero.');
+        item.count = this.tempProductCounter?? 0;
+      } 
+      item.editing = false;
+      
+    }
+    event.preventDefault();
+  }
+  
   removeProduct(productId: number): void {
     this.ventaService.removeProductFromList(productId);
   }

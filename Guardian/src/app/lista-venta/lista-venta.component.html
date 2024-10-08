@@ -16,7 +16,17 @@
           <td>{{ producto.name }}</td>
           <td>{{ producto.description }}</td>
           <td>{{ producto.unitPrice | currency }}</td>
-          <td>{{ producto.count }}</td>
+          <td>
+            <!-- Campo intercambiable para la edición -->
+            <span *ngIf="!producto.editing; else editInput" (click)="enableEditing(producto)">
+              {{ producto.count }}
+            </span>
+            <ng-template #editInput>
+              <input #inputNumber type="number" [(ngModel)]="producto.count" 
+                    
+                    (blur)="disableEditing(producto, $event)" class="form-control-sm">
+            </ng-template>
+          </td>
           <td>{{ producto.total | currency }}</td>
           <td>
             <button class="btn btn-danger" (click)="removeProduct(producto.productId)">
@@ -75,7 +85,7 @@
 <div *ngIf="ticketVisible" class="d-flex align-items-center justify-content-center position-fixed w-100 h-100 bg-dark bg-opacity-50 top-0 start-0">
   <div class="card text-center w-75 w-md-50">
     <div class="card-header bg-light">
-      <img src="../../assets/icons/logos/logo_192x192.png" alt="Guardian_Logo" class="img-fluid mb-2" style="max-width: 50px;">
+      <img src="../../assets/icons/logos/logo-192x192.png" alt="Guardian_Logo" class="img-fluid mb-2" style="max-width: 50px;">
       <h5 class="card-title mb-1">{{ this.getUserState().companyName}}</h5>
       <p class="card-subtitle text-muted">{{ this.numVenta + ' | Fecha:' + fechaHora }}</p>
     </div> 

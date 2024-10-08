@@ -61,7 +61,6 @@ export class SaleService extends Dexie {
 
   ngOnInit():void{}
 
-  saleProducts: Producto [] = []
   saleProductsGrouped: Producto [] = []
   productCatalog: Producto[] | any[] = []
 
@@ -109,20 +108,22 @@ export class SaleService extends Dexie {
   }
 
   removeProductFromList(productId: number): void {
-    const productIndex = this.saleProducts.findIndex(product => product.productId === productId);
+    const productIndex = this.saleProductsGrouped.findIndex(product => product.productId === productId);
     
     if (productIndex !== -1) {
         // Si el producto existe en la lista, ajustar el count o eliminar si necesario.
-        if (this.saleProducts[productIndex].count > 1) {
+        if (this.saleProductsGrouped[productIndex].count > 1) {
             // Disminuir el count si es mayor que 1.
-            this.saleProducts[productIndex].count -= 1;
+            this.saleProductsGrouped[productIndex].count -= 1;
+            this.saleProductsGrouped[productIndex].total = 
+              this.saleProductsGrouped[productIndex].count * this.saleProductsGrouped[productIndex].unitPrice;
         } else {
             // Si el count es 1, eliminar el producto completamente.
-            this.saleProducts.splice(productIndex, 1);
+            this.saleProductsGrouped.splice(productIndex, 1);
         }
-        this.groupProducts(); // Asumo que necesitas agrupar productos después de cualquier modificación.
-    } 
-}
+        this.updateTotal();
+      } 
+  }
 
   async addProduct(barcode: string, companyId: number)
   {
@@ -152,39 +153,59 @@ export class SaleService extends Dexie {
     }
     else
     {
-      this.saleProducts.push(productForSale);
-      this.groupProducts();
+      this.groupProducts(productForSale);
       return true;
     }
   }
-  
-  private groupProducts(): void {
+
+  updateNumOfProductos(productId: number, totalProducts: number): void {
     const productMap = new Map();
     this.totalVenta = 0;
+    const productIndex = this.saleProductsGrouped.findIndex(p => p.productId === productId);
+    if (productIndex !== -1) 
+    {
+      let existingProduct = this.saleProductsGrouped[productIndex];
+      this.saleProductsGrouped[productIndex].count = totalProducts;
+      this.saleProductsGrouped[productIndex].total = totalProducts * existingProduct.unitPrice;
+    }
+    else
+    {
+      this.navigationService.showUIMessage("Producto no encontrado, reinicia la venta ha ocurrido un errror.");
+    }
+    this.updateTotal();
+  }
 
-    this.saleProducts.forEach((product) => {
-      this.totalVenta += product.unitPrice;
-      if(product.unitsInStock <= 0)
-      {
-        this.navigationService.showUIMessage('Producto agotado en almacén ('+ product.name +')');
-      }
-
-      if (productMap.has(product.barcode)) {
-        let group = productMap.get(product.barcode);
-        group.count += 1;
-        group.total += product.unitPrice;
-        
-      } else {
-        productMap.set(product.barcode, {
-          ...product,
-          count: 1,
-          total: product.unitPrice
-        });
-        
-      }
+  private updateTotal()
+  {
+    this.totalVenta = 0;
+    this.saleProductsGrouped.forEach((product) => {
+      this.totalVenta += product.total;
     });
+  }
 
-    this.saleProductsGrouped = Array.from(productMap.values());
+  private groupProducts(newProduct: Producto): void {
+    const productMap = new Map();
+   
+    const productIndex = this.saleProductsGrouped.findIndex(p => p.productId === newProduct.productId);
+    if (productIndex !== -1) 
+    {
+      let existingProduct = this.saleProductsGrouped[productIndex];
+      this.saleProductsGrouped[productIndex].count += 1;
+      this.saleProductsGrouped[productIndex].total = (existingProduct.count) * existingProduct.unitPrice;
+    }
+    else
+    {
+      newProduct.count = 1;
+      newProduct.total = 1 * newProduct.unitPrice;
+      this.saleProductsGrouped.push(newProduct);
+    }
+    
+    if(newProduct.unitsInStock <= 0)
+    {
+      this.navigationService.showUIMessage('Producto agotado en almacén ('+ newProduct.name +')');
+    }
+    
+    this.updateTotal();
   }
 
   private buildSale(userId: number, companyId: number, notes: string, metodoPago: string): Sale

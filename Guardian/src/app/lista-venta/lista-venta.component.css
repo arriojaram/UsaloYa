@@ -7,3 +7,22 @@
     }
   }
   
+  input[type="number"] {
+    width: auto; /* Auto ajustará el ancho según el contenido */
+    max-width: 100px; /* Máximo ancho para mantenerlo pequeño */
+    border: 1px solid #ced4da;
+    background-color: #d6e4116f;
+    color: #000000;
+    padding: .25rem .5rem; /* Padding reducido para un look más compacto */
+    line-height: 1.2;
+    font-size: 0.875rem; /* Tamaño de fuente más pequeño */
+    text-align: center; /* Alinea el texto al centro */
+    display: inline-block; /* Asegura que el input no ocupe toda la línea */
+  }
+  
+  /* Estilo para cuando el input esté activo/focado */
+  input[type="number"]:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, .25);
+  }
+  

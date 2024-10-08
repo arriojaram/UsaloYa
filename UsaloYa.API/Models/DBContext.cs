@@ -104,6 +104,9 @@ public partial class DBContext : DbContext
                 .HasColumnName("SKU");
             entity.Property(e => e.BuyPrice).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.UnitPrice).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.UnitPrice1).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.UnitPrice2).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.UnitPrice3).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.Weight).HasColumnType("decimal(10, 2)");
 
             entity.HasOne(d => d.Company).WithMany(p => p.Products)

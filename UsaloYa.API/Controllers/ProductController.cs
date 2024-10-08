@@ -112,6 +112,10 @@ namespace UsaloYa.API.Controllers
                         SupplierId = productDto.SupplierId,
                         BuyPrice = productDto.BuyPrice,
                         UnitPrice = productDto.UnitPrice,
+                        UnitPrice1 = productDto.UnitPrice1,
+                        UnitPrice2 = productDto.UnitPrice2,
+                        UnitPrice3 = productDto.UnitPrice3,
+
                         UnitsInStock = productDto.UnitsInStock,
                         Discontinued = productDto.Discontinued,
                         ImgUrl = productDto.ImgUrl,
@@ -137,6 +141,10 @@ namespace UsaloYa.API.Controllers
                     existingProduct.SupplierId = productDto.SupplierId;
                     existingProduct.BuyPrice = productDto.BuyPrice;
                     existingProduct.UnitPrice = productDto.UnitPrice;
+                    existingProduct.UnitPrice1 = productDto.UnitPrice1;
+                    existingProduct.UnitPrice2 = productDto.UnitPrice2;
+                    existingProduct.UnitPrice3 = productDto.UnitPrice3;
+
                     existingProduct.UnitsInStock = productDto.UnitsInStock;
                     existingProduct.Discontinued = productDto.Discontinued;
                     existingProduct.ImgUrl = productDto.ImgUrl;

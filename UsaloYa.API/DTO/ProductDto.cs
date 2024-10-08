@@ -9,6 +9,10 @@
         public int? SupplierId { get; set; }
         public decimal? BuyPrice { get; set; }
         public decimal? UnitPrice { get; set; }
+        public decimal? UnitPrice1 { get; set; }
+        public decimal? UnitPrice2 { get; set; }
+        public decimal? UnitPrice3 { get; set; }
+
         public int UnitsInStock { get; set; }
         public bool Discontinued { get; set; }
         public string? ImgUrl { get; set; }
