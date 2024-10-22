@@ -26,5 +26,11 @@ public partial class User
 
     public virtual Group Group { get; set; } = null!;
 
+    public virtual int? CreatedBy { get; set; } 
+
+    public virtual int? LastUpdateBy { get; set; }
+    
+    public DateTime? CreationDate { get; set; }
+
     public virtual ICollection<Sale> Sales { get; set; } = new List<Sale>();
 }

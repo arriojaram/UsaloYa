@@ -90,7 +90,19 @@
                                 <span placeholder="Estatus" >
                                     <strong>Estatus:</strong> {{userForm.get('statusIdStr')?.value}}
                                 </span>
-                            </div>    
+                            </div>
+                            <div class="form-group mb-2">
+                                <span>
+                                    Creado: {{userForm.get('creationDateUI')?.value}}
+                                    &nbsp;>&nbsp;
+                                    Creado por: {{userForm.get('createdByUserName')?.value}}
+                                </span>
+                            </div>
+                            <div class="form-group mb-2">
+                                <span>
+                                    Actualizado por: {{userForm.get('lastUpdatedByUserName')?.value}}
+                                </span>
+                            </div>
                             <div class="d-flex justify-content-end my-3">
                                 <button type="button" class="btn btn-primary mx-2 btn-floating-secondary" (click)="newUser()">Nuevo</button>
                                 <button type="submit" class="btn btn-success btn-floating">Guardar Usuario</button>

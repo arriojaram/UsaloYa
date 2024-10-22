@@ -51,8 +51,18 @@ export class LoginComponent implements OnInit, OnDestroy {
           return this.userStateService.loadUser(loginResults);
         }),
         catchError((e) => {
-          this.navigation.showUIMessage(e.message);
-          console.error('login() | ' + e);
+          if (e.status === 0) {
+            // Error de conexión o servidor no disponible
+            this.navigation.showUIMessage('Error de conexión: El servidor no está disponible.');
+          } else if (e.status >= 500) {
+            // Error del servidor (5xx)
+            this.navigation.showUIMessage('Error del servidor: ' + e.error.message);
+          }
+          else
+          {
+            this.navigation.showUIMessage(e.error);
+          }
+          console.error(e);
           return of(null); // Retornamos un observable nulo para continuar el flujo
         })
       ).subscribe({
@@ -65,7 +75,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         },
         error: (e) => {
           // Este error es para cualquier error en la cadena de observables
-          this.navigation.showUIMessage(e);
+          this.navigation.showUIMessage(e.error);
           console.error(e);
         }
       });

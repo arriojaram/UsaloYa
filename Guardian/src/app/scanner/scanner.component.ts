@@ -63,7 +63,7 @@ export class ScannerComponent implements OnInit {
         
             this.codigo.setValue(resultString);
             this.addProductToSaleList();
-            this.ventasService.playBeep();
+           
             
             // Establecer el delay antes de permitir otro escaneo
             setTimeout(() => {
@@ -93,12 +93,14 @@ export class ScannerComponent implements OnInit {
         if(isAdded)
         {
             this.messageClass = "alert  alert-success mt-2";
-            this.label_productoAdded = `Producto ${ this.codigo.value} agregado correctamente`;        
+            this.label_productoAdded = `Producto ${ this.codigo.value} agregado correctamente`;     
+            this.ventasService.playBeep(true);   
         }
         else
         {
             this.messageClass = "alert  alert-danger mt-2";
             this.label_productoAdded = `El producto no existe : ${ this.codigo.value}`;        
+            this.ventasService.playBeep(false);
         }
 
         

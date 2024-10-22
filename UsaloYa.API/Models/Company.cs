@@ -8,6 +8,14 @@ public partial class Company
 
     public string? Address { get; set; }
 
+    public virtual int? CreatedBy { get; set; }
+
+    public virtual int? LastUpdateBy { get; set; }
+
+    public DateTime? CreationDate { get; set; }
+
+    public string? PaymentsJson { get; set; }
+
     public virtual ICollection<Group> Groups { get; set; } = new List<Group>();
 
     public virtual ICollection<Product> Products { get; set; } = new List<Product>();

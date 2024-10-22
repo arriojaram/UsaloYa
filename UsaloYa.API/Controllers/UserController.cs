@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UsaloYa.API.DTO;
 using UsaloYa.API.Models;
+using UsaloYa.API.Utils;
 
 namespace UsaloYa.API.Controllers
 {
@@ -45,9 +46,12 @@ namespace UsaloYa.API.Controllers
                         LastName = userDto.LastName.Trim(),
                         CompanyId = userDto.CompanyId,
                         GroupId = userDto.GroupId,
+                        LastUpdateBy = userDto.LastUpdatedBy,
+                        CreatedBy = userDto.CreatedBy,
                         LastAccess = null,
                         IsEnabled = true,
-                        StatusId = (int)Enumerations.UserStatus.Desconocido
+                        StatusId = (int)Enumerations.UserStatus.Desconocido,
+                        CreationDate = Util.GetMxDateTime()
                     };
                     _dBContext.Users.Add(userToSave);
                 }
@@ -63,6 +67,7 @@ namespace UsaloYa.API.Controllers
                     userToSave.CompanyId = userDto.CompanyId;
                     userToSave.GroupId = userDto.GroupId;
                     userToSave.LastAccess = userDto.LastAccess;
+                    userToSave.LastUpdateBy = userDto.LastUpdatedBy;
 
                     _dBContext.Users.Update(userToSave);
                     
@@ -76,7 +81,7 @@ namespace UsaloYa.API.Controllers
                 _logger.LogError(ex, "SaveUser.ApiError");
 
                 // Return a 500 Internal Server Error with a custom message
-                return StatusCode(500, new { message = "$_ExcepcionOcurrida" });
+                return StatusCode(500, new { message = "No se puede procesar la solicitud, error en el servidor." });
             }
         }
 
@@ -114,15 +119,29 @@ namespace UsaloYa.API.Controllers
             var userResponseDto = new UserResponseDto()
             {
                 UserId = u.UserId,
-                IsEnabled = (bool)u.IsEnabled,
+                IsEnabled = u.IsEnabled?? false,
                 UserName = u.UserName,
                 FirstName = u.FirstName,
                 LastName = u.LastName,
                 CompanyId = u.CompanyId,
                 GroupId = u.GroupId,
                 LastAccess = u.LastAccess,
-                StatusId = u.StatusId
+                StatusId = u.StatusId,  
+                CreationDate = u.CreationDate
             };
+
+            var createdByUserName = await _dBContext.Users
+                .Where(user => user.UserId == u.CreatedBy)
+                    .Select(user => user.UserName)
+                    .FirstOrDefaultAsync();
+            
+            var updatedByUserName = await _dBContext.Users
+                   .Where(user => user.UserId == u.LastUpdateBy)
+                   .Select(user => user.UserName)
+                   .FirstOrDefaultAsync();
+
+            userResponseDto.CreatedByUserName = createdByUserName?? "";
+            userResponseDto.LastUpdatedByUserName = updatedByUserName ?? "";
 
             userResponseDto.CompanyName = await LoadCompany(userResponseDto.CompanyId);
 
@@ -236,9 +255,11 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
+                
                 var encryptedPassword = Utils.Util.EncryptPassword(token.Token);
                 var user = await _dBContext.Users
-                    .FirstOrDefaultAsync(u => u.UserName == token.UserName && u.Token == encryptedPassword);
+                    .FirstOrDefaultAsync(u => u.UserName == token.UserName 
+                        && u.Token == encryptedPassword);
 
                 if (user == null)
                 {
@@ -246,9 +267,15 @@ namespace UsaloYa.API.Controllers
                 }
                 else
                 {
-                    user.LastAccess = DateTime.Now;
-                    user.StatusId = (int)Enumerations.UserStatus.Conectado;
-                    await _dBContext.SaveChangesAsync();
+                    if (user.IsEnabled?? false)
+                    {
+                        user.LastAccess = DateTime.Now;
+                        user.StatusId = (int)Enumerations.UserStatus.Conectado;
+                        _dBContext.Users.Update(user);
+                        await _dBContext.SaveChangesAsync();
+                    }
+                    else
+                        return Unauthorized("Usuario no valido");
                 }
 
                 return Ok(user.UserId);
@@ -258,7 +285,7 @@ namespace UsaloYa.API.Controllers
                 _logger.LogError(ex, "Validate.ApiError");
 
                 // Return a 500 Internal Server Error with a custom message
-                return StatusCode(500, new { message = "$_ExcepcionOcurrida" });
+                return StatusCode(500, new { message = "No se puede procesar la solicitud, error de servidor." });
             }
         }
 

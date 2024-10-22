@@ -1,15 +1,6 @@
-@media (max-width: 768px) {
-    table th:nth-child(3), table td:nth-child(3) {
-      display: none;
-    }
-    table th:nth-child(3), table td:nth-child(3) {
-      display: none;
-    }
-  }
-  
-  input[type="number"] {
+  input[type="number"]#newQuant {
     width: auto; /* Auto ajustará el ancho según el contenido */
-    max-width: 100px; /* Máximo ancho para mantenerlo pequeño */
+    max-width: 55px; /* Máximo ancho para mantenerlo pequeño */
     border: 1px solid #ced4da;
     background-color: #d6e4116f;
     color: #000000;
@@ -21,8 +12,19 @@
   }
   
   /* Estilo para cuando el input esté activo/focado */
-  input[type="number"]:focus {
+  input[type="number"]#newQuant:focus {
     outline: none;
     box-shadow: 0 0 0 2px rgba(0, 123, 255, .25);
+  }
+  
+
+
+  @media (max-width: 768px) {
+    table th:nth-child(3), table td:nth-child(3) {
+      display: none;
+    }
+    table th:nth-child(3), table td:nth-child(3) {
+      display: none;
+    }
   }
   

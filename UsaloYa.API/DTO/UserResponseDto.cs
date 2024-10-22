@@ -11,6 +11,10 @@
         public string CompanyName{ get; set; }
         public int GroupId { get; set; }
         public int StatusId { get; set; }
+        public string CreatedByUserName { get; set; }
+        public string LastUpdatedByUserName { get; set; }
         public DateTime? LastAccess { get; set; }
+
+        public DateTime? CreationDate { get; set; }
     }
 }

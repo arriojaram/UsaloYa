@@ -76,7 +76,7 @@ export class SaleService extends Dexie {
     return this.currentSale;
   }
 
-  playBeep(): void {
+  playBeep(added: boolean): void {
     const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
 
     // Crear un oscilador que genera el tono
@@ -84,6 +84,11 @@ export class SaleService extends Dexie {
 
     // Configurar el tipo de onda y frecuencia
     oscillator.type = 'sine'; // Puedes probar con 'square', 'sawtooth', 'triangle'
+    if(added === false)
+    {
+      oscillator.type = 'sawtooth'; // Puedes probar con 'square', 'sawtooth', 'triangle'
+    }
+
     oscillator.frequency.setValueAtTime(440, audioCtx.currentTime); // Frecuencia en Hz (440 Hz es la nota A4)
 
     // Conectar el oscilador al destino (altavoces)

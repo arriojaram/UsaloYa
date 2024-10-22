@@ -41,6 +41,30 @@ public partial class DBContext : DbContext
             entity.Property(e => e.Name)
                 .HasMaxLength(50)
                 .IsUnicode(false);
+
+            entity.Property(e => e.CreationDate).HasColumnType("datetime");
+
+            entity.Property(e => e.PaymentsJson).HasColumnType("xml");
+
+            entity.Property(e => e.CreatedBy)
+                    .HasColumnType("int")
+                    .IsRequired(false);  // Permitir nulos
+
+            entity.Property(e => e.LastUpdateBy)
+                .HasColumnType("int")
+                .IsRequired(false);  // Permitir nulos
+
+            // Relación con la tabla User (UserId)
+            entity.HasOne<User>()
+                .WithMany()
+                .HasForeignKey(e => e.CreatedBy)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Relación con la tabla User (UserId)
+            entity.HasOne<User>()
+                .WithMany()
+                .HasForeignKey(e => e.LastUpdateBy)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<Group>(entity =>
@@ -188,7 +212,30 @@ public partial class DBContext : DbContext
             entity.Property(e => e.IsEnabled)
                 .IsRequired()
                 .HasDefaultValueSql("(CONVERT([bit],(0)))");
+            
             entity.Property(e => e.LastAccess).HasColumnType("datetime");
+            entity.Property(e => e.CreationDate).HasColumnType("datetime");
+
+            entity.Property(e => e.CreatedBy)
+                     .HasColumnType("int")
+                     .IsRequired(false);  // Permitir nulos
+
+            entity.Property(e => e.LastUpdateBy)
+                .HasColumnType("int")
+                .IsRequired(false);  // Permitir nulos
+
+            // Relación con la tabla User (UserId)
+            entity.HasOne<User>()
+                .WithMany()
+                .HasForeignKey(e => e.CreatedBy)
+                .OnDelete(DeleteBehavior.Restrict);  
+
+            // Relación con la tabla User (UserId)
+            entity.HasOne<User>()
+                .WithMany()
+                .HasForeignKey(e => e.LastUpdateBy)
+                .OnDelete(DeleteBehavior.Restrict);  
+
             entity.Property(e => e.LastName)
                 .HasMaxLength(50)
                 .IsUnicode(false);

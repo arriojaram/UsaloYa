@@ -46,6 +46,7 @@ export class UserManagementComponent {
   }
 
   ngOnInit(): void {
+    this.userState = this.userStateService.getUserStateLocalStorage();
     this.userForm.get('lastAccess')?.disable();
     this.userForm.get('statusId')?.disable();
     this.searchUsersInternal('-1');
@@ -53,7 +54,6 @@ export class UserManagementComponent {
 
     this.userService.getGroups().subscribe((data) => {
       this.groups = data;
-      console.log(data);
     });
 
     this.userService.getCompanies().subscribe((data) => {
@@ -71,7 +71,10 @@ export class UserManagementComponent {
       groupId: ['', Validators.required],
       lastAccess4UI: [''],
       isEnabled: [true, Validators.required],
-      statusIdStr: ['']
+      statusIdStr: [''],
+      createdByUserName: [''],
+      lastUpdatedByUserName: [''],
+      creationDateUI: ['']
     });
   }
 
@@ -99,7 +102,13 @@ export class UserManagementComponent {
     .subscribe(user => {
       user.lastAccess4UI = undefined;
       if(user.lastAccess != null)
+      {
         user.lastAccess4UI = format(user.lastAccess, 'dd-MMM-yyyy hh:mm a');
+      }
+      if(user.creationDate != null)
+      {
+          user.creationDateUI = format(user.creationDate, 'dd-MMM-yyyy hh:mm a');
+      }
 
       switch (user.statusId) {
         case 0:
@@ -131,18 +140,20 @@ export class UserManagementComponent {
 
     if (this.userForm.valid) {
       const user: userDto = this.userForm.value;
-      user.token = "a-Fc1C149Afbf4c8--996++";
-     
+      user.token = "a-Fc1C149Afbf4c8--996++"; //Temp password for new users
+      user.lastUpdatedBy = this.userState.userId;
+      user.createdBy = this.userState.userId;
+      
       this.userService.saveUser(user).pipe(first())
-      .subscribe({
-        next: (result) => {
-          this.searchUsersInternal("-1");
-          this.selectUser(result.userId);
-          this.navigationService.showUIMessage("Usuario guardado (" + result.userName + ")");
-        },
-        error:(err) => {
-          this.navigationService.showUIMessage(err.error.message);
-        },
+        .subscribe({
+          next: (result) => {
+            this.searchUsersInternal("-1");
+            this.selectUser(result.userId);
+            this.navigationService.showUIMessage("Usuario guardado (" + result.userName + ")");
+          },
+          error:(err) => {
+            this.navigationService.showUIMessage(err.error.message);
+          },
       });
     }
   }
@@ -169,6 +180,7 @@ export class UserManagementComponent {
       });
     } 
   }
+
   searchUsers(event: Event): void {
     const inputElement = event.target as HTMLInputElement;
     const keyword = inputElement.value || '-1'; // Default to an empty string if keyword is null or undefined

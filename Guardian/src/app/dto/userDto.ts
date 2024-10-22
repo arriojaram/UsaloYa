@@ -11,5 +11,11 @@ export interface userDto{
     lastAccess?: Date,
     lastAccess4UI?: string,
     isEnabled?: boolean,
-    token?: string
+    token?: string,
+    createdBy?: number,
+    lastUpdatedBy?: number
+    createdByUserName?: string,
+    lastUpdatedByUserName?: string
+    creationDate?: Date,
+    creationDateUI?: string,
 }

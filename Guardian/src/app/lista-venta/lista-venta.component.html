@@ -2,29 +2,28 @@
     <table class="table">
       <thead>
         <tr>
-          <th>C. Barras</th>
+          <th class="d-none d-sm-table-cell">C. Barras</th>
           <th>Nombre</th>
-          <th>Descripción</th>
+          <th class="d-none d-sm-table-cell">Descripción</th>
           <th>Precio</th>
-          <th>Cantidad</th>
+          <th class="d-none d-sm-table-cell">Cantidad</th>
+          <th class="d-table-cell d-sm-none">Cant.</th>
           <th>Importe</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let producto of ventaService.saleProductsGrouped">
-          <td>{{ producto.barcode }}</td>
+          <td class="d-none d-sm-table-cell">{{ producto.barcode }}</td>
           <td>{{ producto.name }}</td>
           <td>{{ producto.description }}</td>
           <td>{{ producto.unitPrice | currency }}</td>
           <td>
             <!-- Campo intercambiable para la edición -->
-            <span *ngIf="!producto.editing; else editInput" (click)="enableEditing(producto)">
+            <span *ngIf="!producto.editing; else editInput" (click)="enableEditing(producto)" style="max-width: 10px;">
               {{ producto.count }}
             </span>
             <ng-template #editInput>
-              <input #inputNumber type="number" [(ngModel)]="producto.count" 
-                    
-                    (blur)="disableEditing(producto, $event)" class="form-control-sm">
+              <input id="newQuant" #inputNumber type="number" [(ngModel)]="producto.count" (keydown.enter)="disableEditing(producto, $event)" class="form-control-sm">
             </ng-template>
           </td>
           <td>{{ producto.total | currency }}</td>
@@ -47,7 +46,7 @@
         </div>
         <div class="container-fluid">
           <div class="row">
-            <div class="col-12 col-md-3 mb-2">
+            <div class="col-12 col-md-3 mb-2" >
                 <div>Dinero Recibido</div>
                 <input type="number" class="form-control fs-5" style="background-color: rgba(255, 255, 0, 0.26);" [(ngModel)]="pagoRecibido" (ngModelChange)="onInputChange($event)" 
                         step="0.50" min="0" placeholder="Ingresa cantidad recibida"  (keydown.enter)="finalizarVenta()">
@@ -85,7 +84,7 @@
 <div *ngIf="ticketVisible" class="d-flex align-items-center justify-content-center position-fixed w-100 h-100 bg-dark bg-opacity-50 top-0 start-0">
   <div class="card text-center w-75 w-md-50">
     <div class="card-header bg-light">
-      <img src="../../assets/icons/logos/logo-192x192.png" alt="Guardian_Logo" class="img-fluid mb-2" style="max-width: 50px;">
+      <img src="../assets/icons/logos/logo-192x192.png" alt="Guardian_Logo" class="img-fluid mb-2" style="max-width: 50px;">
       <h5 class="card-title mb-1">{{ this.getUserState().companyName}}</h5>
       <p class="card-subtitle text-muted">{{ this.numVenta + ' | Fecha:' + fechaHora }}</p>
     </div> 
