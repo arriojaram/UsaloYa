@@ -145,10 +145,21 @@ export class SaleService extends Dexie {
     }
     else
     {
-      productForSale = this.productCatalog.find(
-        p => p.barcode.toLowerCase() === barcode.toLowerCase()
-                && p.companyId == companyId
-      );
+      let barcodeLength = barcode.length;
+      if(barcodeLength > 10)
+      {
+        productForSale = this.productCatalog.find(
+          p => p.barcode.toLowerCase() === barcode.toLowerCase()
+                  && p.companyId == companyId
+        );
+      }
+      else
+      {
+        productForSale = this.productCatalog.find(
+          p => (p.sku??'_$').toLowerCase() === barcode.toLowerCase()
+                  && p.companyId == companyId
+        );
+      }
     }
 
     if(productForSale === undefined)

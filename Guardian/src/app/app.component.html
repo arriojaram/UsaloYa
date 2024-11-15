@@ -57,6 +57,10 @@
                         <div class="sb-nav-link-icon"><i class="bi bi-graph-up fs-6"></i></div>
                         Reporte Ventas
                     </a>
+                    <a class="nav-link" href="importar" *ngIf="(this.userStateUI?.groupId?? 0) >= 1">
+                        <div class="sb-nav-link-icon"><i class="bi bi-file-earmark-arrow-up fs-6"></i></div>
+                        Importar Productos
+                    </a>
                   </div>
             </div>
            

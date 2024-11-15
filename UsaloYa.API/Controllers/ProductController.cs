@@ -94,10 +94,18 @@ namespace UsaloYa.API.Controllers
                     .FirstOrDefaultAsync(p => p.ProductId == productDto.ProductId && p.CompanyId == companyId);
 
                 // Check if a product with the same Barcode and SKU already exists
-                var productWithSameBarcodeAndSku = await _dBContext.Products
-                    .FirstOrDefaultAsync(p => p.Barcode == productDto.Barcode && p.Sku == productDto.SKU && p.CompanyId == companyId);
+                var productWithSameBarcodeAndSku = _dBContext.Products
+                    .Where(p => (p.Barcode.Equals(productDto.Barcode) || p.Sku.Equals(productDto.SKU?? "$SKU"))
+                                                    && p.CompanyId == companyId);
 
-                if (productWithSameBarcodeAndSku != null && productWithSameBarcodeAndSku.ProductId != productDto.ProductId)
+                var numOfProducts = await productWithSameBarcodeAndSku.CountAsync();
+                if (numOfProducts > 1)
+                {
+                    return Conflict(new { Message = "$_ProductoConMismoCodigoDeBarrasYaExiste" });
+                }
+
+                if (numOfProducts > 0 
+                    && productWithSameBarcodeAndSku.First().ProductId != productDto.ProductId)
                 {
                     return Conflict(new { Message = "$_ProductoConMismoCodigoDeBarrasYaExiste" });
                 }
@@ -108,24 +116,24 @@ namespace UsaloYa.API.Controllers
                     {
                         Name = productDto.Name.Trim(),
                         Description = productDto.Description,
-                        CategoryId = productDto.CategoryId,
-                        SupplierId = productDto.SupplierId,
-                        BuyPrice = productDto.BuyPrice,
-                        UnitPrice = productDto.UnitPrice,
-                        UnitPrice1 = productDto.UnitPrice1,
-                        UnitPrice2 = productDto.UnitPrice2,
-                        UnitPrice3 = productDto.UnitPrice3,
+                        CategoryId = productDto.CategoryId == 0? null: productDto.CategoryId,
+                        SupplierId = productDto.SupplierId == 0? null: productDto.SupplierId,
+                        BuyPrice = productDto.BuyPrice == 1 ? null : productDto.BuyPrice,
+                        UnitPrice = productDto.UnitPrice == 0 ? 1 : productDto.UnitPrice,
+                        UnitPrice1 = productDto.UnitPrice1 == 0 ? null : productDto.UnitPrice1,
+                        UnitPrice2 = productDto.UnitPrice2 == 0 ? null : productDto.UnitPrice2,
+                        UnitPrice3 = productDto.UnitPrice3 == 0 ? null : productDto.UnitPrice3,
 
                         UnitsInStock = productDto.UnitsInStock,
                         Discontinued = productDto.Discontinued,
-                        ImgUrl = productDto.ImgUrl,
+                        ImgUrl = string.IsNullOrEmpty(productDto.ImgUrl) ? null : productDto.ImgUrl,
                         DateModified = Utils.Util.GetMxDateTime(),
                         Weight = productDto.Weight,
-                        Sku = productDto.SKU,
+                        Sku = (string.IsNullOrEmpty(productDto.SKU) ? null: productDto.SKU),
                         Barcode = productDto.Barcode,
-                        Brand = productDto.Brand,
-                        Color = productDto.Color,
-                        Size = productDto.Size,
+                        Brand = string.IsNullOrEmpty( productDto.Brand) ? null: productDto.Brand,
+                        Color = string.IsNullOrEmpty(productDto.Color) ? null: productDto.Color,
+                        Size = string.IsNullOrEmpty(productDto.Size) ? null: productDto.Size,
                         DateAdded = Utils.Util.GetMxDateTime(),
                         CompanyId = companyId
                     };
@@ -150,7 +158,7 @@ namespace UsaloYa.API.Controllers
                     existingProduct.ImgUrl = productDto.ImgUrl;
                     existingProduct.DateModified = Utils.Util.GetMxDateTime();
                     existingProduct.Weight = productDto.Weight;
-                    existingProduct.Sku = productDto.SKU;
+                    existingProduct.Sku = (string.IsNullOrEmpty(productDto.SKU) ? null : productDto.SKU);
                     existingProduct.Barcode = productDto.Barcode;
                     existingProduct.Brand = productDto.Brand;
                     existingProduct.Color = productDto.Color;

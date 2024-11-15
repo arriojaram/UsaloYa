@@ -69,6 +69,11 @@
                 </div>
 
                 <div class="form-group">
+                  <label for="sku">Código SKU</label>
+                  <input id="sku" type="text" class="form-control required-input" formControlName="sku">
+                </div>
+
+                <div class="form-group">
                   <label for="unitsInStock">Unidades en Stock</label>
                   <input id="unitsInStock" type="number" class="form-control required-input" formControlName="unitsInStock">
                   <div *ngIf="productForm.get('unitsInStock')?.invalid && productForm.get('unitsInStock')?.touched" class="invalid-feedback">

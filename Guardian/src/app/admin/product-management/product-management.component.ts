@@ -75,7 +75,7 @@ export class ProductManagementComponent implements OnInit {
       discontinued: [false, Validators.required],
       imgUrl: [''],
       weight: [null],
-      sku: [''],
+      sku: [null],
       barcode: ['', Validators.required],
       brand: [''],
       color: [''],
@@ -125,7 +125,7 @@ export class ProductManagementComponent implements OnInit {
           this.searchProductsInternal('-1');
           this.selectProduct(savedProduct.productId);
           this.navigationService.showUIMessage("Producto guardado (" + savedProduct.productId + ")");
-          window.scrollTo(0, 0);
+          //window.scrollTo(0, 0);
         },
         error: (e) => 
         {

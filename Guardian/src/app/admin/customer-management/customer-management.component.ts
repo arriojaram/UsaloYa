@@ -83,13 +83,13 @@ export class CustomerManagementComponent {
       return;
     }
     if (this.customerForm?.valid) {
-      console.log("Saving... " + this.customerForm.value);
+      
       this.customerService.saveCustomer(this.customerForm.value).subscribe({
         next: (savedCustomer) => {
           this.searchCustomersInternal('-1');
           this.selectUser(savedCustomer.customerId);
           this.navigationService.showUIMessage("Cliente guardado (" + savedCustomer.customerId + ")");
-          window.scrollTo(0, 0);
+          //window.scrollTo(0, 0);
         },
         error: (e) => 
         {

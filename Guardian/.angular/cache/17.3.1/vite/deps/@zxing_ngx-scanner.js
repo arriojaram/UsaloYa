@@ -23,10 +23,10 @@ import {
 } from "./chunk-BMDY6UT4.js";
 import {
   FormsModule
-} from "./chunk-UJVXQHN4.js";
+} from "./chunk-4Y3LSHCD.js";
 import {
   CommonModule
-} from "./chunk-GYCMI6JL.js";
+} from "./chunk-FZH77NA2.js";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -48,9 +48,9 @@ import {
   ɵɵstyleProp,
   ɵɵtext,
   ɵɵviewQuery
-} from "./chunk-QYBPWKLL.js";
-import "./chunk-OQLFUR6O.js";
+} from "./chunk-HBIJZBP7.js";
 import "./chunk-HL3YN3FC.js";
+import "./chunk-OQLFUR6O.js";
 import {
   BehaviorSubject
 } from "./chunk-F6ZKU2BT.js";
@@ -58,7 +58,7 @@ import {
   __async,
   __spreadProps,
   __spreadValues
-} from "./chunk-J4B6MK7R.js";
+} from "./chunk-WKYGNSYM.js";
 
 // node_modules/@zxing/browser/esm/common/HTMLCanvasElementLuminanceSource.js
 var __extends = /* @__PURE__ */ function() {

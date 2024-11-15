@@ -1,0 +1,14 @@
+<!-- productos-csv.component.html -->
+<div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <div class="input-group mb-3">
+          <input type="file" class="form-control" (change)="onFileSelected($event)" accept=".csv">
+          <button class="btn btn-primary" (click)="importProducts()" [disabled]="!selectedFile">Importar Productos</button>
+        </div>
+        <p class="d-flex flex-column">Productos Procesados: {{ productsProcessed }}</p>
+        <p class="d-flex flex-column">Productos Fallidos: {{ productsFailed }}</p>
+      </div>
+    </div>
+  </div>
+  
