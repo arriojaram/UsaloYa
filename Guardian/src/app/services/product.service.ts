@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, catchError } from 'rxjs';
+import { Observable, catchError, timeInterval } from 'rxjs';
 import { Producto } from '../dto/producto';
 import { environment } from '../environments/enviroment';
 

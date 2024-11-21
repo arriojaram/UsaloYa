@@ -87,7 +87,7 @@ export class UserManagementComponent {
   newUser(): void {
     this.selectedUser = null;
     this.userForm.reset();
-    this.userForm.patchValue({userName:'', firstName:'', lastName:'', groupId:0, isEnabled:true, password:''});
+    this.userForm.patchValue({userId:0 ,userName:'', firstName:'', lastName:'', groupId:0, isEnabled:true, password:''});
   }
 
   checkScreenSize() {
