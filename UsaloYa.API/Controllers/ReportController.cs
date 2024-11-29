@@ -51,7 +51,7 @@ namespace UsaloYa.API.Controllers
                 _logger.LogError(ex, "GetSalesReport.ApiError");
 
                 // Return a 500 Internal Server Error with a custom message
-                return StatusCode(500, new { message = "$_ExcepcionOcurrida" });
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
             }
         }
 
@@ -87,7 +87,7 @@ namespace UsaloYa.API.Controllers
                 _logger.LogError(ex, "GetSaleDetails.ApiError");
 
                 // Return a 500 Internal Server Error with a custom message
-                return StatusCode(500, new { message = "$_ExcepcionOcurrida" });
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
             }
         }
     }

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { UserService } from '../../services/user.service';
 import { ActivatedRoute } from '@angular/router';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup,  ReactiveFormsModule, Validators } from '@angular/forms';
 import { userDto } from '../../dto/userDto';
 import { NavigationService } from '../../services/navigation.service';
 import { UserStateService } from '../../services/user-state.service';
@@ -10,11 +10,12 @@ import { format } from 'date-fns';
 import { first } from 'rxjs';
 import { adminGroupDto } from '../../dto/adminGroupDto';
 import { AdminCompanyDto } from '../../dto/adminCompanyDto';
+import { Roles } from '../../Enums/enums';
 
 @Component({
   selector: 'app-user-management',
   standalone: true,
-  imports: [ReactiveFormsModule, FormsModule, NgFor, NgIf],
+  imports: [ReactiveFormsModule,  NgFor, NgIf],
   templateUrl: './user-management.component.html',
   styleUrl: './user-management.component.css'
 })
@@ -27,6 +28,8 @@ export class UserManagementComponent {
   userState: userDto;
   passwordErrorMsg: string;
   groups: adminGroupDto [] = [];
+  availableRoles: any;
+  showRoles: boolean = false;
   companies: AdminCompanyDto [] = [];
   searchWord: any;
   
@@ -59,6 +62,35 @@ export class UserManagementComponent {
     this.userService.getCompanies().subscribe((data) => {
       this.companies = data;
     });
+
+    this.initRoles();
+  }
+
+  private initRoles()
+  {
+    if(this.userState.roleId !== 0)
+    {
+      this.showRoles = true;
+      this.availableRoles = Object.values(Roles)
+      .filter(value => typeof value === 'number')
+      .map(roleId => ({
+          id: roleId as number,
+          name: Roles[roleId as number] as string
+      }));
+      // Delete this role by security purposes and on purpose, this rol must be assigned directly on the DB
+      this.availableRoles = this.availableRoles.filter((role: { id: any; }) => role.id !== Roles.Root);
+
+      if(this.userState.roleId === Roles.Usuario)
+      {
+        this.availableRoles = this.availableRoles.filter((role: { id: any; }) => role.id !== Roles.Administrador);
+        this.availableRoles = this.availableRoles.filter((role: { id: any; }) => role.id !== Roles.Root);
+      }
+        
+      const groupIdControl = this.userForm.get('groupId');
+      const roleIdControl = this.userForm.get('roleId');
+      this.userState.roleId > 1 ? groupIdControl?.enable() : groupIdControl?.disable();   
+      this.userState.roleId > 1 ? roleIdControl?.enable() : roleIdControl?.disable();   
+    }
   }
 
   private initUserForm(): FormGroup {
@@ -68,13 +100,14 @@ export class UserManagementComponent {
       firstName: ['', [Validators.required, Validators.maxLength(50)]],
       lastName: ['', [Validators.required, Validators.maxLength(50)]],
       companyId: ['', Validators.required],
-      groupId: ['', Validators.required],
+      groupId: [0, Validators.required],
       lastAccess4UI: [''],
       isEnabled: [true, Validators.required],
       statusIdStr: [''],
       createdByUserName: [''],
       lastUpdatedByUserName: [''],
-      creationDateUI: ['']
+      creationDateUI: [''],
+      roleId: [1]
     });
   }
 
@@ -87,7 +120,7 @@ export class UserManagementComponent {
   newUser(): void {
     this.selectedUser = null;
     this.userForm.reset();
-    this.userForm.patchValue({userId:0 ,userName:'', firstName:'', lastName:'', groupId:0, isEnabled:true, password:''});
+    this.userForm.patchValue({userId:0, userName:'', roleId:1, firstName:'', lastName:'', groupId:0, isEnabled:true, password:''});
   }
 
   checkScreenSize() {
@@ -100,34 +133,50 @@ export class UserManagementComponent {
   selectUser(userId: number): void {
     this.userService.getUser(userId).pipe(first())
     .subscribe(user => {
-      user.lastAccess4UI = undefined;
-      if(user.lastAccess != null)
-      {
-        user.lastAccess4UI = format(user.lastAccess, 'dd-MMM-yyyy hh:mm a');
-      }
-      if(user.creationDate != null)
-      {
-          user.creationDateUI = format(user.creationDate, 'dd-MMM-yyyy hh:mm a');
-      }
+        user.lastAccess4UI = undefined;
+        const roleIdControl = this.userForm.get('roleId');
+        roleIdControl?.enable();
+      
 
-      switch (user.statusId) {
-        case 0:
-          user.statusIdStr = "Desconectado"
-          break;
-        case 1:
-          user.statusIdStr = "Conectado"
-          break;
-        case 2:
-            user.statusIdStr = "Deshabilitado"
+        if(user.lastAccess != null)
+        {
+          user.lastAccess4UI = format(user.lastAccess, 'dd-MMM-yyyy hh:mm a');
+        }
+        if(user.creationDate != null)
+        {
+            user.creationDateUI = format(user.creationDate, 'dd-MMM-yyyy hh:mm a');
+        }
+
+        switch (user.statusId) {
+          case 0:
+            user.statusIdStr = "Desconectado"
             break;
-        default:
-           user.statusIdStr = "Desconocido"
-          break;
-      }
+          case 1:
+            user.statusIdStr = "Conectado"
+            break;
+          case 2:
+              user.statusIdStr = "Deshabilitado"
+              break;
+          default:
+            user.statusIdStr = "Desconocido"
+            break;
+        }
+
+        if(user.roleId === 0)
+        {
+          user.roleId = Roles.Usuario;
+
+        }
 
       this.selectedUser = user;
       this.userForm.patchValue(user);
       this.checkScreenSize();
+
+      
+      if(user.roleId === Roles.Root)
+        {          
+          roleIdControl?.disable({ onlySelf: true });  
+        }
     });
   }
 
@@ -152,7 +201,11 @@ export class UserManagementComponent {
             this.navigationService.showUIMessage("Usuario guardado (" + result.userName + ")");
           },
           error:(err) => {
-            this.navigationService.showUIMessage(err.error.message);
+            const m1 = err.error.message;
+            if(m1)
+              this.navigationService.showUIMessage(m1);
+            else
+              this.navigationService.showUIMessage(err.error);
           },
       });
     }
@@ -188,7 +241,11 @@ export class UserManagementComponent {
   }
   
   private searchUsersInternal(name: string): void {
-    this.userService.getAllUser(this.userState.companyId, name).pipe(first())
+    let companyId = this.userState.companyId;
+    if(this.userState.roleId === Roles.Root)
+      companyId = 0;
+
+    this.userService.getAllUser(companyId, this.userState.userId, name).pipe(first())
     .subscribe(users => {
       this.userList = users.sort((a,b) => (a.firstName?? '').localeCompare((b.firstName?? '')));
     });

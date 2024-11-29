@@ -33,31 +33,31 @@
                 <div class="nav">
                     <div class="sb-sidenav-menu-heading">Accesos</div>
                   
-                    <a class="nav-link" href="main" *ngIf="(this.userStateUI?.groupId?? 0) >= 1">
+                    <a class="nav-link" href="main" *ngIf="(this.userStateUI?.roleId ?? 0) > rol.Desconocido">
                       <div class="sb-nav-link-icon"><i class="bi bi-cash-stack fs-6"></i></div>
                       Punto de Venta
                     </a>
                   
-                    <a class="nav-link" href="productos" *ngIf="(this.userStateUI?.groupId?? 0) >= 1">
+                    <a class="nav-link" href="productos" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Usuario">
                       <div class="sb-nav-link-icon"><i class="bi bi-box-seam fs-6"></i></div>
                       Productos
                     </a>
 
-                    <a class="nav-link" href="usuarios" *ngIf="(this.userStateUI?.groupId?? 0) === 1">
+                    <a class="nav-link" href="usuarios" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Administrador">
                         <div class="sb-nav-link-icon"><i class="bi bi-people fs-6"></i></div>
                         Usuarios
                     </a>
 
-                    <a class="nav-link" href="clientes" *ngIf="(this.userStateUI?.groupId?? 0) === 1">
+                    <a class="nav-link" href="clientes" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Usuario ">
                         <div class="sb-nav-link-icon"><i class="bi bi-person-circle fs-6"></i></div>
                         Clientes
                     </a>
                     
-                    <a class="nav-link" href="reporteventas" *ngIf="(this.userStateUI?.groupId?? 0) >= 1">
+                    <a class="nav-link" href="reporteventas" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Administrador">
                         <div class="sb-nav-link-icon"><i class="bi bi-graph-up fs-6"></i></div>
                         Reporte Ventas
                     </a>
-                    <a class="nav-link" href="importar" *ngIf="(this.userStateUI?.groupId?? 0) >= 1">
+                    <a class="nav-link" href="importar" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Administrador">
                         <div class="sb-nav-link-icon"><i class="bi bi-file-earmark-arrow-up fs-6"></i></div>
                         Importar Productos
                     </a>

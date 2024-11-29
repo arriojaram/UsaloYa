@@ -224,6 +224,11 @@ public partial class DBContext : DbContext
                 .HasColumnType("int")
                 .IsRequired(false);  // Permitir nulos
 
+            entity.Property(e => e.RoleId)
+             .HasColumnType("int")
+             .IsRequired(false);  // Permitir nulos
+
+
             // Relación con la tabla User (UserId)
             entity.HasOne<User>()
                 .WithMany()

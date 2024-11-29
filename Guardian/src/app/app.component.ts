@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router, RouterLink, RouterModule, RouterOutlet } from '@angular/router';
 import { ConnectionService } from 'ngx-connection-service';
-import { Observable, Subject, Subscription, catchError, debounceTime, filter, finalize, first, forkJoin, from, interval, mergeMap, of, startWith, switchMap, takeUntil, throwError } from 'rxjs';
+import { Observable, Subject, catchError, debounceTime, filter, finalize, first, forkJoin, from, interval, mergeMap, of, startWith, switchMap, takeUntil, throwError } from 'rxjs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { LoadingService } from './services/loading.service';
 import { CommonModule, NgIf } from '@angular/common';
@@ -12,11 +12,12 @@ import { userDto } from './dto/userDto';
 import { AuthorizationService } from './services/authorization.service';
 import { NavigationService } from './services/navigation.service';
 import { Sale } from './dto/sale';
+import { Roles } from './Enums/enums';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterModule, RouterOutlet, RouterLink, CommonModule, MatProgressSpinnerModule, NgIf ],
+  imports: [RouterModule, RouterOutlet, CommonModule, MatProgressSpinnerModule, NgIf ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -28,6 +29,7 @@ export class AppComponent implements OnInit, OnDestroy {
   userStateUI: userDto | undefined;
   isOnline: boolean | undefined;
   title = 'Guardian';
+  rol = Roles;
   
   private unsubscribe$: Subject<void> = new Subject();
   loading_i$: Observable<boolean> | undefined;
@@ -48,12 +50,12 @@ export class AppComponent implements OnInit, OnDestroy {
     private navigationService: NavigationService
   ) 
   {
-   
+    
   }
 
   ngOnInit(): void {
     this.loading_i$ = this.loadingService.loading$;
-    this.userStateUI = {userId:0, userName:'', companyId:0, groupId:0, statusId:0, companyName:""};
+    this.userStateUI = {userId:0, userName:'', roleId:0, companyId:0, groupId:0, statusId:0, companyName:""};
     
     // Init network status monitor
     this.connectionService.monitor()

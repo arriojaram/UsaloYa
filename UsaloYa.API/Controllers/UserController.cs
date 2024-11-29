@@ -30,13 +30,17 @@ namespace UsaloYa.API.Controllers
         public async Task<ActionResult> SaveUser([FromBody] UserDto userDto)
         {
             User userToSave = null;
+            var roleId = Enums.EConverter.GetEnumFromValue<Enums.Role>(userDto.RoleId?? 0);
+            if (roleId == default)
+                return BadRequest("$_Rol_Invalido");
+
             try
             {
                 if (userDto.UserId == 0)
                 {
                     var existsUser = await _dBContext.Users.AnyAsync(u => u.UserName == userDto.UserName);
                     if (existsUser)
-                        return Conflict(new { message = "$_NombreDeUsuarioDuplicado" });
+                        return Conflict(new { message = "$_Nombre_De_Usuario_Duplicado" });
 
                     userToSave = new User
                     {
@@ -52,6 +56,8 @@ namespace UsaloYa.API.Controllers
                         IsEnabled = true,
                         StatusId = (int)Enumerations.UserStatus.Desconocido,
                         CreationDate = Util.GetMxDateTime()
+
+                        ,RoleId = userDto.RoleId
                     };
                     _dBContext.Users.Add(userToSave);
                 }
@@ -68,6 +74,7 @@ namespace UsaloYa.API.Controllers
                     userToSave.GroupId = userDto.GroupId;
                     userToSave.LastAccess = userDto.LastAccess;
                     userToSave.LastUpdateBy = userDto.LastUpdatedBy;
+                    userToSave.RoleId = userDto.RoleId;
 
                     _dBContext.Users.Update(userToSave);
                     
@@ -105,7 +112,7 @@ namespace UsaloYa.API.Controllers
                 _logger.LogError(ex, "SetToken.ApiError");
 
                 // Return a 500 Internal Server Error with a custom message
-                return StatusCode(500, new { message = "$_ExcepcionOcurrida" });
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
             }
         }
 
@@ -128,6 +135,7 @@ namespace UsaloYa.API.Controllers
                 LastAccess = u.LastAccess,
                 StatusId = u.StatusId,  
                 CreationDate = u.CreationDate
+                ,RoleId = u.RoleId?? 0
             };
 
             var createdByUserName = await _dBContext.Users
@@ -178,7 +186,7 @@ namespace UsaloYa.API.Controllers
                 _logger.LogError(ex, "GetGroups.ApiError");
 
                 // Return a 500 Internal Server Error with a custom message
-                return StatusCode(500, new { message = "$_ExcepcionOcurrida" });
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
             }
         }
 
@@ -203,22 +211,39 @@ namespace UsaloYa.API.Controllers
                 _logger.LogError(ex, "GetCompanies.ApiError");
 
                 // Return a 500 Internal Server Error with a custom message
-                return StatusCode(500, new { message = "$_ExcepcionOcurrida" });
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
             }
         }
 
 
         [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll([FromQuery] int companyId, string name = "-1")
+        public async Task<IActionResult> GetAll([FromHeader] string R, [FromQuery] int companyId, string name = "-1")
         {
             try
             {
+                if (companyId == 0)
+                {
+                    var requestor = R;
+                    int userId = 0;
+                    if(!int.TryParse(requestor, out userId))
+                        return Unauthorized(requestor);
+                    if (userId <= 0)
+                        return Unauthorized(requestor);
+
+                    //Validate user status and rol
+                    var user = await _dBContext.Users.FindAsync(userId);
+                    if(user == null || user.RoleId != (int)Enums.Role.Root)
+                        return Unauthorized(requestor);
+                    
+                }
+
                 var users = (string.IsNullOrEmpty(name) || string.Equals(name, "-1", StringComparison.OrdinalIgnoreCase))
                     ? await _dBContext.Users.Where(c => (c.CompanyId == companyId || companyId == 0)).OrderByDescending(u => u.UserId).Take(50).ToListAsync()
-                    : await _dBContext.Users
+                    : await _dBContext.Users.Include(em => em.Company)
                         .Where(u => (
                                    u.FirstName.Contains(name) || u.LastName.Contains(name)
                                 || name.Contains(u.FirstName) || name.Contains(u.LastName)
+                                || u.Company.Name.Contains(name) 
                                 ) 
                                 && (u.CompanyId == companyId || companyId == 0))
                         .OrderBy(u => u.FirstName)
@@ -232,11 +257,8 @@ namespace UsaloYa.API.Controllers
                     IsEnabled = (bool)u.IsEnabled,
                     UserName = u.UserName,
                     FirstName = u.FirstName,
-                    LastName = u.LastName,
-                    CompanyId = u.CompanyId,
-                    GroupId = u.GroupId,
-                    LastAccess = u.LastAccess,
-                    StatusId = u.StatusId
+                    LastName = u.LastName
+                   
                 });
 
                 return Ok(userDtos);
@@ -246,7 +268,7 @@ namespace UsaloYa.API.Controllers
                 _logger.LogError(ex, "GetAll.ApiError");
 
                 // Return a 500 Internal Server Error with a custom message
-                return StatusCode(500, new { message = "$_ExcepcionOcurrida" });
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
             }
         }
 

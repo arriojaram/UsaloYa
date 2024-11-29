@@ -46,7 +46,7 @@ namespace UsaloYa.API.Controllers
                 _logger.LogError(ex, "GetAll.ApiError");
 
                 // Return a 500 Internal Server Error with a custom message
-                return StatusCode(500, new { message = "$_ExcepcionOcurrida" });
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
             }
         }
 
@@ -84,7 +84,7 @@ namespace UsaloYa.API.Controllers
                             c => c.Name.ToLower() == companyDto.Name.ToLower());
 
                     if (existsObject)
-                        return Conflict(new { message = "$_Compania_Existente" });
+                        return Conflict(new { message = "$_Negocio_Existente" });
 
                     objectToSave = new Company
                     {
@@ -118,7 +118,7 @@ namespace UsaloYa.API.Controllers
                 _logger.LogError(ex, "SaveCompany.ApiError");
 
                 // Return a 500 Internal Server Error with a custom message
-                return StatusCode(500, new { message = "$_ExcepcionOcurrida" });
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
             }
         }
     }

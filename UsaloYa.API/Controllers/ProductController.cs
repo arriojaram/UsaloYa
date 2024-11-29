@@ -25,7 +25,7 @@ namespace UsaloYa.API.Controllers
             {
                 if (string.IsNullOrEmpty(keyword) || companyId <= 0)
                 {
-                    return BadRequest(new { Message = "$_EmpresaOProductoInvalido" });
+                    return BadRequest(new { Message = "$_Empresa_O_Producto_Invalido" });
                 }
                 keyword = keyword.Trim();
                 var products = string.Equals(keyword, "-1", StringComparison.OrdinalIgnoreCase)
@@ -50,7 +50,7 @@ namespace UsaloYa.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "SearchProduct.ApiError");
-                return StatusCode(500, new { message = "$_ExcepcionOcurrida" });
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
             }
         }
 
@@ -61,7 +61,7 @@ namespace UsaloYa.API.Controllers
             {
                 if (productId <= 0 || companyId <= 0)
                 {
-                    return BadRequest(new { Message = "$_EmpresaOProductoInvalido" });
+                    return BadRequest(new { Message = "$_Empresa_O_Producto_Invalido" });
                 }
 
                 var product = await _dBContext.Products.FirstOrDefaultAsync(p => p.ProductId == productId && p.CompanyId == companyId);
@@ -76,7 +76,7 @@ namespace UsaloYa.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "GetProduct.ApiError");
-                return StatusCode(500, new { message = "$_ExcepcionOcurrida" });
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
             }
         }
 
@@ -87,7 +87,7 @@ namespace UsaloYa.API.Controllers
             {
                 if (productDto.Equals(default(ProductDto)) || companyId <= 0)
                 {
-                    return BadRequest(new { Message = "$_EmpresaOProductoInvalido" });
+                    return BadRequest(new { Message = "$_Empresa_O_Producto_Invalido" });
                 }
 
                 var existingProduct = await _dBContext.Products
@@ -101,13 +101,13 @@ namespace UsaloYa.API.Controllers
                 var numOfProducts = await productWithSameBarcodeAndSku.CountAsync();
                 if (numOfProducts > 1)
                 {
-                    return Conflict(new { Message = "$_ProductoConMismoCodigoDeBarrasYaExiste" });
+                    return Conflict(new { Message = "$_Producto_Con_Mismo_Codigo_De_Barras_Ya_Existe" });
                 }
 
                 if (numOfProducts > 0 
                     && productWithSameBarcodeAndSku.First().ProductId != productDto.ProductId)
                 {
-                    return Conflict(new { Message = "$_ProductoConMismoCodigoDeBarrasYaExiste" });
+                    return Conflict(new { Message = "$_Producto_Con_Mismo_Codigo_De_Barras_Ya_Existe" });
                 }
 
                 if (existingProduct == null && productDto.ProductId == 0)
@@ -169,7 +169,7 @@ namespace UsaloYa.API.Controllers
                 }
                 else
                 {
-                    return NotFound("$_EmpresaOProductoInvalido");
+                    return NotFound("$_Empresa_O_Producto_Invalido");
                 }
                 await _dBContext.SaveChangesAsync();
                 return Ok(existingProduct);
@@ -177,7 +177,7 @@ namespace UsaloYa.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "AddProduct.ApiError");
-                return StatusCode(500, new { message = "$_ExcepcionOcurrida" });
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
             }
         }
 

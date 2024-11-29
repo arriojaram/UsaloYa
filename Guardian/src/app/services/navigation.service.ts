@@ -11,7 +11,7 @@ import { BehaviorSubject } from 'rxjs';
 export class NavigationService {
   
   apiBaseUrl: string = '';
-  private userStateSource = new BehaviorSubject<userDto>({userId:0, userName:'', companyId:0, groupId:0, statusId:0, companyName:""});
+  private userStateSource = new BehaviorSubject<userDto>({userId:0, userName:'', roleId:0, companyId:0, groupId:0, statusId:0, companyName:""});
   // Crea un observable público para exponer el BehaviorSubject
   public userState$ = this.userStateSource.asObservable();
   
