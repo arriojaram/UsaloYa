@@ -8,7 +8,7 @@ import { UserStateService } from '../../services/user-state.service';
 import { userDto } from '../../dto/userDto';
 import { first, Subject, takeUntil } from 'rxjs';
 import { SaleService } from '../../services/sale.service';
-import { StatusVentaEnum } from '../../dto/enums';
+import { StatusVentaEnum } from '../../Enums/enums';
 
 @Component({
   selector: 'app-sales-report',

@@ -16,6 +16,11 @@ public partial class Company
 
     public string? PaymentsJson { get; set; }
 
+    public int StatusId { get; set; }
+
+    public DateTime? ExpirationDate { get; set; }
+
+
     public virtual ICollection<Group> Groups { get; set; } = new List<Group>();
 
     public virtual ICollection<Product> Products { get; set; } = new List<Product>();

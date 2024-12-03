@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using UsaloYa.API.Models;
 
@@ -11,9 +12,11 @@ using UsaloYa.API.Models;
 namespace UsaloYa.API.Migrations
 {
     [DbContext(typeof(DBContext))]
-    partial class DBContextModelSnapshot : ModelSnapshot
+    [Migration("20241203025716_CompanyStatusNoNull")]
+    partial class CompanyStatusNoNull
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,13 +38,13 @@ namespace UsaloYa.API.Migrations
                         .IsUnicode(false)
                         .HasColumnType("varchar(250)");
 
+                    b.Property<int>("CompanyStatus")
+                        .HasColumnType("int");
+
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("CreationDate")
-                        .HasColumnType("datetime");
-
-                    b.Property<DateTime?>("ExpirationDate")
                         .HasColumnType("datetime");
 
                     b.Property<int?>("LastUpdateBy")
@@ -55,9 +58,6 @@ namespace UsaloYa.API.Migrations
 
                     b.Property<string>("PaymentsJson")
                         .HasColumnType("xml");
-
-                    b.Property<int>("StatusId")
-                        .HasColumnType("int");
 
                     b.HasKey("CompanyId");
 

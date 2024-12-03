@@ -24,6 +24,7 @@ export class AuthorizationService {
 
     return this.http.post<any>(url, data, httpOptions).pipe(
       map(response => { 
+        console.log(response);
         this.navigation.setItemWithExpiry('isAuthenticated', 'true'); 
         return response; 
       }), 

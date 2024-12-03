@@ -287,7 +287,7 @@ export class SaleService extends Dexie {
 
   public cacheProductCatalog(companyId: number)
   {
-    this.productService.searchProducts(companyId, "-1").pipe(first())
+    this.productService.searchProductsFull(-1, companyId, "-1").pipe(first())
     .subscribe({
       next: async (products: Producto[]) => {
         this.productCatalog = products;

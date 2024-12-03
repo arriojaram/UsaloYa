@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UsaloYa.API.DTO;
+using UsaloYa.API.Enums;
 using UsaloYa.API.Models;
 using UsaloYa.API.Utils;
 
@@ -20,23 +21,24 @@ namespace UsaloYa.API.Controllers
         }
 
         [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromHeader] string R)
         {
             try
             {
                 var companies = await _dBContext.Companies
-                        .OrderBy(u => u.Name)
+                        .OrderBy(c => c.Name)
                         .ToListAsync();
 
-                var companyDtos = companies.Select(u => new CompanyDto
+                var companyDtos = companies.Select(c => new CompanyDto
                 {
-                   Name = u.Name,
-                   Address = u.Address?? "",
-                   CompanyId = u.CompanyId,
-                   PaymentsJson = u.PaymentsJson?? "",
-                   LastUpdatedBy = u.LastUpdateBy,
-                   CreationDate = u.CreationDate,
-                   CreatedBy = u.CreatedBy
+                   Name = c.Name,
+                   Address = c.Address?? "",
+                   CompanyId = c.CompanyId,
+                   PaymentsJson = c.PaymentsJson?? "",
+                   LastUpdateBy = c.LastUpdateBy,
+                   CreationDate = c.CreationDate,
+                   CreatedBy = c.CreatedBy,
+                   StatusId = c.StatusId
                 });
 
                 return Ok(companyDtos);
@@ -44,6 +46,32 @@ namespace UsaloYa.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "GetAll.ApiError");
+
+                // Return a 500 Internal Server Error with a custom message
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
+            }
+        }
+
+        [HttpGet("GetAll4List")]
+        public async Task<IActionResult> GetAll4List([FromHeader] string RequestorId)
+        {
+            try
+            {
+                var companies = await _dBContext.Companies
+                        .Select(c => new GenericObjectDto {
+                                Name = c.Name,
+                                CompanyId = c.CompanyId,
+                                IsActive = !(c.StatusId == (int)Enums.CompanyStatus.Inactive
+                                                || c.StatusId == (int)Enums.CompanyStatus.Expired)
+                            })
+                        .OrderBy(u => u.Name)
+                        .ToListAsync();
+
+                return Ok(companies);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "GetAll4List.ApiError");
 
                 // Return a 500 Internal Server Error with a custom message
                 return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
@@ -60,13 +88,19 @@ namespace UsaloYa.API.Controllers
 
             var companyResponseDto = new CompanyDto()
             {
-               CompanyId = c.CompanyId,
-               Name = c.Name,
-               Address = c.Address?? "",
-               CreatedBy = c.CreatedBy,
-               CreationDate = c.CreationDate,
-               LastUpdatedBy = c.LastUpdateBy,
-               PaymentsJson = c.PaymentsJson?? ""
+                CompanyId = c.CompanyId,
+                Name = c.Name,
+                Address = c.Address ?? "",
+                CreatedBy = c.CreatedBy,
+                CreationDate = c.CreationDate,
+                LastUpdateBy = c.LastUpdateBy,
+                PaymentsJson = c.PaymentsJson ?? "",
+                StatusId = c.StatusId,
+                ExpirationDate = c.ExpirationDate,
+                CreatedByUserName = (await _dBContext.Users.FindAsync(c.CreatedBy)).UserName,
+                LastUpdateByUserName = (await _dBContext.Users.FindAsync(c.LastUpdateBy)).UserName,
+
+
             };
 
             return Ok(companyResponseDto);
@@ -89,10 +123,12 @@ namespace UsaloYa.API.Controllers
                     objectToSave = new Company
                     {
                         Address = companyDto.Address,
-                        LastUpdateBy = companyDto.LastUpdatedBy,
+                        LastUpdateBy = companyDto.LastUpdateBy,
                         Name = companyDto.Name,
                         CreatedBy = companyDto.CreatedBy,
                         CreationDate = Util.GetMxDateTime(),
+                        ExpirationDate = Util.GetMxDateTime(),
+                        StatusId = (int)CompanyStatus.Inactive,
                         PaymentsJson = ""
                     };
                     _dBContext.Companies.Add(objectToSave);
@@ -104,9 +140,12 @@ namespace UsaloYa.API.Controllers
                         return NotFound();
 
                     objectToSave.Address = companyDto.Address;
-                    objectToSave.LastUpdateBy = companyDto.LastUpdatedBy;
+                    objectToSave.LastUpdateBy = companyDto.LastUpdateBy;
                     objectToSave.Name = companyDto.Name;
                     
+                    if(objectToSave.ExpirationDate == null) 
+                        objectToSave.ExpirationDate = Util.GetMxDateTime();
+
                     _dBContext.Companies.Update(objectToSave);
                 }
 

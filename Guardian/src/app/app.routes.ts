@@ -7,12 +7,14 @@ import { UserManagementComponent } from './admin/user-management/user-management
 import { SalesReportComponent } from './admin/sales-report/sales-report.component';
 import { CustomerManagementComponent } from './admin/customer-management/customer-management.component';
 import { ImportProductsComponent } from './admin/import-products/import-products.component';
+import { CompanyManagementComponent } from './admin/company-management/company-management.component';
 
 export const routes: Routes = [
     {path: '', redirectTo: '/login', pathMatch: 'full' },
     {path: 'login', component: LoginComponent },
     { path: 'reporteventas', component: SalesReportComponent, canActivate: [AuthGuard] },
     { path: 'importar', component: ImportProductsComponent, canActivate: [AuthGuard] },  
+    { path: 'companies', component: CompanyManagementComponent, canActivate: [AuthGuard] },  
     { path: 'productos', component: ProductManagementComponent, canActivate: [AuthGuard] },
     { path: 'usuarios', component: UserManagementComponent, canActivate: [AuthGuard] },
     { path: 'clientes', component: CustomerManagementComponent, canActivate: [AuthGuard] },

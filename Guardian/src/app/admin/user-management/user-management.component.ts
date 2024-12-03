@@ -10,7 +10,7 @@ import { format } from 'date-fns';
 import { first } from 'rxjs';
 import { adminGroupDto } from '../../dto/adminGroupDto';
 import { AdminCompanyDto } from '../../dto/adminCompanyDto';
-import { Roles } from '../../Enums/enums';
+import { getUserStatusEnumName, Roles } from '../../Enums/enums';
 
 @Component({
   selector: 'app-user-management',
@@ -146,22 +146,8 @@ export class UserManagementComponent {
         {
             user.creationDateUI = format(user.creationDate, 'dd-MMM-yyyy hh:mm a');
         }
-
-        switch (user.statusId) {
-          case 0:
-            user.statusIdStr = "Desconectado"
-            break;
-          case 1:
-            user.statusIdStr = "Conectado"
-            break;
-          case 2:
-              user.statusIdStr = "Deshabilitado"
-              break;
-          default:
-            user.statusIdStr = "Desconocido"
-            break;
-        }
-
+        user.statusIdStr = getUserStatusEnumName(user.statusId);
+       
         if(user.roleId === 0)
         {
           user.roleId = Roles.Usuario;
@@ -245,7 +231,7 @@ export class UserManagementComponent {
     if(this.userState.roleId === Roles.Root)
       companyId = 0;
 
-    this.userService.getAllUser(companyId, this.userState.userId, name).pipe(first())
+    this.userService.getAllUser(companyId, name).pipe(first())
     .subscribe(users => {
       this.userList = users.sort((a,b) => (a.firstName?? '').localeCompare((b.firstName?? '')));
     });

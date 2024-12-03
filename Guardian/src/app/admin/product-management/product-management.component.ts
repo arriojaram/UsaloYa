@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ProductService } from '../../services/product.service';
 import { Producto } from '../../dto/producto';
 import { NgFor, NgIf } from '@angular/common';
@@ -16,7 +16,7 @@ import { barcodeFormats } from '../../shared/barcode-s-formats';
   templateUrl: './product-management.component.html',
   styleUrls: ['./product-management.component.css'],
   standalone: true,
-  imports: [ReactiveFormsModule, NgFor, NgIf, ZXingScannerModule]
+  imports: [ReactiveFormsModule, FormsModule, NgFor, NgIf, ZXingScannerModule]
 })
 export class ProductManagementComponent implements OnInit {
 
@@ -29,6 +29,8 @@ export class ProductManagementComponent implements OnInit {
   allowedFormats: BarcodeFormat [];
   qrResultString: string = "init";
   scannerBtnLabel: string | undefined;
+  pageNumber: number = 1;
+  searchItem: string = '';
   constructor(
     private fb: FormBuilder, 
     private productService: ProductService,
@@ -87,16 +89,37 @@ export class ProductManagementComponent implements OnInit {
   ngOnInit(): void {
     this.searchProductsInternal('-1');
     this.scannerBtnLabel = "Abrir escaner";
+    this.pageNumber = 1;
   }
 
-  searchProducts(event: Event): void {
-    const inputElement = event.target as HTMLInputElement;
-    const keyword = inputElement.value || '-1'; // Default to an empty string if keyword is null or undefined
+  searchProducts(): void {
+    this.pageNumber = 1;
+    let keyword = this.searchItem;
+    if (!keyword || keyword.trim() === "") {
+      keyword="-1";
+    }
     this.searchProductsInternal(keyword);
+    
   }
   
+  loadMore(): void {
+    this.pageNumber++;
+    let keyword = this.searchItem;
+    if (!keyword || keyword.trim() === "") {
+      keyword="-1";
+    }
+    this.appendToSearchResults(keyword);
+  }
+
+  private appendToSearchResults(name: string): void {
+    this.productService.searchProducts4List(this.pageNumber, this.userState.companyId, name).pipe(first())
+    .subscribe(products => {
+      this.products = this.products.concat(products.sort((a,b) => a.name.localeCompare(b.name)));
+    });
+  }
+
   private searchProductsInternal(name: string): void {
-    this.productService.searchProducts(this.userState.companyId, name).pipe(first())
+    this.productService.searchProducts4List(this.pageNumber, this.userState.companyId, name).pipe(first())
     .subscribe(products => {
       this.products = products.sort((a,b) => a.name.localeCompare(b.name));
     });

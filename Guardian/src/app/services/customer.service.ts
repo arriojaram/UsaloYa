@@ -46,7 +46,7 @@ export class CustomerService {
   }
 
   getAllCustomer(companyId: number, nameOrEmailOrPhone:string): Observable<customerDto[]> {
-    console.log("company: " + companyId + " " + nameOrEmailOrPhone);
+    
     const apiUrl =`${this.baseUrl}/GetAll?nameOrPhoneorEmail=${nameOrEmailOrPhone}&companyId=${companyId}`;
     
     return this.http.get<customerDto[]>(apiUrl, this.httpOptions).pipe(

@@ -196,15 +196,16 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var companies = await _dBContext.Companies.ToListAsync();
-                var companyDtos = companies.Select(u => new CompanyDto
-                {
-                   CompanyId = u.CompanyId,
-                   Name = u.Name,
-                   Address = u.Address
-                });
-
-                return Ok(companyDtos);
+                var companies = await _dBContext.Companies
+                    .Select(u => new CompanyDto
+                    {
+                        CompanyId = u.CompanyId,
+                        Name = u.Name,
+                        Address = u.Address
+                    })
+                    .ToListAsync();
+                
+                return Ok(companies);
             }
             catch (Exception ex)
             {
@@ -217,13 +218,13 @@ namespace UsaloYa.API.Controllers
 
 
         [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll([FromHeader] string R, [FromQuery] int companyId, string name = "-1")
+        public async Task<IActionResult> GetAll([FromHeader] string RequestorId, [FromQuery] int companyId, string name = "-1")
         {
             try
             {
                 if (companyId == 0)
                 {
-                    var requestor = R;
+                    var requestor = RequestorId;
                     int userId = 0;
                     if(!int.TryParse(requestor, out userId))
                         return Unauthorized(requestor);

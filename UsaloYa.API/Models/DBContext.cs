@@ -44,11 +44,17 @@ public partial class DBContext : DbContext
 
             entity.Property(e => e.CreationDate).HasColumnType("datetime");
 
+            entity.Property(e => e.ExpirationDate).HasColumnType("datetime");
+
             entity.Property(e => e.PaymentsJson).HasColumnType("xml");
 
             entity.Property(e => e.CreatedBy)
                     .HasColumnType("int")
                     .IsRequired(false);  // Permitir nulos
+            
+            entity.Property(e => e.StatusId)
+                 .HasColumnType("int")
+                 .IsRequired(true);
 
             entity.Property(e => e.LastUpdateBy)
                 .HasColumnType("int")

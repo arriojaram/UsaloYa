@@ -18,9 +18,66 @@ namespace UsaloYa.API.Controllers
             _dBContext = dBContext;
         }
 
-        [HttpGet("SearchProduct")]
-        public async Task<IActionResult> SearchProduct(string keyword, int companyId)
+        [HttpGet("SearchProduct4List")]
+        public async Task<IActionResult> SearchProduct4List(int pageNumber, string keyword, int companyId)
         {
+            int pageSize = 30;
+            if (pageNumber == -1) //Used to manage the cache products function
+            {
+                pageSize = 500;
+                pageNumber = 1;
+            }
+            try
+            {
+                if (string.IsNullOrEmpty(keyword) || companyId <= 0)
+                {
+                    return BadRequest(new { Message = "$_Empresa_O_Producto_Invalido" });
+                }
+
+                keyword = keyword.Trim();
+                var products = string.Equals(keyword, "-1", StringComparison.OrdinalIgnoreCase)
+                    ? await _dBContext.Products
+                    .Select(p => new Product4ListDto() { ProductId=p.ProductId, Discontinued=p.Discontinued, Sku=p.Sku, Description=p.Description, Name=p.Name,  CompanyId =  p.CompanyId })
+                    .Where(p => p.CompanyId == companyId)
+                    .OrderBy(p=> p.Name)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync()
+
+                    : await _dBContext.Products
+                    .Select(p => new Product4ListDto() { ProductId = p.ProductId, Discontinued = p.Discontinued, Sku = p.Sku, Description = p.Description, Name = p.Name, CompanyId = p.CompanyId })
+                    .Where(p => p.CompanyId == companyId &&
+                                (p.Name.Contains(keyword) || keyword.Contains(p.Name)
+                                    || p.Description != null && p.Description.Contains(keyword)
+                                    || p.Sku != null && p.Sku.Contains(keyword)))
+                    .OrderBy(p => p.Name)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+
+                if (products == null || products.Count == 0)
+                {
+                    return NotFound();
+                }
+
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "SearchProduct.ApiError");
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
+            }
+        }
+
+        [HttpGet("SearchProductFull")]
+        public async Task<IActionResult> SearchProductFull(int pageNumber, string keyword, int companyId)
+        {
+            int pageSize = 30;
+            if (pageNumber == -1) //Used to manage the cache products function
+            {
+                pageSize = 500;
+                pageNumber = 1;
+            }
             try
             {
                 if (string.IsNullOrEmpty(keyword) || companyId <= 0)
@@ -30,7 +87,10 @@ namespace UsaloYa.API.Controllers
                 keyword = keyword.Trim();
                 var products = string.Equals(keyword, "-1", StringComparison.OrdinalIgnoreCase)
                     ? await _dBContext.Products
-                    .Where(p => p.CompanyId == companyId).Take(500)
+                    .Where(p => p.CompanyId == companyId)
+                    .OrderBy(p => p.Name)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
                     .ToListAsync()
 
                     : await _dBContext.Products
@@ -38,6 +98,9 @@ namespace UsaloYa.API.Controllers
                                 (p.Name.Contains(keyword) || keyword.Contains(p.Name)
                                     || p.Description != null && p.Description.Contains(keyword)
                                     || p.Sku != null && p.Sku.Contains(keyword)))
+                     .OrderBy(p => p.Name)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
                     .ToListAsync();
 
                 if (products == null || products.Count == 0)

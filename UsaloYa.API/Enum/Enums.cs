@@ -5,7 +5,16 @@
         Unknown = 0,
         User = 1,
         Admin = 2,
-        Root = 3
+        SysAdmin = 3,
+        Root = 4
+    }
+
+    public enum CompanyStatus
+    {
+        Inactive = 0,
+        PendingPayment = 1,
+        Expired = 2,
+        Active = 3
     }
 
     public static class EConverter

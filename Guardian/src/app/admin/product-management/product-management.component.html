@@ -15,9 +15,9 @@
           <div class="card-body">
             <h6 class="card-title">Buscar Productos</h6>
             <div class="input-group mb-3">
-              <input type="text" class="form-control" placeholder="Buscar..." (input)="searchProducts($event)">
+              <input type="text" class="form-control" [(ngModel)]="searchItem" placeholder="Buscar...">
               <div class="input-group-append">
-                <button class="btn btn-outline-secondary" type="button">Buscar</button>
+                <button class="btn btn-outline-secondary" type="button" (click)="searchProducts()" >Buscar</button>
               </div>
             </div>
             <ul class="list-group mt-3">
@@ -25,6 +25,12 @@
                 {{ product.name }}
               </li>
             </ul>
+            <div class="input-group mb-3">
+              
+              <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button" (click)="loadMore()">Cargar mas...</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>

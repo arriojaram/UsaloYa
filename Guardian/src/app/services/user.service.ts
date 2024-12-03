@@ -48,12 +48,11 @@ export class UserService {
     );
   }
 
-  getAllUser(companyId: number, userId: number, name:string): Observable<userDto[]> {
+  getAllUser(companyId: number, name:string): Observable<userDto[]> {
     const apiUrl =`${this.baseUrl}/GetAll?name=${name}&companyId=${companyId}`;
     this.httpOptions = {
       headers: new HttpHeaders({
-        'Authorization': environment.apiToken,
-        'R': userId
+        'Authorization': environment.apiToken
       })
     };
     return this.http.get<userDto[]>(apiUrl, this.httpOptions).pipe(

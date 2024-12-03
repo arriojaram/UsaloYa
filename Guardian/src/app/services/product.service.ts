@@ -21,12 +21,23 @@ export class ProductService {
     };
   }
 
-  searchProducts(companyId: number, keyword: string): Observable<Producto[]> {
-    const apiUrl =`${this.baseUrl}/SearchProduct?companyId=${companyId}&keyword=${keyword}`;
+  searchProducts4List(pageNumber: number, companyId: number, keyword: string): Observable<Producto[]> {
+    const apiUrl =`${this.baseUrl}/SearchProduct4List?pageNumber=${pageNumber}&companyId=${companyId}&keyword=${keyword}`;
     
     return this.http.get<Producto[]>(apiUrl, this.httpOptions).pipe(
       catchError(error => {
-        console.error('searchProducts() | ', error);
+        console.error('SearchProduct4List() | ', error);
+        throw error;
+      })
+    );
+  }
+
+  searchProductsFull(pageNumber: number, companyId: number, keyword: string): Observable<Producto[]> {
+    const apiUrl =`${this.baseUrl}/SearchProductFull?pageNumber=${pageNumber}&companyId=${companyId}&keyword=${keyword}`;
+    
+    return this.http.get<Producto[]>(apiUrl, this.httpOptions).pipe(
+      catchError(error => {
+        console.error('searchProductsFull() | ', error);
         throw error;
       })
     );
