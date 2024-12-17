@@ -5,12 +5,12 @@
       </div>
     </div>
     <div class="row">
-        <div class="hamburger-menu" (click)="toggleSearchPanel()">
+        <div class="hamburger-menu" (click)="navigationService.toggleSearchPanel()">
             <div></div>
             <div></div>
             <div></div>
         </div>
-        <div class="col-md-4 search-panel" [class.hidden]="isSearchPanelHidden">
+        <div class="col-md-4 search-panel" [class.hidden]="navigationService.isSearchPanelHidden">
             <div class="card">
             <div class="card-body">
                 <h6 class="card-title">Filtar</h6>
@@ -32,6 +32,7 @@
                     <h6 class="card-title">Detalles</h6>
                     <div class="user-edit-container">
                         <form [formGroup]="companyForm" (ngSubmit)="saveCompany()">
+                            
                             <div class="form-group col-md-12 d-flex">
                                 <div class="col-md-8 mb-2 pr-2">
                                     <label for="userName">Nombre de la empresa</label>
@@ -41,18 +42,15 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group mb-2">
-                                <label for="address">Nombre</label>
-                                <input id="address" class="form-control" formControlName="address" placeholder="Dirección">
-                                <div *ngIf="companyForm.get('address')?.invalid && companyForm.get('address')?.touched" class="invalid-feedback">
-                                    La dirección es obligatoria.
-                                </div>
-                            </div>    
+                           
                             <div class="form-group col-md-12 d-flex">
                                 <div class="col-md-8 mb-2 pr-2">
-                                    <label for="userName">Estatus</label>
+                                    <label for="userName">Estatus <i class="bi bi-power"></i></label>
                                     <label class="form-control opacity-50 fw-bold">{{companyForm.get('statusDesc')?.value}}</label>
                                 </div>
+                                <div class="d-flex justify-content-end mx-2 my-4" *ngIf="this.userState.roleId > rol.Administrador">
+                                    <button type="button" class="btn btn-danger ">Desactivar</button>
+                                </div>    
                             </div>
                             <div class="form-group col-md-12 d-flex">
                                 <div class="col-md-8 mb-2 pr-2">
@@ -60,6 +58,40 @@
                                     <label class="form-control opacity-50 fw-bold">{{companyForm.get('expirationDateUI')?.value}}</label>
                                 </div>
                             </div>
+                            <div class="form-group mb-2">
+                                <label for="address">Dirección</label>
+                                <textarea id="address" class="form-control" formControlName="address" placeholder="Dirección"></textarea>
+                                <div *ngIf="companyForm.get('address')?.invalid && companyForm.get('address')?.touched" class="invalid-feedback">
+                                    La dirección es obligatoria.
+                                </div>
+                            </div>    
+                            <div class="form-group col-md-12 d-flex">
+                                <div class="col-md-8 mb-2 pr-2">
+                                    <label for="telNumber">Teléfono</label>
+                                    <input id="telNumber" class="form-control" formControlName="telNumber" placeholder="Teléfono" maxlength="10">
+                                </div>
+                            </div>
+                            <div class="form-group col-md-12 d-flex">
+                                <div class="col-md-8 mb-2 pr-2">
+                                    <label for="celNumber">Celular</label>
+                                    <input id="celNumber" class="form-control" formControlName="celNumber" placeholder="Celular" maxlength="10">
+                                </div>
+                            </div>
+
+                            <div class="form-group col-md-12 d-flex">
+                                <div class="col-md-8 mb-2 pr-2">
+                                    <label for="email">E-mail</label>
+                                    <input id="email" class="form-control" formControlName="email" placeholder="E-mail" maxlength="50">
+                                </div>
+                            </div>
+
+                            <div class="form-group col-md-12 d-flex">
+                                <div class="col-md-8 mb-2 pr-2">
+                                    <label for="ownerInfo">Información general del representante</label>
+                                    <textarea id="ownerInfo" class="form-control" formControlName="ownerInfo" placeholder="Representante" maxlength="500"></textarea>
+                                </div>
+                            </div>
+
                             <div class="form-group col-md-12 d-flex">
                                 <div class="col-md-8 mb-2 pr-2">
                                     <label for="userName">Fecha de creación</label>
@@ -80,8 +112,9 @@
                             </div>
                            
                            
-                            <div class="d-flex justify-content-end my-3" *ngIf="this.userState.roleId > 2">
-                                <button type="button" class="btn btn-primary mx-2 btn-floating-secondary" (click)="newCompany()">Nuevo</button>
+                            <div class="d-flex justify-content-end my-3" *ngIf="this.userState.roleId > rol.Usuario">
+                                <button type="button" class="btn btn-primary mx-2 btn-floating-secondary" *ngIf="this.userState.roleId > rol.Administrador"
+                                     (click)="newCompany()">Nuevo</button>
                                 <button type="submit" class="btn btn-success btn-floating">Guardar</button>
                             </div>    
                         </form>

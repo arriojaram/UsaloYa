@@ -8,7 +8,7 @@ import { userDto } from '../../dto/userDto';
 import { companyDto } from '../../dto/companyDto';
 import { CompanyService } from '../../services/company.service';
 import { first } from 'rxjs';
-import { getCompanyStatusEnumName } from '../../Enums/enums';
+import { getCompanyStatusEnumName, Roles } from '../../Enums/enums';
 
 @Component({
   selector: 'app-company-management',
@@ -22,13 +22,13 @@ export class CompanyManagementComponent implements OnInit {
   selectedCompany: companyDto | null = null;
   companyList: companyDto[] = [];
   userState: userDto;
-  isSearchPanelHidden = false;
-
+  rol = Roles;
+  
   constructor(
     private fb: FormBuilder,
     private companyService: CompanyService,
     private userStateService: UserStateService,
-    private navigationService: NavigationService
+    public navigationService: NavigationService
   ) 
   {
     this.userState = userStateService.getUserStateLocalStorage();
@@ -39,7 +39,7 @@ export class CompanyManagementComponent implements OnInit {
     this.userState = this.userStateService.getUserStateLocalStorage();
     
     this.searchCompaniesInternal('-1');
-    this.checkScreenSize();
+    this.navigationService.checkScreenSize();
   }
 
   private initCompanyForm(): FormGroup {
@@ -58,15 +58,13 @@ export class CompanyManagementComponent implements OnInit {
       statusDesc: [''],
       expirationDate: [''],
       expirationDateUI: [''],
+      telNumber: ['', Validators.maxLength(10)],
+      celNumber: ['', Validators.maxLength(10)],
+      email: ['', Validators.maxLength(50)],
+      ownerInfo: [''],
     });
   }
-  
-  checkScreenSize() {
-    if (window.innerWidth < 768) {
-      this.isSearchPanelHidden = true;  // Ocultar búsqueda en pantallas pequeñas por defecto
-      
-    }
-  }
+
 
   newCompany(): void {
     this.selectedCompany = null;
@@ -92,12 +90,8 @@ export class CompanyManagementComponent implements OnInit {
         
       this.selectedCompany = c;
       this.companyForm.patchValue(c);
-      this.checkScreenSize();
+      this.navigationService.checkScreenSize();
     });
-  }
-
-  toggleSearchPanel(): void {
-    this.isSearchPanelHidden = !this.isSearchPanelHidden;
   }
 
   saveCompany(): void {

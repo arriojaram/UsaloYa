@@ -15,12 +15,7 @@ public partial class Product
 
     public int? SupplierId { get; set; }
 
-    public decimal? BuyPrice { get; set; }
-
     public decimal? UnitPrice { get; set; }
-    public decimal? UnitPrice1 { get; set; }
-    public decimal? UnitPrice2 { get; set; }
-    public decimal? UnitPrice3 { get; set; }
 
     public int UnitsInStock { get; set; }
 
@@ -45,6 +40,14 @@ public partial class Product
     public string? Size { get; set; }
 
     public int CompanyId { get; set; }
+
+    public decimal? BuyPrice { get; set; }
+
+    public decimal? UnitPrice1 { get; set; }
+
+    public decimal? UnitPrice2 { get; set; }
+
+    public decimal? UnitPrice3 { get; set; }
 
     public virtual Company Company { get; set; } = null!;
 

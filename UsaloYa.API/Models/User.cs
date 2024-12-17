@@ -1,4 +1,7 @@
-﻿namespace UsaloYa.API.Models;
+﻿using System;
+using System.Collections.Generic;
+
+namespace UsaloYa.API.Models;
 
 public partial class User
 {
@@ -22,17 +25,29 @@ public partial class User
 
     public int StatusId { get; set; }
 
-    public virtual Company Company { get; set; } = null!;
+    public int? CreatedBy { get; set; }
 
-    public virtual Group Group { get; set; } = null!;
+    public int? LastUpdateBy { get; set; }
 
-    public virtual int? CreatedBy { get; set; } 
-
-    public virtual int? LastUpdateBy { get; set; }
+    public DateTime? CreationDate { get; set; }
 
     public int? RoleId { get; set; }
 
-    public DateTime? CreationDate { get; set; }
+    public virtual Company Company { get; set; } = null!;
+
+    public virtual ICollection<Company> CompanyCreatedByNavigations { get; set; } = new List<Company>();
+
+    public virtual ICollection<Company> CompanyLastUpdateByNavigations { get; set; } = new List<Company>();
+
+    public virtual User? CreatedByNavigation { get; set; }
+
+    public virtual Group Group { get; set; } = null!;
+
+    public virtual ICollection<User> InverseCreatedByNavigation { get; set; } = new List<User>();
+
+    public virtual ICollection<User> InverseLastUpdateByNavigation { get; set; } = new List<User>();
+
+    public virtual User? LastUpdateByNavigation { get; set; }
 
     public virtual ICollection<Sale> Sales { get; set; } = new List<Sale>();
 }

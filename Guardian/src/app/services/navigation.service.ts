@@ -14,6 +14,8 @@ export class NavigationService {
   private userStateSource = new BehaviorSubject<userDto>({userId:0, userName:'', roleId:0, companyId:0, groupId:0, statusId:0, companyName:""});
   // Crea un observable público para exponer el BehaviorSubject
   public userState$ = this.userStateSource.asObservable();
+  isSearchPanelHidden: boolean = false;
+  searchItem: string = '';
   
   constructor(
     private _snackBar: MatSnackBar
@@ -24,6 +26,17 @@ export class NavigationService {
     {
       this.apiBaseUrl = this.apiBaseUrl.substring(0, this.apiBaseUrl.length-1);
     }
+  }
+
+  checkScreenSize() {
+    if (window.innerWidth < 768) {
+      this.isSearchPanelHidden = true;  // Ocultar búsqueda en pantallas pequeñas por defecto
+      this.searchItem = '';
+    }
+  }
+
+  toggleSearchPanel(): void {
+    this.isSearchPanelHidden = !this.isSearchPanelHidden;
   }
 
   setItemWithExpiry(key: string, value: string): void {

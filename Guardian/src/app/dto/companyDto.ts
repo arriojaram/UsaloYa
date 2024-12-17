@@ -17,6 +17,9 @@ export interface companyDto
     statusDesc?: string,
     
     expirationDate?: Date,
-    expirationDateUI?: string
-
+    expirationDateUI?: string,
+    phoneNumber?: string,
+    cellphoneNumber?: string,
+    email?: string,
+    ownerInfo?: string
 }

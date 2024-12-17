@@ -38,7 +38,11 @@ namespace UsaloYa.API.Controllers
                    LastUpdateBy = c.LastUpdateBy,
                    CreationDate = c.CreationDate,
                    CreatedBy = c.CreatedBy,
-                   StatusId = c.StatusId
+                   StatusId = c.StatusId,
+                   TelNumber = c.PhoneNumber,
+                   CelNumber = c.CelphoneNumber,
+                   Email = c.Email,
+                   OwnerInfo = c.OwnerInfo
                 });
 
                 return Ok(companyDtos);
@@ -82,7 +86,10 @@ namespace UsaloYa.API.Controllers
         [HttpGet("GetCompany")]
         public async Task<IActionResult> GetCompany(int companyId)
         {
-            var c = await _dBContext.Companies.FirstOrDefaultAsync(u => u.CompanyId == companyId);
+            var c = await _dBContext.Companies
+                .Include(u => u.CreatedByNavigation)
+                .Include(u => u.LastUpdateByNavigation)
+                .FirstOrDefaultAsync(u => u.CompanyId == companyId);
             if (c == null)
                 return NotFound();
 
@@ -97,10 +104,13 @@ namespace UsaloYa.API.Controllers
                 PaymentsJson = c.PaymentsJson ?? "",
                 StatusId = c.StatusId,
                 ExpirationDate = c.ExpirationDate,
-                CreatedByUserName = (await _dBContext.Users.FindAsync(c.CreatedBy)).UserName,
-                LastUpdateByUserName = (await _dBContext.Users.FindAsync(c.LastUpdateBy)).UserName,
+                CreatedByUserName = c.CreatedByNavigation?.UserName, // (await _dBContext.Users.FindAsync(c.CreatedBy)).UserName,
+                LastUpdateByUserName = c.LastUpdateByNavigation?.UserName, //(await _dBContext.Users.FindAsync(c.LastUpdateBy)).UserName,
 
-
+                TelNumber = c.PhoneNumber,
+                CelNumber = c.CelphoneNumber,
+                Email = c.Email,
+                OwnerInfo = c.OwnerInfo
             };
 
             return Ok(companyResponseDto);
@@ -129,7 +139,11 @@ namespace UsaloYa.API.Controllers
                         CreationDate = Util.GetMxDateTime(),
                         ExpirationDate = Util.GetMxDateTime(),
                         StatusId = (int)CompanyStatus.Inactive,
-                        PaymentsJson = ""
+                        PaymentsJson = "",
+                        PhoneNumber = companyDto.TelNumber,
+                        CelphoneNumber = companyDto.CelNumber,
+                        Email = companyDto.Email,
+                        OwnerInfo = companyDto.OwnerInfo
                     };
                     _dBContext.Companies.Add(objectToSave);
                 }
@@ -142,8 +156,12 @@ namespace UsaloYa.API.Controllers
                     objectToSave.Address = companyDto.Address;
                     objectToSave.LastUpdateBy = companyDto.LastUpdateBy;
                     objectToSave.Name = companyDto.Name;
-                    
-                    if(objectToSave.ExpirationDate == null) 
+                    objectToSave.PhoneNumber = companyDto.TelNumber;
+                    objectToSave.CelphoneNumber = companyDto.CelNumber;
+                    objectToSave.Email = companyDto.Email;
+                    objectToSave.OwnerInfo = companyDto.OwnerInfo;
+
+                    if (objectToSave.ExpirationDate == null) 
                         objectToSave.ExpirationDate = Util.GetMxDateTime();
 
                     _dBContext.Companies.Update(objectToSave);
