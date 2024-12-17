@@ -17,9 +17,15 @@
             <div class="input-group mb-3">
               <input type="text" class="form-control" [(ngModel)]="searchItem" placeholder="Buscar...">
               <div class="input-group-append">
-                <button class="btn btn-outline-secondary" type="button" (click)="searchProducts()" >Buscar</button>
+                <button class="btn close-btn" type="button" (click)="searchItem = ''; searchProducts()">
+                  &times;
+                </button>
+                <button class="btn btn-outline-secondary" type="button" (click)="searchProducts()">
+                  Buscar
+                </button>
               </div>
             </div>
+            
             <ul class="list-group mt-3">
               <li *ngFor="let product of products" class="list-group-item list-group-item-action" (click)="selectProduct(product.productId)">
                 {{ product.name }}

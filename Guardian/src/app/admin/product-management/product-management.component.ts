@@ -90,6 +90,7 @@ export class ProductManagementComponent implements OnInit {
     this.searchProductsInternal('-1');
     this.scannerBtnLabel = "Abrir escaner";
     this.pageNumber = 1;
+    this.checkScreenSize();
   }
 
   searchProducts(): void {
@@ -130,6 +131,8 @@ export class ProductManagementComponent implements OnInit {
     .subscribe(product => {
       this.selectedProduct = product;
       this.productForm.patchValue(product);
+      
+      this.checkScreenSize();
     });
   }
 
@@ -165,6 +168,13 @@ export class ProductManagementComponent implements OnInit {
     this.productForm.reset();
     this.productForm.patchValue({ productId: 0, companyId: this.userState.companyId, unitsInStock: 0, discontinued: false });
     window.scrollTo(0, 0);
+  }
+
+  checkScreenSize() {
+    if (window.innerWidth < 768) {
+      this.isSearchPanelHidden = true;  // Ocultar búsqueda en pantallas pequeñas por defecto
+      this.searchItem = '';
+    }
   }
 
   toggleSearchPanel(): void {

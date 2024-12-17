@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, catchError, timeInterval } from 'rxjs';
+import { Observable, catchError, of, timeInterval } from 'rxjs';
 import { Producto } from '../dto/producto';
 import { environment } from '../environments/enviroment';
 
@@ -27,7 +27,11 @@ export class ProductService {
     return this.http.get<Producto[]>(apiUrl, this.httpOptions).pipe(
       catchError(error => {
         console.error('SearchProduct4List() | ', error);
-        throw error;
+        if (error.status === 404) {
+          return of([]);  // Retorna null si el error es 404 Not Found
+        } else {
+          throw error;  // Lanza la excepción para otros tipos de errores
+        }
       })
     );
   }
