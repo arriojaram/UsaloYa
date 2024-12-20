@@ -23,7 +23,6 @@ export class UserManagementComponent {
   userForm: FormGroup;
   passwordForm: FormGroup;
   selectedUser: userDto | null = null;
-  isSearchPanelHidden = false;
   userList: userDto[] = [];
   userState: userDto;
   passwordErrorMsg: string;
@@ -31,14 +30,14 @@ export class UserManagementComponent {
   availableRoles: any;
   showRoles: boolean = false;
   companies: AdminCompanyDto [] = [];
-  searchWord: any;
+  rol = Roles;
   
   constructor(
     private fb: FormBuilder,
     private userService: UserService,
     private userStateService: UserStateService,
     private route: ActivatedRoute,
-    private navigationService: NavigationService
+    public navigationService: NavigationService
   ) 
   {
     this.userState = userStateService.getUserStateLocalStorage();
@@ -53,7 +52,7 @@ export class UserManagementComponent {
     this.userForm.get('lastAccess')?.disable();
     this.userForm.get('statusId')?.disable();
     this.searchUsersInternal('-1');
-    this.checkScreenSize();
+    this.navigationService.checkScreenSize();
 
     this.userService.getGroups().subscribe((data) => {
       this.groups = data;
@@ -80,9 +79,9 @@ export class UserManagementComponent {
       // Delete this role by security purposes and on purpose, this rol must be assigned directly on the DB
       this.availableRoles = this.availableRoles.filter((role: { id: any; }) => role.id !== Roles.Root);
 
-      if(this.userState.roleId === Roles.Usuario)
+      if(this.userState.roleId === Roles.User)
       {
-        this.availableRoles = this.availableRoles.filter((role: { id: any; }) => role.id !== Roles.Administrador);
+        this.availableRoles = this.availableRoles.filter((role: { id: any; }) => role.id !== Roles.Admin);
         this.availableRoles = this.availableRoles.filter((role: { id: any; }) => role.id !== Roles.Root);
       }
         
@@ -123,13 +122,6 @@ export class UserManagementComponent {
     this.userForm.patchValue({userId:0, userName:'', roleId:1, firstName:'', lastName:'', groupId:0, isEnabled:true, password:''});
   }
 
-  checkScreenSize() {
-    if (window.innerWidth < 768) {
-      this.isSearchPanelHidden = true;  // Ocultar búsqueda en pantallas pequeñas por defecto
-      this.searchWord = '';
-    }
-  }
-
   selectUser(userId: number): void {
     this.userService.getUser(userId).pipe(first())
     .subscribe(user => {
@@ -150,13 +142,13 @@ export class UserManagementComponent {
        
         if(user.roleId === 0)
         {
-          user.roleId = Roles.Usuario;
+          user.roleId = Roles.User;
 
         }
 
       this.selectedUser = user;
       this.userForm.patchValue(user);
-      this.checkScreenSize();
+      this.navigationService.checkScreenSize();
 
       
       if(user.roleId === Roles.Root)
@@ -237,7 +229,4 @@ export class UserManagementComponent {
     });
   }
 
-  toggleSearchPanel(): void {
-    this.isSearchPanelHidden = !this.isSearchPanelHidden;
-  }
 }

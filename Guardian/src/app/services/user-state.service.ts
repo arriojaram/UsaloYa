@@ -40,8 +40,7 @@ export class UserStateService {
     }
     else
     {
-      console.error('No se puede cargar la información del usuario. Usuario no encontrado');
-     
+      console.info('No se puede cargar la información del usuario (local). Usuario no encontrado');
       throw new Error("$Invalid_User");
     }
   }
@@ -49,7 +48,7 @@ export class UserStateService {
   loadUser(userId: number) : Observable<any> {
     if(userId > 0)
     {
-      const url = this.navigation.apiBaseUrl + '/api/User/GetUser?userId=' + userId;
+      const url = this.navigation.apiBaseUrl + '/api/User/GetUser?i=login&userId=' + userId;
     
       return this.http.get<any>(url, this.httpOptions).pipe(
         catchError(error => {

@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { ScannerComponent } from './scanner/scanner.component';
+import { PuntoDeVentaComponent } from './pdv/scanner.component';
 import { LoginComponent } from './login/login.component';
 import { AuthGuard } from './shared/auth-guard.guard';
 import { ProductManagementComponent } from './admin/product-management/product-management.component';
@@ -18,7 +18,7 @@ export const routes: Routes = [
     { path: 'productos', component: ProductManagementComponent, canActivate: [AuthGuard] },
     { path: 'usuarios', component: UserManagementComponent, canActivate: [AuthGuard] },
     { path: 'clientes', component: CustomerManagementComponent, canActivate: [AuthGuard] },
-    { path: 'main', component: ScannerComponent, canActivate: [AuthGuard] }
+    { path: 'main', component: PuntoDeVentaComponent, canActivate: [AuthGuard] }
 ];
 
 

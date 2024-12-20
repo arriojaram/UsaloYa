@@ -1,9 +1,18 @@
-export enum Roles {
+export enum RentaStatusId
+{ 
     Desconocido = 0,
-    Usuario = 1,
-    Administrador = 2,
-    SysAdmin = 3,
-    Root = 4
+    Mensualidad = 1,
+    Condonacion = 2,
+    Extension = 3,
+}
+
+export enum Roles {
+    Unknown = 0,
+    User = 1,
+    Admin = 2,
+    Ventas = 3,
+    SysAdmin = 13,
+    Root = 14
 }
 
 export enum CompanyStatus

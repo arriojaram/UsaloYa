@@ -49,5 +49,7 @@ public partial class User
 
     public virtual User? LastUpdateByNavigation { get; set; }
 
+    public virtual ICollection<Renta> Renta { get; set; } = new List<Renta>();
+
     public virtual ICollection<Sale> Sales { get; set; } = new List<Sale>();
 }

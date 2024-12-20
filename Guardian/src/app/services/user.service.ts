@@ -38,7 +38,7 @@ export class UserService {
   }
 
   getUser(userId: number): Observable<userDto> {
-    const apiUrl = `${this.baseUrl}/GetUser?userId=${userId}`;
+    const apiUrl = `${this.baseUrl}/GetUser?i=0&userId=${userId}`;
     
     return this.http.get<userDto>(apiUrl, this.httpOptions).pipe(
       catchError(error => {

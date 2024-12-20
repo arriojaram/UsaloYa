@@ -21,5 +21,9 @@ export interface companyDto
     phoneNumber?: string,
     cellphoneNumber?: string,
     email?: string,
-    ownerInfo?: string
+    ownerInfo?: string,
+
+    planId?: number,
+    planIdUI?: string,
+    planPrice?: number
 }

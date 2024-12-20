@@ -80,9 +80,9 @@ export class NavigationService {
 
   showUIMessage(message: string)
   {
-    this._snackBar.open(message, 'X', {
+    this._snackBar.open(message, 'cerrar', {
       duration: environment.notificationsDisplayTimeSeconds
-      //panelClass: ["custom-snackbar"]
+     
     });
   }
 }

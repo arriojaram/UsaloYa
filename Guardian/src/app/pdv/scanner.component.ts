@@ -4,7 +4,7 @@ import { SaleService } from "../services/sale.service";
 import { CommonModule } from "@angular/common"; 
 import { ZXingScannerModule } from "@zxing/ngx-scanner";
 import { BarcodeFormat } from "@zxing/library";
-import { ListaVentaComponent } from "../lista-venta/lista-venta.component";
+import { ListaVentaComponent } from "../pdv-lista-venta/lista-venta.component";
 import { UserStateService } from "../services/user-state.service";
 import { barcodeFormats } from "../shared/barcode-s-formats";
 
@@ -16,7 +16,7 @@ import { barcodeFormats } from "../shared/barcode-s-formats";
     styleUrls: ['./scanner.component.css']
 })
 
-export class ScannerComponent implements OnInit {
+export class PuntoDeVentaComponent implements OnInit {
     isScannerEnabled: boolean = false;
     scannerBtnLabel: string | undefined;
     allowedFormats: BarcodeFormat [];

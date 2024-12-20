@@ -1,12 +1,21 @@
 ﻿namespace UsaloYa.API.Enums
 {
+    public enum RentStatusId
+    { 
+        Desconocido = 0,
+        Mensualidad = 1,
+        Condonacion = 2,
+        Extension = 3,
+    }
+
     public enum Role
     { 
         Unknown = 0,
         User = 1,
         Admin = 2,
-        SysAdmin = 3,
-        Root = 4
+        Ventas = 3,
+        SysAdmin = 13,
+        Root = 14
     }
 
     public enum CompanyStatus

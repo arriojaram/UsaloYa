@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UsaloYa.API.DTO;
+using UsaloYa.API.Enums;
 using UsaloYa.API.Models;
 using UsaloYa.API.Utils;
 
@@ -27,15 +28,22 @@ namespace UsaloYa.API.Controllers
         }
 
         [HttpPost("SaveUser")]
-        public async Task<ActionResult> SaveUser([FromBody] UserDto userDto)
+        public async Task<ActionResult> SaveUser([FromHeader] string RequestorId, [FromBody] UserDto userDto)
         {
             User userToSave = null;
             var roleId = Enums.EConverter.GetEnumFromValue<Enums.Role>(userDto.RoleId?? 0);
             if (roleId == default)
                 return BadRequest("$_Rol_Invalido");
 
+            if (roleId == Enums.Role.Root)
+                return BadRequest("$_Rol_No_Asignable");
+
             try
             {
+                var userId = await Util.ValidateRequestor(RequestorId, Role.Admin, _dBContext);
+                if (userId <= 0)
+                    return Unauthorized(RequestorId);
+
                 if (userDto.UserId == 0)
                 {
                     var existsUser = await _dBContext.Users.AnyAsync(u => u.UserName == userDto.UserName);
@@ -79,9 +87,22 @@ namespace UsaloYa.API.Controllers
                     _dBContext.Users.Update(userToSave);
                     
                 }
-
+               
                 await _dBContext.SaveChangesAsync();
-                return Ok(userToSave);
+                return Ok(new UserDto() {
+                    CompanyId = userToSave.CompanyId,
+                    CreatedBy = userToSave.CreatedBy??0,
+                    UserId = userToSave.UserId,
+                    CreationDate = userToSave.CreationDate,
+                    FirstName = userToSave.FirstName,
+                    GroupId = userToSave.GroupId,
+                    IsEnabled = userToSave.IsEnabled?? false,
+                    LastAccess = userToSave.LastAccess,
+                    LastName = userToSave.LastName,
+                    LastUpdatedBy = userToSave.LastUpdateBy??0,
+                    RoleId = userToSave.RoleId,
+                    UserName = userToSave.UserName,
+                });
             }
             catch (Exception ex)
             {
@@ -93,13 +114,20 @@ namespace UsaloYa.API.Controllers
         }
 
         [HttpPost("SetToken")]
-        public async Task<IActionResult> SetToken([FromBody] UserTokenDto token)
+        public async Task<IActionResult> SetToken([FromHeader] string RequestorId, [FromBody] UserTokenDto token)
         {
             try
             {
                 var user = await _dBContext.Users.FirstOrDefaultAsync(u => u.UserName == token.UserName);
                 if (user == null)
                     return NotFound();
+
+
+                var requestor_Id = await Util.ValidateRequestorSameCompanyOrTopRol(RequestorId, user.CompanyId, Role.SysAdmin, _dBContext);
+                if (requestor_Id <= 0)
+                {
+                    return Unauthorized(RequestorId);
+                }
 
                 user.Token = Utils.Util.EncryptPassword(token.Token);
                 _dBContext.Users.Update(user);
@@ -117,11 +145,20 @@ namespace UsaloYa.API.Controllers
         }
 
         [HttpGet("GetUser")]
-        public async Task<IActionResult> GetUser(int userId)
+        public async Task<IActionResult> GetUser([FromHeader] string RequestorId, int userId, string i = "") //parameter i (invoked) is used only on the login component
         {
             var u = await _dBContext.Users.FirstOrDefaultAsync(u => u.UserId == userId);
             if (u == null) 
                 return NotFound();
+            
+            if (!i.Equals("login"))
+            {
+                var requestor_Id = await Util.ValidateRequestorSameCompanyOrTopRol(RequestorId, u.CompanyId, Role.SysAdmin, _dBContext);
+                if (requestor_Id <= 0)
+                {
+                    return Unauthorized(RequestorId);
+                }
+            }
 
             var userResponseDto = new UserResponseDto()
             {
@@ -192,10 +229,16 @@ namespace UsaloYa.API.Controllers
 
         //TODO: Move this controller to a System Controller
         [HttpGet("GetCompanies")]
-        public async Task<IActionResult> GetCompanies()
+        public async Task<IActionResult> GetCompanies([FromHeader] string RequestorId)
         {
             try
             {
+                var requestor_Id = await Util.ValidateRequestor(RequestorId, Role.Ventas, _dBContext);
+                if (requestor_Id <= 0)
+                {
+                    return Unauthorized(RequestorId);
+                }
+
                 var companies = await _dBContext.Companies
                     .Select(u => new CompanyDto
                     {
@@ -224,18 +267,9 @@ namespace UsaloYa.API.Controllers
             {
                 if (companyId == 0)
                 {
-                    var requestor = RequestorId;
-                    int userId = 0;
-                    if(!int.TryParse(requestor, out userId))
-                        return Unauthorized(requestor);
-                    if (userId <= 0)
-                        return Unauthorized(requestor);
-
-                    //Validate user status and rol
-                    var user = await _dBContext.Users.FindAsync(userId);
-                    if(user == null || user.RoleId != (int)Enums.Role.Root)
-                        return Unauthorized(requestor);
-                    
+                    var requestor_Id = await Util.ValidateRequestor(RequestorId, Role.SysAdmin, _dBContext);
+                    if (requestor_Id <= 0)
+                        return Unauthorized(RequestorId);
                 }
 
                 var users = (string.IsNullOrEmpty(name) || string.Equals(name, "-1", StringComparison.OrdinalIgnoreCase))
@@ -255,7 +289,7 @@ namespace UsaloYa.API.Controllers
                 var userDtos = users.Select(u => new UserResponseDto
                 {
                     UserId = u.UserId,
-                    IsEnabled = (bool)u.IsEnabled,
+                    IsEnabled = u.IsEnabled?? false,
                     UserName = u.UserName,
                     FirstName = u.FirstName,
                     LastName = u.LastName
@@ -278,28 +312,25 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                
                 var encryptedPassword = Utils.Util.EncryptPassword(token.Token);
                 var user = await _dBContext.Users
-                    .FirstOrDefaultAsync(u => u.UserName == token.UserName 
+                    .FirstOrDefaultAsync(u => u.UserName == token.UserName
                         && u.Token == encryptedPassword);
 
                 if (user == null)
-                {
                     return Unauthorized("Usuario o contraseña inválidos");
+
+               
+                if (user.IsEnabled ?? false)
+                {
+                    user.LastAccess = DateTime.Now;
+                    user.StatusId = (int)Enumerations.UserStatus.Conectado;
+                    _dBContext.Users.Update(user);
+                    await _dBContext.SaveChangesAsync();
                 }
                 else
-                {
-                    if (user.IsEnabled?? false)
-                    {
-                        user.LastAccess = DateTime.Now;
-                        user.StatusId = (int)Enumerations.UserStatus.Conectado;
-                        _dBContext.Users.Update(user);
-                        await _dBContext.SaveChangesAsync();
-                    }
-                    else
-                        return Unauthorized("Usuario no valido");
-                }
+                    return Unauthorized("Usuario no valido");
+
 
                 return Ok(user.UserId);
             }

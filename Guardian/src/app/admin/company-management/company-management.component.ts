@@ -1,19 +1,20 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NavigationService } from '../../services/navigation.service';
 import { UserStateService } from '../../services/user-state.service';
 import { format } from 'date-fns';
-import { NgFor, NgIf } from '@angular/common';
+import { CommonModule, NgFor, NgIf } from '@angular/common';
 import { userDto } from '../../dto/userDto';
 import { companyDto } from '../../dto/companyDto';
 import { CompanyService } from '../../services/company.service';
 import { first } from 'rxjs';
-import { getCompanyStatusEnumName, Roles } from '../../Enums/enums';
+import { getCompanyStatusEnumName, RentaStatusId, Roles } from '../../Enums/enums';
+import { rentRequestDto } from '../../dto/rentRequestDto';
 
 @Component({
   selector: 'app-company-management',
   standalone: true,
-  imports: [ReactiveFormsModule,  NgFor, NgIf],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule,  NgFor, NgIf],
   templateUrl: './company-management.component.html',
   styleUrl: './company-management.component.css'
 })
@@ -23,7 +24,21 @@ export class CompanyManagementComponent implements OnInit {
   companyList: companyDto[] = [];
   userState: userDto;
   rol = Roles;
-  
+  activeTab: string = 'tab1';
+  isSearchPanelHidden: boolean;
+  tipoPagoList = Object.keys(RentaStatusId).filter(key => !isNaN(Number(key)))
+                  .map(key => ({
+                      name: RentaStatusId[key as any],
+                      value: key
+                  }));
+
+  mostrarSeccion2: boolean = false;
+  mostrarConfirmacion: boolean = false;
+  estadoProceso: string = '';
+  paymentHistory: rentRequestDto[] = [];
+  rentAmmount: number = 0;
+  paymentTypeId: any;
+
   constructor(
     private fb: FormBuilder,
     private companyService: CompanyService,
@@ -33,13 +48,16 @@ export class CompanyManagementComponent implements OnInit {
   {
     this.userState = userStateService.getUserStateLocalStorage();
     this.companyForm = this.initCompanyForm();
+    this.isSearchPanelHidden = false;
     
   }
+
   ngOnInit(): void {
     this.userState = this.userStateService.getUserStateLocalStorage();
     
     this.searchCompaniesInternal('-1');
     this.navigationService.checkScreenSize();
+    
   }
 
   private initCompanyForm(): FormGroup {
@@ -54,7 +72,7 @@ export class CompanyManagementComponent implements OnInit {
       lastUpdateBy: [0],
       lastUpdateByUserName: ['', Validators.maxLength(50)],
       paymentsJson: [''],
-      statusId: [0, Validators.required],
+      statusId: [0],
       statusDesc: [''],
       expirationDate: [''],
       expirationDateUI: [''],
@@ -64,7 +82,6 @@ export class CompanyManagementComponent implements OnInit {
       ownerInfo: [''],
     });
   }
-
 
   newCompany(): void {
     this.selectedCompany = null;
@@ -90,9 +107,27 @@ export class CompanyManagementComponent implements OnInit {
         
       this.selectedCompany = c;
       this.companyForm.patchValue(c);
+      this.activeTab = "tabDetalles";
       this.navigationService.checkScreenSize();
     });
   }
+
+  setActiveTab(tab: string): void {
+    this.activeTab = tab;
+    switch (tab) {
+      case 'tabDetalles':
+        
+        break;
+      case 'tabPagos':
+        this.getPaymentHistory();
+        this.paymentTypeId = 0;
+        break;
+      case 'tab3':
+        
+        break;
+    }
+  }
+  
 
   saveCompany(): void {
     if (this.companyForm.invalid) {
@@ -107,6 +142,8 @@ export class CompanyManagementComponent implements OnInit {
       c.createdBy = this.userState.userId;
       c.createdByUserName = this.userState.userName;
       c.lastUpdateByUserName = this.userState.userName;
+      c.creationDate = new Date();
+      c.expirationDate = new Date();
       
       this.companyService.saveCompany(c).pipe(first())
         .subscribe({
@@ -140,6 +177,74 @@ export class CompanyManagementComponent implements OnInit {
       this.companyList = c.sort((a,b) => (a.name?? '').localeCompare((b.name?? '')));
     });
   }
+
+  /***** Pagos TAB - Start *******/
+  getPaymentHistory() {
+    let companyId = 0;
+    if(this.selectedCompany != null)
+      companyId = this.selectedCompany.companyId;
+
+
+    this.companyService.getPaymentHistory(companyId).pipe(first())
+    .subscribe({
+      next: (result) => {
+        this.paymentHistory = result;
+      },
+      error:(err) => {
+        const m1 = err.error.message;
+        if(m1)
+          this.navigationService.showUIMessage(m1);
+        else
+          this.navigationService.showUIMessage(err.error);
+      },
+  });
+  }
+
+  addConfirmedPayment(): void {
+    if(this.rentAmmount <= 0)
+    {
+      this.navigationService.showUIMessage('El monto debe ser mayor a cero.');
+      return;
+    }
+
+    const renta: rentRequestDto = {
+      id:0,
+      addedByUserId:this.userState.userId, 
+      amount: this.rentAmmount, 
+      companyId:this.userState.companyId, 
+      referenceDate:new Date(), 
+      statusId:this.paymentTypeId
+    };
+
+    this.companyService.addCompanyRent(renta).pipe(first())
+    .subscribe({
+      next: (result) => {
+        this.estadoProceso = 'Pago agregado con éxito';
+        this.mostrarConfirmacion = false; // Oculta el panel de confirmación
+        this.getPaymentHistory(); // Actualiza el historial de pagos
+      },
+      error:(err) => {
+        this.estadoProceso = 'Error al agregar el pago';
+        const m1 = err.error.message;
+        if(m1)
+          this.navigationService.showUIMessage(m1);
+        else
+          this.navigationService.showUIMessage(err.error);
+      }
+    });
+  }
+
+  confirmarPago(monto: number, metodo: string): void {
+    this.estadoProceso = ''; // Resetea el estado del proceso
+    this.mostrarConfirmacion = true; // Muestra el panel de confirmación
+  }
+
+  cancelarPago(): void {
+    this.mostrarConfirmacion = false; // Oculta el panel de confirmación
+  }
+ 
+  /*** End TAB - Pagos *****/
+
 }
 
 

@@ -17,6 +17,8 @@ public partial class Renta
 
     public int StatusId { get; set; }
 
+    public string? TipoRentaDesc { get; set; }
+
     public virtual User AddedByUser { get; set; } = null!;
 
     public virtual Company Company { get; set; } = null!;

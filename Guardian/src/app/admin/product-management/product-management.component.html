@@ -1,23 +1,25 @@
 <div class="container-fluid mt-1">
   <div class="row">
-    <div class="col-12 d-flex justify-content-between align-items-center">
-      <h5 class="my-3">Gestión de Productos</h5>
-      <div class="hamburger-menu" (click)="toggleSearchPanel()">
+    <div class="col-12 d-flex justify-content-start align-items-center">
+      
+      <div class="hamburger-menu" (click)="navigationService.toggleSearchPanel()">
           <div></div>
           <div></div>
           <div></div>
       </div>
+      <h5 class="ms-2 mt-3">Gestión de Productos</h5>
     </div>
   </div>
+
     <div class="row">
-      <div class="col-12 col-md-4 search-panel" [class.d-none]="isSearchPanelHidden">
+      <div class="col-12 col-md-4 search-panel" [class.d-none]="navigationService.isSearchPanelHidden">
         <div class="card">
           <div class="card-body">
             <h6 class="card-title">Buscar Productos</h6>
             <div class="input-group mb-3">
-              <input type="text" class="form-control" [(ngModel)]="searchItem" placeholder="Buscar...">
+              <input type="text" class="form-control" [(ngModel)]="navigationService.searchItem" placeholder="Buscar...">
               <div class="input-group-append">
-                <button class="btn close-btn" type="button" (click)="searchItem = ''; searchProducts()">
+                <button class="btn close-btn" type="button" (click)="navigationService.searchItem = ''; searchProducts()">
                   &times;
                 </button>
                 <button class="btn btn-outline-secondary" type="button" (click)="searchProducts()">
@@ -40,7 +42,7 @@
           </div>
         </div>
       </div>
-      <div class="col-12" [class.col-md-8]="!isSearchPanelHidden" [class.col-md-12]="isSearchPanelHidden">
+      <div class="col-12" [class.col-md-8]="!navigationService.isSearchPanelHidden" [class.col-md-12]="navigationService.isSearchPanelHidden">
         <div class="card">
           <div class="card-body">
             <h6 class="card-title">Detalles del Producto</h6>

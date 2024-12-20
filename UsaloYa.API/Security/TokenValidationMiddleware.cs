@@ -20,7 +20,7 @@
                 return;
             }
 
-            var appToken = _configuration.GetValue<string>("ApiKey");
+            var appToken = _configuration.GetValue<string>("ApiKey")?? "";
 
             if (!appToken.Equals(extractedToken))
             {

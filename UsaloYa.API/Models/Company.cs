@@ -31,6 +31,8 @@ public partial class Company
 
     public string? OwnerInfo { get; set; }
 
+    public int? PlanId { get; set; }
+
     public virtual User? CreatedByNavigation { get; set; }
 
     public virtual ICollection<Customer> Customers { get; set; } = new List<Customer>();
@@ -39,9 +41,13 @@ public partial class Company
 
     public virtual User? LastUpdateByNavigation { get; set; }
 
+    public virtual PlanRenta? Plan { get; set; }
+
     public virtual ICollection<Product> Products { get; set; } = new List<Product>();
 
     public virtual ICollection<Sale> Sales { get; set; } = new List<Sale>();
 
     public virtual ICollection<User> Users { get; set; } = new List<User>();
+
+    public virtual ICollection<Renta> Renta { get; set; } = new List<Renta>();
 }

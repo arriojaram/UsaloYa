@@ -24,23 +24,23 @@ export class ProductManagementComponent implements OnInit {
   products: Producto[] = [];
   selectedProduct: Producto | null = null;
   userState: userDto;
-  isSearchPanelHidden: boolean;
+  
   isScannerEnabled: boolean = false;
   allowedFormats: BarcodeFormat [];
   qrResultString: string = "init";
   scannerBtnLabel: string | undefined;
   pageNumber: number = 1;
-  searchItem: string = '';
+
   constructor(
     private fb: FormBuilder, 
     private productService: ProductService,
     private userService: UserStateService,
-    private navigationService: NavigationService
+    public navigationService: NavigationService
   ) 
   {
     this.userState = userService.getUserStateLocalStorage();
     this.productForm = this.initProductForm();
-    this.isSearchPanelHidden = false;
+
     this.allowedFormats = barcodeFormats.allowedFormats;    
   }
 
@@ -90,12 +90,12 @@ export class ProductManagementComponent implements OnInit {
     this.searchProductsInternal('-1');
     this.scannerBtnLabel = "Abrir escaner";
     this.pageNumber = 1;
-    this.checkScreenSize();
+    this.navigationService.checkScreenSize();
   }
 
   searchProducts(): void {
     this.pageNumber = 1;
-    let keyword = this.searchItem;
+    let keyword = this.navigationService.searchItem;
     if (!keyword || keyword.trim() === "") {
       keyword="-1";
     }
@@ -105,7 +105,7 @@ export class ProductManagementComponent implements OnInit {
   
   loadMore(): void {
     this.pageNumber++;
-    let keyword = this.searchItem;
+    let keyword = this.navigationService.searchItem;
     if (!keyword || keyword.trim() === "") {
       keyword="-1";
     }
@@ -132,7 +132,7 @@ export class ProductManagementComponent implements OnInit {
       this.selectedProduct = product;
       this.productForm.patchValue(product);
       
-      this.checkScreenSize();
+      this.navigationService.checkScreenSize();
     });
   }
 
@@ -168,17 +168,6 @@ export class ProductManagementComponent implements OnInit {
     this.productForm.reset();
     this.productForm.patchValue({ productId: 0, companyId: this.userState.companyId, unitsInStock: 0, discontinued: false });
     window.scrollTo(0, 0);
-  }
-
-  checkScreenSize() {
-    if (window.innerWidth < 768) {
-      this.isSearchPanelHidden = true;  // Ocultar búsqueda en pantallas pequeñas por defecto
-      this.searchItem = '';
-    }
-  }
-
-  toggleSearchPanel(): void {
-    this.isSearchPanelHidden = !this.isSearchPanelHidden;
   }
 
   isFieldInvalid(field: string): boolean {

@@ -1,31 +1,36 @@
-<nav class="sb-topnav navbar navbar-expand navbar-dark bg-success">
-    <!-- Navbar Brand-->
-    <a class="navbar-brand ps-3" href="main">
-        <picture>
-            <!-- Imágenes para diferentes resoluciones -->
-            <source srcset="assets/icons/logos/logo.png" media="(max-width: 320px)">
-            <source srcset="assets/icons/logos/logo-192x192.png" media="(max-width: 480px)">
-            <img src="assets/icons/logos/logo-512x512.png" alt="Logo" style="height: 40px;">
-        </picture>
-        Guardian - {{ this.appOnlineStatus }} 
-    </a>
-    <!-- Sidebar Toggle-->
-    <button class="btn btn-link btn-sm order-1 order-lg-0 ms-3 ms-lg-1" id="sidebarToggle" href="#!" style="color: white; opacity: 1;">
-        <i class="fas fa-bars"></i>
-    </button>
-    
-    <div class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0"></div>
-    
-    <div class="navbar-nav nav-link px-4" *ngIf="this.userStateUI?.statusId === LOGGED_IN">
-        <span class="d-flex align-items-center justify-content-center">
-            <span class="d-none d-md-inline">{{ this.userStateUI?.userName }} -</span>
-            <a class="nav-link px-2" id="navbarDropdown" href="#" (click)="logoutApp($event)" role="button">
-                Salir
-            </a>
-        </span>
+<nav class="sb-topnav navbar navbar-expand-md navbar-dark bg-success">
+    <!-- Navbar content flex container -->
+    <div class="d-flex w-100">
+        <!-- Sidebar Toggle-->
+        <button class="btn btn-link btn-sm order-0" id="sidebarToggle" style="color: white; opacity: 1;">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <!-- Navbar Brand-->
+        <a class="navbar-brand ps-1" href="main">
+            <picture>
+                <source srcset="assets/icons/logos/logo.png" media="(max-width: 320px)">
+                <source srcset="assets/icons/logos/logo-192x192.png" media="(max-width: 480px)">
+                <img src="assets/icons/logos/logo-512x512.png" alt="Logo" style="height: 40px;">
+            </picture>
+            Guardian - {{ this.appOnlineStatus }} 
+        </a>
+
+        <!-- Spacer to push remaining content to the right -->
+        <div class="flex-grow-1"></div>
+        
+        <div class="navbar-nav nav-link px-4" *ngIf="this.userStateUI?.statusId === LOGGED_IN">
+            <span class="d-flex align-items-center justify-content-center">
+                <span class="d-none d-md-inline">{{ this.userStateUI?.userName }} -</span>
+                <a class="nav-link px-2" id="navbarDropdown" href="#" (click)="logoutApp($event)" role="button">
+                    Salir
+                </a>
+            </span>
+        </div>
     </div>
-    
 </nav>
+
+
 <div id="layoutSidenav">
     <div id="layoutSidenav_nav" *ngIf="this.userStateUI?.statusId === LOGGED_IN">
         <nav class="sb-sidenav accordion sb-sidenav-light" id="sidenavAccordion">
@@ -33,31 +38,31 @@
                 <div class="nav">
                     <div class="sb-sidenav-menu-heading">Accesos</div>
                   
-                    <a class="nav-link" href="main" *ngIf="(this.userStateUI?.roleId ?? 0) > rol.Desconocido">
+                    <a class="nav-link" href="main" *ngIf="(this.userStateUI?.roleId ?? 0) > rol.Unknown">
                       <div class="sb-nav-link-icon"><i class="bi bi-cash-stack fs-6"></i></div>
                       Punto de Venta
                     </a>
                   
-                    <a class="nav-link" href="productos" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Usuario">
+                    <a class="nav-link" href="productos" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Unknown">
                       <div class="sb-nav-link-icon"><i class="bi bi-box-seam fs-6"></i></div>
                       Productos
                     </a>
 
-                    <a class="nav-link" href="usuarios" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Administrador">
+                    <a class="nav-link" href="usuarios" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Admin">
                         <div class="sb-nav-link-icon"><i class="bi bi-people fs-6"></i></div>
-                        Usuarios
+                        {{ this.userStateUI?.roleId == rol.Admin ? "Administrar Miembros" : "Usuarios" }} 
                     </a>
 
-                    <a class="nav-link" href="clientes" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Usuario ">
+                    <a class="nav-link" href="clientes" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.User ">
                         <div class="sb-nav-link-icon"><i class="bi bi-person-circle fs-6"></i></div>
                         Clientes
                     </a>
                     
-                    <a class="nav-link" href="reporteventas" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Administrador">
+                    <a class="nav-link" href="reporteventas" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Admin">
                         <div class="sb-nav-link-icon"><i class="bi bi-graph-up fs-6"></i></div>
                         Reporte Ventas
                     </a>
-                    <a class="nav-link" href="importar" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Administrador">
+                    <a class="nav-link" href="importar" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Admin">
                         <div class="sb-nav-link-icon"><i class="bi bi-file-earmark-arrow-up fs-6"></i></div>
                         Importar Productos
                     </a>

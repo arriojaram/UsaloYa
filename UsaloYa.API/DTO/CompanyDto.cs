@@ -20,5 +20,8 @@
         public string? Email { get; set; }
         public string? OwnerInfo { get; set; }
 
+        public int? PlanId { get; set; }
+        public string? PlanIdUI { get; set; }
+        public decimal? PlanPrice { get; set; }
     }
 }

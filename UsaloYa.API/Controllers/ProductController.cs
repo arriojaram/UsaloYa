@@ -75,7 +75,7 @@ namespace UsaloYa.API.Controllers
             int pageSize = 30;
             if (pageNumber == -1) //Used to manage the cache products function
             {
-                pageSize = 500;
+                pageSize = 4000;
                 pageNumber = 1;
             }
             try

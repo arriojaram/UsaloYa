@@ -3,6 +3,8 @@ import { Injectable } from '@angular/core';
 import { environment } from '../environments/enviroment';
 import { Observable, catchError } from 'rxjs';
 import { companyDto } from '../dto/companyDto';
+import { rentRequestDto } from '../dto/rentRequestDto';
+import { setStatusDto } from '../dto/setStatusDto';
 
 @Injectable({
   providedIn: 'root'
@@ -23,7 +25,29 @@ export class CompanyService {
     };
   }
 
-  
+
+  addCompanyRent(c: rentRequestDto): Observable<number> {
+    const apiUrl = `${this.baseUrl}/AddRent`;
+
+    return this.http.post<number>(apiUrl, c, this.httpOptions).pipe(
+      catchError(error => {
+        console.error('addCompanyRent() | ', error);
+        throw error;
+      })
+    );
+  }
+
+  setCompanyStatus(c: setStatusDto): Observable<number> {
+    const apiUrl = `${this.baseUrl}/SetCompanyStatus`;
+
+    return this.http.post<number>(apiUrl, c, this.httpOptions).pipe(
+      catchError(error => {
+        console.error('setCompanyStatus() | ', error);
+        throw error;
+      })
+    );
+  }
+
   saveCompany(c: companyDto): Observable<companyDto> {
     const apiUrl = `${this.baseUrl}/SaveCompany`;
 
@@ -46,11 +70,12 @@ export class CompanyService {
     );
   }
 
-  getAllFull(): Observable<companyDto[]> {
-    const apiUrl =`${this.baseUrl}/GetAll`;
-    return this.http.get<companyDto[]>(apiUrl, this.httpOptions).pipe(
+  getPaymentHistory(companyId: number): Observable<rentRequestDto[]> {
+    const apiUrl =`${this.baseUrl}/GetPaymentHistory?companyId=${companyId}`;
+    
+    return this.http.get<rentRequestDto[]>(apiUrl, this.httpOptions).pipe(
       catchError(error => {
-        console.error('GetAll() | ', error);
+        console.error('getPaymentHistory() | ', error);
         throw error;
       })
     );

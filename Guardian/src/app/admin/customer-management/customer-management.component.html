@@ -1,21 +1,22 @@
 <div class="container mt-1">
-    <div class="row">
-      <div class="col-12 d-flex justify-content-between align-items-center">
-        <h5 class="my-3">Gestión de Clientes</h5>
+  <div class="row">
+      <div class="col-12 d-flex justify-content-start align-items-center">
+          <div class="hamburger-menu" (click)="navigationService.toggleSearchPanel()">
+              <div></div>
+              <div></div>
+              <div></div>
+          </div>
+          <h5 class="ms-2 mt-3">Gestión de Clientes</h5>
       </div>
-    </div>
+  </div>
+
     <div class="row">
-        <div class="hamburger-menu" (click)="toggleSearchPanel()">
-            <div></div>
-            <div></div>
-            <div></div>
-        </div>
-        <div class="col-md-4 search-panel" [class.hidden]="isSearchPanelHidden">
+      <div class="col-12 col-md-4 search-panel" [class.d-none]="navigationService.isSearchPanelHidden">
             <div class="card">
             <div class="card-body">
                 <h6 class="card-title">Buscar Clientes</h6>
                 <div class="input-group mb-3">
-                <input type="text" class="form-control" [(ngModel)]="searchWord" placeholder="Escribe el nombre aqui..." (input)="searchCustomers($event)">
+                <input type="text" class="form-control" [(ngModel)]="navigationService.searchItem" placeholder="Escribe el nombre aqui..." (input)="searchCustomers($event)">
                
                 </div>
                 <ul class="list-group mt-3">
@@ -26,7 +27,7 @@
             </div>
             </div>
         </div>
-        <div class="col-md-8">
+        <div class="col-12" [class.col-md-8]="!navigationService.isSearchPanelHidden" [class.col-md-12]="navigationService.isSearchPanelHidden">
             <div class="card">
                 <div class="card-body">
                     <h6 class="card-title">Detalles del Usuario</h6>

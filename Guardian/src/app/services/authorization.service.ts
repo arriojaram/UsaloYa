@@ -24,13 +24,12 @@ export class AuthorizationService {
 
     return this.http.post<any>(url, data, httpOptions).pipe(
       map(response => { 
-        console.log(response);
         this.navigation.setItemWithExpiry('isAuthenticated', 'true'); 
         return response; 
       }), 
       catchError(error => {
         this.clearStorageVariables();
-        console.error('login() | ', error);
+        console.error('login(E) | ', error);
         throw error;
       })
     ); 

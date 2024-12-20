@@ -21,6 +21,8 @@ public partial class DBContext : DbContext
 
     public virtual DbSet<Group> Groups { get; set; }
 
+    public virtual DbSet<PlanRenta> PlanRentas { get; set; }
+
     public virtual DbSet<Product> Products { get; set; }
 
     public virtual DbSet<Renta> Rentas { get; set; }
@@ -64,6 +66,10 @@ public partial class DBContext : DbContext
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.CompanyCreatedByNavigations).HasForeignKey(d => d.CreatedBy);
 
             entity.HasOne(d => d.LastUpdateByNavigation).WithMany(p => p.CompanyLastUpdateByNavigations).HasForeignKey(d => d.LastUpdateBy);
+
+            entity.HasOne(d => d.Plan).WithMany(p => p.Companies)
+               .HasForeignKey(d => d.PlanId)
+               .HasConstraintName("FK_Company_PlanRentas");
         });
 
         modelBuilder.Entity<Customer>(entity =>
@@ -131,6 +137,17 @@ public partial class DBContext : DbContext
                 .HasConstraintName("FK_Groups_Company");
         });
 
+        modelBuilder.Entity<PlanRenta>(entity =>
+        {
+            entity.Property(e => e.Name)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.Notes).HasMaxLength(500);
+            entity.Property(e => e.Price)
+                .HasDefaultValueSql("((1))")
+                .HasColumnType("decimal(10, 0)");
+        });
+
         modelBuilder.Entity<Product>(entity =>
         {
             entity.HasIndex(e => new { e.Name, e.Description }, "IX_Products");
@@ -187,18 +204,18 @@ public partial class DBContext : DbContext
 
         modelBuilder.Entity<Renta>(entity =>
         {
-            entity.HasNoKey();
-
             entity.Property(e => e.Amount).HasColumnType("decimal(10, 2)");
-            entity.Property(e => e.Id).ValueGeneratedOnAdd();
             entity.Property(e => e.ReferenceDate).HasColumnType("datetime");
+            entity.Property(e => e.TipoRentaDesc)
+                .HasMaxLength(15)
+                .IsUnicode(false);
 
-            entity.HasOne(d => d.AddedByUser).WithMany()
+            entity.HasOne(d => d.AddedByUser).WithMany(p => p.Renta)
                 .HasForeignKey(d => d.AddedByUserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Rentas_Users");
 
-            entity.HasOne(d => d.Company).WithMany()
+            entity.HasOne(d => d.Company).WithMany(p => p.Renta)
                 .HasForeignKey(d => d.CompanyId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Rentas_Company");

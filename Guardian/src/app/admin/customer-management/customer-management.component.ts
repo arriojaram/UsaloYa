@@ -22,15 +22,13 @@ export class CustomerManagementComponent {
   userState: userDto | undefined;
   selectedCustomer: customerDto | null = null;
   customerList: customerDto[] = [];
-  isSearchPanelHidden = false;
-  searchWord: any;
 
   constructor(
     private fb: FormBuilder,
     private customerService: CustomerService,
     private route: ActivatedRoute,
     private userService: UserStateService,
-    private navigationService: NavigationService
+    public navigationService: NavigationService
   ) 
   {
     this.customerForm = this.initializeForm();
@@ -41,7 +39,7 @@ export class CustomerManagementComponent {
     this.customerId = this.route.snapshot.queryParams['customerId'] || 0;
     this.customerForm = this.initializeForm();
     this.searchCustomersInternal('-1');
-    this.checkScreenSize();
+    this.navigationService.checkScreenSize();
     if (this.customerId > 0) {
       this.loadCustomerData(this.customerId);
     }
@@ -101,20 +99,13 @@ export class CustomerManagementComponent {
     }
   }
   
-  checkScreenSize() {
-    if (window.innerWidth < 768) {
-      this.isSearchPanelHidden = true;  // Ocultar búsqueda en pantallas pequeñas por defecto
-      this.searchWord = '';
-    }
-  }
-
   selectUser(customerId: number): void {
     this.customerService.getCustomer(customerId).pipe(first())
     .subscribe(customer => {
       this.selectedCustomer = customer;
       this.customerForm?.patchValue(customer);
 
-      this.checkScreenSize();
+      this.navigationService.checkScreenSize();
       
     });
   }
@@ -141,7 +132,4 @@ export class CustomerManagementComponent {
     }
   }
 
-  toggleSearchPanel(): void {
-    this.isSearchPanelHidden = !this.isSearchPanelHidden;
-  }
 }
