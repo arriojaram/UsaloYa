@@ -8,6 +8,12 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { LoadingInterceptor } from './interceptors/loading.interceptor';
 import { ConnectionServiceOptions, ConnectionServiceOptionsToken } from 'ngx-connection-service';
+import { LOCALE_ID } from '@angular/core';
+import { registerLocaleData } from '@angular/common';
+import localeEs from '@angular/common/locales/es-MX';
+
+// Registrar el locale español
+registerLocaleData(localeEs);
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -29,6 +35,7 @@ export const appConfig: ApplicationConfig = {
         } as ConnectionServiceOptions
       } 
       ,
-    provideAnimationsAsync()
+    provideAnimationsAsync(),
+    { provide: LOCALE_ID, useValue: 'es-MX' } 
   ]
 };

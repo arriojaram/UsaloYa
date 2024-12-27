@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using UsaloYa.API.Config;
 using UsaloYa.API.Security;
 
 
@@ -40,6 +41,9 @@ builder.Services.AddCors(options =>
                     .AllowAnyMethod();
         });
 });
+
+builder.Services.AddSingleton<AppConfig>();
+
 var app = builder.Build();
 app.UseCors("AllowSpecificOrigin");
 // Configure the HTTP request pipeline.

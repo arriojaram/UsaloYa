@@ -63,8 +63,8 @@ export class UserService {
     );
   }
 
-  getCompanies(): Observable<AdminCompanyDto[]> {
-    const apiUrl =`${this.baseUrl}/GetCompanies`;
+  getCompanies(companyId: number): Observable<AdminCompanyDto[]> {
+    const apiUrl =`${this.baseUrl}/GetCompanies?companyId=${companyId}`;
     
     return this.http.get<AdminCompanyDto[]>(apiUrl, this.httpOptions).pipe(
       catchError(error => {

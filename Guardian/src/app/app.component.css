@@ -6,3 +6,6 @@
     z-index: 1000;
   }
   
+.alert.fixed-top {
+  margin-top: 0; /* Asegúrate de que no haya margen extra en la parte superior */
+}

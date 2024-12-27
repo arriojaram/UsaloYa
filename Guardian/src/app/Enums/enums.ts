@@ -1,4 +1,4 @@
-export enum RentaStatusId
+export enum RentTypeId
 { 
     Desconocido = 0,
     Mensualidad = 1,

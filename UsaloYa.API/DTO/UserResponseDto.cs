@@ -9,6 +9,8 @@
         public string LastName { get; set; }
         public int CompanyId { get; set; }
         public string CompanyName{ get; set; }
+        public int CompanyStatusId { get; set; }
+
         public int GroupId { get; set; }
         public int StatusId { get; set; }
         public string CreatedByUserName { get; set; }

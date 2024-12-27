@@ -18,5 +18,6 @@ export interface userDto{
     lastUpdatedByUserName?: string
     creationDate?: Date,
     creationDateUI?: string,
-    roleId: number
+    roleId: number,
+    companyStatusId?: number
 }

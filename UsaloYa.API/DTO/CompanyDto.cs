@@ -13,6 +13,8 @@
         
         public DateTime? ExpirationDate { get; set; }
         public string? CreatedByUserName { get; set; }
+        public string? CreatedByFullName { get; set; }
+
         public string? LastUpdateByUserName { get; set; }
 
         public string? TelNumber { get; set; }

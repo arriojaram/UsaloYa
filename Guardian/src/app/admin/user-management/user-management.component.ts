@@ -43,6 +43,9 @@ export class UserManagementComponent {
     this.userState = userStateService.getUserStateLocalStorage();
 
     this.userForm = this.initUserForm();
+    if(this.userState.roleId < this.rol.Admin)
+      this.userForm.get('roleId')?.disable();
+    
     this.passwordForm = this.initPasswordForm();
     this.passwordErrorMsg = '';
   }
@@ -54,13 +57,31 @@ export class UserManagementComponent {
     this.searchUsersInternal('-1');
     this.navigationService.checkScreenSize();
 
-    this.userService.getGroups().subscribe((data) => {
-      this.groups = data;
-    });
+    this.userService.getGroups().pipe(first())
+      .subscribe((data) => {
+        this.groups = data;
+      });
 
-    this.userService.getCompanies().subscribe((data) => {
-      this.companies = data;
-    });
+    this.userService.getCompanies(this.userState.companyId).pipe(first())
+      .subscribe(
+      {
+        next: (data) => 
+          {  
+            this.companies = data; 
+          },
+        error: (error) =>
+        {
+          if (error.error instanceof ErrorEvent) {
+            let message = error.error.message || error.statusText;
+            this.navigationService.showUIMessage(message);
+          }
+          else{
+            if(error.status == 401)
+              this.navigationService.showUIMessage('No autorizado');
+          }
+          
+        }
+      });
 
     this.initRoles();
   }
@@ -106,7 +127,7 @@ export class UserManagementComponent {
       createdByUserName: [''],
       lastUpdatedByUserName: [''],
       creationDateUI: [''],
-      roleId: [1]
+      roleId: [0]
     });
   }
 

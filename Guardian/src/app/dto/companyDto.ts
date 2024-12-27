@@ -5,7 +5,8 @@ export interface companyDto
     address?: string,
     createdBy?: number,
     createdByUserName?: string,
-    
+    createdByFullName?: string,
+
     creationDate?: Date,
     creationDateUI?: string,
     

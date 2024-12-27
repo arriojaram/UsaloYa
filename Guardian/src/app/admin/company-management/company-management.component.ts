@@ -8,7 +8,7 @@ import { userDto } from '../../dto/userDto';
 import { companyDto } from '../../dto/companyDto';
 import { CompanyService } from '../../services/company.service';
 import { first } from 'rxjs';
-import { getCompanyStatusEnumName, RentaStatusId, Roles } from '../../Enums/enums';
+import { getCompanyStatusEnumName, RentTypeId, Roles } from '../../Enums/enums';
 import { rentRequestDto } from '../../dto/rentRequestDto';
 
 @Component({
@@ -19,6 +19,7 @@ import { rentRequestDto } from '../../dto/rentRequestDto';
   styleUrl: './company-management.component.css'
 })
 export class CompanyManagementComponent implements OnInit {
+
   companyForm: FormGroup;
   selectedCompany: companyDto | null = null;
   companyList: companyDto[] = [];
@@ -26,15 +27,15 @@ export class CompanyManagementComponent implements OnInit {
   rol = Roles;
   activeTab: string = 'tab1';
   isSearchPanelHidden: boolean;
-  tipoPagoList = Object.keys(RentaStatusId).filter(key => !isNaN(Number(key)))
+  
+  tipoPagoList = Object.keys(RentTypeId).filter(key => !isNaN(Number(key)))
                   .map(key => ({
-                      name: RentaStatusId[key as any],
+                      name: RentTypeId[key as any],
                       value: key
                   }));
 
-  mostrarSeccion2: boolean = false;
+  showAddPaymentSection: boolean = false;
   mostrarConfirmacion: boolean = false;
-  estadoProceso: string = '';
   paymentHistory: rentRequestDto[] = [];
   rentAmmount: number = 0;
   paymentTypeId: any;
@@ -89,7 +90,7 @@ export class CompanyManagementComponent implements OnInit {
     this.companyForm.patchValue({companyId:0, name:'', address:'', statusId:0});
   }
 
-  selectCompany(companyId: number): void {
+  selectCompany(companyId: number, selectDetails: boolean): void {
     this.companyService.getCompany(companyId).pipe(first())
     .subscribe(c => {
         c.expirationDateUI = undefined;
@@ -107,28 +108,34 @@ export class CompanyManagementComponent implements OnInit {
         
       this.selectedCompany = c;
       this.companyForm.patchValue(c);
-      this.activeTab = "tabDetalles";
       this.navigationService.checkScreenSize();
+      
+      if(selectDetails)
+        this.activeTab = "tabDetalles";
+
     });
   }
 
   setActiveTab(tab: string): void {
-    this.activeTab = tab;
     switch (tab) {
       case 'tabDetalles':
-        
+      
         break;
       case 'tabPagos':
+        if(this.selectedCompany == null || this.selectedCompany?.companyId == 0)
+          return;
+        
         this.getPaymentHistory();
-        this.paymentTypeId = 0;
+        this.cancelAddPayment();
+      
         break;
       case 'tab3':
-        
+        return;
         break;
     }
+    this.activeTab = tab;
   }
   
-
   saveCompany(): void {
     if (this.companyForm.invalid) {
       this.companyForm.markAllAsTouched();
@@ -149,7 +156,7 @@ export class CompanyManagementComponent implements OnInit {
         .subscribe({
           next: (result) => {
             this.searchCompaniesInternal("-1");
-            this.selectCompany(result.companyId);
+            this.selectCompany(result.companyId, true);
             this.navigationService.showUIMessage("Información guardada (" + result.name + ")");
           },
           error:(err) => {
@@ -184,7 +191,6 @@ export class CompanyManagementComponent implements OnInit {
     if(this.selectedCompany != null)
       companyId = this.selectedCompany.companyId;
 
-
     this.companyService.getPaymentHistory(companyId).pipe(first())
     .subscribe({
       next: (result) => {
@@ -201,7 +207,7 @@ export class CompanyManagementComponent implements OnInit {
   }
 
   addConfirmedPayment(): void {
-    if(this.rentAmmount <= 0)
+    if(this.rentAmmount <= 0 || this.selectedCompany == null)
     {
       this.navigationService.showUIMessage('El monto debe ser mayor a cero.');
       return;
@@ -211,7 +217,7 @@ export class CompanyManagementComponent implements OnInit {
       id:0,
       addedByUserId:this.userState.userId, 
       amount: this.rentAmmount, 
-      companyId:this.userState.companyId, 
+      companyId:this.selectedCompany.companyId, 
       referenceDate:new Date(), 
       statusId:this.paymentTypeId
     };
@@ -219,12 +225,14 @@ export class CompanyManagementComponent implements OnInit {
     this.companyService.addCompanyRent(renta).pipe(first())
     .subscribe({
       next: (result) => {
-        this.estadoProceso = 'Pago agregado con éxito';
-        this.mostrarConfirmacion = false; // Oculta el panel de confirmación
+        this.navigationService.showUIMessage('Pago agregado con éxito');
+        this.mostrarConfirmacion = false;
+        this.cancelAddPayment();
         this.getPaymentHistory(); // Actualiza el historial de pagos
+        this.selectCompany(renta.companyId, false); // Recarga la información de la compañia
       },
       error:(err) => {
-        this.estadoProceso = 'Error al agregar el pago';
+        this.navigationService.showUIMessage('Error al agregar el pago');
         const m1 = err.error.message;
         if(m1)
           this.navigationService.showUIMessage(m1);
@@ -235,7 +243,6 @@ export class CompanyManagementComponent implements OnInit {
   }
 
   confirmarPago(monto: number, metodo: string): void {
-    this.estadoProceso = ''; // Resetea el estado del proceso
     this.mostrarConfirmacion = true; // Muestra el panel de confirmación
   }
 
@@ -243,6 +250,12 @@ export class CompanyManagementComponent implements OnInit {
     this.mostrarConfirmacion = false; // Oculta el panel de confirmación
   }
  
+  cancelAddPayment() {
+    this.showAddPaymentSection = false; 
+    this.rentAmmount=0; 
+    this.paymentTypeId=0;
+  }
+
   /*** End TAB - Pagos *****/
 
 }

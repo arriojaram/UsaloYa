@@ -3,6 +3,7 @@ import { environment } from '../environments/enviroment';
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { userDto } from '../dto/userDto';
 import { BehaviorSubject } from 'rxjs';
+import { CompanyStatus } from '../Enums/enums';
 
 
 @Injectable({
@@ -16,7 +17,8 @@ export class NavigationService {
   public userState$ = this.userStateSource.asObservable();
   isSearchPanelHidden: boolean = false;
   searchItem: string = '';
-  
+  companyStatus: CompanyStatus  = CompanyStatus.Inactive;
+
   constructor(
     private _snackBar: MatSnackBar
   ) 
@@ -52,6 +54,7 @@ export class NavigationService {
   setUserState(userDto: userDto)
   {
     this.userStateSource.next(userDto);
+    this.companyStatus = userDto.companyStatusId as CompanyStatus;
   }
 
   getItemWithExpiry(key: string, isUserState: boolean = false): string | null {

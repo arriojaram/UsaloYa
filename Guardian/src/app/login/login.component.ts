@@ -48,7 +48,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
       this.authService.login(loginData).pipe(first(),
         switchMap((loginResults) => {
-          return this.userStateService.loadUser(loginResults);
+          return this.userStateService.getLoggedUser(loginResults);
         }),
         catchError((e) => {
           if (e.status === 0) {

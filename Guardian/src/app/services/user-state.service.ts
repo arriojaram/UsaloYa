@@ -45,7 +45,7 @@ export class UserStateService {
     }
   }
 
-  loadUser(userId: number) : Observable<any> {
+  getLoggedUser(userId: number) : Observable<any> {
     if(userId > 0)
     {
       const url = this.navigation.apiBaseUrl + '/api/User/GetUser?i=login&userId=' + userId;

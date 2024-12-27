@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using UsaloYa.API.Config;
 using UsaloYa.API.DTO;
 using UsaloYa.API.Enums;
 using UsaloYa.API.Models;
@@ -14,11 +15,13 @@ namespace UsaloYa.API.Controllers
        
         private readonly ILogger<UserController> _logger;
         private readonly DBContext _dBContext;
+        private readonly AppConfig _settings;
 
-        public UserController(DBContext dBContext,  ILogger<UserController> logger)
+        public UserController(DBContext dBContext,  ILogger<UserController> logger, AppConfig settings)
         {
             _logger = logger;
             _dBContext = dBContext;
+            _settings = settings;
         }
 
         [HttpGet("HelloWorld")]
@@ -147,60 +150,67 @@ namespace UsaloYa.API.Controllers
         [HttpGet("GetUser")]
         public async Task<IActionResult> GetUser([FromHeader] string RequestorId, int userId, string i = "") //parameter i (invoked) is used only on the login component
         {
-            var u = await _dBContext.Users.FirstOrDefaultAsync(u => u.UserId == userId);
-            if (u == null) 
-                return NotFound();
-            
-            if (!i.Equals("login"))
+            User? u;
+            try
             {
-                var requestor_Id = await Util.ValidateRequestorSameCompanyOrTopRol(RequestorId, u.CompanyId, Role.SysAdmin, _dBContext);
-                if (requestor_Id <= 0)
+                if (!i.Equals("login"))
                 {
-                    return Unauthorized(RequestorId);
+                    u = await _dBContext.Users
+                   .Include(c => c.Company)
+                   .FirstOrDefaultAsync(u => u.UserId == userId);
                 }
+                else
+                {
+                    u = await _dBContext.Users
+                    .Include(c => c.CreatedByNavigation)
+                    .Include(c => c.LastUpdateByNavigation)
+                    .Include(c => c.Company)
+                    .FirstOrDefaultAsync(u => u.UserId == userId);
+                }
+
+                if (u == null)
+                    return NotFound();
+
+                if (!i.Equals("login"))
+                {
+                    var requestor_Id = await Util.ValidateRequestorSameCompanyOrTopRol(RequestorId, u.CompanyId, Role.SysAdmin, _dBContext);
+                    if (requestor_Id <= 0)
+                    {
+                        return Unauthorized(RequestorId);
+                    }
+                }
+
+                var userResponseDto = new UserResponseDto()
+                {
+                    UserId = u.UserId,
+                    IsEnabled = u.IsEnabled ?? false,
+                    UserName = u.UserName,
+                    FirstName = u.FirstName,
+                    LastName = u.LastName,
+                    CompanyId = u.CompanyId,
+                    GroupId = u.GroupId,
+                    LastAccess = u.LastAccess,
+                    StatusId = u.StatusId,
+                    CreationDate = u.CreationDate
+                    ,
+                    RoleId = u.RoleId ?? 0,
+                    CreatedByUserName = u.CreatedByNavigation == null ? "" : u.CreatedByNavigation.UserName,
+                    LastUpdatedByUserName = u.LastUpdateByNavigation == null ? "" : u.LastUpdateByNavigation.UserName
+                    ,
+                    CompanyName = u.Company.Name
+                    ,
+                    CompanyStatusId = u.Company.StatusId
+                };
+
+                return Ok(userResponseDto);
             }
-
-            var userResponseDto = new UserResponseDto()
+            catch (Exception ex)
             {
-                UserId = u.UserId,
-                IsEnabled = u.IsEnabled?? false,
-                UserName = u.UserName,
-                FirstName = u.FirstName,
-                LastName = u.LastName,
-                CompanyId = u.CompanyId,
-                GroupId = u.GroupId,
-                LastAccess = u.LastAccess,
-                StatusId = u.StatusId,  
-                CreationDate = u.CreationDate
-                ,RoleId = u.RoleId?? 0
-            };
+                _logger.LogError(ex, "GetUser.ApiError");
 
-            var createdByUserName = await _dBContext.Users
-                .Where(user => user.UserId == u.CreatedBy)
-                    .Select(user => user.UserName)
-                    .FirstOrDefaultAsync();
-            
-            var updatedByUserName = await _dBContext.Users
-                   .Where(user => user.UserId == u.LastUpdateBy)
-                   .Select(user => user.UserName)
-                   .FirstOrDefaultAsync();
-
-            userResponseDto.CreatedByUserName = createdByUserName?? "";
-            userResponseDto.LastUpdatedByUserName = updatedByUserName ?? "";
-
-            userResponseDto.CompanyName = await LoadCompany(userResponseDto.CompanyId);
-
-            return Ok(userResponseDto);
-        }
-
-        //TODO: Move this controller to a System Controller
-        private async Task<string> LoadCompany(int companyId)
-        {
-            var company = await _dBContext.Companies.FirstAsync(c => c.CompanyId == companyId);
-            if (company != null)
-                return company.Name;
-            return "No-Company";
-
+                // Return a 500 Internal Server Error with a custom message
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
+            }
         }
 
         //TODO: Move this controller to a System Controller
@@ -229,11 +239,12 @@ namespace UsaloYa.API.Controllers
 
         //TODO: Move this controller to a System Controller
         [HttpGet("GetCompanies")]
-        public async Task<IActionResult> GetCompanies([FromHeader] string RequestorId)
+        public async Task<IActionResult> GetCompanies([FromHeader] string RequestorId, int companyId)
         {
             try
             {
-                var requestor_Id = await Util.ValidateRequestor(RequestorId, Role.Ventas, _dBContext);
+                var requestor_Id = await Util.ValidateRequestorSameCompanyOrTopRol(RequestorId, companyId, Role.Ventas, _dBContext);
+                
                 if (requestor_Id <= 0)
                 {
                     return Unauthorized(RequestorId);
@@ -244,7 +255,8 @@ namespace UsaloYa.API.Controllers
                     {
                         CompanyId = u.CompanyId,
                         Name = u.Name,
-                        Address = u.Address
+                        Address = u.Address,
+                        StatusId = u.StatusId
                     })
                     .ToListAsync();
                 
@@ -292,7 +304,7 @@ namespace UsaloYa.API.Controllers
                     IsEnabled = u.IsEnabled?? false,
                     UserName = u.UserName,
                     FirstName = u.FirstName,
-                    LastName = u.LastName
+                    LastName = u.LastName,
                    
                 });
 
@@ -312,7 +324,7 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var encryptedPassword = Utils.Util.EncryptPassword(token.Token);
+                var encryptedPassword = Util.EncryptPassword(token.Token);
                 var user = await _dBContext.Users
                     .FirstOrDefaultAsync(u => u.UserName == token.UserName
                         && u.Token == encryptedPassword);
@@ -320,17 +332,25 @@ namespace UsaloYa.API.Controllers
                 if (user == null)
                     return Unauthorized("Usuario o contraseña inválidos");
 
-               
-                if (user.IsEnabled ?? false)
+                var isUserEnabled = user.IsEnabled ?? false;
+                if (!isUserEnabled)
+                    return Unauthorized("Usuario no valido");
+
+                // Check company expiration
+                var companyStatus = await GetCompanyStatus(user.CompanyId);
+                if (companyStatus == CompanyStatus.Expired)
+                    return Unauthorized("Licencia Expirada, contacta a tu vendedor.");
+                
+                if (companyStatus == CompanyStatus.Active || companyStatus == CompanyStatus.PendingPayment)
                 {
                     user.LastAccess = DateTime.Now;
                     user.StatusId = (int)Enumerations.UserStatus.Conectado;
+                    
                     _dBContext.Users.Update(user);
                     await _dBContext.SaveChangesAsync();
                 }
                 else
-                    return Unauthorized("Usuario no valido");
-
+                    return Unauthorized("La compañia se encuentra en un estado inactivo, contacta a tu vendedor.");
 
                 return Ok(user.UserId);
             }
@@ -342,6 +362,42 @@ namespace UsaloYa.API.Controllers
                 return StatusCode(500, new { message = "No se puede procesar la solicitud, error de servidor." });
             }
         }
+
+        [NonAction]
+        public async Task<CompanyStatus> GetCompanyStatus(int companyId)
+        {
+            CompanyStatus status = CompanyStatus.Inactive;
+            try
+            {
+                var company = await _dBContext.Companies.FindAsync(companyId);
+                if (company != null)
+                {
+                    status = EConverter.GetEnumFromValue<CompanyStatus>(company.StatusId);
+                    var expirationDate = company.ExpirationDate ?? Util.GetMxDateTime();
+                    
+                    if (Util.GetMxDateTime().Date > expirationDate.Date)
+                    {
+                        status = CompanyStatus.Expired;
+                        if (expirationDate.AddDays(_settings.MaxPendingPaymentDaysAllowAccess) >= Util.GetMxDateTime())
+                        {
+                            status = CompanyStatus.PendingPayment;
+                        }
+
+                        company.StatusId = (int)status;
+                        _dBContext.Companies.Update(company);
+                        await _dBContext.SaveChangesAsync();
+
+                    } 
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "IsCompanyExpired.ApiFunctionError");
+                
+            }
+            return status;
+        }
+        
 
         [HttpPost("LogOut")]
         public async Task<IActionResult> Logout([FromBody] UserTokenDto token)

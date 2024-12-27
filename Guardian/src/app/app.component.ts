@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router, RouterLink, RouterModule, RouterOutlet } from '@angular/router';
 import { ConnectionService } from 'ngx-connection-service';
-import { Observable, Subject, catchError, debounceTime, filter, finalize, first, forkJoin, from, interval, mergeMap, of, startWith, switchMap, takeUntil, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, catchError, debounceTime, filter, finalize, first, forkJoin, from, interval, mergeMap, of, startWith, switchMap, takeUntil, throwError } from 'rxjs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { LoadingService } from './services/loading.service';
 import { CommonModule, NgIf } from '@angular/common';
@@ -12,7 +12,7 @@ import { userDto } from './dto/userDto';
 import { AuthorizationService } from './services/authorization.service';
 import { NavigationService } from './services/navigation.service';
 import { Sale } from './dto/sale';
-import { Roles } from './Enums/enums';
+import { CompanyStatus, Roles } from './Enums/enums';
 
 @Component({
   selector: 'app-root',
@@ -30,13 +30,17 @@ export class AppComponent implements OnInit, OnDestroy {
   isOnline: boolean | undefined;
   title = 'Guardian';
   rol = Roles;
+  cStatus = CompanyStatus;
+  paymentMsg: string= "";
   
   private unsubscribe$: Subject<void> = new Subject();
-  loading_i$: Observable<boolean> | undefined;
+  loading_i$: Observable<boolean> = new BehaviorSubject<boolean>(false);
   currentPath: string = "/";
 
   private LOGGED_OUT: number = 0;
   LOGGED_IN: number = 1;
+
+  public showPaymentAlert: boolean = false;
 
   constructor(
     private connectionService: ConnectionService,
@@ -47,14 +51,18 @@ export class AppComponent implements OnInit, OnDestroy {
     private authService: AuthorizationService,
     private router: Router, 
     private activatedRoute: ActivatedRoute,
-    private navigationService: NavigationService
+    public navigationService: NavigationService
   ) 
   {
     
   }
 
   ngOnInit(): void {
-    this.loading_i$ = this.loadingService.loading$;
+    
+    setTimeout(() => {
+      this.loading_i$ = this.loadingService.loading$;
+    }, 10);
+
     this.userStateUI = {userId:0, userName:'', roleId:0, companyId:0, groupId:0, statusId:0, companyName:""};
     
     // Init network status monitor
@@ -100,8 +108,6 @@ export class AppComponent implements OnInit, OnDestroy {
     console.log(`Unsuscribe - ${this.appOnlineStatus} - ${new Date()}`);
   }
 
-
-  
   public logoutApp(event: MouseEvent)
   {
     if(this.userStateUI)
@@ -132,7 +138,19 @@ export class AppComponent implements OnInit, OnDestroy {
     {
       var storedUserInfo = this.userStateService.getUserStateLocalStorage();
       this.userStateUI = storedUserInfo;
+      console.log("user-status-id: " + this.userStateUI.statusId);
       this.userStateUI.statusId = this.LOGGED_IN;
+
+      if(this.userStateUI.companyStatusId == this.cStatus.Expired)
+      {
+        this.paymentMsg = "PAGA DEUDOR";
+        this.showPaymentAlert = true;
+      }
+      else if(this.userStateUI.companyStatusId == this.cStatus.PendingPayment)
+      {
+        this.paymentMsg = "SE ACERCA TU FECHA DE RENOVACION";
+        this.showPaymentAlert = true;
+      }  
     }
     catch(e)
     {      
@@ -141,6 +159,10 @@ export class AppComponent implements OnInit, OnDestroy {
       else
         console.error('setUserDetailsUI()', e);
     }
+  }
+
+  closeAlert() {
+    this.showPaymentAlert = false; // Función para cerrar la alerta
   }
 
   initMigrationService() {
@@ -165,7 +187,7 @@ export class AppComponent implements OnInit, OnDestroy {
       takeUntil(this.unsubscribe$) // This will allow us to stop the migration when needed
     )
     .subscribe();
-}
+  }
 
   private processSales(sales : Sale []) {
     const tasks = sales.map(sale => this.completeAndDeleteSale(sale));

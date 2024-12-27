@@ -1,6 +1,6 @@
 ﻿namespace UsaloYa.API.Enums
 {
-    public enum RentStatusId
+    public enum RentTypeId
     { 
         Desconocido = 0,
         Mensualidad = 1,

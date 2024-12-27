@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.Design;
+using System.Net;
 using System.Numerics;
 using UsaloYa.API.DTO;
 using UsaloYa.API.Enums;
@@ -76,6 +78,7 @@ namespace UsaloYa.API.Controllers
                 StatusId = c.StatusId,
                 ExpirationDate = c.ExpirationDate,
                 CreatedByUserName = c.CreatedByNavigation?.UserName, 
+                CreatedByFullName = c.CreatedByNavigation?.FirstName + " " + c.CreatedByNavigation?.LastName,
                 LastUpdateByUserName = c.LastUpdateByNavigation?.UserName, 
 
                 TelNumber = c.PhoneNumber,
@@ -118,7 +121,7 @@ namespace UsaloYa.API.Controllers
                         CreatedBy = companyDto.CreatedBy,
                         CreationDate = Util.GetMxDateTime(),
                         ExpirationDate = Util.GetMxDateTime().AddMonths(1),
-                        StatusId = (int)CompanyStatus.Inactive,
+                        StatusId = (int)CompanyStatus.Active,
                         PhoneNumber = companyDto.TelNumber,
                         CelphoneNumber = companyDto.CelNumber,
                         Email = companyDto.Email,
@@ -197,22 +200,67 @@ namespace UsaloYa.API.Controllers
             }
         }
 
+        [HttpPost("CheckExpiration")]
+        public async Task<ActionResult> CheckExpiration(int companyId)
+        {
+            Company company = null;
+            try
+            {
+                company = await _dBContext.Companies.FindAsync(companyId);
+                if (company == null)
+                    return NotFound();
+
+                var expirationDate = company.ExpirationDate ?? Util.GetMxDateTime();
+
+                if (expirationDate.Date > Util.GetMxDateTime().Date)
+                {
+                    company.StatusId = (int)CompanyStatus.Expired;
+
+                    _dBContext.Companies.Update(company);
+                    await _dBContext.SaveChangesAsync();
+                    return StatusCode(402, "$_Pago_requerido");
+                }
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "SetCompanyStatus.ApiError");
+
+                // Return a 500 Internal Server Error with a custom message
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
+            }
+        }
+
 
         [HttpPost("AddRent")]
         public async Task<ActionResult> AddRent([FromHeader] string RequestorId, [FromBody] RentDto rentDto)
         {
             Renta objectToSave = null;
+            int sumExpirationDays = 0;
             try
             {
+                if(rentDto.CompanyId <= 0)
+                    return BadRequest("$_Compañia_Invalida");
+                if (rentDto.Amount <= 0)
+                    return BadRequest("$_El_monto_debe_ser_mayor_a_cero");
+
                 var userId = await Util.ValidateRequestor(RequestorId, Role.SysAdmin, _dBContext);
                 if (userId <= 0)
                     return Unauthorized(RequestorId);
 
-                var statusId = EConverter.GetEnumFromValue<RentStatusId>(rentDto.StatusId);
-                if (statusId == default)
+                var rentType = EConverter.GetEnumFromValue<RentTypeId>(rentDto.StatusId);
+                if (rentType == default)
                     return BadRequest("$_Estatus_Invalido");
 
+                var c = await _dBContext.Companies
+                   .Include(c => c.Plan)
+                   .FirstOrDefaultAsync(u => u.CompanyId == rentDto.CompanyId);
+                if (c == null)
+                    return NotFound("$_Compañia_Invalida");
 
+                if (rentType == RentTypeId.Mensualidad && rentDto.Amount < c.Plan.Price)
+                    return BadRequest("$_Revisa_la_cantidad_ingresada");
+                
                 objectToSave = new Renta
                 {
                     Id = rentDto.Id,
@@ -225,13 +273,58 @@ namespace UsaloYa.API.Controllers
                 };
                 _dBContext.Rentas.Add(objectToSave);
 
-
                 await _dBContext.SaveChangesAsync();
+                if (objectToSave.Id > 0) //Pago agregado
+                {
+                    var expirationRes = await SetExpirationDate(c, rentDto.Amount, rentType);
+                    if (expirationRes is not OkObjectResult)
+                    {
+                        _logger.LogError("No se pudo agregar la expiración para la compañia " + rentDto.CompanyId);
+                    }
+                }
                 return Ok(objectToSave.Id);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "AddRent.ApiError");
+
+                // Return a 500 Internal Server Error with a custom message
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
+            }
+        }
+
+     
+        private async Task<ActionResult> SetExpirationDate(Company company, decimal rentAmount, RentTypeId typeId)
+        {
+            try
+            {
+                DateTime newExpirationDate = DateTime.Now.Date;
+                DateTime tmpExpDate = company.ExpirationDate ?? newExpirationDate;
+                switch (typeId)
+                {
+                    case RentTypeId.Mensualidad:
+                        newExpirationDate = tmpExpDate.AddMonths(1);
+                        break;
+                    case RentTypeId.Condonacion:
+                    case RentTypeId.Extension:
+                        int costDay = (int)(company.Plan.Price/30);
+                        int days = (int)(rentAmount / costDay);
+                        newExpirationDate = tmpExpDate.AddDays(days);
+                        break;
+                    default:
+                        break;
+                }
+
+                company.StatusId = (int)CompanyStatus.Active;
+                company.ExpirationDate = newExpirationDate;
+
+                _dBContext.Companies.Update(company);
+                await _dBContext.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "SetCompanyStatus.ApiError");
 
                 // Return a 500 Internal Server Error with a custom message
                 return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
@@ -245,7 +338,7 @@ namespace UsaloYa.API.Controllers
             if (userId <= 0)
                 return Unauthorized(RequestorId);
 
-            var c = await _dBContext.Rentas
+            var c = await _dBContext.Rentas.Where(c => c.CompanyId == companyId)
                                 .Select(r => new RentDto { 
                                     AddedByUserId = r.AddedByUserId,
                                     StatusId = r.StatusId,
@@ -256,10 +349,9 @@ namespace UsaloYa.API.Controllers
                                     TipoRentaDesc = r.TipoRentaDesc,
                                     ByUserName = r.AddedByUser.UserName,
                                 })
-                                .Where(c => c.CompanyId == companyId)
-                                .OrderBy(d => d.ReferenceDate)
+                                .OrderByDescending(d => d.ReferenceDate)
                                 .ToListAsync();
-            c.ForEach(c => c.StatusIdUI = Enums.EConverter.GetEnumNameFromValue<RentStatusId>(c.StatusId));
+            c.ForEach(c => c.StatusIdUI = Enums.EConverter.GetEnumNameFromValue<RentTypeId>(c.StatusId));
 
             return Ok(c);
         }

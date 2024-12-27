@@ -30,7 +30,15 @@
     </div>
 </nav>
 
+<div *ngIf="this.showPaymentAlert && (navigationService.companyStatus == cStatus.Expired || navigationService.companyStatus == cStatus.PendingPayment)"
+     class="alert alert-danger fixed-top" role="alert">
+    {{ paymentMsg }}
+    <button type="button" class="close" aria-label="Close" (click)="closeAlert()">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
 
+  
 <div id="layoutSidenav">
     <div id="layoutSidenav_nav" *ngIf="this.userStateUI?.statusId === LOGGED_IN">
         <nav class="sb-sidenav accordion sb-sidenav-light" id="sidenavAccordion">
