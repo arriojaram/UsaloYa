@@ -206,6 +206,8 @@ public partial class DBContext : DbContext
         {
             entity.Property(e => e.Amount).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.ReferenceDate).HasColumnType("datetime");
+            entity.Property(e => e.ExpirationDate).HasColumnType("datetime");
+
             entity.Property(e => e.TipoRentaDesc)
                 .HasMaxLength(15)
                 .IsUnicode(false);
@@ -304,6 +306,7 @@ public partial class DBContext : DbContext
                 .IsRequired()
                 .HasDefaultValueSql("(CONVERT([bit],(0)))");
             entity.Property(e => e.LastAccess).HasColumnType("datetime");
+            entity.Property(e => e.StatusId).HasColumnType("StatusId");
             entity.Property(e => e.LastName)
                 .HasMaxLength(50)
                 .IsUnicode(false);

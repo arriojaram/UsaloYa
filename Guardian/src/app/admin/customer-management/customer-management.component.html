@@ -59,15 +59,18 @@
                                 <input id="cellPhoneNumber" formControlName="cellPhoneNumber" type="text" class="form-control required-input"
                                      minlength="10" maxlength="15" pattern="^[0-9]{10,15}$" required placeholder="Ingresa tu número de teléfono"/>
                                 <div *ngIf="customerForm.get('cellPhoneNumber')?.invalid && customerForm.get('cellPhoneNumber')?.touched" class="invalid-feedback">
-                                    Celular es obligatorio.
+                                    Celular es inválido.
                                   </div>
                             </div>
 
                             <div class="form-group mb-2">
-                                <label for="workPhoneNumber">Teléfono Casa/Trabajo</label>
-                                <input id="workPhoneNumber" formControlName="workPhoneNumber" type="text" class="form-control" 
-                                    minlength="10" maxlength="15" pattern="[0-9]{10, 15}" />
-                            </div>
+                              <label for="workPhoneNumber">Tel. Casa/Trabajo</label>
+                              <input id="workPhoneNumber" formControlName="workPhoneNumber" type="text" class="form-control required-input"
+                                   minlength="10" maxlength="15" pattern="^[0-9]{10,15}$" required placeholder="Ingresa tu número de teléfono de casa"/>
+                              <div *ngIf="customerForm.get('workPhoneNumber')?.invalid && customerForm.get('workPhoneNumber')?.touched" class="invalid-feedback">
+                                  Teléfono de casa/trabajo es inválido.
+                                </div>
+                          </div>
                           
                             <div class="form-group mb-2">
                                 <label for="address">Dirección</label>

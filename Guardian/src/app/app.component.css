@@ -6,6 +6,17 @@
     z-index: 1000;
   }
   
-.alert.fixed-top {
-  margin-top: 0; /* Asegúrate de que no haya margen extra en la parte superior */
+.alert {
+  position: fixed;
+  z-index: 1080;
+  top: 55px; /* Adjust this value based on the actual height of your navbar */
+  
+  width: 100%;
+  padding-top: 0px;
+}
+
+.alert .btn-close {
+  top: 50%;  /* Centers the button vertically */
+  right: 0; /* Positions the button at the right edge */
+  transform: translateY(-50%); /* Adjusts the button to be perfectly centered */
 }

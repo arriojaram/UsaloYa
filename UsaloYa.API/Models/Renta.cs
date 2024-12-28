@@ -19,6 +19,8 @@ public partial class Renta
 
     public string? TipoRentaDesc { get; set; }
 
+    public DateTime? ExpirationDate { get; set; }
+
     public virtual User AddedByUser { get; set; } = null!;
 
     public virtual Company Company { get; set; } = null!;

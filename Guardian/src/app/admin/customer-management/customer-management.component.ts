@@ -104,7 +104,7 @@ export class CustomerManagementComponent {
     .subscribe(customer => {
       this.selectedCustomer = customer;
       this.customerForm?.patchValue(customer);
-
+      this.customerForm.markAllAsTouched();
       this.navigationService.checkScreenSize();
       
     });

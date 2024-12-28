@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, Router, RouterLink, RouterModule, RouterOutlet } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router, RouterModule, RouterOutlet } from '@angular/router';
 import { ConnectionService } from 'ngx-connection-service';
-import { BehaviorSubject, Observable, Subject, catchError, debounceTime, filter, finalize, first, forkJoin, from, interval, mergeMap, of, startWith, switchMap, takeUntil, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, catchError, debounceTime, filter, finalize, first, forkJoin, interval, of, switchMap, takeUntil } from 'rxjs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { LoadingService } from './services/loading.service';
 import { CommonModule, NgIf } from '@angular/common';
@@ -12,7 +12,8 @@ import { userDto } from './dto/userDto';
 import { AuthorizationService } from './services/authorization.service';
 import { NavigationService } from './services/navigation.service';
 import { Sale } from './dto/sale';
-import { CompanyStatus, Roles } from './Enums/enums';
+import { CompanyStatus, Roles, UserStatus } from './Enums/enums';
+import { environment } from './environments/enviroment';
 
 @Component({
   selector: 'app-root',
@@ -31,14 +32,13 @@ export class AppComponent implements OnInit, OnDestroy {
   title = 'Guardian';
   rol = Roles;
   cStatus = CompanyStatus;
+  uStatus = UserStatus;
+  
   paymentMsg: string= "";
   
   private unsubscribe$: Subject<void> = new Subject();
   loading_i$: Observable<boolean> = new BehaviorSubject<boolean>(false);
   currentPath: string = "/";
-
-  private LOGGED_OUT: number = 0;
-  LOGGED_IN: number = 1;
 
   public showPaymentAlert: boolean = false;
 
@@ -116,39 +116,44 @@ export class AppComponent implements OnInit, OnDestroy {
     
       this.authService.logout(this.userStateUI.userName).pipe(first()).subscribe({
         next: (value) => {
-          //Manage UI
-          if(this.userStateUI)
-          {
-            this.userStateUI.statusId = this.LOGGED_OUT;
-            this.authService.clearStorageVariables();
-            this.router.navigate(['/login']);
-          }
+          this.manageLogoutUI();
         },
         error: (e) =>{
-          this.navigationService.showUIMessage(e);
+          this.navigationService.showUIMessage(e.error);
+          this.manageLogoutUI();
           console.log('logout error', e);
         }
       });
     }
   }
 
+  manageLogoutUI()
+  {
+    if(this.userStateUI)
+      {
+        this.userStateUI.statusId = this.uStatus.Desconectado;
+        this.authService.clearStorageVariables();
+        this.router.navigate(['/login']);
+      }
+  }
+
+  
   setUserDetailsUI()
   {
     try
     {
       var storedUserInfo = this.userStateService.getUserStateLocalStorage();
       this.userStateUI = storedUserInfo;
-      console.log("user-status-id: " + this.userStateUI.statusId);
-      this.userStateUI.statusId = this.LOGGED_IN;
+      this.showPaymentAlert = false;
 
       if(this.userStateUI.companyStatusId == this.cStatus.Expired)
       {
-        this.paymentMsg = "PAGA DEUDOR";
+        this.paymentMsg = environment.paymentExpiredMsg;
         this.showPaymentAlert = true;
       }
       else if(this.userStateUI.companyStatusId == this.cStatus.PendingPayment)
       {
-        this.paymentMsg = "SE ACERCA TU FECHA DE RENOVACION";
+        this.paymentMsg = environment.paymentPendingMsg;
         this.showPaymentAlert = true;
       }  
     }

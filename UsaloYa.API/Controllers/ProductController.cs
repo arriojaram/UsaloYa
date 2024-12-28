@@ -227,8 +227,8 @@ namespace UsaloYa.API.Controllers
                     existingProduct.Color = productDto.Color;
                     existingProduct.Size = productDto.Size;
 
-                    _dBContext.Products.Update(existingProduct);
-                    
+                    _dBContext.Entry(existingProduct).State = EntityState.Modified;
+
                 }
                 else
                 {

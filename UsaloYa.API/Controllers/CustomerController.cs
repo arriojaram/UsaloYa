@@ -135,8 +135,7 @@ namespace UsaloYa.API.Controllers
                     objectToSave.Email = customerDto.Email;
                     objectToSave.Notes = customerDto.Notes;
 
-
-                    _dBContext.Customers.Update(objectToSave);
+                    _dBContext.Entry(objectToSave).State = EntityState.Modified;
                 }
 
                 await _dBContext.SaveChangesAsync();

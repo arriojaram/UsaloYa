@@ -19,7 +19,7 @@
         <!-- Spacer to push remaining content to the right -->
         <div class="flex-grow-1"></div>
         
-        <div class="navbar-nav nav-link px-4" *ngIf="this.userStateUI?.statusId === LOGGED_IN">
+        <div class="navbar-nav nav-link px-4" *ngIf="this.userStateUI?.statusId === uStatus.Conectado">
             <span class="d-flex align-items-center justify-content-center">
                 <span class="d-none d-md-inline">{{ this.userStateUI?.userName }} -</span>
                 <a class="nav-link px-2" id="navbarDropdown" href="#" (click)="logoutApp($event)" role="button">
@@ -30,17 +30,15 @@
     </div>
 </nav>
 
-<div *ngIf="this.showPaymentAlert && (navigationService.companyStatus == cStatus.Expired || navigationService.companyStatus == cStatus.PendingPayment)"
-     class="alert alert-danger fixed-top" role="alert">
+<div *ngIf="this.showPaymentAlert"
+     class="alert alert-warning alert-dismissible fade show" role="alert">
     {{ paymentMsg }}
-    <button type="button" class="close" aria-label="Close" (click)="closeAlert()">
-        <span aria-hidden="true">&times;</span>
-    </button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" (click)="closeAlert()"></button>
 </div>
 
   
 <div id="layoutSidenav">
-    <div id="layoutSidenav_nav" *ngIf="this.userStateUI?.statusId === LOGGED_IN">
+    <div id="layoutSidenav_nav" *ngIf="this.userStateUI?.statusId === uStatus.Conectado">
         <nav class="sb-sidenav accordion sb-sidenav-light" id="sidenavAccordion">
             <div class="sb-sidenav-menu">
                 <div class="nav">
@@ -51,7 +49,7 @@
                       Punto de Venta
                     </a>
                   
-                    <a class="nav-link" href="productos" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Unknown">
+                    <a class="nav-link" href="productos" *ngIf="(this.userStateUI?.roleId?? 0) > rol.Unknown">
                       <div class="sb-nav-link-icon"><i class="bi bi-box-seam fs-6"></i></div>
                       Productos
                     </a>

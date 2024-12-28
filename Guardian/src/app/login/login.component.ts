@@ -8,6 +8,7 @@ import { UserStateService } from '../services/user-state.service';
 import { NavigationService } from '../services/navigation.service';
 import { userDto } from '../dto/userDto';
 import { catchError, first, of, Subject, switchMap, takeUntil } from 'rxjs';
+import { environment } from '../environments/enviroment';
 
 
 @Component({
@@ -60,7 +61,10 @@ export class LoginComponent implements OnInit, OnDestroy {
           }
           else
           {
-            this.navigation.showUIMessage(e.error);
+            let errMessage = e.error;
+            if(e.error == '$_Expired_License')
+              errMessage = environment.paymentExpiredMsg;
+            this.navigation.showUIMessage(errMessage);
           }
           console.error(e);
           return of(null); // Retornamos un observable nulo para continuar el flujo
@@ -74,7 +78,6 @@ export class LoginComponent implements OnInit, OnDestroy {
           }
         },
         error: (e) => {
-          // Este error es para cualquier error en la cadena de observables
           this.navigation.showUIMessage(e.error);
           console.error(e);
         }

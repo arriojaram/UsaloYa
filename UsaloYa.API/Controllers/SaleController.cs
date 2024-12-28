@@ -117,7 +117,8 @@ namespace UsaloYa.API.Controllers
                 if (existingProduct != null)
                 {
                     existingProduct.UnitsInStock = existingProduct.UnitsInStock - selledItems;
-                    _dBContext.Products.Update(existingProduct);
+                    _dBContext.Entry(existingProduct).State = EntityState.Modified;
+                    await _dBContext.SaveChangesAsync();
                 }
             }
             catch (Exception ex)
@@ -140,7 +141,7 @@ namespace UsaloYa.API.Controllers
                 sale.Status = SaleStatus.Completada.ToString();
                 
                 sale.TotalSale = totalSale;
-                _dBContext.Sales.Update(sale);
+                _dBContext.Entry(sale).State = EntityState.Modified;
                 await _dBContext.SaveChangesAsync();
                 return Ok();    
             }
@@ -164,7 +165,7 @@ namespace UsaloYa.API.Controllers
 
                 sale.Status = saleStatus.Status.ToString();
                 
-                _dBContext.Sales.Update(sale);
+                _dBContext.Entry(sale).State = EntityState.Modified;
                 await _dBContext.SaveChangesAsync();
                 return Ok();
             }

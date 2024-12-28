@@ -148,7 +148,8 @@ namespace UsaloYa.API.Controllers
                     if (objectToSave.ExpirationDate == null) 
                         objectToSave.ExpirationDate = Util.GetMxDateTime();
 
-                    _dBContext.Companies.Update(objectToSave);
+                    _dBContext.Entry(objectToSave).State = EntityState.Modified;
+
                 }
 
                 await _dBContext.SaveChangesAsync();
@@ -186,8 +187,8 @@ namespace UsaloYa.API.Controllers
                     return NotFound();
 
                 objectToSave.StatusId = statusDto.StatusId;
+                _dBContext.Entry(objectToSave).State = EntityState.Modified;
 
-                _dBContext.Companies.Update(objectToSave);
                 await _dBContext.SaveChangesAsync();
                 return Ok(objectToSave.CompanyId);
             }
@@ -216,9 +217,8 @@ namespace UsaloYa.API.Controllers
                 {
                     company.StatusId = (int)CompanyStatus.Expired;
 
-                    _dBContext.Companies.Update(company);
                     await _dBContext.SaveChangesAsync();
-                    return StatusCode(402, "$_Pago_requerido");
+                    return Forbid("$_Pago_requerido");
                 }
                 return Ok();
             }
@@ -269,19 +269,17 @@ namespace UsaloYa.API.Controllers
                     Amount = rentDto.Amount,
                     AddedByUserId = rentDto.AddedByUserId,
                     StatusId = rentDto.StatusId,
-                    TipoRentaDesc = rentDto.TipoRentaDesc
+                    TipoRentaDesc = rentDto.TipoRentaDesc,
+                   
                 };
-                _dBContext.Rentas.Add(objectToSave);
 
+
+                var newExpirationDate = await SetExpirationDate(c, rentDto.Amount, rentType);
+
+                objectToSave.ExpirationDate = newExpirationDate;
+
+                _dBContext.Rentas.Add(objectToSave);
                 await _dBContext.SaveChangesAsync();
-                if (objectToSave.Id > 0) //Pago agregado
-                {
-                    var expirationRes = await SetExpirationDate(c, rentDto.Amount, rentType);
-                    if (expirationRes is not OkObjectResult)
-                    {
-                        _logger.LogError("No se pudo agregar la expiración para la compañia " + rentDto.CompanyId);
-                    }
-                }
                 return Ok(objectToSave.Id);
             }
             catch (Exception ex)
@@ -294,11 +292,11 @@ namespace UsaloYa.API.Controllers
         }
 
      
-        private async Task<ActionResult> SetExpirationDate(Company company, decimal rentAmount, RentTypeId typeId)
+        private async Task<DateTime> SetExpirationDate(Company company, decimal rentAmount, RentTypeId typeId)
         {
+            DateTime newExpirationDate = company.ExpirationDate == null ? DateTime.Now.Date : company.ExpirationDate.Value;
             try
             {
-                DateTime newExpirationDate = DateTime.Now.Date;
                 DateTime tmpExpDate = company.ExpirationDate ?? newExpirationDate;
                 switch (typeId)
                 {
@@ -318,17 +316,16 @@ namespace UsaloYa.API.Controllers
                 company.StatusId = (int)CompanyStatus.Active;
                 company.ExpirationDate = newExpirationDate;
 
-                _dBContext.Companies.Update(company);
+                _dBContext.Entry(company).State = EntityState.Modified;
                 await _dBContext.SaveChangesAsync();
-                return Ok();
+
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "SetCompanyStatus.ApiError");
+                _logger.LogError(ex, $"No se pudo agregar el pago para la compañia: {company.Name}");
 
-                // Return a 500 Internal Server Error with a custom message
-                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
             }
+            return newExpirationDate;
         }
 
         [HttpGet("GetPaymentHistory")]

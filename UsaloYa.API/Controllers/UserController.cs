@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using UsaloYa.API.Config;
 using UsaloYa.API.DTO;
 using UsaloYa.API.Enums;
+using UsaloYa.API.Migrations;
 using UsaloYa.API.Models;
 using UsaloYa.API.Utils;
 
@@ -87,7 +88,7 @@ namespace UsaloYa.API.Controllers
                     userToSave.LastUpdateBy = userDto.LastUpdatedBy;
                     userToSave.RoleId = userDto.RoleId;
 
-                    _dBContext.Users.Update(userToSave);
+                    _dBContext.Entry(userToSave).State = EntityState.Modified;
                     
                 }
                
@@ -133,8 +134,7 @@ namespace UsaloYa.API.Controllers
                 }
 
                 user.Token = Utils.Util.EncryptPassword(token.Token);
-                _dBContext.Users.Update(user);
-
+       
                 await _dBContext.SaveChangesAsync();
                 return Ok();
             }
@@ -336,17 +336,21 @@ namespace UsaloYa.API.Controllers
                 if (!isUserEnabled)
                     return Unauthorized("Usuario no valido");
 
+                var userRol = EConverter.GetEnumFromValue<Role>(user.RoleId?? 0);
                 // Check company expiration
                 var companyStatus = await GetCompanyStatus(user.CompanyId);
-                if (companyStatus == CompanyStatus.Expired)
-                    return Unauthorized("Licencia Expirada, contacta a tu vendedor.");
+     
+                if (userRol != Role.Root && companyStatus == CompanyStatus.Expired)
+                        return Unauthorized("$_Expired_License");
                 
-                if (companyStatus == CompanyStatus.Active || companyStatus == CompanyStatus.PendingPayment)
+
+                if (userRol == Role.Root || (companyStatus == CompanyStatus.Active || companyStatus == CompanyStatus.PendingPayment))
                 {
                     user.LastAccess = DateTime.Now;
                     user.StatusId = (int)Enumerations.UserStatus.Conectado;
-                    
-                    _dBContext.Users.Update(user);
+
+                    _dBContext.Entry(user).State = EntityState.Modified;
+
                     await _dBContext.SaveChangesAsync();
                 }
                 else
@@ -384,7 +388,7 @@ namespace UsaloYa.API.Controllers
                         }
 
                         company.StatusId = (int)status;
-                        _dBContext.Companies.Update(company);
+                        _dBContext.Entry(company).State = EntityState.Modified;
                         await _dBContext.SaveChangesAsync();
 
                     } 

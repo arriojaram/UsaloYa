@@ -161,11 +161,11 @@ export class UserManagementComponent {
         }
         user.statusIdStr = getUserStatusEnumName(user.statusId);
        
-        if(user.roleId === 0)
+        /*if(user.roleId === 0)
         {
           user.roleId = Roles.User;
 
-        }
+        }*/
 
       this.selectedUser = user;
       this.userForm.patchValue(user);

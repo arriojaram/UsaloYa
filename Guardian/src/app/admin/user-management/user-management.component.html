@@ -90,7 +90,7 @@
                                         {{ role.name }}
                                       </option>
                                 </select>
-                                <div *ngIf="userForm.get('roleId')?.invalid && userForm.get('roleId')?.touched" class="invalid-feedback">
+                                <div *ngIf="userForm.get('roleId')?.value === 0" class="invalid-feedback">
                                     El Rol es obligatorio.
                                 </div>
                             </div>    
