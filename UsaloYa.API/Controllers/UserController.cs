@@ -44,9 +44,9 @@ namespace UsaloYa.API.Controllers
 
             try
             {
-                var userId = await Util.ValidateRequestor(RequestorId, Role.Admin, _dBContext);
-                if (userId <= 0)
-                    return Unauthorized(RequestorId);
+                var user = await Util.ValidateRequestor(RequestorId, Role.Admin, _dBContext);
+                if (user.UserId <= 0)
+                    return Unauthorized(AppConfig.NO_AUTORIZADO);
 
                 if (userDto.UserId == 0)
                 {
@@ -127,10 +127,10 @@ namespace UsaloYa.API.Controllers
                     return NotFound();
 
 
-                var requestor_Id = await Util.ValidateRequestorSameCompanyOrTopRol(RequestorId, user.CompanyId, Role.SysAdmin, _dBContext);
-                if (requestor_Id <= 0)
+                var requestor = await Util.ValidateRequestorSameCompanyOrTopRol(RequestorId, user.CompanyId, Role.SysAdmin, _dBContext);
+                if (requestor.UserId <= 0)
                 {
-                    return Unauthorized(RequestorId);
+                    return Unauthorized(AppConfig.NO_AUTORIZADO);
                 }
 
                 user.Token = Utils.Util.EncryptPassword(token.Token);
@@ -173,10 +173,10 @@ namespace UsaloYa.API.Controllers
 
                 if (!i.Equals("login"))
                 {
-                    var requestor_Id = await Util.ValidateRequestorSameCompanyOrTopRol(RequestorId, u.CompanyId, Role.SysAdmin, _dBContext);
-                    if (requestor_Id <= 0)
+                    var requestor = await Util.ValidateRequestorSameCompanyOrTopRol(RequestorId, u.CompanyId, Role.SysAdmin, _dBContext);
+                    if (requestor.UserId <= 0)
                     {
-                        return Unauthorized(RequestorId);
+                        return Unauthorized(AppConfig.NO_AUTORIZADO);
                     }
                 }
 
@@ -237,39 +237,7 @@ namespace UsaloYa.API.Controllers
             }
         }
 
-        //TODO: Move this controller to a System Controller
-        [HttpGet("GetCompanies")]
-        public async Task<IActionResult> GetCompanies([FromHeader] string RequestorId, int companyId)
-        {
-            try
-            {
-                var requestor_Id = await Util.ValidateRequestorSameCompanyOrTopRol(RequestorId, companyId, Role.Ventas, _dBContext);
-                
-                if (requestor_Id <= 0)
-                {
-                    return Unauthorized(RequestorId);
-                }
-
-                var companies = await _dBContext.Companies
-                    .Select(u => new CompanyDto
-                    {
-                        CompanyId = u.CompanyId,
-                        Name = u.Name,
-                        Address = u.Address,
-                        StatusId = u.StatusId
-                    })
-                    .ToListAsync();
-                
-                return Ok(companies);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "GetCompanies.ApiError");
-
-                // Return a 500 Internal Server Error with a custom message
-                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
-            }
-        }
+      
 
 
         [HttpGet("GetAll")]
@@ -277,11 +245,21 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
+                var requestor = await Util.ValidateRequestorSameCompanyOrTopRol(RequestorId, companyId, Role.Admin, _dBContext);
+
+                if (requestor.UserId <= 0)
+                {
+                    return Unauthorized(AppConfig.NO_AUTORIZADO);
+                }
+
                 if (companyId == 0)
                 {
-                    var requestor_Id = await Util.ValidateRequestor(RequestorId, Role.SysAdmin, _dBContext);
-                    if (requestor_Id <= 0)
-                        return Unauthorized(RequestorId);
+                    if (requestor.RoleId < (int)Role.SysAdmin)
+                        return Unauthorized(AppConfig.NO_AUTORIZADO);
+                }
+                else if (companyId == requestor.CompanyId && requestor.RoleId < (int)Role.Admin)
+                {
+                    return Unauthorized(AppConfig.NO_AUTORIZADO);
                 }
 
                 var users = (string.IsNullOrEmpty(name) || string.Equals(name, "-1", StringComparison.OrdinalIgnoreCase))

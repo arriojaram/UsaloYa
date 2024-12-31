@@ -1,45 +1,58 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
+using UsaloYa.API.DTO;
 using UsaloYa.API.Enums;
+using UsaloYa.API.Migrations;
 using UsaloYa.API.Models;
 
 namespace UsaloYa.API.Utils
 {
     public class Util
     {
-        public async static Task<int> ValidateRequestorSameCompanyOrTopRol(string requestor, int userCompanyId, Role topRol, DBContext _dBContext)
+        public async static Task<UserDto> ValidateRequestorSameCompanyOrTopRol(string requestor, int userCompanyId, Role topRol, DBContext _dBContext)
         {
             int userId = 0;
+            var user = new UserDto() { UserId = -1 };
+
             if (!int.TryParse(requestor, out userId))
-                return -1;
+                return user;
             if (userId <= 0)
-                return -1;
+                return user;
 
             //Validate user status and rol
             var requestorInfo = await _dBContext.Users.FindAsync(userId);
             if (requestorInfo == null || requestorInfo.RoleId < (int)topRol)
             {
-                if(userCompanyId != requestorInfo.CompanyId) 
-                    return -1;
+                if (userCompanyId != requestorInfo.CompanyId)
+                    return user;
+
             }
-            return userId;
+            user.UserId = requestorInfo.UserId;
+            user.RoleId = requestorInfo.RoleId;
+            user.CompanyId = requestorInfo.CompanyId;
+            return user;
         }
 
-        public async static Task<int> ValidateRequestor(string requestor, Role topRol, DBContext _dBContext)
+        public async static Task<UserDto> ValidateRequestor(string requestor, Role topRol, DBContext _dBContext)
         {
             int userId = 0;
+            var user = new UserDto() { UserId = -1 };
             if (!int.TryParse(requestor, out userId))
-                return -1;
+                return user;
             if (userId <= 0)
-                return -1;
+                return user;
 
             //Validate user status and rol
-            var user = await _dBContext.Users.FindAsync(userId);
-            if (user == null || user.RoleId < (int)topRol)
-                return -1;
+            var userDb = await _dBContext.Users.FindAsync(userId);
+            if (userDb == null || user.RoleId < (int)topRol)
+                return user;
 
-            return userId;
+            user.UserId = userDb.UserId;
+            user.UserName = userDb.UserName;
+            user.RoleId = userDb.RoleId;
+
+            return user;
         }
 
         public static string EncryptPassword(string password)

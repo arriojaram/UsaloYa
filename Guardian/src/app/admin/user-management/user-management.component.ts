@@ -11,6 +11,7 @@ import { first } from 'rxjs';
 import { adminGroupDto } from '../../dto/adminGroupDto';
 import { AdminCompanyDto } from '../../dto/adminCompanyDto';
 import { getUserStatusEnumName, Roles } from '../../Enums/enums';
+import { CompanyService } from '../../services/company.service';
 
 @Component({
   selector: 'app-user-management',
@@ -31,10 +32,12 @@ export class UserManagementComponent {
   showRoles: boolean = false;
   companies: AdminCompanyDto [] = [];
   rol = Roles;
-  
+  isAutorized: boolean = false;
+
   constructor(
     private fb: FormBuilder,
     private userService: UserService,
+    private companyService: CompanyService,
     private userStateService: UserStateService,
     private route: ActivatedRoute,
     public navigationService: NavigationService
@@ -51,9 +54,21 @@ export class UserManagementComponent {
   }
 
   ngOnInit(): void {
+   
+
     this.userState = this.userStateService.getUserStateLocalStorage();
     this.userForm.get('lastAccess')?.disable();
     this.userForm.get('statusId')?.disable();
+
+    if(this.userState.roleId < Roles.Admin)
+    {
+      this.navigationService.showUIMessage("Petición incorrecta.");
+      return;
+    }
+    else
+      this.isAutorized = true;
+
+
     this.searchUsersInternal('-1');
     this.navigationService.checkScreenSize();
 
@@ -62,11 +77,17 @@ export class UserManagementComponent {
         this.groups = data;
       });
 
-    this.userService.getCompanies(this.userState.companyId).pipe(first())
+    this.companyService.getAll4List(this.userState.companyId, '-1').pipe(first())
       .subscribe(
       {
         next: (data) => 
           {  
+            // Filter the companies to display only the one the user owns to
+            if(!(this.userState.roleId >= this.rol.SysAdmin))
+            {
+              data = data.filter(c => c.companyId == this.userState.companyId)
+            }
+
             this.companies = data; 
           },
         error: (error) =>
@@ -78,6 +99,7 @@ export class UserManagementComponent {
           else{
             if(error.status == 401)
               this.navigationService.showUIMessage('No autorizado');
+           
           }
           
         }
@@ -100,11 +122,16 @@ export class UserManagementComponent {
       // Delete this role by security purposes and on purpose, this rol must be assigned directly on the DB
       this.availableRoles = this.availableRoles.filter((role: { id: any; }) => role.id !== Roles.Root);
 
-      if(this.userState.roleId === Roles.User)
+      
+       if(this.userState.roleId <= Roles.Admin)
       {
-        this.availableRoles = this.availableRoles.filter((role: { id: any; }) => role.id !== Roles.Admin);
-        this.availableRoles = this.availableRoles.filter((role: { id: any; }) => role.id !== Roles.Root);
+        this.availableRoles = this.availableRoles.filter((role: { id: any; }) => role.id !== Roles.Ventas);
+        this.availableRoles = this.availableRoles.filter((role: { id: any; }) => role.id !== Roles.SysAdmin);  
       }
+      else if(this.userState.roleId <= Roles.Ventas)
+        {
+          this.availableRoles = this.availableRoles.filter((role: { id: any; }) => role.id !== Roles.SysAdmin);    
+        }
         
       const groupIdControl = this.userForm.get('groupId');
       const roleIdControl = this.userForm.get('roleId');
@@ -245,8 +272,13 @@ export class UserManagementComponent {
       companyId = 0;
 
     this.userService.getAllUser(companyId, name).pipe(first())
-    .subscribe(users => {
-      this.userList = users.sort((a,b) => (a.firstName?? '').localeCompare((b.firstName?? '')));
+    .subscribe({
+      next: (users) => {
+        this.userList = users.sort((a,b) => (a.firstName?? '').localeCompare((b.firstName?? '')));
+      },
+      error: (e) => {
+        this.navigationService.showUIMessage(e.error);
+      }
     });
   }
 

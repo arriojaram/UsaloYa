@@ -6,6 +6,8 @@ import { userDto } from '../../dto/userDto';
 import { UserStateService } from '../../services/user-state.service';
 import { CommonModule } from '@angular/common';
 import { catchError, concatMap, finalize } from 'rxjs/operators';
+import { Roles } from '../../Enums/enums';
+import { NavigationService } from '../../services/navigation.service';
 
 @Component({
   selector: 'app-import-products',
@@ -26,12 +28,14 @@ export class ImportProductsComponent implements OnInit, OnDestroy {
   alertClass: string | undefined;
   user_message: string | undefined;
   messages: string[] = [];
+  isAutorized: boolean = false;
 
   initialMessage: string= "El proceso de importación esta en ejecución, el proceso puede tardar varios minutos, no cambies de página mientras estoy trabajando con la importación de datos.";
   constructor(
     private csvReaderService: ImportCvsProductService,
     private productService: ProductService,
     private userService: UserStateService,
+    private navigationService: NavigationService
   ) 
   {
     this.userState = this.userService.getUserStateLocalStorage();
@@ -42,6 +46,12 @@ export class ImportProductsComponent implements OnInit, OnDestroy {
     this.isRunning = false;
     this.alertClass = "alert alert-warning";
     this.user_message = this.initialMessage;
+
+    if(this.userState.roleId < Roles.Admin)
+      this.navigationService.showUIMessage("Petición incorrecta.");
+    else
+      this.isAutorized = true;
+
   }
 
   ngOnDestroy() {

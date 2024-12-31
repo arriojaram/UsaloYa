@@ -27,6 +27,7 @@ export class CompanyManagementComponent implements OnInit {
   rol = Roles;
   activeTab: string = 'tab1';
   isSearchPanelHidden: boolean;
+  isAutorized: boolean = false;
   
   tipoPagoList = Object.keys(RentTypeId).filter(key => !isNaN(Number(key)))
                   .map(key => ({
@@ -55,7 +56,14 @@ export class CompanyManagementComponent implements OnInit {
 
   ngOnInit(): void {
     this.userState = this.userStateService.getUserStateLocalStorage();
-    
+    if(this.userState.roleId <= Roles.Admin)
+      {
+        this.navigationService.showUIMessage("Petición incorrecta.");
+        return;
+      }
+      else
+        this.isAutorized = true;
+      
     this.searchCompaniesInternal('-1');
     this.navigationService.checkScreenSize();
     
@@ -177,11 +185,16 @@ export class CompanyManagementComponent implements OnInit {
   }
   
   private searchCompaniesInternal(name: string): void {
-    let companyId = this.userState.companyId;
+    let userId = this.userState.userId;
 
-    this.companyService.getAll4List().pipe(first())
-    .subscribe(c => {
-      this.companyList = c.sort((a,b) => (a.name?? '').localeCompare((b.name?? '')));
+    this.companyService.getAll4List(userId, name).pipe(first())
+    .subscribe({
+      next: (c) => {
+        this.companyList = c.sort((a,b) => (a.name?? '').localeCompare((b.name?? '')));
+      },
+      error: (e) =>{
+        this.navigationService.showUIMessage(e.error);
+      }
     });
   }
 

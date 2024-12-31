@@ -8,7 +8,7 @@ import { UserStateService } from '../../services/user-state.service';
 import { userDto } from '../../dto/userDto';
 import { first, Subject, takeUntil } from 'rxjs';
 import { SaleService } from '../../services/sale.service';
-import { StatusVentaEnum } from '../../Enums/enums';
+import { Roles, StatusVentaEnum } from '../../Enums/enums';
 
 @Component({
   selector: 'app-sales-report',
@@ -27,7 +27,8 @@ export class SalesReportComponent implements OnInit, OnDestroy {
   filteredProducts: ProductSaleDetailReport[] = [];
   showMainReport: boolean;
   totalVentas: number | undefined;
-
+  isAutorized: boolean = false;
+  
   private unsubscribe$: Subject<void> = new Subject();
   
   constructor(private fb: FormBuilder,
@@ -43,6 +44,11 @@ export class SalesReportComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+     if(this.userState.roleId < Roles.Admin)
+          this.navigationService.showUIMessage("Petición incorrecta.");
+        else
+          this.isAutorized = true;
+        
     this.reportForm.get('dateFrom')?.valueChanges.pipe(takeUntil(this.unsubscribe$)
     ).subscribe(newDate => {
       // Establecer 'dateTo' igual a 'dateFrom'

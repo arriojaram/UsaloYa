@@ -1,6 +1,6 @@
-<div *ngIf="showMainReport" class="container mt-3">
+<div *ngIf="showMainReport && isAutorized" class="container mt-3">
     <form [formGroup]="reportForm">
-        <div class="row mb-2">
+        <div class="row mb-2" >
             <div class="col-12 col-md">
                 <input type="date" class="form-control" formControlName="dateFrom" placeholder="Fecha Desde">
                 <div *ngIf="reportForm.get('dateFrom')?.errors" class="invalid-feedback">

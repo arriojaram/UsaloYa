@@ -3,8 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.Design;
 using System.Net;
 using System.Numerics;
+using UsaloYa.API.Config;
 using UsaloYa.API.DTO;
 using UsaloYa.API.Enums;
+using UsaloYa.API.Migrations;
 using UsaloYa.API.Models;
 using UsaloYa.API.Utils;
 
@@ -25,21 +27,38 @@ namespace UsaloYa.API.Controllers
 
 
         [HttpGet("GetAll4List")]
-        public async Task<IActionResult> GetAll4List([FromHeader] string RequestorId)
+        public async Task<IActionResult> GetAll4List([FromHeader] string RequestorId, int companyId, string name = "-1")
         {
             try
             {
-                var companies = await _dBContext.Companies
-                        .Select(c => new GenericObjectDto {
-                                Name = c.Name,
-                                CompanyId = c.CompanyId,
-                                IsActive = !(c.StatusId == (int)Enums.CompanyStatus.Inactive
-                                                || c.StatusId == (int)Enums.CompanyStatus.Expired)
-                            })
-                        .OrderBy(u => u.Name)
-                        .ToListAsync();
+                var requestor = await Util.ValidateRequestorSameCompanyOrTopRol(RequestorId, companyId, Role.Admin, _dBContext);
 
-                return Ok(companies);
+                if (requestor.UserId <= 0)
+                {
+                    return Unauthorized(AppConfig.NO_AUTORIZADO);
+                }
+
+                var companies = (string.IsNullOrEmpty(name) || string.Equals(name, "-1", StringComparison.OrdinalIgnoreCase))
+                                ? await _dBContext.Companies.OrderBy(u => u.Name)
+                                                                        .ToListAsync()
+                                : await _dBContext.Companies.Where(c => (c.Name.Contains(name) || name.Contains(c.Name)))
+                                                                            .OrderBy(u => u.Name)
+                                                                            .ToListAsync();
+                if (requestor.RoleId == (int)Role.Admin)
+                {
+                    companies = companies.Where(u => u.CompanyId == requestor.CompanyId).ToList();
+                }
+                else if (requestor.RoleId < (int)Role.SysAdmin)
+                { 
+                    companies = companies.Where(u => u.CreatedBy == requestor.UserId).ToList();
+                }
+
+                return Ok(companies.Select(c => new GenericObjectDto
+                {
+                    Name = c.Name,
+                    CompanyId = c.CompanyId,
+                    IsActive = !(c.StatusId == (int)Enums.CompanyStatus.Inactive || c.StatusId == (int)Enums.CompanyStatus.Expired)
+                }));
             }
             catch (Exception ex)
             {
@@ -54,9 +73,9 @@ namespace UsaloYa.API.Controllers
         [HttpGet("GetCompany")]
         public async Task<IActionResult> GetCompany([FromHeader] string RequestorId, int companyId)
         {
-            var userId = await Util.ValidateRequestor(RequestorId, Role.Admin, _dBContext);
-            if (userId <= 0)
-                return Unauthorized(RequestorId);
+            var user = await Util.ValidateRequestor(RequestorId, Role.Admin, _dBContext);
+            if (user.UserId <= 0)
+                return Unauthorized(AppConfig.NO_AUTORIZADO);
 
             var c = await _dBContext.Companies
                 .Include(u => u.CreatedByNavigation)
@@ -101,9 +120,9 @@ namespace UsaloYa.API.Controllers
             int PlanId = 1; //TODO: Capturar desde la interfaz (Fase 3)
             try
             {
-                var userId = await Util.ValidateRequestor(RequestorId, Role.SysAdmin, _dBContext);
-                if (userId <= 0)
-                    return Unauthorized(RequestorId);
+                var user = await Util.ValidateRequestor(RequestorId, Role.Ventas, _dBContext);
+                if (user.UserId <= 0)
+                    return Unauthorized(AppConfig.NO_AUTORIZADO);
 
                 if (companyDto.CompanyId == 0)
                 {
@@ -153,7 +172,10 @@ namespace UsaloYa.API.Controllers
                 }
 
                 await _dBContext.SaveChangesAsync();
-                return Ok(objectToSave);
+                return Ok(new CompanyDto() { 
+                    CompanyId=objectToSave.CompanyId, 
+                    Name = objectToSave.Name 
+                });
             }
             catch (Exception ex)
             {
@@ -174,9 +196,9 @@ namespace UsaloYa.API.Controllers
                 if(statusDto.ObjectId <= 0)
                     return NotFound();
 
-                var userId = await Util.ValidateRequestor(RequestorId, Role.SysAdmin, _dBContext);
-                if (userId <= 0)
-                    return Unauthorized(RequestorId);
+                var user = await Util.ValidateRequestor(RequestorId, Role.SysAdmin, _dBContext);
+                if (user.UserId <= 0)
+                    return Unauthorized(AppConfig.NO_AUTORIZADO);
 
                 var statusId = EConverter.GetEnumFromValue<CompanyStatus>(statusDto.StatusId);
                 if (statusId == default)
@@ -244,9 +266,10 @@ namespace UsaloYa.API.Controllers
                 if (rentDto.Amount <= 0)
                     return BadRequest("$_El_monto_debe_ser_mayor_a_cero");
 
-                var userId = await Util.ValidateRequestor(RequestorId, Role.SysAdmin, _dBContext);
-                if (userId <= 0)
-                    return Unauthorized(RequestorId);
+                var user = await Util.ValidateRequestor(RequestorId, Role.Ventas, _dBContext);
+                
+                if (user.UserId <= 0)
+                    return Unauthorized(AppConfig.NO_AUTORIZADO);
 
                 var rentType = EConverter.GetEnumFromValue<RentTypeId>(rentDto.StatusId);
                 if (rentType == default)
@@ -331,9 +354,9 @@ namespace UsaloYa.API.Controllers
         [HttpGet("GetPaymentHistory")]
         public async Task<IActionResult> GetPaymentHistory([FromHeader] string RequestorId, int companyId)
         {
-            var userId = await Util.ValidateRequestorSameCompanyOrTopRol(RequestorId, companyId, Role.Admin, _dBContext);
-            if (userId <= 0)
-                return Unauthorized(RequestorId);
+            var user = await Util.ValidateRequestorSameCompanyOrTopRol(RequestorId, companyId, Role.Admin, _dBContext);
+            if (user.UserId <= 0)
+                return Unauthorized(AppConfig.NO_AUTORIZADO);
 
             var c = await _dBContext.Rentas.Where(c => c.CompanyId == companyId)
                                 .Select(r => new RentDto { 
@@ -345,6 +368,7 @@ namespace UsaloYa.API.Controllers
                                     ReferenceDate = r.ReferenceDate,
                                     TipoRentaDesc = r.TipoRentaDesc,
                                     ByUserName = r.AddedByUser.UserName,
+                                    ExpirationDate = r.ExpirationDate == null ? Util.GetMxDateTime(): r.ExpirationDate.Value
                                 })
                                 .OrderByDescending(d => d.ReferenceDate)
                                 .ToListAsync();

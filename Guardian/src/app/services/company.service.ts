@@ -5,6 +5,7 @@ import { Observable, catchError } from 'rxjs';
 import { companyDto } from '../dto/companyDto';
 import { rentRequestDto } from '../dto/rentRequestDto';
 import { setStatusDto } from '../dto/setStatusDto';
+import { AdminCompanyDto } from '../dto/adminCompanyDto';
 
 @Injectable({
   providedIn: 'root'
@@ -81,13 +82,16 @@ export class CompanyService {
     );
   }
 
-  getAll4List(): Observable<companyDto[]> {
-    const apiUrl =`${this.baseUrl}/GetAll4List`;
-    return this.http.get<companyDto[]>(apiUrl, this.httpOptions).pipe(
-      catchError(error => {
-        console.error('GetAll4List() | ', error);
-        throw error;
-      })
-    );
-  }
+  getAll4List(companyId: number, name:string): Observable<AdminCompanyDto[]> {
+      const apiUrl =`${this.baseUrl}/GetAll4List?name=${name}&companyId=${companyId}`;
+      
+      return this.http.get<AdminCompanyDto[]>(apiUrl, this.httpOptions).pipe(
+        catchError(error => {
+          console.error('getCompanies() | ', error);
+          throw error;
+        })
+      );
+    }
+  
+
 }

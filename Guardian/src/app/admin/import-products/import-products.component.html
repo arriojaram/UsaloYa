@@ -1,7 +1,7 @@
 <!-- productos-csv.component.html -->
 <div class="container mt-5">
     <div class="row justify-content-center">
-      <div class="col-md-8">
+      <div class="col-md-8" *ngIf="isAutorized">
         <h6 class="mb-5 card-title">
           Selecciona el archivo con extensión ".csv" utilizando el botón seleccionar archivo y después utiliza el botón "Importar Productos" para iniciar el proceso de carga de productos al sistema. 
         </h6>

@@ -53,7 +53,7 @@
                       <label for="name">Nombre</label>
                       <input id="name" type="text" class="form-control required-input" formControlName="name">
                       <div *ngIf="productForm.get('name')?.invalid && productForm.get('name')?.touched" class="invalid-feedback">
-                      Nombre es obligatorio.
+                        Nombre es obligatorio.
                       </div>
                   </div>
                   <div class="col-md-4 d-flex align-items-end pl-2 mx-2">
@@ -66,10 +66,8 @@
                     
                 <div class="form-group">
                   <label for="description">Descripción</label>
-                  <textarea id="description" class="form-control required-input" formControlName="description"></textarea>
-                  <div *ngIf="productForm.get('description')?.invalid && productForm.get('description')?.touched" class="invalid-feedback">
-                    Descripción es obligatorio.
-                  </div>
+                  <textarea id="description" class="form-control" formControlName="description"></textarea>
+                  
                 </div>
                 <div class="form-group">
                   <label for="barcode">Código de Barras</label>
@@ -97,13 +95,16 @@
                 <div class="form-group">
                   <label for="buyPrice">Precio de Compra</label>
                   <input id="buyPrice" type="number" class="form-control required-input" formControlName="buyPrice" min="0.01" max="10000.00">
+                  <div *ngIf="productForm.get('buyPrice')?.invalid &&productForm.get('buyPrice')?.touched" class="invalid-feedback">
+                    Precio de compra es obligatorio.
+                  </div>
                 </div>
 
                 <div class="form-group">
                   <label for="unitPrice">Precio Unitario</label>
                   <input id="unitPrice" type="number" class="form-control required-input" formControlName="unitPrice" min="0.01" max="10000.00">
                   <div *ngIf="productForm.get('unitPrice')?.invalid &&productForm.get('unitPrice')?.touched" class="invalid-feedback">
-                    Precio es obligatorio.
+                    Precio unitario es obligatorio.
                   </div>
                 </div>
                 <div class="form-group">
@@ -119,32 +120,9 @@
                   <input id="unitPrice3" type="number" class="form-control" formControlName="unitPrice3" min="0.01" max="10000.00">
                 </div>
               
-                <div class="form-group">
-                  <label for="size">Talla</label>
-                  <select id="size" class="form-control" formControlName="size">
-                    
-                    <option value="Unitalla">Unitalla</option>
-                    <option value="Chica">Chico</option>
-                    <option value="Mediano">Mediano</option>
-                    <option value="Grande">Grande</option>
-                    <option value="ExtraGrande">Extra Grande</option>
-                  </select>
-                </div>
+              
                 
-                <div class="form-group">
-                  <label for="brand">Marca</label>
-                  <input id="brand" type="text" class="form-control" formControlName="brand">
-                </div>
-                
-                <div class="form-group">
-                  <label for="color">Color</label>
-                  <input id="color" type="text" class="form-control" formControlName="color">
-                </div>
-
-                <div class="form-group">
-                  <label for="imgUrl">URL de Imagen</label>
-                  <input id="imgUrl" type="text" class="form-control" formControlName="imgUrl">
-                </div>
+              
                 <div class="d-flex justify-content-end my-3">
                   <button type="button" class="btn btn-primary mx-2 btn-floating-secondary" (click)="newProduct()">Nuevo</button>
                   <button type="button" class="btn btn-success btn-floating" (click)="saveProduct()">Guardar</button>

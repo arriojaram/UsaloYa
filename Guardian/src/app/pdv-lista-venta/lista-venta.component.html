@@ -53,7 +53,7 @@
             </div>
               <div class="col-12 col-md-3 mb-2"> <!-- Colocamos mb-2 para margin-bottom en dispositivos móviles y desktop -->
                   Método de pago
-                  <select [(ngModel)]="metodoPago" class="form-control fs-5">
+                  <select [(ngModel)]="metodoPago" class="form-select fs-5">
                       <option value="Efectivo">Efectivo</option>
                       <option value="Tarjeta">Tarjeta</option>
                       <option value="Transferencia">Transferencia</option>
@@ -99,11 +99,11 @@
         <span>{{ item.barcode }}</span>
         <span>{{ item.name }}</span>
         <span>{{ item.count }}</span>
-        <span>{{ item.total | currency }}</span>
+        <span>{{ item.total | currency:'MXN' }}</span>
       </div>
       <hr>
       <div class="d-flex justify-content-end mt-2">
-        <strong>Total:</strong> <span>{{  ventaService.getTotalVenta() | currency }}</span>
+        <strong>Total:</strong> <span>{{  ventaService.getTotalVenta() | currency : 'MXN' }}</span>
       </div>
       <div class="d-flex justify-content-end mt-2 text-danger">
         <strong>Cambio:</strong><span>{{  ventaService.getCambio(this.pagoRecibido?? 0) | currency :'MXN'}}</span>

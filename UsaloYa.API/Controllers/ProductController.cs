@@ -108,7 +108,24 @@ namespace UsaloYa.API.Controllers
                     return NotFound();
                 }
 
-                return Ok(products);
+                return Ok(products.Select(p => new ProductDto(){ 
+                    Barcode = p.Barcode,
+                    Name = p.Name,
+                    Brand = p.Brand,
+                    BuyPrice = p.BuyPrice,
+                    
+                    CompanyId = companyId,
+                   
+                    Description = p.Description,
+                    Discontinued = p.Discontinued,
+                    ProductId = p.ProductId,
+                    SKU = p.Sku,
+                    UnitPrice = p.UnitPrice,
+                    UnitPrice1 = p.UnitPrice1,
+                    UnitPrice2 = p.UnitPrice2,
+                    UnitPrice3 = p.UnitPrice3,
+                    UnitsInStock = p.UnitsInStock,
+                }));
             }
             catch (Exception ex)
             {
@@ -179,8 +196,7 @@ namespace UsaloYa.API.Controllers
                     {
                         Name = productDto.Name.Trim(),
                         Description = productDto.Description,
-                        CategoryId = productDto.CategoryId == 0? null: productDto.CategoryId,
-                        SupplierId = productDto.SupplierId == 0? null: productDto.SupplierId,
+                       
                         BuyPrice = productDto.BuyPrice == 1 ? null : productDto.BuyPrice,
                         UnitPrice = productDto.UnitPrice == 0 ? 1 : productDto.UnitPrice,
                         UnitPrice1 = productDto.UnitPrice1 == 0 ? null : productDto.UnitPrice1,
@@ -189,14 +205,11 @@ namespace UsaloYa.API.Controllers
 
                         UnitsInStock = productDto.UnitsInStock,
                         Discontinued = productDto.Discontinued,
-                        ImgUrl = string.IsNullOrEmpty(productDto.ImgUrl) ? null : productDto.ImgUrl,
                         DateModified = Utils.Util.GetMxDateTime(),
-                        Weight = productDto.Weight,
+                       
                         Sku = (string.IsNullOrEmpty(productDto.SKU) ? null: productDto.SKU),
                         Barcode = productDto.Barcode,
                         Brand = string.IsNullOrEmpty( productDto.Brand) ? null: productDto.Brand,
-                        Color = string.IsNullOrEmpty(productDto.Color) ? null: productDto.Color,
-                        Size = string.IsNullOrEmpty(productDto.Size) ? null: productDto.Size,
                         DateAdded = Utils.Util.GetMxDateTime(),
                         CompanyId = companyId
                     };
@@ -208,8 +221,7 @@ namespace UsaloYa.API.Controllers
                 {
                     existingProduct.Name = productDto.Name.Trim();
                     existingProduct.Description = productDto.Description;
-                    existingProduct.CategoryId = productDto.CategoryId;
-                    existingProduct.SupplierId = productDto.SupplierId;
+      
                     existingProduct.BuyPrice = productDto.BuyPrice;
                     existingProduct.UnitPrice = productDto.UnitPrice;
                     existingProduct.UnitPrice1 = productDto.UnitPrice1;
@@ -218,17 +230,15 @@ namespace UsaloYa.API.Controllers
 
                     existingProduct.UnitsInStock = productDto.UnitsInStock;
                     existingProduct.Discontinued = productDto.Discontinued;
-                    existingProduct.ImgUrl = productDto.ImgUrl;
+              
                     existingProduct.DateModified = Utils.Util.GetMxDateTime();
-                    existingProduct.Weight = productDto.Weight;
+                 
                     existingProduct.Sku = (string.IsNullOrEmpty(productDto.SKU) ? null : productDto.SKU);
                     existingProduct.Barcode = productDto.Barcode;
                     existingProduct.Brand = productDto.Brand;
-                    existingProduct.Color = productDto.Color;
-                    existingProduct.Size = productDto.Size;
+     
 
                     _dBContext.Entry(existingProduct).State = EntityState.Modified;
-
                 }
                 else
                 {

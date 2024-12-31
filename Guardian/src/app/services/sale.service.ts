@@ -31,7 +31,7 @@ export class SaleService extends Dexie {
   {
     super('catalog' +  environment.databaseName);
     this.version(environment.databaseVersion).stores({
-      productCatalogTable: 'productId, name, description, barcode, companyId',
+      productCatalogTable: 'productId, name, barcode, sku',
       migrationsTable: '++id, migrationDate'
   });
 
@@ -155,10 +155,20 @@ export class SaleService extends Dexie {
       }
       else
       {
+        // Search barcode first
         productForSale = this.productCatalog.find(
-          p => (p.sku??'_$').toLowerCase() === barcode.toLowerCase()
+          p => p.barcode.toLowerCase() === barcode.toLowerCase()
                   && p.companyId == companyId
         );
+
+        // If the barcode search didn't return the product, try the SKU
+        if(productForSale === undefined)
+        {
+          productForSale = this.productCatalog.find(
+            p => (p.sku??'_$').toLowerCase() === barcode.toLowerCase()
+                    && p.companyId == companyId
+          );
+        }
       }
     }
 

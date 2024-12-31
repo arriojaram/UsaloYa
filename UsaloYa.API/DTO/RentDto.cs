@@ -12,6 +12,6 @@
 
         public string? ByUserName { get; set; }
         public string? StatusIdUI { get; set; }
-
+        public DateTime ExpirationDate { get; set; }
     }
 }
