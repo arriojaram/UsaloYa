@@ -30,6 +30,8 @@ namespace UsaloYa.API.Controllers
                 {
                     return BadRequest(new { Message = "$_Empresa_O_Venta_Invalida" });
                 }
+                if(sale.CustomerId == 0) 
+                    sale.CustomerId = null;
 
                 var newSale = new Sale() 
                 {

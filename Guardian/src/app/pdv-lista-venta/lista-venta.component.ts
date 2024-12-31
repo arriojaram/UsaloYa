@@ -1,6 +1,6 @@
 import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { SaleService } from '../services/sale.service';
-import { CommonModule, CurrencyPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { OfflineDbStore } from '../services/offline-db-store.service';
 import { UserStateService } from '../services/user-state.service';
 import { first } from 'rxjs';
@@ -10,6 +10,8 @@ import { environment } from '../environments/enviroment';
 import { userDto } from '../dto/userDto';
 import { NavigationService } from '../services/navigation.service';
 import { Producto } from '../dto/producto';
+import { customerDto } from '../dto/customerDto';
+import { CustomerService } from '../services/customer.service';
 
 @Component({
   selector: 'app-lista-venta',
@@ -19,19 +21,8 @@ import { Producto } from '../dto/producto';
   styleUrl: './lista-venta.component.css'
 })
 export class ListaVentaComponent implements OnInit {
-  constructor(
-    private router: Router,
-    public ventaService: SaleService,
-    private offlineDbStore: OfflineDbStore,
-    private userState: UserStateService,
-    private navigationService: NavigationService
-  )
-  {
-    this.isHidden = true;
-    this.metodoPago = "";
-    this.numVenta = "-1";
-  }
 
+  userState: userDto;
   metodoPago: string;
   pagoRecibido: number | undefined;
   notaVenta: string = "";
@@ -42,7 +33,78 @@ export class ListaVentaComponent implements OnInit {
  
   @ViewChild('inputNumber') inputNumber?: ElementRef;
   tempProductCounter: number | undefined;
-  /****************************************************/
+  isSelectingCustomer: boolean = false;
+  
+  custButtonClass: string = 'btn btn-success';
+  custButtonLabel: string = '+';
+
+  customerName: string = '';  // Almacena el texto ingresado
+  selectedCustomer: customerDto | undefined;  
+  filteredCustomer: customerDto[] = [];  
+
+  constructor(
+    private router: Router,
+    public ventaService: SaleService,
+    private offlineDbStore: OfflineDbStore,
+    private userStateService: UserStateService,
+    private navigationService: NavigationService,
+    private customerService: CustomerService
+  )
+  {
+    this.isHidden = true;
+    this.metodoPago = "";
+    this.numVenta = "-1";
+    this.userState = this.userStateService.getUserStateLocalStorage();
+  }
+
+  ngOnInit(): void {
+    this.metodoPago = "Efectivo";
+    this.userState = this.userStateService.getUserStateLocalStorage();
+  }
+
+  searchCustomers() {
+    this.filteredCustomer = [];
+    let searchItem = this.customerName.trim() == '' ? '-1' : this.customerName.trim();
+    this.customerService.getAllCustomer(this.userState.companyId, searchItem).pipe(first())
+    .subscribe({
+      next: (customerList) =>{
+        this.filteredCustomer = customerList;
+        if(customerList.length == 0)
+          this.navigationService.showUIMessage(`No hay clientes con el nombre: ${this.customerName}`);
+      },
+      error: (err) => {
+        this.navigationService.showUIMessage(err.error);
+      },
+    });
+  }
+
+  selectCustomer(customer: customerDto) {
+   
+    console.log('CC: ' + JSON.stringify(customer));
+
+    this.selectedCustomer = customer;
+    this.ventaService.customerId = customer.customerId;
+    this.custButtonClass = 'btn btn-danger';
+    this.custButtonLabel = '-';
+    this.isSelectingCustomer = false;
+    this.filteredCustomer = [];
+
+  }
+
+  showSearchCustomerPanel(): void {
+    this.isSelectingCustomer = !this.isSelectingCustomer;
+    this.custButtonClass = this.isSelectingCustomer ? 'btn btn-danger' : 'btn btn-success';
+    this.custButtonLabel = this.isSelectingCustomer ? '-' : '+';
+    if(this.isSelectingCustomer)
+    {
+      this.searchCustomers();
+      this.selectedCustomer = undefined;
+      this.ventaService.customerId = 0;
+    }
+   
+  }
+
+  /****************** TICKET *****************************/
   ticketVisible = false;
   fechaHora = new Date().toLocaleString();
  
@@ -60,13 +122,13 @@ export class ListaVentaComponent implements OnInit {
   }
 
   generatePrintableTicket() {
-    const companyName = this.getUserState().companyName;
+    const companyName = this.userState.companyName;
     const ventaNumber = this.numVenta;
     const fechaHora = new Date().toLocaleString();  // Asumiendo que `fechaHora` se calcula así
     const products = this.ventaService.saleProductsGrouped;
     const totalVenta = this.ventaService.getTotalVenta();
     const cambio = this.ventaService.getCambio(this.pagoRecibido?? 0);
-    const cashierName = `${this.getUserState().firstName} ${this.getUserState().lastName}`;
+    const cashierName = `${this.userState.firstName} ${this.userState.lastName}`;
 
     let productList: string = '';
     
@@ -98,9 +160,8 @@ Cajero: ${cashierName}
   {
     try
     {
-
       const encodedText = encodeURI(ticket); // Codificar en Base64
-      console.log(encodedText);
+      
       var S = "#Intent;scheme=rawbt;";
       var P =  "package=ru.a402d.rawbtprinter;end;";
      
@@ -112,10 +173,7 @@ Cajero: ${cashierName}
     }
   }
 
-  /******************************************************** */
-  ngOnInit(): void {
-    this.metodoPago = "Efectivo";
-  }
+  /****************** END TICKET *******************************/
 
   onInputChange(value: string): void {
     const parsedValue = parseFloat(value);
@@ -144,6 +202,7 @@ Cajero: ${cashierName}
     this.pagoRecibido = undefined;
     this.notaVenta = '';
     this.metodoPago = 'Efectivo';
+    this.isSelectingCustomer = false;
   }
  
   enableEditing(item: any) {
@@ -181,12 +240,6 @@ Cajero: ${cashierName}
     this.ventaService.removeProductFromList(productId);
   }
 
-  getUserState(): userDto
-  {
-    let userState = this.userState.getUserStateLocalStorage();
-    return userState;
-  }
-
   async finalizarVenta(): Promise<void>
   {
     const finVenta: boolean = this.canFinishSale();
@@ -194,9 +247,8 @@ Cajero: ${cashierName}
     if(finVenta === true)
     {
       this.isHidden = false;
-      let userState = this.getUserState();
       
-      this.ventaService.finishSale(userState.userId, userState.companyId, this.notaVenta?? '', this.metodoPago?? 'Efectivo').pipe(first())
+      this.ventaService.finishSale(this.userState.userId, this.userState.companyId, this.notaVenta?? '', this.metodoPago?? 'Efectivo').pipe(first())
       .subscribe(
         {
           next: (response) => 
@@ -208,7 +260,7 @@ Cajero: ${cashierName}
             this.showTicket();
           
             // Reload catalog
-            this.ventaService.cacheProductCatalog(userState.companyId);
+            this.ventaService.cacheProductCatalog(this.userState.companyId);
           },
           error: async (error) => {
             this.messageClass = "alert  alert-warning mt-2";

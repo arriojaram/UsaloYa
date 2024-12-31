@@ -8,6 +8,8 @@ import { SalesReportComponent } from './admin/sales-report/sales-report.componen
 import { CustomerManagementComponent } from './admin/customer-management/customer-management.component';
 import { ImportProductsComponent } from './admin/import-products/import-products.component';
 import { CompanyManagementComponent } from './admin/company-management/company-management.component';
+import { PolicyComponent } from './resources/policy.component';
+import { AgreementsComponent } from './resources/agreements.component';
 
 export const routes: Routes = [
     {path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -18,7 +20,10 @@ export const routes: Routes = [
     { path: 'productos', component: ProductManagementComponent, canActivate: [AuthGuard] },
     { path: 'usuarios', component: UserManagementComponent, canActivate: [AuthGuard] },
     { path: 'clientes', component: CustomerManagementComponent, canActivate: [AuthGuard] },
-    { path: 'main', component: PuntoDeVentaComponent, canActivate: [AuthGuard] }
+    { path: 'main', component: PuntoDeVentaComponent, canActivate: [AuthGuard] },
+
+    { path: 'policy', component: PolicyComponent },
+    { path: 'agreements', component: AgreementsComponent }
 ];
 
 

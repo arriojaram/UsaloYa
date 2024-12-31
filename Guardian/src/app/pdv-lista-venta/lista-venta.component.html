@@ -35,9 +35,35 @@
         </tr>
       </tbody>
     </table>
-    <div class="mt-3 text-danger">
-      <h4>Total de la Venta: {{ ventaService.getTotalVenta() | currency :'MXN'}}</h4>
+
+    <div class="my-1 d-flex justify-content-between">
+      <h4 class="me-3 text-danger">Total de la Venta: {{ ventaService.getTotalVenta() | currency :'MXN'}}</h4>
+      <div class="my-1 d-flex justify-content-end">
+        <button [class]="custButtonClass" class="d-flex me-1 align-items-center" (click)="showSearchCustomerPanel()">
+          <i class="bi bi-person-lines-fill me-1"></i>{{this.custButtonLabel}}
+        </button>
+        <span class="d-flex" *ngIf="this.selectedCustomer">{{this.selectedCustomer.firstName + ' ' + this.selectedCustomer.lastName1}}</span>
+      </div>
     </div>
+    
+    <!-- Panel para seleccionar cliente -->
+    <div *ngIf="isSelectingCustomer" class="mt-3">
+      <label for="cliente-input" class="form-label">Seleccione un cliente:</label>
+      <input id="cliente-input" type="text" class="form-control" [(ngModel)]="customerName" placeholder="Escriba el nombre del cliente para buscar" 
+        autocomplete="off" 
+      />
+      <ul *ngIf="filteredCustomer.length > 0" class="list-group mt-2">
+        <li *ngFor="let c of filteredCustomer" 
+            class="list-group-item" 
+            (click)="selectCustomer(c)">
+          {{ c.firstName + ' ' + c.lastName1 + ' ' + c.lastName2 }}
+        </li>
+      </ul>
+      <button class="btn btn-primary my-2 me-2" (click)="searchCustomers()">Buscar</button>
+      <button class="btn btn-secondary my-2" (click)="showSearchCustomerPanel()">Cancelar</button>
+    </div>
+    
+    
   </div>
   <div class="card">
     <div class="card-body">
@@ -85,7 +111,7 @@
   <div class="card text-center w-75 w-md-50">
     <div class="card-header bg-light">
       <img src="../assets/icons/logos/logo-192x192.png" alt="Guardian_Logo" class="img-fluid mb-2" style="max-width: 50px;">
-      <h5 class="card-title mb-1">{{ this.getUserState().companyName}}</h5>
+      <h5 class="card-title mb-1">{{ this.userState.companyName}}</h5>
       <p class="card-subtitle text-muted">{{ this.numVenta + ' | Fecha:' + fechaHora }}</p>
     </div> 
     <div class="card-body">
@@ -109,7 +135,7 @@
         <strong>Cambio:</strong><span>{{  ventaService.getCambio(this.pagoRecibido?? 0) | currency :'MXN'}}</span>
       </div>
       <div class="d-flex justify-content-start mt-2">
-        Cajero:&nbsp;<strong><span>{{this.getUserState().firstName + ' ' + this.getUserState().lastName }}</span></strong>
+        Cajero:&nbsp;<strong><span>{{this.userState.firstName + ' ' + this.userState.lastName }}</span></strong>
       </div>
     </div>
     <div class="card-footer bg-light">

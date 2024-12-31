@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnInit } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, catchError, first, from, tap } from 'rxjs';
 import { Producto } from '../dto/producto';
@@ -13,7 +13,7 @@ import { UpdateSaleStatus } from '../dto/update-sale-status';
 @Injectable({
   providedIn: 'root'
 })
-export class SaleService extends Dexie {
+export class SaleService extends Dexie implements OnInit{
   productCatalogTable: Dexie.Table<Producto, number>;
   migrationsTable: Dexie.Table<Date, number>;
   totalVenta: number = 0;
@@ -21,6 +21,7 @@ export class SaleService extends Dexie {
   private baseUrl = environment.apiUrlBase + '/api/Sale';
   private httpOptions;
   private currentSale: Sale;
+  public customerId: number = 0;
 
   constructor(
     private httpClient: HttpClient,
@@ -42,7 +43,7 @@ export class SaleService extends Dexie {
   this.currentSale = {
     id: undefined,
     saleId: 0,
-    customerId: 0,
+    customerId: this.customerId,
     paymentMethod: '',
     companyId: 0,
     tax: 0,
@@ -59,7 +60,20 @@ export class SaleService extends Dexie {
     
   }
 
-  ngOnInit():void{}
+  ngOnInit():void{
+    
+    this.currentSale = {
+      id: undefined,
+      saleId: 0,
+      customerId: this.customerId,
+      paymentMethod: '',
+      companyId: 0,
+      tax: 0,
+      notes: '',
+      userId: 0,
+      saleDetailsList: []
+    };
+  }
 
   saleProductsGrouped: Producto [] = []
   productCatalog: Producto[] | any[] = []
@@ -252,7 +266,7 @@ export class SaleService extends Dexie {
       userId: userId,
       companyId: companyId,
       saleDetailsList: saleDetail,
-      customerId: undefined
+      customerId: this.customerId
     };
 
     this.currentSale = sale;
