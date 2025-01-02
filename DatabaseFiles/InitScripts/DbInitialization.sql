@@ -2,10 +2,16 @@
 
 INSERT INTO [Company]
            ([Name]
-           ,[Address])
+           ,[Address],
+		   StatusId,
+		   ExpirationDate,
+		   )
      VALUES(
            'JMC',
-           'Online')
+           'Online',
+		   3,
+		   '2030-12-31 00:00:00.000'
+		   )
 GO
 
 

@@ -8,7 +8,7 @@ import { UserStateService } from '../../services/user-state.service';
 import { userDto } from '../../dto/userDto';
 import { first, Subject, takeUntil } from 'rxjs';
 import { SaleService } from '../../services/sale.service';
-import { Roles, StatusVentaEnum } from '../../Enums/enums';
+import { PriceLevel, Roles, StatusVentaEnum } from '../../Enums/enums';
 
 @Component({
   selector: 'app-sales-report',
@@ -28,7 +28,10 @@ export class SalesReportComponent implements OnInit, OnDestroy {
   showMainReport: boolean;
   totalVentas: number | undefined;
   isAutorized: boolean = false;
-  
+  selectedSaleTotal: number = 0;
+  selectedSaleId: number = 0;
+  showColumns = false;
+
   private unsubscribe$: Subject<void> = new Subject();
   
   constructor(private fb: FormBuilder,
@@ -61,6 +64,12 @@ export class SalesReportComponent implements OnInit, OnDestroy {
     this.unsubscribe$.complete();
   }
 
+
+  // Función para alternar la visibilidad de las columnas
+  toggleColumns() {
+    this.showColumns = !this.showColumns;
+  }
+
   private initForm(): FormGroup {
     const today = new Date().toISOString().substring(0, 10); // 'yyyy-MM-dd'
     const refDate = new Date();
@@ -78,6 +87,8 @@ export class SalesReportComponent implements OnInit, OnDestroy {
   redirectToDetails(saleId: number) {
     this.getSale(saleId);
     this.showMainReport = false;
+    this.selectedSaleId = 0;
+    this.selectedSaleTotal = 0;
   }
 
   goBack(): void {
@@ -115,14 +126,36 @@ export class SalesReportComponent implements OnInit, OnDestroy {
 
   getSale(saleId: number): void {
     const userId = 0;
-
+    this.saleProducts = [];
+    this.filteredProducts = [];
+    this.selectedSaleTotal = 0;
+    this.selectedSaleId = saleId;
     this.reportService.getProductSalesDetails(saleId, this.userState.companyId).pipe(first())
     .subscribe({
       next:(data) => {
         if(data.length > 0)
         {
+          data.forEach(item => {
+            switch (item.priceLevel) {
+              case PriceLevel.UnitPrice1:
+                item.soldPrice = item.productPrice1;
+                break;
+              case PriceLevel.UnitPrice2:
+                item.soldPrice = item.productPrice2;
+                break;
+              case PriceLevel.UnitPrice3:
+                item.soldPrice = item.productPrice3;
+                break;
+          
+              default:
+                break;
+            }
+          });
+
           this.saleProducts = data;
           this.filteredProducts = data;
+          this.selectedSaleTotal = data.reduce((a, i) => a + i.totalPrice, 0 );
+          this.selectedSaleId = saleId;
         }
         else
         {
@@ -156,6 +189,11 @@ export class SalesReportComponent implements OnInit, OnDestroy {
       
       return;
     }
+    this.sales = [];
+    this.filteredSales = [];
+    this.totalVentas = 0;
+    this.filteredProducts = [];
+
     const fromDate = this.reportForm.get('dateFrom')?.value ?? new Date();
     const toDate = this.reportForm.get('dateTo')?.value ?? new Date();
     const userId = 0;

@@ -25,4 +25,8 @@
   background-color: #dc3545 !important; /* Rojo */
 }
 
+.toggle-pending .form-check-input {
+  background-color: #efef21 !important; /* Rojo */
+}
+
   

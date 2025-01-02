@@ -22,6 +22,7 @@ import { CustomerService } from '../services/customer.service';
 })
 export class ListaVentaComponent implements OnInit {
 
+
   userState: userDto;
   metodoPago: string;
   pagoRecibido: number | undefined;
@@ -41,6 +42,7 @@ export class ListaVentaComponent implements OnInit {
   customerName: string = '';  // Almacena el texto ingresado
   selectedCustomer: customerDto | undefined;  
   filteredCustomer: customerDto[] = [];  
+new: any;
 
   constructor(
     private router: Router,
@@ -62,6 +64,14 @@ export class ListaVentaComponent implements OnInit {
     this.userState = this.userStateService.getUserStateLocalStorage();
   }
 
+  onSelectPrice(event: Event, productId: number): void {
+    const selectElement = event.target as HTMLSelectElement;
+    const selectedPriceLevel = selectElement.value;
+    var newPriceLevel: number = parseFloat(selectedPriceLevel);
+
+    this.ventaService.updateProductPrice(productId, newPriceLevel);
+  }
+
   searchCustomers() {
     this.filteredCustomer = [];
     let searchItem = this.customerName.trim() == '' ? '-1' : this.customerName.trim();
@@ -79,8 +89,6 @@ export class ListaVentaComponent implements OnInit {
   }
 
   selectCustomer(customer: customerDto) {
-   
-    console.log('CC: ' + JSON.stringify(customer));
 
     this.selectedCustomer = customer;
     this.ventaService.customerId = customer.customerId;
@@ -100,6 +108,7 @@ export class ListaVentaComponent implements OnInit {
       this.searchCustomers();
       this.selectedCustomer = undefined;
       this.ventaService.customerId = 0;
+      this.ventaService.resetProductPrice();
     }
    
   }
@@ -253,7 +262,7 @@ Cajero: ${cashierName}
         {
           next: (response) => 
           {
-            console.log(response);
+            
             this.message = `Venta registrada: ${response}`;
             this.numVenta = 'Num. Venta: ' + response;
             this.messageClass = "alert  alert-success mt-2";

@@ -6,6 +6,15 @@ export enum RentTypeId
     Extension = 3,
 }
 
+export enum PriceLevel
+{ 
+    UnitPrice = 0,
+    UnitPrice1 = 1,
+    UnitPrice2 = 2,
+    UnitPrice3 = 3,
+}
+
+
 export enum Roles {
     Unknown = 0,
     User = 1,

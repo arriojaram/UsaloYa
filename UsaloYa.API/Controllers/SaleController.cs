@@ -77,7 +77,8 @@ namespace UsaloYa.API.Controllers
                         ProductId = detail.ProductId,
                         Quantity = detail.Quantity,
                         TotalPrice = detail.TotalPrice,
-                        UnitPrice = detail.UnitPrice
+                        UnitPrice = detail.UnitPrice,
+                        PriceLevel = detail.PriceLevel
                     };
 
                     _dBContext.SaleDetails.Add(product);

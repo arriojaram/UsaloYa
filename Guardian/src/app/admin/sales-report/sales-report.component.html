@@ -30,51 +30,58 @@
                     <input type="text" [value]="filterText" (keyup)="filterSales($event)" class="form-control" placeholder="Filtrar ventas...">
                 </div>
             </div>
-            <div id="d1" class="col-6 d-flex align-items-center fs-4" style="font-weight: bold;">
-                Total de la Venta: {{ this.totalVentas | currency:'MXN' }}
-            </div>
+          
         </div>
     </form>
     <table class="table table-striped mt-3">
         <thead>
             <tr>
-                <th>ID</th>
-                <th class="d-none d-md-table-cell">Fecha</th>
-                <th class="d-none d-md-table-cell">Usuario</th>
-                <th>Nombre</th>
-                <th class="d-none d-md-table-cell">Notas</th>
-                <th class="d-none d-md-table-cell">Pago</th>
-                <th class="d-none d-md-table-cell">Estatus</th>
+                <th class="d-none d-md-table-cell" [ngClass]="{'d-none d-md-table-cell': !showColumns}">Fecha</th>
+                <th>Cliente</th>
+                <th class="d-none d-md-table-cell" [ngClass]="{'d-none d-md-table-cell': !showColumns}">Notas</th>
+                <th class="d-none d-md-table-cell" [ngClass]="{'d-none d-md-table-cell': !showColumns}">Pago</th>
+                <th>Estatus</th>
                 <th>Total</th>
-                <th></th>
+                <th class="d-none d-md-table-cell" [ngClass]="{'d-none d-md-table-cell': !showColumns}">Vendedor</th>
+                
+                <th>
+                    <button class="d-md-none" (click)="toggleColumns()"> 
+                     <i class="bi bi-columns" *ngIf="!this.showColumns"></i>
+                     <i class="bi bi-columns-gap" *ngIf="this.showColumns"></i>
+                    </button>
+                </th>
             </tr>
         </thead>
         <tbody>
             <tr *ngFor="let sale of filteredSales">
-                <td>{{ sale.saleID }}</td>
-                <td class="d-none d-md-table-cell">{{ sale.saleDate | date:'medium' }}</td>
-                <td class="d-none d-md-table-cell">{{ sale.userName }}</td>
-                <td>{{ sale.fullName }}</td>
-                <td class="d-none d-md-table-cell">{{ sale.notes }}</td>
-                <td class="d-none d-md-table-cell">{{ sale.payment }}</td>
+                
+                <td class="d-none d-md-table-cell" [ngClass]="{'d-none d-md-table-cell': !showColumns}">{{ sale.saleDate | date:'medium' }}</td>
+                <td>{{ sale.customerName }}</td>
+                <td class="d-none d-md-table-cell" [ngClass]="{'d-none d-md-table-cell': !showColumns}">{{ sale.notes }}</td>
+                <td class="d-none d-md-table-cell" [ngClass]="{'d-none d-md-table-cell': !showColumns}">{{ sale.payment }}</td>
                 <td>
                     <div class="form-check form-switch" 
-                    [ngClass]="{'toggle-completado': sale.status === 'Completada', 'toggle-cancelado': sale.status !== 'Completada'}">
+                    [ngClass]="{'toggle-completado': sale.status === 'Completada', 'toggle-cancelado': sale.status === 'Cancelada',  'toggle-pending': sale.status === 'Abierta'}">
                         <input class="form-check-input" type="checkbox" id="sale{{sale.saleID}}" 
                             (change)="this.updateSaleStatus(sale.saleID, sale.status)" [checked]="sale.status === 'Completada'">
                         <label class="form-check-label" for="sale{{sale.saleID}}" [title]="sale.status" data-bs-toggle="tooltip" data-bs-placement="top">
                             <i *ngIf="sale.status === 'Completada'" class="bi bi-cart-check"></i>
-                            <i *ngIf="sale.status !== 'Completada'" class="bi bi-x-circle"></i>
+                            <i *ngIf="sale.status === 'Abierta'" class="bi bi-clock"></i>
+                            <i *ngIf="sale.status === 'Cancelada'" class="bi bi-x-circle"></i>
                         </label>
                     </div>
                 </td>
                 <td>{{ sale.totalSale | currency:'MXN' }}</td>
+                <td class="d-none d-md-table-cell" [ngClass]="{'d-none d-md-table-cell': !showColumns}">{{ sale.fullName }} ({{sale.userName}})</td>
                 <td>
                     <button class="btn btn-sm btn-primary" (click)="redirectToDetails(sale.saleID)">Ver Detalle</button>
                 </td>
             </tr>
         </tbody>
     </table>
+    <div id="d1" class="col-6 d-flex align-items-center fs-4" style="font-weight: bold;">
+        Total de la Venta: {{ this.totalVentas | currency:'MXN' }}
+    </div>
 </div>
 
 <div *ngIf="!showMainReport" class="container mt-1">
@@ -91,22 +98,30 @@
         <tr>
             <th>Código</th>
             <th>Nombre</th>
+            <th>P. Compra</th>
             <th>Cantidad</th>
-            <th>Precio</th>
+            <th>P. Venta</th>
             <th>Fecha Venta</th>
-            <th>Total $</th>
+            <th>$ Total</th>
         </tr>
         </thead>
         <tbody>
         <tr *ngFor="let sale of filteredProducts">
             <td>{{ sale.barcode }}</td>
             <td>{{ sale.productName }}</td>
+            <td>{{ sale.buyPrice | currency:'MXN' }}
             <td>{{ sale.quantity }}</td>
-            <td>{{ sale.totalPrice | currency:'MXN' }}</td>
+            <td>{{ sale.soldPrice | currency:'MXN' }}
+                <span><sup>{{ '*'.repeat(sale.priceLevel) }}</sup></span>
+            </td>
             <td>{{ sale.saleDate | date:'medium' }}</td>
-            <td>{{ sale.totalSale | currency:'MXN' }}</td>
+            <td>{{ sale.totalPrice | currency:'MXN' }}</td>
         </tr>
         </tbody>
     </table>
+    <div class="fs-4 d-flex justify-content-between" style="font-weight: bold;">
+        <span>Venta-{{selectedSaleId}}</span>
+        <span>Total {{ selectedSaleTotal | currency:'MXN'}}</span>
+    </div>
 </div>
 

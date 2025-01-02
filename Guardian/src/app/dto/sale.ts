@@ -4,6 +4,7 @@ export interface SaleDetail {
     UnitPrice: number;
     TotalPrice: number;
     SaleId:number;
+    PriceLevel: number;
 }
   
 export interface Sale {

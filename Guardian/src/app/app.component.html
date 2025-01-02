@@ -72,7 +72,7 @@
                         <div class="sb-nav-link-icon"><i class="bi bi-file-earmark-arrow-up fs-6"></i></div>
                         Importar Productos
                     </a>
-                    <a class="nav-link" href="companies" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Ventas">
+                    <a class="nav-link" href="companies" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Admin">
                         <div class="sb-nav-link-icon"><i class="bi bi-briefcase-fill fs-6"></i></div>
                         Empresas
                     </a>

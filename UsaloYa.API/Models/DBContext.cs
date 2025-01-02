@@ -272,6 +272,7 @@ public partial class DBContext : DbContext
             entity.Property(e => e.BuyPrice).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.TotalPrice).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.UnitPrice).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.PriceLevel).HasColumnType("int");
 
             entity.HasOne(d => d.Product).WithMany(p => p.SaleDetails)
                 .HasForeignKey(d => d.ProductId)

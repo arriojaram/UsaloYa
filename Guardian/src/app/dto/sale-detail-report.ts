@@ -8,6 +8,8 @@ export interface SaleDetailReport {
     status: string;
     totalSale: number;
     payment: string;
+    
+    customerName: string;
   }
   
   
@@ -18,9 +20,14 @@ export interface SaleDetailReport {
     totalPrice: number;
     saleID: number;
     saleDate: Date;
-    totalSale: number;
+    buyPrice: number;
+    soldPrice: number;
+    productPrice1: number;
+    productPrice2: number;
+    productPrice3: number;
     userId: number;
     userName: string;
     fullName: string;
+    priceLevel: number;
   }
   

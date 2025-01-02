@@ -9,6 +9,7 @@ import { environment } from '../environments/enviroment';
 import { Sale, SaleDetail } from '../dto/sale';
 import Dexie from 'dexie';
 import { UpdateSaleStatus } from '../dto/update-sale-status';
+import { PriceLevel } from '../Enums/enums';
 
 @Injectable({
   providedIn: 'root'
@@ -22,6 +23,7 @@ export class SaleService extends Dexie implements OnInit{
   private httpOptions;
   private currentSale: Sale;
   public customerId: number = 0;
+  audioCtx: AudioContext | null = null;
 
   constructor(
     private httpClient: HttpClient,
@@ -91,26 +93,29 @@ export class SaleService extends Dexie implements OnInit{
   }
 
   playBeep(added: boolean): void {
-    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-
-    // Crear un oscilador que genera el tono
-    const oscillator = audioCtx.createOscillator();
-
-    // Configurar el tipo de onda y frecuencia
-    oscillator.type = 'sine'; // Puedes probar con 'square', 'sawtooth', 'triangle'
-    if(added === false)
-    {
-      oscillator.type = 'sawtooth'; // Puedes probar con 'square', 'sawtooth', 'triangle'
+    // Reutilizar o crear el AudioContext
+    if (!this.audioCtx) {
+      this.audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
     }
-
-    oscillator.frequency.setValueAtTime(440, audioCtx.currentTime); // Frecuencia en Hz (440 Hz es la nota A4)
-
-    // Conectar el oscilador al destino (altavoces)
-    oscillator.connect(audioCtx.destination);
-
-    // Iniciar y detener el oscilador después de un breve tiempo para crear un pitido
+  
+    // Crear el oscilador
+    const oscillator = this.audioCtx.createOscillator();
+    oscillator.type = added ? 'sine' : 'sawtooth';
+    oscillator.frequency.setValueAtTime(440, this.audioCtx.currentTime);
+  
+    // Conectar y configurar
+    oscillator.connect(this.audioCtx.destination);
     oscillator.start();
-    oscillator.stop(audioCtx.currentTime + 0.1); // Pitido de 0.1 segundos de duración
+  
+    // Detener y cerrar el oscilador
+    oscillator.stop(this.audioCtx.currentTime + 0.1);
+    oscillator.onended = () => {
+      oscillator.disconnect();
+      if (!added && this.audioCtx) {
+        this.audioCtx.close();
+        this.audioCtx = null;
+      }
+    };
   }
   
   getCambio(recibido: number)
@@ -135,7 +140,7 @@ export class SaleService extends Dexie implements OnInit{
             // Disminuir el count si es mayor que 1.
             this.saleProductsGrouped[productIndex].count -= 1;
             this.saleProductsGrouped[productIndex].total = 
-              this.saleProductsGrouped[productIndex].count * this.saleProductsGrouped[productIndex].unitPrice;
+              this.saleProductsGrouped[productIndex].count * this.getPrice(this.saleProductsGrouped[productIndex]);
         } else {
             // Si el count es 1, eliminar el producto completamente.
             this.saleProductsGrouped.splice(productIndex, 1);
@@ -198,6 +203,57 @@ export class SaleService extends Dexie implements OnInit{
     }
   }
 
+  resetProductPrice(): void {
+    this.totalVenta = 0;
+    let index = 0;
+    this.saleProductsGrouped.forEach(p => {
+      let totalProds = this.saleProductsGrouped[index].count;
+      this.saleProductsGrouped[index].total = totalProds * p.unitPrice;
+      index++;
+    });
+
+    
+    this.updateTotal();
+  }
+
+  getPrice(producto: Producto) : number
+  {
+    let prodPrice = producto.unitPrice;
+    switch (producto.priceLevel) {
+      case PriceLevel.UnitPrice1:
+        prodPrice = producto.unitPrice1;
+        break;
+      case PriceLevel.UnitPrice2:
+          prodPrice = producto.unitPrice2;
+          break;
+      case PriceLevel.UnitPrice3:
+        prodPrice = producto.unitPrice3;
+        break;
+      default:
+        break;
+    }
+    return prodPrice;
+  }
+
+  updateProductPrice(productId: number, priceLevel: number): void {
+    this.totalVenta = 0;
+    const productIndex = this.saleProductsGrouped.findIndex(p => p.productId === productId);
+    if (productIndex !== -1) 
+    {
+      let existingProduct = this.saleProductsGrouped[productIndex];
+      let totalProds = this.saleProductsGrouped[productIndex].count;
+      this.saleProductsGrouped[productIndex].priceLevel = priceLevel;
+      existingProduct.priceLevel = priceLevel;
+      this.saleProductsGrouped[productIndex].total = totalProds * this.getPrice(existingProduct);
+    }
+    else
+    {
+      this.navigationService.showUIMessage("Producto no encontrado, reinicia la venta ha ocurrido un errror.");
+    }
+    
+    this.updateTotal();
+  }
+
   updateNumOfProductos(productId: number, totalProducts: number): void {
     const productMap = new Map();
     this.totalVenta = 0;
@@ -206,7 +262,7 @@ export class SaleService extends Dexie implements OnInit{
     {
       let existingProduct = this.saleProductsGrouped[productIndex];
       this.saleProductsGrouped[productIndex].count = totalProducts;
-      this.saleProductsGrouped[productIndex].total = totalProducts * existingProduct.unitPrice;
+      this.saleProductsGrouped[productIndex].total = totalProducts * this.getPrice(existingProduct);
     }
     else
     {
@@ -231,11 +287,12 @@ export class SaleService extends Dexie implements OnInit{
     {
       let existingProduct = this.saleProductsGrouped[productIndex];
       this.saleProductsGrouped[productIndex].count += 1;
-      this.saleProductsGrouped[productIndex].total = (existingProduct.count) * existingProduct.unitPrice;
+      this.saleProductsGrouped[productIndex].total = (existingProduct.count) * this.getPrice(existingProduct);
     }
     else
     {
       newProduct.count = 1;
+      newProduct.priceLevel = PriceLevel.UnitPrice;
       newProduct.total = 1 * newProduct.unitPrice;
       this.saleProductsGrouped.push(newProduct);
     }
@@ -253,7 +310,7 @@ export class SaleService extends Dexie implements OnInit{
     let saleDetail: SaleDetail[] = new Array(this.saleProductsGrouped.length-1);
     for (let index = 0; index < this.saleProductsGrouped.length; index++) {
       const p = this.saleProductsGrouped[index];
-      const sd: SaleDetail = {SaleId:0 ,ProductId: p.productId, Quantity:p.count, TotalPrice:p.total, UnitPrice:p.unitPrice};
+      const sd: SaleDetail = {SaleId:0 ,ProductId: p.productId, Quantity:p.count, TotalPrice:p.total, UnitPrice:p.unitPrice, PriceLevel:p.priceLevel?? 0};
       saleDetail[index] = sd; 
     }
 

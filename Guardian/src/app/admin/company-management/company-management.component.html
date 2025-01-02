@@ -11,20 +11,20 @@
     </div>
     
     <div class="row">
-        <div class="col-12 col-md-4 search-panel" [class.d-none]="navigationService.isSearchPanelHidden">
-            <div class="card">
-            <div class="card-body">
-                <h6 class="card-title">Filtar</h6>
-                <div class="input-group mb-3">
-                <input type="text" class="form-control" placeholder="Escribe el nombre aqui..." (input)="searchCompany($event)">
-                
+        <div class="col-12 col-md-4 search-panel" [class.d-none]="navigationService.isSearchPanelHidden" >
+            <div class="card" *ngIf="this.userState.roleId >= rol.Ventas">
+                <div class="card-body">
+                    <h6 class="card-title">Filtar</h6>
+                    <div class="input-group mb-3">
+                    <input type="text" class="form-control" placeholder="Escribe el nombre aqui..." (input)="searchCompany($event)">
+                    
+                    </div>
+                    <ul class="list-group mt-3">
+                    <li *ngFor="let c of companyList" class="list-group-item list-group-item-action" (click)="selectCompany(c.companyId, true)">
+                        {{ c.name }}
+                    </li>
+                    </ul>
                 </div>
-                <ul class="list-group mt-3">
-                <li *ngFor="let c of companyList" class="list-group-item list-group-item-action" (click)="selectCompany(c.companyId, true)">
-                    {{ c.name }}
-                </li>
-                </ul>
-            </div>
             </div>
         </div>
         <div class="col-12" [class.col-md-8]="!navigationService.isSearchPanelHidden" [class.col-md-12]="navigationService.isSearchPanelHidden">
@@ -140,14 +140,14 @@
                                         <div class="col-6">
                                             
                                             <div class="ms-3"> * Hasta dos cuentas.</div>
-                                            <div class="ms-3"> * Reduce la renta con Referidos.</div>
+                                            <div class="ms-3"> * Sin límite de uso.</div>
                                            
                                         </div>
                                         <!-- Segundo Div: Información de pagos -->
                                         <div class="col-6 mb-3">
                                             <div class="mb-3">Pago</div>
                                             <div class="mb-1">Tu próxima factura será de {{this.selectedCompany?.planPrice | currency:'MXN'}} y llegará el {{this.selectedCompany?.expirationDate | date:'fullDate'}}</div>
-                                            <div class="mb-3">Contacta a tu vendedor: {{this.selectedCompany?.createdByFullName}}</div>
+                                            <div class="mb-3">Contacta a tu vendedor para obtener mas información: {{this.selectedCompany?.createdByFullName}}</div>
                                         
                                             <div *ngIf="this.userState.roleId > rol.Admin">
                                                 <button class="btn btn-primary" [disabled]="showAddPaymentSection" (click)="showAddPaymentSection = true">Agregar Pago</button>
@@ -165,7 +165,7 @@
                                 </div>
                                 <div class="col-md-4">
                                     Selecciona Tipo
-                                    <select [(ngModel)]="paymentTypeId" class="form-control">
+                                    <select [(ngModel)]="paymentTypeId" class="form-select">
                                         <option *ngFor="let option of tipoPagoList" [value]="option.value">
                                             {{ option.name }}
                                         </option>

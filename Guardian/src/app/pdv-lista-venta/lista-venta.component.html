@@ -16,7 +16,18 @@
           <td class="d-none d-sm-table-cell">{{ producto.barcode }}</td>
           <td>{{ producto.name }}</td>
           <td>{{ producto.description }}</td>
-          <td>{{ producto.unitPrice | currency :'MXN'}}</td>
+          <td>
+            <span *ngIf="this.selectedCustomer == undefined">
+              {{ producto.unitPrice | currency :'MXN'}}
+            </span>
+            <select *ngIf="this.selectedCustomer" (change)="onSelectPrice($event, producto.productId)">
+                <option [value]='0'>{{ producto.unitPrice | currency :'MXN'}}</option>
+                <option [value]='1' *ngIf="producto.unitPrice1 > 0">{{ producto.unitPrice1 | currency :'MXN'}}</option>
+                <option [value]='2' *ngIf="producto.unitPrice2 > 0">{{ producto.unitPrice2 | currency :'MXN'}}</option>
+                <option [value]='3' *ngIf="producto.unitPrice3 > 0">{{ producto.unitPrice3 | currency :'MXN'}}</option>
+            </select>
+
+          </td>
           <td>
             <!-- Campo intercambiable para la edición -->
             <span *ngIf="!producto.editing; else editInput" (click)="enableEditing(producto)" style="max-width: 10px;">
@@ -36,20 +47,20 @@
       </tbody>
     </table>
 
-    <div class="my-1 d-flex justify-content-between">
-      <h4 class="me-3 text-danger">Total de la Venta: {{ ventaService.getTotalVenta() | currency :'MXN'}}</h4>
+    <div class="my-1 d-flex justify-content-start ">
       <div class="my-1 d-flex justify-content-end">
         <button [class]="custButtonClass" class="d-flex me-1 align-items-center" (click)="showSearchCustomerPanel()">
           <i class="bi bi-person-lines-fill me-1"></i>{{this.custButtonLabel}}
         </button>
-        <span class="d-flex" *ngIf="this.selectedCustomer">{{this.selectedCustomer.firstName + ' ' + this.selectedCustomer.lastName1}}</span>
+        <span class="d-flex me-2" *ngIf="this.selectedCustomer">{{this.selectedCustomer.firstName + ' ' + this.selectedCustomer.lastName1}}</span>
       </div>
+      <h4 class="me-3 text-danger">Total de la Venta: {{ ventaService.getTotalVenta() | currency :'MXN'}}</h4>
     </div>
     
     <!-- Panel para seleccionar cliente -->
-    <div *ngIf="isSelectingCustomer" class="mt-3">
+    <div *ngIf="isSelectingCustomer" class="mt-3 col-12 col-md-3">
       <label for="cliente-input" class="form-label">Seleccione un cliente:</label>
-      <input id="cliente-input" type="text" class="form-control" [(ngModel)]="customerName" placeholder="Escriba el nombre del cliente para buscar" 
+      <input id="cliente-input" type="text" class="form-control" [(ngModel)]="customerName" placeholder="Escriba el nombre para buscar" 
         autocomplete="off" 
       />
       <ul *ngIf="filteredCustomer.length > 0" class="list-group mt-2">

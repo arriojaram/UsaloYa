@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using UsaloYa.API.DTO;
 using UsaloYa.API.Models;
+using static Azure.Core.HttpHeader;
 
 namespace UsaloYa.API.Controllers
 {
@@ -17,7 +20,7 @@ namespace UsaloYa.API.Controllers
         }
 
         [HttpGet("GetSalesReport")]
-        public IActionResult GetSalesReport([FromQuery] DateTime fromDate, DateTime toDate, int companyId, int userId = 0)
+        public async Task<IActionResult> GetSalesReport([FromQuery] DateTime fromDate, DateTime toDate, int companyId, int userId = 0)
         {
             try
             {
@@ -26,23 +29,24 @@ namespace UsaloYa.API.Controllers
                     toDate = fromDate.AddDays(1);
                 }
 
-                var result = from s in _dBContext.Sales
-                             join u in _dBContext.Users on s.UserId equals u.UserId
-                             where s.CompanyId == companyId
-                                && (u.UserId == userId || userId == 0)
-                                && s.SaleDate >= fromDate.Date && s.SaleDate <= toDate.Date
-                             select new
-                             {
-                                 SaleID = s.SaleId,
-                                 SaleDate = s.SaleDate,
-                                 UserId = s.UserId,
-                                 UserName = u.UserName,
-                                 FullName = u.FirstName + ' ' +u.LastName,
-                                 Notes = s.Notes,
-                                 Payment = s.PaymentMethod,
-                                 Status = s.Status,
-                                 TotalSale = s.TotalSale
-                             };
+                var result = await _dBContext.Sales
+                            .Include(s => s.User)
+                            .Include(c => c.Customer)
+                            .Where(s => s.CompanyId == companyId
+                                    && (s.User.UserId == userId || userId == 0)
+                                    && s.SaleDate >= fromDate.Date && s.SaleDate <= toDate.Date
+                            ).Select(r => new { 
+                                 SaleID = r.SaleId,
+                                 SaleDate = r.SaleDate,
+                                 UserId = r.UserId,
+                                 UserName = r.User.UserName,
+                                 FullName = r.User.FirstName + ' ' + r.User.LastName,
+                                 CustomerName = r.Customer == null ? "" : r.Customer.FirstName + ' ' + r.Customer.LastName1,
+                                 Notes = r.Notes,
+                                 Payment = r.PaymentMethod,
+                                 Status = r.Status,
+                                 TotalSale = r.TotalSale
+                             }).ToListAsync();
 
                 return Ok(result);
             }
@@ -56,29 +60,35 @@ namespace UsaloYa.API.Controllers
         }
 
         [HttpGet("GetSaleDetails")]
-        public IActionResult GetSaleDetails([FromQuery] int saleId, int companyId)
+        public async Task<IActionResult> GetSaleDetails([FromQuery] int saleId, int companyId)
         {
             try
             {
-                var result = from sd in _dBContext.SaleDetails
-                             join p in _dBContext.Products on sd.ProductId equals p.ProductId
-                             join s in _dBContext.Sales on sd.SaleId equals s.SaleId
-                             join u in _dBContext.Users on s.UserId equals u.UserId
-                             where s.SaleId == saleId && s.CompanyId == companyId
-                             select new
-                             {
-                                 Barcode = p.Barcode,
-                                 ProductName = p.Name,
-                                 Quantity = sd.Quantity,
-                                 TotalPrice = sd.TotalPrice,
-                                 SaleID = s.SaleId,
-                                 SaleDate = s.SaleDate,
-                                 TotalSale = s.TotalSale,
-                                 UserId = s.UserId,
-                                 UserName = u.UserName,
-                                 FullName = u.FirstName + ' ' + u.LastName,
+                var result = await _dBContext.SaleDetails
+                                .Include(d => d.Product)
+                                .Include(d => d.Sale)
+                                .Include(d => d.Sale.User)
+                            .Where(s => s.SaleId == saleId && s.Sale.CompanyId == companyId)
+                            .Select(r => new
+                            {
+                                Barcode = r.Product.Barcode,
+                                ProductName = r.Product.Name,
+                                Quantity = r.Quantity,
+                                BuyPrice = r.Product.BuyPrice,
+                                SoldPrice = r.UnitPrice,
+                                ProductPrice1 = r.Product.UnitPrice1,
+                                ProductPrice2 = r.Product.UnitPrice2,
+                                ProductPrice3 = r.Product.UnitPrice3,
+                                TotalPrice = r.TotalPrice,
+                                SaleID = r.SaleId,
+                                SaleDate = r.Sale.SaleDate,
+                                TotalSale = r.Sale.TotalSale,
+                                UserId = r.Sale.UserId,
+                                UserName = r.Sale.User.UserName,
+                                FullName = r.Sale.User.FirstName + ' ' + r.Sale.User.LastName,
+                                PriceLevel = r.PriceLevel?? 0
 
-                             };
+                            }).ToListAsync();
 
                 return Ok(result);
             }

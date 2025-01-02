@@ -50,21 +50,31 @@ export class CompanyManagementComponent implements OnInit {
   {
     this.userState = userStateService.getUserStateLocalStorage();
     this.companyForm = this.initCompanyForm();
-    this.isSearchPanelHidden = false;
+    this.isSearchPanelHidden = true;
     
   }
 
   ngOnInit(): void {
     this.userState = this.userStateService.getUserStateLocalStorage();
-    if(this.userState.roleId <= Roles.Admin)
+    if(this.userState.roleId < Roles.Admin)
       {
         this.navigationService.showUIMessage("Petición incorrecta.");
         return;
       }
       else
+      {
         this.isAutorized = true;
-      
-    this.searchCompaniesInternal('-1');
+      }
+
+      if(this.userState.roleId <= Roles.Admin)
+      {
+        this.selectCompany(this.userState.companyId, true);
+        this.navigationService.toggleSearchPanel();
+      }
+      else
+      {
+        this.searchCompaniesInternal('-1');      
+      }
     this.navigationService.checkScreenSize();
     
   }
@@ -120,6 +130,7 @@ export class CompanyManagementComponent implements OnInit {
       
       if(selectDetails)
         this.activeTab = "tabDetalles";
+     
 
     });
   }
