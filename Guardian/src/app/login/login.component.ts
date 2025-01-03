@@ -9,6 +9,7 @@ import { NavigationService } from '../services/navigation.service';
 import { userDto } from '../dto/userDto';
 import { catchError, first, of, Subject, switchMap, takeUntil } from 'rxjs';
 import { environment } from '../environments/enviroment';
+import { TokenDto } from '../dto/authenticateDto';
 
 
 @Component({
@@ -36,7 +37,10 @@ export class LoginComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    let deviceId = this.authService.generateDeviceId();
+    this.navigation.setItemWithExpiry('deviceId', deviceId);
+  }
 
   ngOnDestroy(): void {
     this.unsubscribe$.next();
@@ -45,8 +49,8 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   onSubmit(): void {
     if (this.loginForm.valid) {
-      const loginData = this.loginForm.value;
-
+      const loginData: TokenDto = this.loginForm.value;
+     
       this.authService.login(loginData).pipe(first(),
         switchMap((loginResults) => {
           return this.userStateService.getLoggedUser(loginResults);

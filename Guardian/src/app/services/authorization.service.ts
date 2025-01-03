@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
-import { environment } from '../environments/enviroment';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, map } from 'rxjs';
 import { NavigationService } from './navigation.service';
-import { TokenDto } from '../dto/set-token';
+import { TokenDto } from '../dto/authenticateDto';
 @Injectable({
   providedIn: 'root'
 })
@@ -14,17 +13,21 @@ export class AuthorizationService {
     private navigation: NavigationService
   ) {}
 
-  login(data: string) : Observable<any> {
-    const url = this.navigation.apiBaseUrl + '/api/User/Validate';
-    const httpOptions = {
-      headers: new HttpHeaders({
-        'Authorization': environment.apiToken
-      })
-    };
+  generateDeviceId(): string {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      const r = (Math.random() * 16) | 0,
+        v = c === 'x' ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
+  }
 
-    return this.http.post<any>(url, data, httpOptions).pipe(
+  login(data: TokenDto) : Observable<any> {
+    const url = this.navigation.apiBaseUrl + '/api/User/Validate';
+
+    return this.http.post<any>(url, data).pipe(
       map(response => { 
         this.navigation.setItemWithExpiry('isAuthenticated', 'true'); 
+
         return response; 
       }), 
       catchError(error => {
@@ -37,13 +40,9 @@ export class AuthorizationService {
 
   logout(userName: string): Observable<any> {
     const url = this.navigation.apiBaseUrl + '/api/User/LogOut';
-    const httpOptions = {
-      headers: new HttpHeaders({
-        'Authorization': environment.apiToken
-      })
-    };
+   
     const setTokenData : TokenDto = {userName:userName, token:'', userId:0};
-    return this.http.post<any>(url, setTokenData, httpOptions).pipe(
+    return this.http.post<any>(url, setTokenData).pipe(
       map(response => { 
         this.navigation.setItemWithExpiry('isAuthenticated', 'false'); 
         return response;

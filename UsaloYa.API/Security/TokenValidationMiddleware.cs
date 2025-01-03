@@ -20,7 +20,9 @@
                 return;
             }
 
-            var appToken = _configuration.GetValue<string>("ApiKey")?? "";
+            context.Request.Headers.TryGetValue("DeviceId", out var deviceId);
+
+            var appToken = _configuration.GetValue<string>("ApiKey") ?? "";
 
             if (!appToken.Equals(extractedToken))
             {

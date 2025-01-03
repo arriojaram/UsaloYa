@@ -33,6 +33,10 @@ public partial class User
 
     public int? RoleId { get; set; }
 
+    public string? DeviceId { get; set; }
+
+    public Guid? SessionToken { get; set; }
+
     public virtual Company Company { get; set; } = null!;
 
     public virtual ICollection<Company> CompanyCreatedByNavigations { get; set; } = new List<Company>();

@@ -3,9 +3,9 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, Observable } from 'rxjs';
 import { userDto as userDto } from '../dto/userDto';
 import { environment } from '../environments/enviroment';
-import { TokenDto } from '../dto/set-token';
+import { TokenDto } from '../dto/authenticateDto';
 import { adminGroupDto } from '../dto/adminGroupDto';
-import { AdminCompanyDto } from '../dto/adminCompanyDto';
+import { NavigationService } from './navigation.service';
 
 
 @Injectable({
@@ -16,7 +16,8 @@ export class UserService {
   private baseUrl = environment.apiUrlBase + '/api/User';
   private httpOptions;
   constructor(
-    private http: HttpClient
+    private http: HttpClient,
+    private navigationService: NavigationService
   ) 
   {
     this.httpOptions = {

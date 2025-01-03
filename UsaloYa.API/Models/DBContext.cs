@@ -300,6 +300,11 @@ public partial class DBContext : DbContext
             entity.HasIndex(e => e.UserName, "IX_Users_UserName").IsUnique();
 
             entity.Property(e => e.CreationDate).HasColumnType("datetime");
+
+            entity.Property(e => e.RoleId).HasColumnType("int");
+
+            entity.Property(e => e.DeviceId).HasColumnType("nvarchar(255)");
+
             entity.Property(e => e.FirstName)
                 .HasMaxLength(50)
                 .IsUnicode(false);

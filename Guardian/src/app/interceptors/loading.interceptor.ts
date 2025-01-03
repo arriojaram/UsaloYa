@@ -4,12 +4,15 @@ import { Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { LoadingService } from '../services/loading.service';
 import { UserStateService } from '../services/user-state.service';
+import { NavigationService } from '../services/navigation.service';
+import { environment } from '../environments/enviroment';
 
 @Injectable()
 export class LoadingInterceptor implements HttpInterceptor {
   constructor(
     private loadingService: LoadingService,
     private userService: UserStateService,
+    private navigationService: NavigationService
   ) {}
 
 
@@ -31,7 +34,9 @@ export class LoadingInterceptor implements HttpInterceptor {
      
     const clonedRequest = req.clone({
         setHeaders: {
-          RequestorId: this.getUserId().toString() || '' // Asegúrate de manejar posibles valores nulos o indefinidos
+          RequestorId: this.getUserId().toString() || '', // Asegúrate de manejar posibles valores nulos o indefinidos
+          DeviceId: this.navigationService.getItemWithExpiry('deviceId')?? '',
+          Authorization: environment.apiToken
         }
       });
 

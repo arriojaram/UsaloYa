@@ -53,9 +53,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseHttpsRedirection();
 app.UseMiddleware<TokenValidationMiddleware>();
 
-app.UseHttpsRedirection();
 
 app.UseAuthorization();
 

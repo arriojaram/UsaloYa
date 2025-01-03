@@ -298,13 +298,13 @@ namespace UsaloYa.API.Controllers
         }
 
         [HttpPost("Validate")]
-        public async Task<IActionResult> Validate([FromBody] UserTokenDto token)
+        public async Task<IActionResult> Validate([FromHeader] string DeviceId, [FromBody] UserTokenDto request)
         {
             try
             {
-                var encryptedPassword = Util.EncryptPassword(token.Token);
+                var encryptedPassword = Util.EncryptPassword(request.Token);
                 var user = await _dBContext.Users
-                    .FirstOrDefaultAsync(u => u.UserName == token.UserName
+                    .FirstOrDefaultAsync(u => u.UserName == request.UserName
                         && u.Token == encryptedPassword);
 
                 if (user == null)
@@ -326,6 +326,8 @@ namespace UsaloYa.API.Controllers
                 {
                     user.LastAccess = DateTime.Now;
                     user.StatusId = (int)Enumerations.UserStatus.Conectado;
+                    user.DeviceId = DeviceId;
+                    user.SessionToken = Guid.NewGuid();
 
                     _dBContext.Entry(user).State = EntityState.Modified;
 
@@ -395,6 +397,9 @@ namespace UsaloYa.API.Controllers
             {
                 user.LastAccess = DateTime.Now;
                 user.StatusId = (int)Enumerations.UserStatus.Desconectado;
+                user.DeviceId = null;
+                user.SessionToken = null;
+
                 await _dBContext.SaveChangesAsync();
             }
 
