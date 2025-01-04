@@ -54,7 +54,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseMiddleware<TokenValidationMiddleware>();
 
 
 app.UseAuthorization();
@@ -62,5 +61,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 
+app.UseMiddleware<TokenValidationMiddleware>();
 
 app.Run();

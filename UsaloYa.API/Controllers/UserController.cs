@@ -314,6 +314,7 @@ namespace UsaloYa.API.Controllers
                 if (!isUserEnabled)
                     return Unauthorized("Usuario no valido");
 
+             
                 var userRol = EConverter.GetEnumFromValue<Role>(user.RoleId?? 0);
                 // Check company expiration
                 var companyStatus = await GetCompanyStatus(user.CompanyId);
@@ -336,7 +337,13 @@ namespace UsaloYa.API.Controllers
                 else
                     return Unauthorized("La compañia se encuentra en un estado inactivo, contacta a tu vendedor.");
 
-                return Ok(user.UserId);
+                if (!string.IsNullOrEmpty(user.DeviceId) && user.DeviceId != DeviceId)
+                {
+                    return Ok(new {Id=user.UserId, Msg="El usuario estaba usando otro dispositivo. La sesión en ese dispositivo será cerrada."});
+                }
+
+                return Ok(new { Id = user.UserId, Msg = string.Empty });
+
             }
             catch (Exception ex)
             {

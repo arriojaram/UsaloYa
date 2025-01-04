@@ -1,4 +1,9 @@
-﻿namespace UsaloYa.API.Security
+﻿using System.Text;
+using System.Text.Json;
+using UsaloYa.API.DTO;
+using UsaloYa.API.Models;
+
+namespace UsaloYa.API.Security
 {
     public class TokenValidationMiddleware
     {
@@ -20,17 +25,33 @@
                 return;
             }
 
-            context.Request.Headers.TryGetValue("DeviceId", out var deviceId);
-
-            var appToken = _configuration.GetValue<string>("ApiKey") ?? "";
-
-            if (!appToken.Equals(extractedToken))
+            var path = context.Request.Path;
+            if (path.HasValue && path.Value == "/api/User/Validate")
             {
-                context.Response.StatusCode = 401;
-                await context.Response.WriteAsync("Not Authorized");
-                return;
-            }
 
+            }
+            else
+            {
+                context.Request.Headers.TryGetValue("RequestorId", out var requestorIdStr);
+
+                if(!int.TryParse(requestorIdStr, out var userId))
+                {
+                    context.Response.StatusCode = 401;
+                    await context.Response.WriteAsync("Unauthorized");
+                    return;
+                }
+
+                context.Request.Headers.TryGetValue("DeviceId", out var deviceId);
+
+                var appToken = _configuration.GetValue<string>("ApiKey") ?? "";
+
+                if (!appToken.Equals(extractedToken))
+                {
+                    context.Response.StatusCode = 401;
+                    await context.Response.WriteAsync("Not Authorized");
+                    return;
+                }
+            }
             await _next(context);
         }
     }
