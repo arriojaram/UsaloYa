@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, map } from 'rxjs';
 import { NavigationService } from './navigation.service';
 import { TokenDto } from '../dto/authenticateDto';
+import { loginResponseDto } from '../dto/loginReponseDto';
 @Injectable({
   providedIn: 'root'
 })
@@ -21,7 +22,7 @@ export class AuthorizationService {
     });
   }
 
-  login(data: TokenDto) : Observable<any> {
+  login(data: TokenDto) : Observable<loginResponseDto> {
     const url = this.navigation.apiBaseUrl + '/api/User/Validate';
 
     return this.http.post<any>(url, data).pipe(

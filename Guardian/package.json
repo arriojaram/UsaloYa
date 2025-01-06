@@ -28,6 +28,7 @@
     "dexie": "^3.2.7",
     "ng-connection-service": "^9.0.3",
     "ngx-connection-service": "^17.0.1",
+    "ngx-toastr": "^19.0.0",
     "papaparse": "^5.4.1",
     "pouchdb-browser": "^8.0.1",
     "rxjs": "~7.8.0",

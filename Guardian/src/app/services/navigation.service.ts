@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../environments/enviroment';
-import { MatSnackBar } from '@angular/material/snack-bar'
+import { provideAnimations } from '@angular/platform-browser/animations';
 import { userDto } from '../dto/userDto';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, timeout } from 'rxjs';
 import { CompanyStatus } from '../Enums/enums';
-
+import { DefaultGlobalConfig, ToastrService } from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +20,7 @@ export class NavigationService {
   companyStatus: CompanyStatus  = CompanyStatus.Inactive;
 
   constructor(
-    private _snackBar: MatSnackBar
+    private toastr: ToastrService
   ) 
   {
     this.apiBaseUrl = environment.apiUrlBase;
@@ -83,9 +83,8 @@ export class NavigationService {
 
   showUIMessage(message: string)
   {
-    this._snackBar.open(message, 'cerrar', {
-      duration: environment.notificationsDisplayTimeSeconds
-     
-    });
+    
+    
+    this.toastr.info(message, 'Info');
   }
 }

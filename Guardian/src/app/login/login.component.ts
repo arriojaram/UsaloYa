@@ -10,6 +10,7 @@ import { userDto } from '../dto/userDto';
 import { catchError, first, of, Subject, switchMap, takeUntil } from 'rxjs';
 import { environment } from '../environments/enviroment';
 import { TokenDto } from '../dto/authenticateDto';
+import { loginResponseDto } from '../dto/loginReponseDto';
 
 
 @Component({
@@ -52,9 +53,14 @@ export class LoginComponent implements OnInit, OnDestroy {
       const loginData: TokenDto = this.loginForm.value;
      
       this.authService.login(loginData).pipe(first(),
-        switchMap((loginResults) => {
+        switchMap((loginResults: loginResponseDto) => {
+          
           console.log(JSON.stringify(loginResults));
-          return this.userStateService.getLoggedUser(loginResults.Id);
+          
+          if(loginResults.msg)
+            this.navigation.showUIMessage(loginResults.msg);
+
+          return this.userStateService.getLoggedUser(loginResults.id);
         }),
         catchError((e) => {
           if (e.status === 0) {
@@ -70,6 +76,8 @@ export class LoginComponent implements OnInit, OnDestroy {
             if(e.error == '$_Expired_License')
               errMessage = environment.paymentExpiredMsg;
             this.navigation.showUIMessage(errMessage);
+            this.navigation.showUIMessage('M1');
+            this.navigation.showUIMessage('errMessage');
           }
           console.error(e);
           return of(null); // Retornamos un observable nulo para continuar el flujo

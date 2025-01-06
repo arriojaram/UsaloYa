@@ -33,8 +33,7 @@ namespace UsaloYa.API.Security
             else
             {
                 context.Request.Headers.TryGetValue("RequestorId", out var requestorIdStr);
-
-                if(!int.TryParse(requestorIdStr, out var userId))
+                if (!int.TryParse(requestorIdStr, out _))
                 {
                     context.Response.StatusCode = 401;
                     await context.Response.WriteAsync("Unauthorized");
@@ -42,6 +41,13 @@ namespace UsaloYa.API.Security
                 }
 
                 context.Request.Headers.TryGetValue("DeviceId", out var deviceId);
+                if (string.IsNullOrEmpty(deviceId))
+                {
+                    context.Response.StatusCode = 400;
+                    await context.Response.WriteAsync("BadRequest");
+                    return;
+                }
+                
 
                 var appToken = _configuration.GetValue<string>("ApiKey") ?? "";
 

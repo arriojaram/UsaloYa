@@ -5,6 +5,7 @@ using UsaloYa.API.DTO;
 using UsaloYa.API.Enums;
 using UsaloYa.API.Migrations;
 using UsaloYa.API.Models;
+using UsaloYa.API.Security;
 using UsaloYa.API.Utils;
 
 namespace UsaloYa.API.Controllers
@@ -13,12 +14,12 @@ namespace UsaloYa.API.Controllers
     [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
-       
+
         private readonly ILogger<UserController> _logger;
         private readonly DBContext _dBContext;
         private readonly AppConfig _settings;
 
-        public UserController(DBContext dBContext,  ILogger<UserController> logger, AppConfig settings)
+        public UserController(DBContext dBContext, ILogger<UserController> logger, AppConfig settings)
         {
             _logger = logger;
             _dBContext = dBContext;
@@ -35,7 +36,7 @@ namespace UsaloYa.API.Controllers
         public async Task<ActionResult> SaveUser([FromHeader] string RequestorId, [FromBody] UserDto userDto)
         {
             User userToSave = null;
-            var roleId = Enums.EConverter.GetEnumFromValue<Enums.Role>(userDto.RoleId?? 0);
+            var roleId = Enums.EConverter.GetEnumFromValue<Enums.Role>(userDto.RoleId ?? 0);
             if (roleId == default)
                 return BadRequest("$_Rol_Invalido");
 
@@ -69,14 +70,14 @@ namespace UsaloYa.API.Controllers
                         StatusId = (int)Enumerations.UserStatus.Desconocido,
                         CreationDate = Util.GetMxDateTime()
 
-                        ,RoleId = userDto.RoleId
+                        , RoleId = userDto.RoleId
                     };
                     _dBContext.Users.Add(userToSave);
                 }
                 else
                 {
                     userToSave = await _dBContext.Users.FindAsync(userDto.UserId);
-                    if (userToSave == null) 
+                    if (userToSave == null)
                         return NotFound();
 
                     userToSave.IsEnabled = userDto.IsEnabled;
@@ -89,21 +90,21 @@ namespace UsaloYa.API.Controllers
                     userToSave.RoleId = userDto.RoleId;
 
                     _dBContext.Entry(userToSave).State = EntityState.Modified;
-                    
+
                 }
-               
+
                 await _dBContext.SaveChangesAsync();
                 return Ok(new UserDto() {
                     CompanyId = userToSave.CompanyId,
-                    CreatedBy = userToSave.CreatedBy??0,
+                    CreatedBy = userToSave.CreatedBy ?? 0,
                     UserId = userToSave.UserId,
                     CreationDate = userToSave.CreationDate,
                     FirstName = userToSave.FirstName,
                     GroupId = userToSave.GroupId,
-                    IsEnabled = userToSave.IsEnabled?? false,
+                    IsEnabled = userToSave.IsEnabled ?? false,
                     LastAccess = userToSave.LastAccess,
                     LastName = userToSave.LastName,
-                    LastUpdatedBy = userToSave.LastUpdateBy??0,
+                    LastUpdatedBy = userToSave.LastUpdateBy ?? 0,
                     RoleId = userToSave.RoleId,
                     UserName = userToSave.UserName,
                 });
@@ -134,7 +135,7 @@ namespace UsaloYa.API.Controllers
                 }
 
                 user.Token = Utils.Util.EncryptPassword(token.Token);
-       
+
                 await _dBContext.SaveChangesAsync();
                 return Ok();
             }
@@ -148,6 +149,7 @@ namespace UsaloYa.API.Controllers
         }
 
         [HttpGet("GetUser")]
+        [ServiceFilter(typeof(AccessValidationFilter))]
         public async Task<IActionResult> GetUser([FromHeader] string RequestorId, int userId, string i = "") //parameter i (invoked) is used only on the login component
         {
             User? u;

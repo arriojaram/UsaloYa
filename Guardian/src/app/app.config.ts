@@ -5,12 +5,16 @@ import { routes } from './app.routes';
 import { provideServiceWorker } from '@angular/service-worker';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { provideAnimations } from '@angular/platform-browser/animations';
+
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { LoadingInterceptor } from './interceptors/loading.interceptor';
 import { ConnectionServiceOptions, ConnectionServiceOptionsToken } from 'ngx-connection-service';
 import { LOCALE_ID } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
 import localeEs from '@angular/common/locales/es-MX';
+import { provideToastr } from 'ngx-toastr';
+import { environment } from './environments/enviroment';
 
 // Registrar el locale español
 registerLocaleData(localeEs);
@@ -35,7 +39,12 @@ export const appConfig: ApplicationConfig = {
         } as ConnectionServiceOptions
       } 
       ,
-    provideAnimationsAsync(),
-    { provide: LOCALE_ID, useValue: 'es-MX' } 
+    provideAnimations(),
+    { provide: LOCALE_ID, useValue: 'es-MX' } ,
+    provideToastr({
+      timeOut: environment.notificationsDisplayTimeSeconds,
+      positionClass: 'toast-bottom-center',
+      preventDuplicates: true,
+    }),
   ]
 };
