@@ -2,12 +2,14 @@
 using Microsoft.EntityFrameworkCore;
 using UsaloYa.API.DTO;
 using UsaloYa.API.Models;
+using UsaloYa.API.Security;
 using static Azure.Core.HttpHeader;
 
 namespace UsaloYa.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ServiceFilter(typeof(AccessValidationFilter))]
     public class ReportController : ControllerBase
     {
         private readonly ILogger<ReportController> _logger;

@@ -10,23 +10,18 @@ import { catchError, Observable } from 'rxjs';
 export class CustomerService {
 
   private baseUrl = environment.apiUrlBase + '/api/Customer';
-  private httpOptions;
 
   constructor(
     private http: HttpClient
   ) 
   {
-    this.httpOptions = {
-      headers: new HttpHeaders({
-        'Authorization': environment.apiToken
-      })
-    };
+
   }
 
   saveCustomer(customer: customerDto): Observable<customerDto> {
     const apiUrl = `${this.baseUrl}/SaveCustomer`;
 
-    return this.http.post<customerDto>(apiUrl, customer, this.httpOptions).pipe(
+    return this.http.post<customerDto>(apiUrl, customer).pipe(
       catchError(error => {
         console.error('saveCustomer() | ', error);
         throw error;
@@ -37,7 +32,7 @@ export class CustomerService {
   getCustomer(customerId: number): Observable<customerDto> {
     const apiUrl = `${this.baseUrl}/GetCustomer?customerId=${customerId}`;
     
-    return this.http.get<customerDto>(apiUrl, this.httpOptions).pipe(
+    return this.http.get<customerDto>(apiUrl).pipe(
       catchError(error => {
         console.error('getCustomer() | ', error);
         throw error;
@@ -49,7 +44,7 @@ export class CustomerService {
     
     const apiUrl =`${this.baseUrl}/GetAll?nameOrPhoneorEmail=${nameOrEmailOrPhone}&companyId=${companyId}`;
     
-    return this.http.get<customerDto[]>(apiUrl, this.httpOptions).pipe(
+    return this.http.get<customerDto[]>(apiUrl).pipe(
       catchError(error => {
         console.error('getAllCustomer() | ', error);
         throw error;

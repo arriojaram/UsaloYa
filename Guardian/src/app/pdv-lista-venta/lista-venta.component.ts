@@ -12,13 +12,13 @@ import { NavigationService } from '../services/navigation.service';
 import { Producto } from '../dto/producto';
 import { customerDto } from '../dto/customerDto';
 import { CustomerService } from '../services/customer.service';
+import { AlertLevel } from '../Enums/enums';
 
 @Component({
-  selector: 'app-lista-venta',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './lista-venta.component.html',
-  styleUrl: './lista-venta.component.css'
+    selector: 'app-lista-venta',
+    imports: [CommonModule, FormsModule],
+    templateUrl: './lista-venta.component.html',
+    styleUrl: './lista-venta.component.css'
 })
 export class ListaVentaComponent implements OnInit {
 
@@ -80,7 +80,7 @@ new: any;
       next: (customerList) =>{
         this.filteredCustomer = customerList;
         if(customerList.length == 0)
-          this.navigationService.showUIMessage(`No hay clientes con el nombre: ${this.customerName}`);
+          this.navigationService.showUIMessage(`No hay clientes con el nombre: ${this.customerName}`, AlertLevel.Warning);
       },
       error: (err) => {
         this.navigationService.showUIMessage(err.error);
@@ -236,7 +236,7 @@ Cajero: ${cashierName}
     {
       if(newValue <= 0)
       {
-        this.navigationService.showUIMessage('El valor debe ser mayor que cero.');
+        this.navigationService.showUIMessage('El valor debe ser mayor que cero.', AlertLevel.Warning);
         item.count = this.tempProductCounter?? 0;
       } 
       item.editing = false;
@@ -296,7 +296,7 @@ Cajero: ${cashierName}
     }
     else
     {
-      this.navigationService.showUIMessage('No has agregado la cantidad de dinero recibida');
+      this.navigationService.showUIMessage('No has agregado la cantidad de dinero recibida', AlertLevel.Warning);
     }
   }
 }

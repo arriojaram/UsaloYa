@@ -8,15 +8,14 @@ import { userDto } from '../../dto/userDto';
 import { companyDto } from '../../dto/companyDto';
 import { CompanyService } from '../../services/company.service';
 import { first } from 'rxjs';
-import { getCompanyStatusEnumName, RentTypeId, Roles } from '../../Enums/enums';
+import { AlertLevel, getCompanyStatusEnumName, RentTypeId, Roles } from '../../Enums/enums';
 import { rentRequestDto } from '../../dto/rentRequestDto';
 
 @Component({
-  selector: 'app-company-management',
-  standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule,  NgFor, NgIf],
-  templateUrl: './company-management.component.html',
-  styleUrl: './company-management.component.css'
+    selector: 'app-company-management',
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, NgFor, NgIf],
+    templateUrl: './company-management.component.html',
+    styleUrl: './company-management.component.css'
 })
 export class CompanyManagementComponent implements OnInit {
 
@@ -176,7 +175,7 @@ export class CompanyManagementComponent implements OnInit {
           next: (result) => {
             this.searchCompaniesInternal("-1");
             this.selectCompany(result.companyId, true);
-            this.navigationService.showUIMessage("Información guardada (" + result.name + ")");
+            this.navigationService.showUIMessage("Información guardada (" + result.name + ")", AlertLevel.Sucess);
           },
           error:(err) => {
             const m1 = err.error.message;
@@ -233,7 +232,7 @@ export class CompanyManagementComponent implements OnInit {
   addConfirmedPayment(): void {
     if(this.rentAmmount <= 0 || this.selectedCompany == null)
     {
-      this.navigationService.showUIMessage('El monto debe ser mayor a cero.');
+      this.navigationService.showUIMessage('El monto debe ser mayor a cero.', AlertLevel.Warning);
       return;
     }
 
@@ -249,7 +248,7 @@ export class CompanyManagementComponent implements OnInit {
     this.companyService.addCompanyRent(renta).pipe(first())
     .subscribe({
       next: (result) => {
-        this.navigationService.showUIMessage('Pago agregado con éxito');
+        this.navigationService.showUIMessage('Pago agregado con éxito', AlertLevel.Sucess);
         this.mostrarConfirmacion = false;
         this.cancelAddPayment();
         this.getPaymentHistory(); // Actualiza el historial de pagos

@@ -31,6 +31,15 @@ export enum CompanyStatus
     Expired = 2,
     Active = 3
 }
+
+export enum AlertLevel
+{
+    Info = 0,
+    Sucess =1,
+    Warning =2,
+    Error = 3
+}
+
 export enum UserStatus
 {
     Desconectado = 0,

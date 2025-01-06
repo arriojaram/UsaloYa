@@ -239,9 +239,6 @@ namespace UsaloYa.API.Controllers
             }
         }
 
-      
-
-
         [HttpGet("GetAll")]
         public async Task<IActionResult> GetAll([FromHeader] string RequestorId, [FromQuery] int companyId, string name = "-1")
         {
@@ -302,6 +299,7 @@ namespace UsaloYa.API.Controllers
         [HttpPost("Validate")]
         public async Task<IActionResult> Validate([FromHeader] string DeviceId, [FromBody] UserTokenDto request)
         {
+            var msg = string.Empty;
             try
             {
                 var encryptedPassword = Util.EncryptPassword(request.Token);
@@ -323,7 +321,11 @@ namespace UsaloYa.API.Controllers
      
                 if (userRol != Role.Root && companyStatus == CompanyStatus.Expired)
                         return Unauthorized("$_Expired_License");
-                
+
+                if (!string.IsNullOrEmpty(user.DeviceId) && user.DeviceId != DeviceId.Trim())
+                {
+                    msg = "Este usuario esta activo en otro dispositivo. La sesión en ese otro dispositivo será terminada.";
+                }
 
                 if (userRol == Role.Root || (companyStatus == CompanyStatus.Active || companyStatus == CompanyStatus.PendingPayment))
                 {
@@ -344,7 +346,7 @@ namespace UsaloYa.API.Controllers
                     return Ok(new {Id=user.UserId, Msg="El usuario estaba usando otro dispositivo. La sesión en ese dispositivo será cerrada."});
                 }
 
-                return Ok(new { Id = user.UserId, Msg = string.Empty });
+                return Ok(new { Id = user.UserId, Msg = msg });
 
             }
             catch (Exception ex)
@@ -393,6 +395,7 @@ namespace UsaloYa.API.Controllers
         
 
         [HttpPost("LogOut")]
+        [ServiceFilter(typeof(AccessValidationFilter))]
         public async Task<IActionResult> Logout([FromBody] UserTokenDto token)
         {
             var user = await _dBContext.Users

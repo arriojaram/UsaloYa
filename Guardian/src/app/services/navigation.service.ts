@@ -3,7 +3,7 @@ import { environment } from '../environments/enviroment';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { userDto } from '../dto/userDto';
 import { BehaviorSubject, timeout } from 'rxjs';
-import { CompanyStatus } from '../Enums/enums';
+import { AlertLevel, CompanyStatus } from '../Enums/enums';
 import { DefaultGlobalConfig, ToastrService } from 'ngx-toastr';
 
 @Injectable({
@@ -81,10 +81,15 @@ export class NavigationService {
     return item.value;
   }
 
-  showUIMessage(message: string)
+  showUIMessage(message: string, type: AlertLevel = AlertLevel.Error)
   {
-    
-    
-    this.toastr.info(message, 'Info');
+    if(type == AlertLevel.Info)
+      this.toastr.info(message);
+    else if(type == AlertLevel.Sucess)
+      this.toastr.success(message);
+    else if(type == AlertLevel.Warning)
+      this.toastr.warning(message);
+    else
+      this.toastr.error(message);
   }
 }

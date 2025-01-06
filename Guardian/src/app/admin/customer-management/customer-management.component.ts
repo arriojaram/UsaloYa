@@ -8,13 +8,13 @@ import { customerDto } from '../../dto/customerDto';
 import { first } from 'rxjs';
 import { NavigationService } from '../../services/navigation.service';
 import { NgFor, NgIf } from '@angular/common';
+import { AlertLevel } from '../../Enums/enums';
 
 @Component({
-  selector: 'app-customer-management',
-  standalone: true,
-  imports: [ReactiveFormsModule, FormsModule, NgFor, NgIf],
-  templateUrl: './customer-management.component.html',
-  styleUrl: './customer-management.component.css'
+    selector: 'app-customer-management',
+    imports: [ReactiveFormsModule, FormsModule, NgFor, NgIf],
+    templateUrl: './customer-management.component.html',
+    styleUrl: './customer-management.component.css'
 })
 export class CustomerManagementComponent {
   customerForm: FormGroup;
@@ -86,7 +86,7 @@ export class CustomerManagementComponent {
         next: (savedCustomer) => {
           this.searchCustomersInternal('-1');
           this.selectUser(savedCustomer.customerId);
-          this.navigationService.showUIMessage("Cliente guardado (" + savedCustomer.customerId + ")");
+          this.navigationService.showUIMessage("Cliente guardado (" + savedCustomer.customerId + ")", AlertLevel.Sucess);
           //window.scrollTo(0, 0);
         },
         error: (e) => 

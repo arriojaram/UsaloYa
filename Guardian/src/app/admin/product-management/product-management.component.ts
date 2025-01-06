@@ -10,13 +10,13 @@ import { first, Subscription } from 'rxjs';
 import { BarcodeFormat } from "@zxing/library";
 import { ZXingScannerModule } from "@zxing/ngx-scanner";
 import { barcodeFormats } from '../../shared/barcode-s-formats';
+import { AlertLevel } from '../../Enums/enums';
 
 @Component({
-  selector: 'app-product-management',
-  templateUrl: './product-management.component.html',
-  styleUrls: ['./product-management.component.css'],
-  standalone: true,
-  imports: [ReactiveFormsModule, FormsModule, NgFor, NgIf, ZXingScannerModule]
+    selector: 'app-product-management',
+    templateUrl: './product-management.component.html',
+    styleUrls: ['./product-management.component.css'],
+    imports: [ReactiveFormsModule, FormsModule, NgFor, NgIf, ZXingScannerModule]
 })
 export class ProductManagementComponent implements OnInit {
 
@@ -150,7 +150,7 @@ export class ProductManagementComponent implements OnInit {
         next: (savedProduct) => {
           this.searchProductsInternal('-1');
           this.selectProduct(savedProduct.productId);
-          this.navigationService.showUIMessage("Producto guardado (" + savedProduct.productId + ")");
+          this.navigationService.showUIMessage("Producto guardado (" + savedProduct.productId + ")", AlertLevel.Sucess);
           //window.scrollTo(0, 0);
         },
         error: (e) => 
@@ -159,7 +159,7 @@ export class ProductManagementComponent implements OnInit {
         }
       });
     } else {
-      this.navigationService.showUIMessage('Proporciona toda la información requerida');
+      this.navigationService.showUIMessage('Proporciona toda la información requerida', AlertLevel.Warning);
     }
   }
 

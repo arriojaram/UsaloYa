@@ -10,15 +10,14 @@ import { format } from 'date-fns';
 import { first } from 'rxjs';
 import { adminGroupDto } from '../../dto/adminGroupDto';
 import { AdminCompanyDto } from '../../dto/adminCompanyDto';
-import { getUserStatusEnumName, Roles } from '../../Enums/enums';
+import { AlertLevel, getUserStatusEnumName, Roles } from '../../Enums/enums';
 import { CompanyService } from '../../services/company.service';
 
 @Component({
-  selector: 'app-user-management',
-  standalone: true,
-  imports: [ReactiveFormsModule,  NgFor, NgIf],
-  templateUrl: './user-management.component.html',
-  styleUrl: './user-management.component.css'
+    selector: 'app-user-management',
+    imports: [ReactiveFormsModule, NgFor, NgIf],
+    templateUrl: './user-management.component.html',
+    styleUrl: './user-management.component.css'
 })
 export class UserManagementComponent {
   userForm: FormGroup;
@@ -224,7 +223,7 @@ export class UserManagementComponent {
           next: (result) => {
             this.searchUsersInternal("-1");
             this.selectUser(result.userId);
-            this.navigationService.showUIMessage("Usuario guardado (" + result.userName + ")");
+            this.navigationService.showUIMessage("Usuario guardado (" + result.userName + ")", AlertLevel.Sucess);
           },
           error:(err) => {
             const m1 = err.error.message;
@@ -255,7 +254,7 @@ export class UserManagementComponent {
 
       this.userService.setPassword(username, this.passwordForm.value.password).pipe(first())
       .subscribe(result => {
-        this.navigationService.showUIMessage("Password actualizado.");
+        this.navigationService.showUIMessage("Password actualizado.", AlertLevel.Sucess);
       });
     } 
   }

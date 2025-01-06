@@ -8,12 +8,14 @@ using UsaloYa.API.DTO;
 using UsaloYa.API.Enums;
 using UsaloYa.API.Migrations;
 using UsaloYa.API.Models;
+using UsaloYa.API.Security;
 using UsaloYa.API.Utils;
 
 namespace UsaloYa.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [ServiceFilter(typeof(AccessValidationFilter))]
     public class CompanyController : Controller
     {
         private readonly ILogger<CompanyController> _logger;

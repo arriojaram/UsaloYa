@@ -8,22 +8,17 @@ import { ProductSaleDetailReport, SaleDetailReport } from '../dto/sale-detail-re
   providedIn: 'root'
 })
 export class ReportsService {
-  private httpOptions;
   private baseUrl = environment.apiUrlBase + '/api/Report';
 
   constructor(private httpClient: HttpClient) 
   { 
-    this.httpOptions = {
-      headers: new HttpHeaders({
-        'Authorization': environment.apiToken
-      })
-    };
+
   }
 
   getSales(fromDate: string, toDate: string, companyId: number, userId: number): Observable<SaleDetailReport[]> {
     const apiUrl =`${this.baseUrl}/GetSalesReport?fromDate=${fromDate}&toDate=${toDate}&companyId=${companyId}&userId=${userId}`;
 
-    return this.httpClient.get<SaleDetailReport[]>(apiUrl, this.httpOptions).pipe(
+    return this.httpClient.get<SaleDetailReport[]>(apiUrl).pipe(
       catchError(error => {
         console.error('getSales() | ', error);
         throw error;
@@ -34,7 +29,7 @@ export class ReportsService {
   getProductSalesDetails(saleId: number, companyId: number): Observable<ProductSaleDetailReport[]> {
     const apiUrl =`${this.baseUrl}/GetSaleDetails?companyId=${companyId}&saleId=${saleId}`;
 
-    return this.httpClient.get<ProductSaleDetailReport[]>(apiUrl, this.httpOptions).pipe(
+    return this.httpClient.get<ProductSaleDetailReport[]>(apiUrl).pipe(
       catchError(error => {
         console.error('getProductSalesDetails() | ', error);
         throw error;

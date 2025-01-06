@@ -4,6 +4,7 @@ import { Observable, catchError, map } from 'rxjs';
 import { NavigationService } from './navigation.service';
 import { TokenDto } from '../dto/authenticateDto';
 import { loginResponseDto } from '../dto/loginReponseDto';
+import { AlertLevel } from '../Enums/enums';
 @Injectable({
   providedIn: 'root'
 })
@@ -64,7 +65,7 @@ export class AuthorizationService {
       isAuthenticated = this.navigation.getItemWithExpiry('isAuthenticated') === 'true';
     
     if(!isAuthenticated)
-      this.navigation.showUIMessage("Sesión expirada, vuelve a iniciar sesión en la aplicación.");
+      this.navigation.showUIMessage("Sesión expirada, vuelve a iniciar sesión en la aplicación.", AlertLevel.Info);
     
     return isAuthenticated;
   }

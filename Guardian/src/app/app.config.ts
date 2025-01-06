@@ -45,6 +45,7 @@ export const appConfig: ApplicationConfig = {
       timeOut: environment.notificationsDisplayTimeSeconds,
       positionClass: 'toast-bottom-center',
       preventDuplicates: true,
+      closeButton: true
     }),
   ]
 };

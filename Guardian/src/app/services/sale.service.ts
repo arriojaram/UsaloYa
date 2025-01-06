@@ -9,7 +9,7 @@ import { environment } from '../environments/enviroment';
 import { Sale, SaleDetail } from '../dto/sale';
 import Dexie from 'dexie';
 import { UpdateSaleStatus } from '../dto/update-sale-status';
-import { PriceLevel } from '../Enums/enums';
+import { AlertLevel, PriceLevel } from '../Enums/enums';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +20,7 @@ export class SaleService extends Dexie implements OnInit{
   totalVenta: number = 0;
 
   private baseUrl = environment.apiUrlBase + '/api/Sale';
-  private httpOptions;
+ 
   private currentSale: Sale;
   public customerId: number = 0;
   audioCtx: AudioContext | null = null;
@@ -54,11 +54,6 @@ export class SaleService extends Dexie implements OnInit{
     saleDetailsList: []
   };
 
-  this.httpOptions = {
-    headers: new HttpHeaders({
-      'Authorization': environment.apiToken
-    })
-  };
     
   }
 
@@ -299,7 +294,7 @@ export class SaleService extends Dexie implements OnInit{
     
     if(newProduct.unitsInStock <= 0)
     {
-      this.navigationService.showUIMessage('Producto agotado en almacén ('+ newProduct.name +')');
+      this.navigationService.showUIMessage('Producto agotado en almacén ('+ newProduct.name +')', AlertLevel.Info);
     }
     
     this.updateTotal();
@@ -333,7 +328,7 @@ export class SaleService extends Dexie implements OnInit{
    finishSale(userId: number, companyId: number, notas: string, metodoPago: string): Observable<number> {
     const apiUrl = `${this.baseUrl}/AddSale`;
     const sale = this.buildSale(userId, companyId, notas, metodoPago);
-    return this.httpClient.post<number>(apiUrl, sale, this.httpOptions).pipe(
+    return this.httpClient.post<number>(apiUrl, sale).pipe(
       tap(() => {
         //this.totalVenta = 0;
       }),
@@ -348,7 +343,7 @@ export class SaleService extends Dexie implements OnInit{
     const saleStatus: UpdateSaleStatus = {SaleId: saleId, Status: status};
     const apiUrl = `${this.baseUrl}/UpdateSaleStatus`;
     
-    return this.httpClient.post<void>(apiUrl, saleStatus, this.httpOptions).pipe(
+    return this.httpClient.post<void>(apiUrl, saleStatus).pipe(
       catchError(error => {
         console.error('updateSaleStatus() | ', error);
         throw error;
@@ -358,7 +353,7 @@ export class SaleService extends Dexie implements OnInit{
 
   completeTemporalSale(sale: Sale): Observable<Sale> {
     const apiUrl = `${this.baseUrl}/AddSale`;
-    return this.httpClient.post<Sale>(apiUrl, sale, this.httpOptions).pipe(
+    return this.httpClient.post<Sale>(apiUrl, sale).pipe(
       catchError(error => {
         console.error('finishSale() | ', error);
         throw error;
@@ -381,6 +376,7 @@ export class SaleService extends Dexie implements OnInit{
         })
       },
       error:(err) => {
+        console.log(err);
         this.navigationService.showUIMessage(err.message);
       },
     });

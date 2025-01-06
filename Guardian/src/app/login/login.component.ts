@@ -11,14 +11,14 @@ import { catchError, first, of, Subject, switchMap, takeUntil } from 'rxjs';
 import { environment } from '../environments/enviroment';
 import { TokenDto } from '../dto/authenticateDto';
 import { loginResponseDto } from '../dto/loginReponseDto';
+import { AlertLevel } from '../Enums/enums';
 
 
 @Component({
-  selector: 'app-login',
-  standalone: true,
-  imports: [RouterModule, ReactiveFormsModule, HttpClientModule, NgIf],
-  templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
+    selector: 'app-login',
+    imports: [RouterModule, ReactiveFormsModule, HttpClientModule, NgIf],
+    templateUrl: './login.component.html',
+    styleUrl: './login.component.css'
 })
 export class LoginComponent implements OnInit, OnDestroy {
   loginForm: FormGroup;
@@ -55,10 +55,8 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.authService.login(loginData).pipe(first(),
         switchMap((loginResults: loginResponseDto) => {
           
-          console.log(JSON.stringify(loginResults));
-          
           if(loginResults.msg)
-            this.navigation.showUIMessage(loginResults.msg);
+            this.navigation.showUIMessage(loginResults.msg, AlertLevel.Info);
 
           return this.userStateService.getLoggedUser(loginResults.id);
         }),
@@ -76,8 +74,6 @@ export class LoginComponent implements OnInit, OnDestroy {
             if(e.error == '$_Expired_License')
               errMessage = environment.paymentExpiredMsg;
             this.navigation.showUIMessage(errMessage);
-            this.navigation.showUIMessage('M1');
-            this.navigation.showUIMessage('errMessage');
           }
           console.error(e);
           return of(null); // Retornamos un observable nulo para continuar el flujo

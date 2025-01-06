@@ -11,11 +11,10 @@ import { SaleService } from '../../services/sale.service';
 import { PriceLevel, Roles, StatusVentaEnum } from '../../Enums/enums';
 
 @Component({
-  selector: 'app-sales-report',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './sales-report.component.html',
-  styleUrl: './sales-report.component.css'
+    selector: 'app-sales-report',
+    imports: [CommonModule, ReactiveFormsModule],
+    templateUrl: './sales-report.component.html',
+    styleUrl: './sales-report.component.css'
 })
 export class SalesReportComponent implements OnInit, OnDestroy {
   sales: SaleDetailReport[] = [];

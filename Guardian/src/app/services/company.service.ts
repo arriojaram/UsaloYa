@@ -13,24 +13,19 @@ import { AdminCompanyDto } from '../dto/adminCompanyDto';
 export class CompanyService {
 
   private baseUrl = environment.apiUrlBase + '/api/Company';
-  private httpOptions;
-
+ 
   constructor(
     private http: HttpClient
   ) 
   {
-    this.httpOptions = {
-      headers: new HttpHeaders({
-        'Authorization': environment.apiToken,
-      })
-    };
+    
   }
 
 
   addCompanyRent(c: rentRequestDto): Observable<number> {
     const apiUrl = `${this.baseUrl}/AddRent`;
 
-    return this.http.post<number>(apiUrl, c, this.httpOptions).pipe(
+    return this.http.post<number>(apiUrl, c).pipe(
       catchError(error => {
         console.error('addCompanyRent() | ', error);
         throw error;
@@ -41,7 +36,7 @@ export class CompanyService {
   setCompanyStatus(c: setStatusDto): Observable<number> {
     const apiUrl = `${this.baseUrl}/SetCompanyStatus`;
 
-    return this.http.post<number>(apiUrl, c, this.httpOptions).pipe(
+    return this.http.post<number>(apiUrl, c).pipe(
       catchError(error => {
         console.error('setCompanyStatus() | ', error);
         throw error;
@@ -52,7 +47,7 @@ export class CompanyService {
   saveCompany(c: companyDto): Observable<companyDto> {
     const apiUrl = `${this.baseUrl}/SaveCompany`;
 
-    return this.http.post<companyDto>(apiUrl, c, this.httpOptions).pipe(
+    return this.http.post<companyDto>(apiUrl, c).pipe(
       catchError(error => {
         console.error('SaveCompany() | ', error);
         throw error;
@@ -63,7 +58,7 @@ export class CompanyService {
   getCompany(companyId: number): Observable<companyDto> {
     const apiUrl = `${this.baseUrl}/GetCompany?companyId=${companyId}`;
     
-    return this.http.get<companyDto>(apiUrl, this.httpOptions).pipe(
+    return this.http.get<companyDto>(apiUrl).pipe(
       catchError(error => {
         console.error('getCompany() | ', error);
         throw error;
@@ -74,7 +69,7 @@ export class CompanyService {
   getPaymentHistory(companyId: number): Observable<rentRequestDto[]> {
     const apiUrl =`${this.baseUrl}/GetPaymentHistory?companyId=${companyId}`;
     
-    return this.http.get<rentRequestDto[]>(apiUrl, this.httpOptions).pipe(
+    return this.http.get<rentRequestDto[]>(apiUrl).pipe(
       catchError(error => {
         console.error('getPaymentHistory() | ', error);
         throw error;
@@ -85,7 +80,7 @@ export class CompanyService {
   getAll4List(companyId: number, name:string): Observable<AdminCompanyDto[]> {
       const apiUrl =`${this.baseUrl}/GetAll4List?name=${name}&companyId=${companyId}`;
       
-      return this.http.get<AdminCompanyDto[]>(apiUrl, this.httpOptions).pipe(
+      return this.http.get<AdminCompanyDto[]>(apiUrl).pipe(
         catchError(error => {
           console.error('getCompanies() | ', error);
           throw error;

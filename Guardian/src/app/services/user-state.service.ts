@@ -49,7 +49,16 @@ export class UserStateService {
     if(userId > 0)
     {
       const url = this.navigation.apiBaseUrl + '/api/User/GetUser?i=login&userId=' + userId;
-    
+
+      //Sobre cargar los headers aqui: 
+      this.httpOptions = {
+        headers: new HttpHeaders({
+          'Authorization': environment.apiToken,
+          'RequestorId': userId,
+          'DeviceId': this.navigation.getItemWithExpiry('deviceId')?? ''
+        })
+      };    
+
       return this.http.get<any>(url, this.httpOptions).pipe(
         catchError(error => {
           console.error('getUser() | ', error);

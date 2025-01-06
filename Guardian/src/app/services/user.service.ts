@@ -14,23 +14,19 @@ import { NavigationService } from './navigation.service';
 export class UserService {
 
   private baseUrl = environment.apiUrlBase + '/api/User';
-  private httpOptions;
+
   constructor(
     private http: HttpClient,
     private navigationService: NavigationService
   ) 
   {
-    this.httpOptions = {
-      headers: new HttpHeaders({
-        'Authorization': environment.apiToken
-      })
-    };
+
   }
 
   saveUser(user: userDto): Observable<userDto> {
     const apiUrl = `${this.baseUrl}/SaveUser`;
 
-    return this.http.post<userDto>(apiUrl, user, this.httpOptions).pipe(
+    return this.http.post<userDto>(apiUrl, user).pipe(
       catchError(error => {
         console.error('saveUser() | ', error);
         throw error;
@@ -41,7 +37,7 @@ export class UserService {
   getUser(userId: number): Observable<userDto> {
     const apiUrl = `${this.baseUrl}/GetUser?i=0&userId=${userId}`;
     
-    return this.http.get<userDto>(apiUrl, this.httpOptions).pipe(
+    return this.http.get<userDto>(apiUrl).pipe(
       catchError(error => {
         console.error('getUser() | ', error);
         throw error;
@@ -51,12 +47,8 @@ export class UserService {
 
   getAllUser(companyId: number, name:string): Observable<userDto[]> {
     const apiUrl =`${this.baseUrl}/GetAll?name=${name}&companyId=${companyId}`;
-    this.httpOptions = {
-      headers: new HttpHeaders({
-        'Authorization': environment.apiToken
-      })
-    };
-    return this.http.get<userDto[]>(apiUrl, this.httpOptions).pipe(
+
+    return this.http.get<userDto[]>(apiUrl).pipe(
       catchError(error => {
         console.error('getAllUser() | ', error);
         throw error;
@@ -67,7 +59,7 @@ export class UserService {
   getGroups(): Observable<adminGroupDto[]> {
     const apiUrl =`${this.baseUrl}/GetGroups`;
     
-    return this.http.get<adminGroupDto[]>(apiUrl, this.httpOptions).pipe(
+    return this.http.get<adminGroupDto[]>(apiUrl).pipe(
       catchError(error => {
         console.error('getGroups() | ', error);
         throw error;
@@ -82,7 +74,7 @@ export class UserService {
       userName: userName,
       token: password
     };
-    return this.http.post<userDto>(apiUrl, tokenbody, this.httpOptions).pipe(
+    return this.http.post<userDto>(apiUrl, tokenbody).pipe(
       catchError(error => {
         console.error('setPassword() | ', error);
         throw error;

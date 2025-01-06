@@ -10,7 +10,6 @@ import { barcodeFormats } from "../shared/barcode-s-formats";
 
 @Component({
     selector: 'app-scanner',
-    standalone: true,
     imports: [ReactiveFormsModule, ListaVentaComponent, CommonModule, ZXingScannerModule],
     templateUrl: './scanner.component.html',
     styleUrls: ['./scanner.component.css']

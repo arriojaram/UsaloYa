@@ -15,28 +15,49 @@ namespace UsaloYa.API.Security
             _dbContext = dbContext;
         }
 
-        public async void OnActionExecuting(ActionExecutingContext context)
+
+        public void OnActionExecuting(ActionExecutingContext context)
         {
             if (!context.HttpContext.Request.Headers.TryGetValue("DeviceId", out var deviceId) || string.IsNullOrEmpty(deviceId))
             {
-                context.Result = new UnauthorizedResult();
+                context.Result = new UnauthorizedObjectResult("*Dispositivo no reconocido."); 
                 return;
             }
 
-
-            if (!context.HttpContext.Request.Headers.TryGetValue("UserId", out var userId) || string.IsNullOrEmpty(deviceId))
+            if (!context.HttpContext.Request.Headers.TryGetValue("RequestorId", out var userIdStr) || string.IsNullOrEmpty(userIdStr))
             {
-                context.Result = new UnauthorizedResult();
+                context.Result = new UnauthorizedObjectResult("*Usuario no reconocido."); 
                 return;
             }
 
-            var user = await _dbContext.Users.FindAsync(userId);
-            if (user == null)
-                return;
-
-            if (user.DeviceId != deviceId.ToString())
+            if (!int.TryParse(userIdStr, out var userId) || userId <= 0)
             {
-                context.Result = new UnauthorizedResult();
+                context.Result = new UnauthorizedObjectResult("*Usuario no reconocido.");
+                return;
+            }
+
+            bool skipUserValidation = false;
+            if (context.HttpContext.Request.Path.StartsWithSegments(new PathString("/api/User/GetUser")) && context.HttpContext.Request.QueryString.HasValue)
+            {
+                var queryValue = context.HttpContext.Request.QueryString.Value;
+                if (queryValue != null && queryValue.Contains("i=login"))
+                {
+                    skipUserValidation = true;
+                }
+            }
+
+
+            if (!context.HttpContext.Request.Path.StartsWithSegments(new PathString("/api/User/Validate")) && !skipUserValidation)
+            {
+
+                var user = _dbContext.Users.Find(userId);
+                if (user == null)
+                    return;
+
+                if (user.DeviceId != deviceId.ToString())
+                {
+                    context.Result = new UnauthorizedObjectResult("$_Duplicated_Session");
+                }
             }
         }
 

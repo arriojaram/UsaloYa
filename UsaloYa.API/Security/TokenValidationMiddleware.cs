@@ -36,15 +36,15 @@ namespace UsaloYa.API.Security
                 if (!int.TryParse(requestorIdStr, out _))
                 {
                     context.Response.StatusCode = 401;
-                    await context.Response.WriteAsync("Unauthorized");
+                    await context.Response.WriteAsync("Usuario no reconocido.");
                     return;
                 }
 
                 context.Request.Headers.TryGetValue("DeviceId", out var deviceId);
                 if (string.IsNullOrEmpty(deviceId))
                 {
-                    context.Response.StatusCode = 400;
-                    await context.Response.WriteAsync("BadRequest");
+                    context.Response.StatusCode = 401;
+                    await context.Response.WriteAsync("Dispositivo no reconocido.");
                     return;
                 }
                 
@@ -54,7 +54,7 @@ namespace UsaloYa.API.Security
                 if (!appToken.Equals(extractedToken))
                 {
                     context.Response.StatusCode = 401;
-                    await context.Response.WriteAsync("Not Authorized");
+                    await context.Response.WriteAsync("Acceso no autorizado.");
                     return;
                 }
             }

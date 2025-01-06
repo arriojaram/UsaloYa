@@ -10,11 +10,10 @@ import { Roles } from '../../Enums/enums';
 import { NavigationService } from '../../services/navigation.service';
 
 @Component({
-  selector: 'app-import-products',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './import-products.component.html',
-  styleUrl: './import-products.component.css'
+    selector: 'app-import-products',
+    imports: [CommonModule],
+    templateUrl: './import-products.component.html',
+    styleUrl: './import-products.component.css'
 })
 export class ImportProductsComponent implements OnInit, OnDestroy {
   @ViewChild('fileInput') fileInput!: ElementRef;

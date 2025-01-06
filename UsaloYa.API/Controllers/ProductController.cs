@@ -2,11 +2,13 @@
 using Microsoft.EntityFrameworkCore;
 using UsaloYa.API.DTO;
 using UsaloYa.API.Models;
+using UsaloYa.API.Security;
 
 namespace UsaloYa.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [ServiceFilter(typeof(AccessValidationFilter))]
     public class ProductController : Controller
     {
         private readonly ILogger<ProductController> _logger;
