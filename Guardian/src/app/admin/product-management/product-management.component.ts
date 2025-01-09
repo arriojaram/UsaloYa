@@ -10,7 +10,7 @@ import { first, Subscription } from 'rxjs';
 import { BarcodeFormat } from "@zxing/library";
 import { ZXingScannerModule } from "@zxing/ngx-scanner";
 import { barcodeFormats } from '../../shared/barcode-s-formats';
-import { AlertLevel } from '../../Enums/enums';
+import { AlertLevel, Roles } from '../../Enums/enums';
 
 @Component({
     selector: 'app-product-management',
@@ -30,6 +30,7 @@ export class ProductManagementComponent implements OnInit {
   qrResultString: string = "init";
   scannerBtnLabel: string | undefined;
   pageNumber: number = 1;
+  rol = Roles;
 
   constructor(
     private fb: FormBuilder, 

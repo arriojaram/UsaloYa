@@ -283,7 +283,8 @@ Cajero: ${cashierName}
               
               this.numVenta = 'Num. Venta: TMP-' +  newGuid;
               this.message = `Venta registrada (en proceso de sincronización...)`;
-              this.resetListaVenta();
+              this.showTicket();
+              //this.resetListaVenta();
             } catch (error) {
               console.error('Error adding product:', error);
             }

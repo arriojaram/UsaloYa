@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.Design;
 using UsaloYa.API.DTO;
 using UsaloYa.API.Models;
+using UsaloYa.API.Security;
 using UsaloYa.API.Utils;
 using static UsaloYa.API.Enumerations;
 
@@ -61,8 +62,8 @@ namespace UsaloYa.API.Controllers
             }
         }
 
-        [HttpPost("AddProductsToSale")]
-        public async Task<IActionResult> AddProductsToSale(int saleId, List<SaleDetailsDto> saleDetails)
+        [NonAction]
+        private async Task<IActionResult> AddProductsToSale(int saleId, List<SaleDetailsDto> saleDetails)
         {
             decimal totalSale = 0;
             try
@@ -111,6 +112,7 @@ namespace UsaloYa.API.Controllers
         /// <param name="productId"></param>
         /// <param name="selledItems"></param>
         /// <returns></returns>
+        [NonAction]
         private async Task UpdateStock(int productId, int selledItems)
         {
             try
@@ -130,6 +132,7 @@ namespace UsaloYa.API.Controllers
             }
         }
 
+        [NonAction]
         private async Task<IActionResult> UpdateTotalSale(int saleId, decimal totalSale)
         {
             try
@@ -156,6 +159,7 @@ namespace UsaloYa.API.Controllers
         }
 
         [HttpPost("UpdateSaleStatus")]
+        [ServiceFilter(typeof(AccessValidationFilter))]
         public async Task<IActionResult> UpdateSaleStatus([FromBody] UpdateSaleDto saleStatus)
         {
             try

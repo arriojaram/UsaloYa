@@ -376,8 +376,11 @@ export class SaleService extends Dexie implements OnInit{
         })
       },
       error:(err) => {
-        console.log(err);
-        this.navigationService.showUIMessage(err.message);
+        if (err.status === 404) {
+          this.navigationService.showUIMessage("No hay productos registrados");
+        } else {
+          this.navigationService.showUIMessage(err.message);
+        }
       },
     });
   }

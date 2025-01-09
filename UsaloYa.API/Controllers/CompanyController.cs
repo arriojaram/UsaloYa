@@ -141,7 +141,7 @@ namespace UsaloYa.API.Controllers
                         Name = companyDto.Name,
                         CreatedBy = companyDto.CreatedBy,
                         CreationDate = Util.GetMxDateTime(),
-                        ExpirationDate = Util.GetMxDateTime().AddMonths(1),
+                        ExpirationDate = Util.GetMxDateTime().AddDays(10),
                         StatusId = (int)CompanyStatus.Active,
                         PhoneNumber = companyDto.TelNumber,
                         CelphoneNumber = companyDto.CelNumber,

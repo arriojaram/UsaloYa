@@ -12,7 +12,7 @@ import { userDto } from './dto/userDto';
 import { AuthorizationService } from './services/authorization.service';
 import { NavigationService } from './services/navigation.service';
 import { Sale } from './dto/sale';
-import { CompanyStatus, Roles, UserStatus } from './Enums/enums';
+import { AlertLevel, CompanyStatus, Roles, UserStatus } from './Enums/enums';
 import { environment } from './environments/enviroment';
 
 @Component({
@@ -175,11 +175,14 @@ export class AppComponent implements OnInit, OnDestroy {
       switchMap(() => this.offlineDbService.GetSales()),
       switchMap(sales => {
         console.log('Migration service running');
-        if (sales.length > 0) {
+      
+        if (sales.length > 0 && this.isOnline ) {
+          this.navigationService.showUIMessage("Sincronizando ventas con el servidor", AlertLevel.Info);
           return this.processSales(sales);
         } else {
           return of(null); // No sales to process, just a placeholder to keep the stream alive
         }
+
       }),
       catchError(err => {
         console.error('Migración fallida:', err);

@@ -75,9 +75,7 @@
                   <div *ngIf="productForm.get('barcode')?.invalid && productForm.get('barcode')?.touched" class="invalid-feedback">
                     Código de Barras es obligatorio.
                   </div>
-                  <button type="button" class="btn btn-dark" (click)="setScannerStatus()">
-                    {{scannerBtnLabel}}
-                  </button>
+                 
                 </div>
 
                 <div class="form-group">
@@ -120,12 +118,11 @@
                   <input id="unitPrice3" type="number" class="form-control" formControlName="unitPrice3" min="0.01" max="10000.00">
                 </div>
               
-              
-                
-              
                 <div class="d-flex justify-content-end my-3">
-                  <button type="button" class="btn btn-primary mx-2 btn-floating-secondary" (click)="newProduct()">Nuevo</button>
-                  <button type="button" class="btn btn-success btn-floating" (click)="saveProduct()">Guardar</button>
+                  <button type="button" class="btn btn-primary mx-2 btn-floating-secondary"
+                   (click)="newProduct()" *ngIf="this.userState.roleId > rol.User">Nuevo</button>
+                  <button type="button" class="btn btn-success btn-floating"
+                   (click)="saveProduct()" *ngIf="this.userState.roleId > rol.User">Guardar</button>
                 </div>
               </div>
             </form>
