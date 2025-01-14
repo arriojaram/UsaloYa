@@ -39,8 +39,11 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    let deviceId = this.authService.generateDeviceId();
-    this.navigation.setItemWithExpiry('deviceId', deviceId);
+    if(!this.navigation.getItemWithExpiry('deviceId'))
+    {
+      let deviceId = this.authService.generateDeviceId();
+      this.navigation.setItemWithExpiry('deviceId', deviceId);
+    }
   }
 
   ngOnDestroy(): void {

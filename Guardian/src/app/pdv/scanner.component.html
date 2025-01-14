@@ -15,7 +15,9 @@
                 <button type="submit" class="btn btn-warning"  [disabled]="formVenta.invalid">
                     Agregar a la venta
                 </button>
-                
+                <button type="button" class="btn btn-warning"  [disabled]="formVenta.invalid">
+                    Buscar Producto
+                </button>
             </div>
         </form>      
         <div [class]="messageClass" [hidden]="isHidden" style="position: absolute; top:0; left: 0; width: 100%; z-index: 10;">
