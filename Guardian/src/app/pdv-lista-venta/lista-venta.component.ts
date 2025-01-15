@@ -42,7 +42,7 @@ export class ListaVentaComponent implements OnInit {
   customerName: string = '';  // Almacena el texto ingresado
   selectedCustomer: customerDto | undefined;  
   filteredCustomer: customerDto[] = [];  
-new: any;
+  new: any;
 
   constructor(
     private router: Router,
