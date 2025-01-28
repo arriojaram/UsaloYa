@@ -295,7 +295,7 @@ namespace UsaloYa.API.Controllers
                     AddedByUserId = rentDto.AddedByUserId,
                     StatusId = rentDto.StatusId,
                     TipoRentaDesc = rentDto.TipoRentaDesc,
-                   
+                    Notas = rentDto.Notas
                 };
 
 
@@ -370,7 +370,8 @@ namespace UsaloYa.API.Controllers
                                     ReferenceDate = r.ReferenceDate,
                                     TipoRentaDesc = r.TipoRentaDesc,
                                     ByUserName = r.AddedByUser.UserName,
-                                    ExpirationDate = r.ExpirationDate == null ? Util.GetMxDateTime(): r.ExpirationDate.Value
+                                    ExpirationDate = r.ExpirationDate == null ? Util.GetMxDateTime(): r.ExpirationDate.Value,
+                                    Notas = r.Notas
                                 })
                                 .OrderByDescending(d => d.ReferenceDate)
                                 .ToListAsync();

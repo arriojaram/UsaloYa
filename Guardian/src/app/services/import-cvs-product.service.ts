@@ -27,8 +27,8 @@ export class ImportCvsProductService {
   private toProducto(row: any): Producto {
     return {
       productId: 0, 
-      name: row.Nombre || '',
-      description: row.Descripcion || '',
+      name: row.Nombre.trim() || '',
+      description: row.Descripcion.trim() || '',
       buyPrice: parseFloat(row.PrecioCompra) || 0,
       unitPrice: parseFloat(row.PrecioUnitario) || 0,
       unitPrice1: parseFloat(row.Precio1) || 0,
@@ -36,8 +36,8 @@ export class ImportCvsProductService {
       unitPrice3: parseFloat(row.Precio3) || 0,
       unitsInStock: parseInt(row.UnidadesEnStock) || 0,
       discontinued: false, // Assuming a default value
-      sku: row.Sku || '',
-      barcode: row.CodigoBarras || '',
+      sku: row.Sku.trim() || '',
+      barcode: row.CodigoBarras.trim() || '',
       companyId: 0,
       categoryId:0,
       supplierId:0,

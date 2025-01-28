@@ -23,7 +23,8 @@ import { AlertLevel } from '../Enums/enums';
 export class LoginComponent implements OnInit, OnDestroy {
   loginForm: FormGroup;
   private unsubscribe$: Subject<void> = new Subject();
-  
+  loading: boolean = false;
+
   constructor(private fb: FormBuilder, 
     private router: Router,
     private authService: AuthorizationService,
@@ -53,6 +54,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   onSubmit(): void {
     if (this.loginForm.valid) {
+      this.loading = true;
       const loginData: TokenDto = this.loginForm.value;
      
       this.authService.login(loginData).pipe(first(),
@@ -78,6 +80,7 @@ export class LoginComponent implements OnInit, OnDestroy {
               errMessage = environment.paymentExpiredMsg;
             this.navigation.showUIMessage(errMessage);
           }
+          this.loading = false;
           console.error(e);
           return of(null); // Retornamos un observable nulo para continuar el flujo
         })
@@ -90,6 +93,7 @@ export class LoginComponent implements OnInit, OnDestroy {
           }
         },
         error: (e) => {
+          this.loading = false;
           this.navigation.showUIMessage(e.error);
           console.error(e);
         }

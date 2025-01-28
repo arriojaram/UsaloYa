@@ -20,7 +20,9 @@
                   La contraseña es requerida
                 </div>
               </div>
-              <button type="submit" class="btn btn-primary w-100" [disabled]="loginForm.invalid">Entrar</button>
+              <button type="submit" class="btn btn-primary w-100" [disabled]="loginForm.invalid">Entrar
+                <span *ngIf="this.loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              </button>
             </form>
           </div>
         </div>

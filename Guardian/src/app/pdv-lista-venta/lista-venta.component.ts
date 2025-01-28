@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { SaleService } from '../services/sale.service';
 import { CommonModule } from '@angular/common';
 import { OfflineDbStore } from '../services/offline-db-store.service';
@@ -20,9 +20,8 @@ import { AlertLevel } from '../Enums/enums';
     templateUrl: './lista-venta.component.html',
     styleUrl: './lista-venta.component.css'
 })
-export class ListaVentaComponent implements OnInit {
 
-
+export class ListaVentaComponent implements OnInit, OnDestroy {
   userState: userDto;
   metodoPago: string;
   pagoRecibido: number | undefined;
@@ -38,7 +37,7 @@ export class ListaVentaComponent implements OnInit {
   
   custButtonClass: string = 'btn btn-success';
   custButtonLabel: string = '+';
-
+  enableQz: boolean = false;
   customerName: string = '';  // Almacena el texto ingresado
   selectedCustomer: customerDto | undefined;  
   filteredCustomer: customerDto[] = [];  
@@ -58,10 +57,16 @@ export class ListaVentaComponent implements OnInit {
     this.numVenta = "-1";
     this.userState = this.userStateService.getUserStateLocalStorage();
   }
+  ngOnDestroy(): void {
+    if(this.enableQz)
+      qz.websocket.disconnect();
+  }
 
   ngOnInit(): void {
     this.metodoPago = "Efectivo";
     this.userState = this.userStateService.getUserStateLocalStorage();
+    if(this.enableQz)
+      this.retryConnect(0);
   }
 
   onSelectPrice(event: Event, productId: number): void {
@@ -140,12 +145,15 @@ export class ListaVentaComponent implements OnInit {
     const cashierName = `${this.userState.firstName} ${this.userState.lastName}`;
 
     let productList: string = '';
+    let productListHtml: string = '';
     
     products.forEach(product => {
       const count = product.count.toString().padEnd(3, ' '); 
       const name = product.name.length > 13 ? product.name.substring(0, 13) : product.name.padEnd(12, ' ');
       const precio = product.unitPrice.toFixed(2).padEnd(6, ' '); 
       const total = product.total.toFixed(2); 
+
+      productListHtml += `<div>${count}${name} ${precio} ${total}</div>`;
       productList += `${count}${name} ${precio} ${total}
 `;
     });
@@ -162,7 +170,26 @@ Cambio: $${cambio.toFixed(2)}
 Cajero: ${cashierName}
     ¡Gracias por su compra!`;
     
-    this.sendToPrinter(ticket);
+    let ticketHtml: string = `<div style="font-size: 13px; display: flex; justify-content: center;">*** ${companyName} ***</div>
+    <div style="font-size: 12px;">${ventaNumber}</div>
+    <div style="font-size: 12px;">Fecha: ${fechaHora}</div>
+    <div style="font-size: 12px;"><strong>Cant. Nombre   Precio   Importe</strong></div>
+    <div style="font-size: 12px;">${productListHtml}</div><br>
+    <div style="font-size: 14px;">Total: $${totalVenta.toFixed(2)}</div>
+    <div style="font-size: 14px;">Recibido: $${this.pagoRecibido?.toFixed(2)}</div>
+    <div style="font-size: 14px;">Cambio: $${cambio.toFixed(2)}</div>
+    <div style="font-size: 12px;">Cajero: ${cashierName}</div>
+    <div style="font-size: 12px;"><strong>¡Gracias por su compra!</strong></div>`;
+
+    if(this.isMobile()){
+      this.sendToPrinter(ticket);
+    }
+    else
+    {
+      if(this.enableQz)
+        this.printInPC(ticketHtml);
+    }
+   
   }
 
   sendToPrinter(ticket: string)
@@ -183,6 +210,48 @@ Cajero: ${cashierName}
   }
 
   /****************** END TICKET *******************************/
+  async connectToQZTray() {
+    try {
+    
+      qz.websocket.connect();
+      console.log('Connected to QZ Tray successfully');
+    } catch (error) {
+      console.error('Error connecting to QZ Tray:', error);
+    }
+  }
+  retryConnect(attempts: number) {
+    if (attempts > 3) {
+      console.error('Failed to connect to QZ Tray after multiple attempts');
+      return;
+    }
+  
+    if (!window.qzReady)   {
+      setTimeout(() => this.retryConnect(attempts + 1), 1000); // Retry after 1 second
+    } else {
+      this.connectToQZTray();
+    }
+  }
+
+  async printInPC(data: string) {
+    var config = qz.configs.create("POS58 Printer");               // Exact printer name from OS
+    
+    qz.print(config, [{
+      type: 'pixel',
+      format: 'html',
+      flavor: 'plain',
+      data: data
+    }]).then(function() {
+       console.log("Sent data to printer");
+    });
+  }
+
+  isMobile(): boolean {
+    const userAgent = window.navigator.userAgent;
+    // Regex que busca patrones comunes de agentes de usuario móviles
+    const mobileRegex = /iPhone|iPad|iPod|Android/i;
+    return mobileRegex.test(userAgent);
+  }
+  /****************** END QZ Try *******************************/
 
   onInputChange(value: string): void {
     const parsedValue = parseFloat(value);
@@ -284,7 +353,7 @@ Cajero: ${cashierName}
               this.numVenta = 'Num. Venta: TMP-' +  newGuid;
               this.message = `Venta registrada (en proceso de sincronización...)`;
               this.showTicket();
-              //this.resetListaVenta();
+              
             } catch (error) {
               console.error('Error adding product:', error);
             }

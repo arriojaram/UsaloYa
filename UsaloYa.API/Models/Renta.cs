@@ -18,6 +18,7 @@ public partial class Renta
     public int StatusId { get; set; }
 
     public string? TipoRentaDesc { get; set; }
+    public string? Notas { get; set; }
 
     public DateTime? ExpirationDate { get; set; }
 

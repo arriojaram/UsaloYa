@@ -10,4 +10,5 @@ export interface rentRequestDto {
 
     byUserName?: string;
     statusIdUI?: string;
+    notas?: string;
 }

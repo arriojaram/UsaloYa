@@ -39,6 +39,7 @@ export class CompanyManagementComponent implements OnInit {
   paymentHistory: rentRequestDto[] = [];
   rentAmmount: number = 0;
   paymentTypeId: any;
+  notas: string = "";
 
   constructor(
     private fb: FormBuilder,
@@ -242,7 +243,8 @@ export class CompanyManagementComponent implements OnInit {
       amount: this.rentAmmount, 
       companyId:this.selectedCompany.companyId, 
       referenceDate:new Date(), 
-      statusId:this.paymentTypeId
+      statusId:this.paymentTypeId,
+      notas: this.notas
     };
 
     this.companyService.addCompanyRent(renta).pipe(first())

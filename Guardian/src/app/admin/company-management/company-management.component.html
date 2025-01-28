@@ -131,24 +131,24 @@
                             </form>
                         </div>
                         <div class="tab-pane" [class.active]="activeTab === 'tabPagos'" id="tabPagos">
-                            <!-- Sección 1: Información general y lista -->
+                           <!-- Sección 1: Información general y lista -->
                             <div class="container mb-2 rounded">
-                                <div class="rounded bg-section1 text-white Row">
+                                <div class="rounded bg-section1 text-white">
                                     <div class="p-3 mb-2 bg-title text-white">Plan activo: <span>{{ this.selectedCompany?.planIdUI }}</span></div>
                                     <div class="row">
                                         <!-- Primer Div: Lista de opciones -->
-                                        <div class="col-6">
-                                            
+                                        <!-- Cambio de col-6 a col-12 col-md-6 para mejorar la visualización en móviles -->
+                                        <div class="col-12 col-md-6">
                                             <div class="ms-3"> * Hasta dos cuentas.</div>
                                             <div class="ms-3"> * Sin límite de uso.</div>
-                                           
                                         </div>
                                         <!-- Segundo Div: Información de pagos -->
-                                        <div class="col-6 mb-3">
+                                        <!-- Cambio de col-6 a col-12 col-md-6 para mejorar la visualización en móviles -->
+                                        <div class="col-12 col-md-6 mb-3">
                                             <div class="mb-3">Pago</div>
                                             <div class="mb-1">Tu próxima factura será de {{this.selectedCompany?.planPrice | currency:'MXN'}} y llegará el {{this.selectedCompany?.expirationDate | date:'fullDate'}}</div>
-                                            <div class="mb-3">Contacta a tu vendedor para obtener mas información: {{this.selectedCompany?.createdByFullName}}</div>
-                                        
+                                            <div class="mb-3">Contacta a tu vendedor para obtener más información: {{this.selectedCompany?.createdByFullName}}</div>
+                                            
                                             <div *ngIf="this.userState.roleId > rol.Admin">
                                                 <button class="btn btn-primary" [disabled]="showAddPaymentSection" (click)="showAddPaymentSection = true">Agregar Pago</button>
                                             </div>
@@ -156,66 +156,74 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <!-- Sección 2: Agregar pago -->
                             <div *ngIf="showAddPaymentSection" class="container mb-4">
                                 <div class="row align-items-center">
-                                <div class="col-md-4">
-                                    Ingresa Monto <input type="number" class="form-control" placeholder="Monto" [(ngModel)]="rentAmmount">
-                                </div>
-                                <div class="col-md-4">
-                                    Selecciona Tipo
-                                    <select [(ngModel)]="paymentTypeId" class="form-select">
-                                        <option *ngFor="let option of tipoPagoList" [value]="option.value">
-                                            {{ option.name }}
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
-                                    <button class="btn btn-success mx-2" (click)="mostrarConfirmacion = true">Agregar</button>
-                                    <button class="btn btn-secondary" (click)="cancelAddPayment()">Cancelar</button>
-                                </div>
+                                    <!-- Ajustes para una mejor respuesta en tamaños más pequeños -->
+                                    <div class="col-lg-4 col-md-6 col-12"> 
+                                        Ingresa Monto <input type="number" class="form-control" placeholder="Monto" [(ngModel)]="rentAmmount">
+                                    </div>
+                                    <div class="col-lg-4 col-md-6 col-12">
+                                        Selecciona Tipo
+                                        <select [(ngModel)]="paymentTypeId" class="form-select">
+                                            <option *ngFor="let option of tipoPagoList" [value]="option.value">
+                                                {{ option.name }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-4 col-md-6 col-12">
+                                        Notas <input type="text" class="form-control" placeholder="Notas" [(ngModel)]="notas">
+                                    </div>
+                                    <div class="col-lg-4 col-md-12 col-12"> 
+                                        <div class="d-grid gap-2 d-md-block"> 
+                                            <button class="btn btn-success me-1" (click)="mostrarConfirmacion = true">Agregar</button>
+                                            <button class="btn btn-secondary ms-1" (click)="cancelAddPayment()">Cancelar</button>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div *ngIf="mostrarConfirmacion" class="text-center mt-3">
-                                    <p>¿Confirmas agregar este pago de {{ rentAmmount | currency:'MXN'}} este pago para la empresa {{ this.selectedCompany?.name }}?</p>
-                                    <button class="btn btn-success" (click)="addConfirmedPayment();">Sí</button>
-                                    <button class="btn btn-danger mx-3" (click)="mostrarConfirmacion = false">No</button>
+                                    <p>¿Confirmas agregar este pago de {{ rentAmmount | currency:'MXN'}} para la empresa {{ this.selectedCompany?.name }}?</p>
+                                    <div class="d-grid gap-2 d-md-block text-center"> <!-- Usar d-grid para mejor distribución de botones en pantallas pequeñas -->
+                                        <button class="btn btn-success me-1" (click)="addConfirmedPayment();">Sí</button>
+                                        <button class="btn btn-danger ms-1" (click)="mostrarConfirmacion = false">No</button>
+                                    </div>
                                 </div>
-                                
                             </div>
                             
+
                             <!-- Sección 3: Historial de pagos -->
                             <div class="container">
                                 <h3>Historial de Pagos</h3>
                                 <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Id</th>
-                                        <th>Fecha</th>
-                                        <th>Monto</th>
-                                        <th>Descripción</th>
-                                      
-                                        <th>Ingresó</th>
-                                        <th>Expira</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr *ngFor="let pago of paymentHistory">
-                                        <td>{{pago.id}}</td>
-                                        <td>{{pago.referenceDate | date:'mediumDate' }}</td>
-                                        <td>{{pago.amount | currency:'MXN'}}</td>
-                                        <td>{{pago.statusIdUI}}</td>
-                                        <td>{{pago.byUserName}}</td>
-                                        <td>{{pago.expirationDate | date:'mediumDate' }}</td>
-                                    </tr>
-                                </tbody>
+                                    <thead>
+                                        <tr>
+                                            <th>Id</th>
+                                            <th>Fecha</th>
+                                            <th>Monto</th>
+                                            <th>Descripción</th>
+                                            <th>Ingresó</th>
+                                            <th>Expira</th>
+                                            <th>Notas</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let pago of paymentHistory">
+                                            <td>{{pago.id}}</td>
+                                            <td>{{pago.referenceDate | date:'mediumDate' }}</td>
+                                            <td>{{pago.amount | currency:'MXN'}}</td>
+                                            <td>{{pago.statusIdUI}}</td>
+                                            <td>{{pago.byUserName}}</td>
+                                            <td>{{pago.expirationDate | date:'mediumDate' }}</td>
+                                            <td>{{pago.notas}}</td>
+                                        </tr>
+                                    </tbody>
                                 </table>
-                            </div>  
-                            
-                        </div>
+                            </div>
+
 
                         
-                    </div>
+                        </div>
                 </div>
             </div>
         </div>

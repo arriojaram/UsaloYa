@@ -2,7 +2,6 @@ import { Component, OnInit } from "@angular/core";
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
 import { SaleService } from "../services/sale.service";  
 import { CommonModule } from "@angular/common"; 
-import { ZXingScannerModule } from "@zxing/ngx-scanner";
 import { BarcodeFormat } from "@zxing/library";
 import { ListaVentaComponent } from "../pdv-lista-venta/lista-venta.component";
 import { UserStateService } from "../services/user-state.service";
@@ -69,6 +68,7 @@ export class PuntoDeVentaComponent implements OnInit {
 
         this.codigo.setValue(product.barcode);
         this.addProductToSaleList();
+        this.productName = "";
     }
 
     showSearchProduct(): void {
@@ -93,19 +93,18 @@ export class PuntoDeVentaComponent implements OnInit {
 
       
     onCodeResult(resultString: string) {
-        
         if (this.scanningAllowed) {
             this.scanningAllowed = false; // Deshabilitar escaneo temporalmente
         
             this.codigo.setValue(resultString);
             this.addProductToSaleList();
-           
+        
             
             // Establecer el delay antes de permitir otro escaneo
             setTimeout(() => {
                 this.scanningAllowed = true;
             }, 3000); 
-        }
+        }       
     }
 
     get codigo(){

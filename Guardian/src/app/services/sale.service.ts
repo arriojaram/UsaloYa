@@ -20,7 +20,7 @@ export class SaleService extends Dexie implements OnInit{
   totalVenta: number = 0;
 
   private baseUrl = environment.apiUrlBase + '/api/Sale';
- 
+  isOnline: boolean | undefined;
   private currentSale: Sale;
   public customerId: number = 0;
   audioCtx: AudioContext | null = null;
@@ -36,25 +36,23 @@ export class SaleService extends Dexie implements OnInit{
     this.version(environment.databaseVersion).stores({
       productCatalogTable: 'productId, name, barcode, sku',
       migrationsTable: '++id, migrationDate'
-  });
+    });
 
-  // Create relationships
-  this.productCatalogTable = this.table('productCatalogTable');
-  this.migrationsTable = this.table('migrationsTable');
+    // Create relationships
+    this.productCatalogTable = this.table('productCatalogTable');
+    this.migrationsTable = this.table('migrationsTable');
 
-  this.currentSale = {
-    id: undefined,
-    saleId: 0,
-    customerId: this.customerId,
-    paymentMethod: '',
-    companyId: 0,
-    tax: 0,
-    notes: '',
-    userId: 0,
-    saleDetailsList: []
-  };
-
-    
+    this.currentSale = {
+      id: undefined,
+      saleId: 0,
+      customerId: this.customerId,
+      paymentMethod: '',
+      companyId: 0,
+      tax: 0,
+      notes: '',
+      userId: 0,
+      saleDetailsList: []
+    };    
   }
 
   ngOnInit():void{
@@ -361,27 +359,45 @@ export class SaleService extends Dexie implements OnInit{
     );
   }
 
+  getAllOfflineTableProducts(): Observable<Producto[]> {
+    // Convierte la promesa en un observable
+    return from(this.productCatalogTable.toArray());
+  }
+
+  private loadProductFromLocalTable()
+  {
+    this.getAllOfflineTableProducts().pipe(first()).subscribe(
+      {
+        next: (products: Producto[]) => {
+          this.productCatalog = products;
+          console.log("Productos cargados de la memoria");
+        },
+      }
+    );
+  }
   public cacheProductCatalog(companyId: number)
   {
-    this.productService.searchProductsFull(-1, companyId, "-1").pipe(first())
-    .subscribe({
-      next: async (products: Producto[]) => {
-        this.productCatalog = products;
-        
-        // Remove any existing record
-        this.productCatalogTable.clear();
-        // Update products variable
-        await this.transaction('rw', this.productCatalogTable, async () => {
-          await this.productCatalogTable.bulkAdd(products);
-        })
-      },
-      error:(err) => {
-        if (err.status === 404) {
-          this.navigationService.showUIMessage("No hay productos registrados");
-        } else {
-          this.navigationService.showUIMessage(err.message);
-        }
-      },
-    });
+      this.productService.searchProductsFull(-1, companyId, "-1").pipe(first())
+      .subscribe({
+        next: async (products: Producto[]) => {
+          this.productCatalog = products;
+          console.log("Actualizando productos localmente");
+          // Remove any existing record
+          this.productCatalogTable.clear();
+          // Update products variable
+          await this.transaction('rw', this.productCatalogTable, async () => {
+            await this.productCatalogTable.bulkAdd(products);
+          })
+        },
+        error:(err) => {
+          this.loadProductFromLocalTable();
+          if (err.status === 404) {
+            this.navigationService.showUIMessage("No hay productos registrados");
+          } else 
+          { 
+            this.navigationService.showUIMessage(err.message);
+          }
+        },
+      });
   }
 }

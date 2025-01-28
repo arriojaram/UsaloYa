@@ -5,6 +5,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../environments/enviroment';
 import { userDto } from '../dto/userDto';
 import { AuthorizationService } from './authorization.service';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +14,7 @@ export class UserStateService {
   private httpOptions;
 
   constructor(
+    private router: Router,
     private navigation: NavigationService,
     private http: HttpClient,
     private authorizationService: AuthorizationService
@@ -41,6 +43,7 @@ export class UserStateService {
     else
     {
       console.info('No se puede cargar la información del usuario (local). Usuario no encontrado');
+      this.router.navigate(['/login']);
       throw new Error("$Invalid_User");
     }
   }

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router, RouterModule, RouterOutlet } from '@angular/router';
 import { ConnectionService } from 'ngx-connection-service';
 import { BehaviorSubject, Observable, Subject, catchError, debounceTime, filter, finalize, first, forkJoin, interval, of, switchMap, takeUntil } from 'rxjs';
@@ -32,7 +32,8 @@ export class AppComponent implements OnInit, OnDestroy {
   rol = Roles;
   cStatus = CompanyStatus;
   uStatus = UserStatus;
-  
+  userRol: string | undefined;
+
   paymentMsg: string= "";
   
   private unsubscribe$: Subject<void> = new Subject();
@@ -66,12 +67,13 @@ export class AppComponent implements OnInit, OnDestroy {
     
     // Init network status monitor
     this.connectionService.monitor()
-    .pipe(debounceTime(10000), takeUntil(this.unsubscribe$))
+    .pipe(debounceTime(3000), takeUntil(this.unsubscribe$))
     .subscribe(currentState => {
       this.hasNetworkConnection = currentState.hasNetworkConnection;
       this.hasInternetAccess = currentState.hasInternetAccess;
       this.isOnline = this.hasNetworkConnection && this.hasInternetAccess; 
       this.appOnlineStatus = this.isOnline ? 'ONLINE' : 'OFFLINE';
+      this.salesService.isOnline = this.isOnline;
     });
 
     // Init the navigation end to manage the UI
@@ -106,7 +108,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.unsubscribe$.complete();
     console.log(`Unsuscribe - ${this.appOnlineStatus} - ${new Date()}`);
   }
-
+  
   public logoutApp(event: MouseEvent)
   {
     if(this.userStateUI)
@@ -155,6 +157,8 @@ export class AppComponent implements OnInit, OnDestroy {
         this.paymentMsg = environment.paymentPendingMsg;
         this.showPaymentAlert = true;
       }  
+
+      this.userRol = Roles[this.userStateUI.roleId];
     }
     catch(e)
     {      
@@ -170,7 +174,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   initMigrationService() {
-    interval(1000 * 60 * 5) // 300,000 ms = 5 minutes
+    interval(1000 * 60) // every 1 minute
     .pipe(
       switchMap(() => this.offlineDbService.GetSales()),
       switchMap(sales => {
