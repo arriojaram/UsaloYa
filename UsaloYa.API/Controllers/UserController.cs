@@ -128,7 +128,7 @@ namespace UsaloYa.API.Controllers
                     return NotFound();
 
 
-                var requestor = await Util.ValidateRequestorSameCompanyOrTopRol(RequestorId, user.CompanyId, Role.SysAdmin, _dBContext);
+                var requestor = await Util.ValidateRequestorSameCompanyOrTopRol(RequestorId, user.CompanyId, Role.Ventas, _dBContext);
                 if (requestor.UserId <= 0)
                 {
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
@@ -175,8 +175,12 @@ namespace UsaloYa.API.Controllers
 
                 if (!i.Equals("login"))
                 {
-                    var requestor = await Util.ValidateRequestorSameCompanyOrTopRol(RequestorId, u.CompanyId, Role.SysAdmin, _dBContext);
+                    var requestor = await Util.ValidateRequestorSameCompanyOrTopRol(RequestorId, u.CompanyId, Role.Ventas, _dBContext);
                     if (requestor.UserId <= 0)
+                    {
+                        return Unauthorized(AppConfig.NO_AUTORIZADO);
+                    }
+                    if (requestor.RoleId == (int)Role.Ventas && u.CreatedBy != requestor.UserId)
                     {
                         return Unauthorized(AppConfig.NO_AUTORIZADO);
                     }
@@ -261,7 +265,7 @@ namespace UsaloYa.API.Controllers
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
                 }
 
-                var users = (string.IsNullOrEmpty(name) || string.Equals(name, "-1", StringComparison.OrdinalIgnoreCase))
+                var companyQuery = (string.IsNullOrEmpty(name) || string.Equals(name, "-1", StringComparison.OrdinalIgnoreCase))
                     ? await _dBContext.Users.Where(c => (c.CompanyId == companyId || companyId == 0)).OrderByDescending(u => u.UserId).Take(50).ToListAsync()
                     : await _dBContext.Users.Include(em => em.Company)
                         .Where(u => (
@@ -269,13 +273,26 @@ namespace UsaloYa.API.Controllers
                                 || name.Contains(u.FirstName) || name.Contains(u.LastName)
                                 || u.Company.Name.Contains(name) 
                                 ) 
-                                && (u.CompanyId == companyId || companyId == 0))
-                        .OrderBy(u => u.FirstName)
-                        .ThenBy(u => u.LastName)
+                                && (u.CompanyId == companyId || companyId == 0)
+                        )
                         .Take(50)
                         .ToListAsync();
 
-                var userDtos = users.Select(u => new UserResponseDto
+                var salesmanQuery = await _dBContext.Users.Include(c => c.Company)
+                    .Where(u => (requestor.RoleId > (int)Role.Admin && u.CreatedBy == requestor.UserId))
+                    .ToListAsync();
+
+                var salesmanUsers = salesmanQuery.Select(u => new UserResponseDto
+                {
+                    UserId = u.UserId,
+                    IsEnabled = u.IsEnabled ?? false,
+                    UserName = u.UserName,
+                    FirstName = u.FirstName,
+                    LastName = u.LastName,
+
+                });
+
+                var userDtos = companyQuery.Select(u => new UserResponseDto
                 {
                     UserId = u.UserId,
                     IsEnabled = u.IsEnabled?? false,
@@ -285,7 +302,12 @@ namespace UsaloYa.API.Controllers
                    
                 });
 
-                return Ok(userDtos);
+                var result = userDtos.Union(salesmanUsers)
+                    .OrderBy(u => u.FirstName)
+                    .ThenBy(u => u.LastName)
+                    .ToList<UserResponseDto>();
+
+                return Ok(result);
             }
             catch (Exception ex)
             {

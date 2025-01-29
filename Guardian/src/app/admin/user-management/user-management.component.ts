@@ -82,7 +82,7 @@ export class UserManagementComponent {
         next: (data) => 
           {  
             // Filter the companies to display only the one the user owns to
-            if(!(this.userState.roleId >= this.rol.SysAdmin))
+            if(!(this.userState.roleId >= this.rol.Ventas))
             {
               data = data.filter(c => c.companyId == this.userState.companyId)
             }

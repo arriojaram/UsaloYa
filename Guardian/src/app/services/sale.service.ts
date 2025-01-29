@@ -191,6 +191,11 @@ export class SaleService extends Dexie implements OnInit{
     }
     else
     {
+      if(productForSale.discontinued)
+      {
+        this.navigationService.showUIMessage("Este producto ha sido descontinuado");
+        return false;
+      }
       this.groupProducts(productForSale);
       return true;
     }
@@ -381,7 +386,7 @@ export class SaleService extends Dexie implements OnInit{
       .subscribe({
         next: async (products: Producto[]) => {
           this.productCatalog = products;
-          console.log("Actualizando productos localmente");
+          console.log("Actualizando productos desde server");
           // Remove any existing record
           this.productCatalogTable.clear();
           // Update products variable

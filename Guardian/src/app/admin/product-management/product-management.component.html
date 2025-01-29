@@ -48,22 +48,24 @@
             <h6 class="card-title">Detalles del Producto</h6>
             <form [formGroup]="productForm">
               <div class="form-row">
-                <div class="form-group col-md-12 d-flex">
-                  <div class="col-md-8 pr-2">
+                <div class="form-group">
+                  
                       <label for="name">Nombre</label>
                       <input id="name" type="text" class="form-control required-input" formControlName="name">
                       <div *ngIf="productForm.get('name')?.invalid && productForm.get('name')?.touched" class="invalid-feedback">
                         Nombre es obligatorio.
                       </div>
-                  </div>
+                  
+                 
+                </div>
+                <div class="form-group">
                   <div class="col-md-4 d-flex align-items-end pl-2 mx-2">
-                      <div class="form-check mb-2 ml-3 ">
-                          <input id="discontinued" type="checkbox" class="form-check-input form-check-input-lg" formControlName="discontinued">
-                          <label for="discontinued" class="form-check-label form-check-label-lg ml-1">Esta descontinuado</label>
-                      </div>                      
+                    <div class="form-check mb-2 ml-3 ">
+                        <input id="discontinued" type="checkbox" class="form-check-input form-check-input-lg" formControlName="discontinued">
+                        <label for="discontinued" class="form-check-label form-check-label-lg ml-1">Esta descontinuado</label>
+                    </div>                      
                   </div>
                 </div>
-                    
                 <div class="form-group">
                   <label for="description">Descripción</label>
                   <textarea id="description" class="form-control" formControlName="description"></textarea>
