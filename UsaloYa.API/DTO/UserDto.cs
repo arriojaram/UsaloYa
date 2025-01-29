@@ -10,6 +10,11 @@
         public string LastName { get; set; }
         public int CompanyId { get; set; }
         public int GroupId { get; set; }
+        public int CreatedBy { get; set; }
+        public int LastUpdatedBy { get; set; }
         public DateTime? LastAccess { get; set; }
+        public DateTime? CreationDate { get; set; }
+
+        public int? RoleId { get; set; }
     }
 }

@@ -3,7 +3,7 @@
     public struct SaleDto
     {
         public int SaleId { get; set; }
-        public int CustomerId { get; set; }
+        public int? CustomerId { get; set; }
         public string PaymentMethod { get; set; }
         public decimal Tax { get; set; }
         
@@ -13,4 +13,6 @@
 
         public List<SaleDetailsDto> SaleDetailsList { get; set; }
     }
+
+   
 }

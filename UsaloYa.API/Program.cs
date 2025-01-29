@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using UsaloYa.API.Config;
 using UsaloYa.API.Security;
 
 
@@ -35,10 +36,15 @@ builder.Services.AddCors(options =>
         {
             if (allowedOrigins != null)
                 builder.WithOrigins(allowedOrigins.ToArray())  // Add or remove URLs from appsettings
+                    //.AllowAnyOrigin()
                     .AllowAnyHeader()
                     .AllowAnyMethod();
         });
 });
+
+builder.Services.AddSingleton<AppConfig>();
+builder.Services.AddScoped<AccessValidationFilter>();
+
 var app = builder.Build();
 app.UseCors("AllowSpecificOrigin");
 // Configure the HTTP request pipeline.
@@ -48,14 +54,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseMiddleware<TokenValidationMiddleware>();
-
 app.UseHttpsRedirection();
+
 
 app.UseAuthorization();
 
 app.MapControllers();
 
 
+app.UseMiddleware<TokenValidationMiddleware>();
 
 app.Run();

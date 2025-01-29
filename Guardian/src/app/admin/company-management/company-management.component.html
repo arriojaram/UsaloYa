@@ -1,0 +1,231 @@
+<div class="container-fluid mt-1" *ngIf="isAutorized">
+    <div class="row">
+        <div class="col-12 d-flex justify-content-start align-items-center">
+            <div class="hamburger-menu" (click)="navigationService.toggleSearchPanel()">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+            <h5 class="ms-2 mt-3">Empresas</h5>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12 col-md-4 search-panel" [class.d-none]="navigationService.isSearchPanelHidden" >
+            <div class="card" *ngIf="this.userState.roleId >= rol.Ventas">
+                <div class="card-body">
+                    <h6 class="card-title">Filtar</h6>
+                    <div class="input-group mb-3">
+                    <input type="text" class="form-control" placeholder="Escribe el nombre aqui..." (input)="searchCompany($event)">
+                    
+                    </div>
+                    <ul class="list-group mt-3">
+                    <li *ngFor="let c of companyList" class="list-group-item list-group-item-action" (click)="selectCompany(c.companyId, true)">
+                        {{ c.name }}
+                    </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-12" [class.col-md-8]="!navigationService.isSearchPanelHidden" [class.col-md-12]="navigationService.isSearchPanelHidden">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">{{ selectedCompany == null ? "Selecciona una empresa ó crea una nueva, da click en Detalles." : selectedCompany.name }}</h6>
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link" [class.active]="activeTab === 'tabDetalles'" (click)="setActiveTab('tabDetalles')">Detalles</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" [class.active]="activeTab === 'tabPagos'" (click)="setActiveTab('tabPagos')">Pagos</a>
+                        </li>
+                        
+                    </ul>
+                    <div class="tab-content mt-3">
+                        <div class="tab-pane" [class.active]="activeTab === 'tabDetalles'" id="tabDetalles">
+                            <form [formGroup]="companyForm" (ngSubmit)="saveCompany()">
+                                <div class="form-row"> 
+                                    <div class="form-group">
+                                       
+                                            <label for="userName">Nombre de la empresa</label>
+                                            <input id="name" class="form-control" formControlName="name" placeholder="Empresa">
+                                            <div *ngIf="companyForm.get('name')?.invalid && companyForm.get('name')?.touched" class="invalid-feedback">
+                                                Nombre de la empresa es obligatorio.
+                                            </div>
+                                        
+                                    </div>
+                                
+                                    <div class="form-group col-md-12 d-flex">
+                                        <div class="col-md-8 mb-2 pr-2">
+                                            <label for="userName">Estatus <i class="bi bi-power"></i></label>
+                                            <label class="form-control opacity-50 fw-bold">{{companyForm.get('statusDesc')?.value}}</label>
+                                        </div>
+                                        <div class="d-flex justify-content-end mx-2 my-4" *ngIf="this.userState.roleId > rol.Admin">
+                                            <button type="button" class="btn btn-danger ">Desactivar</button>
+                                        </div>    
+                                    </div>
+                                    <div class="form-group col-md-12 d-flex">
+                                        <div class="col-md-8 mb-2 pr-2">
+                                            <label for="userName">Expiración de la subscripción</label>
+                                            <label class="form-control opacity-50 fw-bold">{{companyForm.get('expirationDateUI')?.value}}</label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group mb-2">
+                                        <label for="address">Dirección</label>
+                                        <textarea id="address" class="form-control" formControlName="address" placeholder="Dirección"></textarea>
+                                        <div *ngIf="companyForm.get('address')?.invalid && companyForm.get('address')?.touched" class="invalid-feedback">
+                                            La dirección es obligatoria.
+                                        </div>
+                                    </div>    
+                                    <div class="form-group col-md-12 d-flex">
+                                        <div class="col-md-8 mb-2 pr-2">
+                                            <label for="telNumber">Teléfono</label>
+                                            <input id="telNumber" class="form-control" formControlName="telNumber" placeholder="Teléfono" maxlength="10">
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-12 d-flex">
+                                        <div class="col-md-8 mb-2 pr-2">
+                                            <label for="celNumber">Celular</label>
+                                            <input id="celNumber" class="form-control" formControlName="celNumber" placeholder="Celular" maxlength="10">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group col-md-12 d-flex">
+                                        <div class="col-md-8 mb-2 pr-2">
+                                            <label for="email">E-mail</label>
+                                            <input id="email" class="form-control" formControlName="email" placeholder="E-mail" maxlength="50">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                            <label for="ownerInfo">Información general del representante</label>
+                                            <textarea id="ownerInfo" class="form-control" formControlName="ownerInfo" placeholder="Representante" maxlength="500"></textarea>
+                                  
+                                    </div>
+
+                                    <div class="form-group col-md-12 d-flex">
+                                        <div class="col-md-8 mb-2 pr-2">
+                                            <label for="userName">Fecha de creación</label>
+                                            <label class="form-control opacity-50 fw-bold">{{companyForm.get('creationDateUI')?.value}}</label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-12 d-flex">
+                                        <div class="col-md-8 mb-2 pr-2">
+                                            <label for="userName">Creado por el usuario</label>
+                                            <label class="form-control opacity-50 fw-bold">{{companyForm.get('createdByUserName')?.value}}</label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-12 d-flex">
+                                        <div class="col-md-8 mb-2 pr-2">
+                                            <label for="userName">Actualizado por el usuario</label>
+                                            <label class="form-control opacity-50 fw-bold">{{companyForm.get('lastUpdateByUserName')?.value}}</label>
+                                        </div>
+                                    </div>
+                                
+                                
+                                    <div class="d-flex justify-content-end my-3" *ngIf="this.userState.roleId > rol.Admin">
+                                        <button type="button" class="btn btn-primary mx-2 btn-floating-secondary" *ngIf="this.userState.roleId > rol.Admin"
+                                            (click)="newCompany()">Nuevo</button>
+                                        <button type="submit" class="btn btn-success btn-floating">Guardar</button>
+                                    </div>    
+                                </div>
+                            </form>
+                        </div>
+                        <div class="tab-pane" [class.active]="activeTab === 'tabPagos'" id="tabPagos">
+                           <!-- Sección 1: Información general y lista -->
+                            <div class="container mb-2 rounded">
+                                <div class="rounded bg-section1 text-white">
+                                    <div class="p-3 mb-2 bg-title text-white">Plan activo: <span>{{ this.selectedCompany?.planIdUI }}</span></div>
+                                    <div class="row">
+                                        <!-- Primer Div: Lista de opciones -->
+                                        <!-- Cambio de col-6 a col-12 col-md-6 para mejorar la visualización en móviles -->
+                                        <div class="col-12 col-md-6">
+                                            <div class="ms-3"> * Hasta dos cuentas.</div>
+                                            <div class="ms-3"> * Sin límite de uso.</div>
+                                        </div>
+                                        <!-- Segundo Div: Información de pagos -->
+                                        <!-- Cambio de col-6 a col-12 col-md-6 para mejorar la visualización en móviles -->
+                                        <div class="col-12 col-md-6 mb-3">
+                                            <div class="mb-3">Pago</div>
+                                            <div class="mb-1">Tu próxima factura será de {{this.selectedCompany?.planPrice | currency:'MXN'}} y llegará el {{this.selectedCompany?.expirationDate | date:'fullDate'}}</div>
+                                            <div class="mb-3">Contacta a tu vendedor para obtener más información: {{this.selectedCompany?.createdByFullName}}</div>
+                                            
+                                            <div *ngIf="this.userState.roleId > rol.Admin">
+                                                <button class="btn btn-primary" [disabled]="showAddPaymentSection" (click)="showAddPaymentSection = true">Agregar Pago</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sección 2: Agregar pago -->
+                            <div *ngIf="showAddPaymentSection" class="container mb-4">
+                                <div class="row align-items-center">
+                                    <!-- Ajustes para una mejor respuesta en tamaños más pequeños -->
+                                    <div class="col-lg-4 col-md-6 col-12"> 
+                                        Ingresa Monto <input type="number" class="form-control" placeholder="Monto" [(ngModel)]="rentAmmount">
+                                    </div>
+                                    <div class="col-lg-4 col-md-6 col-12">
+                                        Selecciona Tipo
+                                        <select [(ngModel)]="paymentTypeId" class="form-select">
+                                            <option *ngFor="let option of tipoPagoList" [value]="option.value">
+                                                {{ option.name }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-4 col-md-6 col-12">
+                                        Notas <input type="text" class="form-control" placeholder="Notas" [(ngModel)]="notas">
+                                    </div>
+                                    <div class="col-lg-4 col-md-12 col-12"> 
+                                        <div class="d-grid gap-2 d-md-block"> 
+                                            <button class="btn btn-success me-1" (click)="mostrarConfirmacion = true">Agregar</button>
+                                            <button class="btn btn-secondary ms-1" (click)="cancelAddPayment()">Cancelar</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div *ngIf="mostrarConfirmacion" class="text-center mt-3">
+                                    <p>¿Confirmas agregar este pago de {{ rentAmmount | currency:'MXN'}} para la empresa {{ this.selectedCompany?.name }}?</p>
+                                    <div class="d-grid gap-2 d-md-block text-center"> <!-- Usar d-grid para mejor distribución de botones en pantallas pequeñas -->
+                                        <button class="btn btn-success me-1" (click)="addConfirmedPayment();">Sí</button>
+                                        <button class="btn btn-danger ms-1" (click)="mostrarConfirmacion = false">No</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+
+                            <!-- Sección 3: Historial de pagos -->
+                            <div class="container">
+                                <h3>Historial de Pagos</h3>
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Id</th>
+                                            <th>Fecha</th>
+                                            <th>Monto</th>
+                                            <th>Descripción</th>
+                                            <th>Ingresó</th>
+                                            <th>Expira</th>
+                                            <th>Notas</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let pago of paymentHistory">
+                                            <td>{{pago.id}}</td>
+                                            <td>{{pago.referenceDate | date:'mediumDate' }}</td>
+                                            <td>{{pago.amount | currency:'MXN'}}</td>
+                                            <td>{{pago.statusIdUI}}</td>
+                                            <td>{{pago.byUserName}}</td>
+                                            <td>{{pago.expirationDate | date:'mediumDate' }}</td>
+                                            <td>{{pago.notas}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+
+                        
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

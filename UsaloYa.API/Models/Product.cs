@@ -41,6 +41,14 @@ public partial class Product
 
     public int CompanyId { get; set; }
 
+    public decimal? BuyPrice { get; set; }
+
+    public decimal? UnitPrice1 { get; set; }
+
+    public decimal? UnitPrice2 { get; set; }
+
+    public decimal? UnitPrice3 { get; set; }
+
     public virtual Company Company { get; set; } = null!;
 
     public virtual ICollection<SaleDetail> SaleDetails { get; set; } = new List<SaleDetail>();

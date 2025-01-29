@@ -1,0 +1,32 @@
+/* Añade esto en tu archivo component.css */
+.back-button {
+    position: fixed; /* Posición fija en la pantalla */
+    top: 50px;       /* Espacio desde el top */
+    left: 20px;      /* Espacio desde la izquierda */
+    z-index: 1000;   /* Asegura que el botón esté sobre otros elementos */
+    background-color: #007bff; /* Color de fondo */
+    color: white;    /* Color del texto */
+    border: none;    /* Sin bordes */
+    border-radius: 8px; /* Bordes redondeados */
+    padding: 10px 20px; /* Padding para el tamaño */
+    cursor: pointer; /* Cursor en forma de mano al pasar el mouse */
+  }
+  
+  .back-button:hover {
+    background-color: #0056b3; /* Cambia el color al pasar el mouse */
+  }
+  
+  /* Clases personalizadas para el color del toggle */
+.toggle-completado .form-check-input {
+  background-color: #28a745 !important; /* Verde */
+}
+
+.toggle-cancelado .form-check-input {
+  background-color: #dc3545 !important; /* Rojo */
+}
+
+.toggle-pending .form-check-input {
+  background-color: #efef21 !important; /* Rojo */
+}
+
+  

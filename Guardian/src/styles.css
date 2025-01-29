@@ -1,0 +1,50 @@
+.required-input{
+    border: solid 1px red;
+}
+
+.card-title {
+    color: #343a40;
+  }
+  
+
+  .hamburger-menu {
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  
+  .hamburger-menu div {
+    width: 25px;
+    height: 3px;
+    background-color: #333;
+    margin: 4px 0;
+  }
+  
+  @media (max-width: 768px) {
+    .col-md-4 {
+      display: none;
+    }
+    .hamburger-menu {
+      display: block;
+    }
+  }
+  
+  .search-panel {
+    display: block;
+  }
+  
+  .search-panel.hidden {
+    display: none;
+  }
+  
+  .invalid-feedback {
+    display: block;
+  }
+
+  .form-check-input-lg {
+    width: 1.2em;
+    height: 1.2em;
+  }
+  
+  .form-check-label-lg {
+    font-size: 1.1em;
+  }

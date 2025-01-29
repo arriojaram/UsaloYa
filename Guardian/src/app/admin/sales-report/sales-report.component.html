@@ -1,0 +1,127 @@
+<div *ngIf="showMainReport && isAutorized" class="container mt-3">
+    <form [formGroup]="reportForm">
+        <div class="row mb-2" >
+            <div class="col-12 col-md">
+                <input type="date" class="form-control" formControlName="dateFrom" placeholder="Fecha Desde">
+                <div *ngIf="reportForm.get('dateFrom')?.errors" class="invalid-feedback">
+                    La fecha de inicio es requerida.
+                </div>
+            </div>
+            <div class="col-12 col-md mt-2 mt-md-0">
+                <input type="date" class="form-control" formControlName="dateTo" placeholder="Fecha Hasta">
+                <div *ngIf="reportForm.get('dateTo')?.errors" class="invalid-feedback">
+                    La fecha de fin es requerida.
+                </div>
+            </div>
+            <div class="col-12 col-md mt-2 mt-md-0">
+                <button class="btn btn-primary btn-block" (click)="getSales()">
+                    <i class="bi bi-file-bar-graph"></i> Generar Reporte
+                </button>
+            </div>
+        </div>
+        <div class="row justify-content-start align-items-stretch">
+            <div class="col-6">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">
+                            <i class="bi bi-search"></i> <!-- Icono de búsqueda de Bootstrap Icons -->
+                        </span>
+                    </div>
+                    <input type="text" [value]="filterText" (keyup)="filterSales($event)" class="form-control" placeholder="Filtrar ventas...">
+                </div>
+            </div>
+          
+        </div>
+    </form>
+    <table class="table table-striped mt-3">
+        <thead>
+            <tr>
+                <th class="d-none d-md-table-cell" [ngClass]="{'d-none d-md-table-cell': !showColumns}">Fecha</th>
+                <th>Cliente</th>
+                <th class="d-none d-md-table-cell" [ngClass]="{'d-none d-md-table-cell': !showColumns}">Notas</th>
+                <th class="d-none d-md-table-cell" [ngClass]="{'d-none d-md-table-cell': !showColumns}">Pago</th>
+                <th>Estatus</th>
+                <th>Total</th>
+                <th class="d-none d-md-table-cell" [ngClass]="{'d-none d-md-table-cell': !showColumns}">Vendedor</th>
+                
+                <th>
+                    <button class="d-md-none" (click)="toggleColumns()"> 
+                     <i class="bi bi-columns" *ngIf="!this.showColumns"></i>
+                     <i class="bi bi-columns-gap" *ngIf="this.showColumns"></i>
+                    </button>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let sale of filteredSales">
+                
+                <td class="d-none d-md-table-cell" [ngClass]="{'d-none d-md-table-cell': !showColumns}">{{ sale.saleDate | date:'medium' }}</td>
+                <td>{{ sale.customerName }}</td>
+                <td class="d-none d-md-table-cell" [ngClass]="{'d-none d-md-table-cell': !showColumns}">{{ sale.notes }}</td>
+                <td class="d-none d-md-table-cell" [ngClass]="{'d-none d-md-table-cell': !showColumns}">{{ sale.payment }}</td>
+                <td>
+                    <div class="form-check form-switch" 
+                    [ngClass]="{'toggle-completado': sale.status === 'Completada', 'toggle-cancelado': sale.status === 'Cancelada',  'toggle-pending': sale.status === 'Abierta'}">
+                        <input class="form-check-input" type="checkbox" id="sale{{sale.saleID}}" 
+                            (change)="this.updateSaleStatus(sale.saleID, sale.status)" [checked]="sale.status === 'Completada'">
+                        <label class="form-check-label" for="sale{{sale.saleID}}" [title]="sale.status" data-bs-toggle="tooltip" data-bs-placement="top">
+                            <i *ngIf="sale.status === 'Completada'" class="bi bi-cart-check"></i>
+                            <i *ngIf="sale.status === 'Abierta'" class="bi bi-clock"></i>
+                            <i *ngIf="sale.status === 'Cancelada'" class="bi bi-x-circle"></i>
+                        </label>
+                    </div>
+                </td>
+                <td>{{ sale.totalSale | currency:'MXN' }}</td>
+                <td class="d-none d-md-table-cell" [ngClass]="{'d-none d-md-table-cell': !showColumns}">{{ sale.fullName }} ({{sale.userName}})</td>
+                <td>
+                    <button class="btn btn-sm btn-primary" (click)="redirectToDetails(sale.saleID)">Ver Detalle</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div id="d1" class="col-6 d-flex align-items-center fs-4" style="font-weight: bold;">
+        Total de la Venta: {{ this.totalVentas | currency:'MXN' }}
+    </div>
+</div>
+
+<div *ngIf="!showMainReport" class="container mt-1">
+    <button (click)="goBack()" class="btn btn-primary">
+        <i class="bi bi-arrow-left"></i> Regresar al reporte principal</button>
+    <div class="row mt-2">
+        <div class="col">
+            <input type="text" [value]="filterText" (keyup)="filterProducts($event)" class="form-control" placeholder="Filtrar productos...">
+        </div>
+    </div>
+
+    <table class="table table-striped mt-3">
+        <thead>
+        <tr>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>P. Compra</th>
+            <th>Cantidad</th>
+            <th>P. Venta</th>
+            <th>Fecha Venta</th>
+            <th>$ Total</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let sale of filteredProducts">
+            <td>{{ sale.barcode }}</td>
+            <td>{{ sale.productName }}</td>
+            <td>{{ sale.buyPrice | currency:'MXN' }}
+            <td>{{ sale.quantity }}</td>
+            <td>{{ sale.soldPrice | currency:'MXN' }}
+                <span><sup>{{ '*'.repeat(sale.priceLevel) }}</sup></span>
+            </td>
+            <td>{{ sale.saleDate | date:'medium' }}</td>
+            <td>{{ sale.totalPrice | currency:'MXN' }}</td>
+        </tr>
+        </tbody>
+    </table>
+    <div class="fs-4 d-flex justify-content-between" style="font-weight: bold;">
+        <span>Venta-{{selectedSaleId}}</span>
+        <span>Total {{ selectedSaleTotal | currency:'MXN'}}</span>
+    </div>
+</div>
+

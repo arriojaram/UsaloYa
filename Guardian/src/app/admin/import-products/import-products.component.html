@@ -1,0 +1,25 @@
+<!-- productos-csv.component.html -->
+<div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-8" *ngIf="isAutorized">
+        <h6 class="mb-5 card-title">
+          Selecciona el archivo con extensión ".csv" utilizando el botón seleccionar archivo y después utiliza el botón "Importar Productos" para iniciar el proceso de carga de productos al sistema. 
+        </h6>
+        <div *ngIf="isRunning" [ngClass]="alertClass" role="alert">
+          {{ user_message }}
+        </div>
+        <div class="input-group mb-3">
+          <input type="file"  #fileInput  class="form-control" (change)="onFileSelected($event)" accept=".csv">
+          <button class="btn btn-primary" (click)="importProducts()" [disabled]="!selectedFile">Importar Productos</button>
+        </div>
+        <p class="d-flex flex-column">Productos Procesados: {{ productsProcessed }}</p>
+        <p class="d-flex flex-column">Productos Fallidos: {{ productsFailed }}</p>
+        <div class="console mt-5">
+          <div *ngFor="let message of messages">
+            {{ message }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  

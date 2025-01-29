@@ -1,0 +1,113 @@
+<nav class="sb-topnav navbar navbar-expand-md navbar-dark bg-primary">
+    <!-- Navbar content flex container -->
+    <div class="d-flex w-100">
+        <!-- Sidebar Toggle-->
+        <button class="btn btn-link btn-sm order-0" id="sidebarToggle" style="color: white; opacity: 1;">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <!-- Navbar Brand-->
+        <a class="navbar-brand ps-1" href="main">
+            <picture>
+                <source srcset="assets/icons/logos/logo.png" media="(max-width: 320px)">
+                <source srcset="assets/icons/logos/logo-192x192.png" media="(max-width: 480px)">
+                <img src="assets/icons/logos/logo-512x512.png" alt="Logo" style="height: 40px;">
+            </picture>
+            UsaloYa - {{ this.appOnlineStatus }} 
+        </a>
+
+        <!-- Spacer to push remaining content to the right -->
+        <div class="flex-grow-1"></div>
+        
+        <div class="navbar-nav nav-link px-4" *ngIf="this.userStateUI?.statusId === uStatus.Conectado">
+            <span class="d-flex align-items-center justify-content-center">
+                <span class="d-none d-md-inline">{{ this.userStateUI?.userName }} -</span>
+                <a class="nav-link px-2" id="navbarDropdown" href="#" (click)="logoutApp($event)" role="button">
+                    Salir
+                </a>
+            </span>
+        </div>
+    </div>
+</nav>
+
+<div *ngIf="this.showPaymentAlert"
+     class="alert alert-warning alert-dismissible fade show" role="alert">
+    {{ paymentMsg }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" (click)="closeAlert()"></button>
+</div>
+
+  
+<div id="layoutSidenav">
+    <div id="layoutSidenav_nav" *ngIf="this.userStateUI?.statusId === uStatus.Conectado">
+        <nav class="sb-sidenav accordion sb-sidenav-light" id="sidenavAccordion">
+            <div class="sb-sidenav-menu">
+                <div class="nav">
+                    <div class="sb-sidenav-menu-heading">Accesos</div>
+                  
+                    <a class="nav-link" href="main" *ngIf="(this.userStateUI?.roleId ?? 0) > rol.Unknown">
+                      <div class="sb-nav-link-icon"><i class="bi bi-cash-stack fs-6"></i></div>
+                      Punto de Venta
+                    </a>
+                  
+                    <a class="nav-link" href="productos" *ngIf="(this.userStateUI?.roleId?? 0) > rol.Unknown">
+                      <div class="sb-nav-link-icon"><i class="bi bi-box-seam fs-6"></i></div>
+                      Productos
+                    </a>
+
+                    <a class="nav-link" href="usuarios" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Admin">
+                        <div class="sb-nav-link-icon"><i class="bi bi-people fs-6"></i></div>
+                        {{ this.userStateUI?.roleId == rol.Admin ? "Administrar Miembros" : "Usuarios" }} 
+                    </a>
+
+                    <a class="nav-link" href="clientes" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.User ">
+                        <div class="sb-nav-link-icon"><i class="bi bi-person-circle fs-6"></i></div>
+                        Clientes
+                    </a>
+                    
+                    <a class="nav-link" href="reporteventas" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Admin">
+                        <div class="sb-nav-link-icon"><i class="bi bi-graph-up fs-6"></i></div>
+                        Reporte Ventas
+                    </a>
+                    <a class="nav-link" href="importar" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Admin">
+                        <div class="sb-nav-link-icon"><i class="bi bi-file-earmark-arrow-up fs-6"></i></div>
+                        Importar Productos
+                    </a>
+                    <a class="nav-link" href="companies" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Admin">
+                        <div class="sb-nav-link-icon"><i class="bi bi-briefcase-fill fs-6"></i></div>
+                        Empresas
+                    </a>
+                  </div>
+            </div>
+           
+            <div class="sb-sidenav-footer">
+                <i class="bi bi-building"></i> {{ this.userStateUI?.companyName }} - {{ userRol }}
+                <div class="small">Has entrado como:</div>
+                <i class="fas fa-user fa-fw px-2 text-success"></i> {{ this.userStateUI?.firstName + ' ' + this.userStateUI?.lastName }}
+            </div>
+        </nav>
+    </div>
+    <div id="layoutSidenav_content">
+        <main>
+            <div class="container-fluid px-4">
+                <h1 class="mt-4">{{ this.currentPath }}</h1>
+                
+                <div class="card-body">
+                    <mat-spinner *ngIf="loading_i$ | async" class="loading-spinner"></mat-spinner>
+                    <router-outlet></router-outlet>
+                </div>    
+            </div>
+        </main>
+        <footer class="py-4 bg-light mt-auto">
+            <div class="container-fluid px-4">
+                <div class="d-flex align-items-center justify-content-between small">
+                    <div class="text-muted">Copyright &copy; UsaloYa 2024</div>
+                    <div>
+                        <a href="policy" target="_blank" rel="noopener noreferrer">Política de Privacidad</a>
+                        &middot;
+                        <a href="agreements" target="_blank" rel="noopener noreferrer">Terminos &amp; Condiciones</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</div>

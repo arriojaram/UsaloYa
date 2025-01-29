@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.Design;
 using UsaloYa.API.DTO;
 using UsaloYa.API.Models;
+using UsaloYa.API.Security;
 using UsaloYa.API.Utils;
+using static UsaloYa.API.Enumerations;
 
 namespace UsaloYa.API.Controllers
 {
@@ -26,8 +29,10 @@ namespace UsaloYa.API.Controllers
             {
                 if (sale.Equals(default(SaleDto)) || sale.CompanyId == 0)
                 {
-                    return BadRequest(new { Message = "$_InvalidCompanyOrSale" });
+                    return BadRequest(new { Message = "$_Empresa_O_Venta_Invalida" });
                 }
+                if(sale.CustomerId == 0) 
+                    sale.CustomerId = null;
 
                 var newSale = new Sale() 
                 {
@@ -53,12 +58,12 @@ namespace UsaloYa.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "AddSale.ApiError");
-                return StatusCode(500, new { message = "$_SeeEventLog" });
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
             }
         }
 
-        [HttpPost("AddProductsToSale")]
-        public async Task<IActionResult> AddProductsToSale(int saleId, List<SaleDetailsDto> saleDetails)
+        [NonAction]
+        private async Task<IActionResult> AddProductsToSale(int saleId, List<SaleDetailsDto> saleDetails)
         {
             decimal totalSale = 0;
             try
@@ -73,10 +78,12 @@ namespace UsaloYa.API.Controllers
                         ProductId = detail.ProductId,
                         Quantity = detail.Quantity,
                         TotalPrice = detail.TotalPrice,
-                        UnitPrice = detail.UnitPrice
+                        UnitPrice = detail.UnitPrice,
+                        PriceLevel = detail.PriceLevel
                     };
 
                     _dBContext.SaleDetails.Add(product);
+                    await UpdateStock(product.ProductId, product.Quantity);
                 }
 
                 // Commit DB changes
@@ -86,6 +93,7 @@ namespace UsaloYa.API.Controllers
 
                     if (totalSale > 0)
                         await UpdateTotalSale(saleId, totalSale);
+
                 }
 
                 return Ok(saleId);
@@ -93,10 +101,38 @@ namespace UsaloYa.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "AddSaleDetails.ApiError");
-                return StatusCode(500, new { message = "$_SeeEventLog" });
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
             }
         }
 
+        /// <summary>
+        /// Updates the stock of the product information. This function works together with the function
+        /// AddProductsToSale where the DB commit action is executed.
+        /// </summary>
+        /// <param name="productId"></param>
+        /// <param name="selledItems"></param>
+        /// <returns></returns>
+        [NonAction]
+        private async Task UpdateStock(int productId, int selledItems)
+        {
+            try
+            {
+                var existingProduct = await _dBContext.Products.FirstOrDefaultAsync(p => p.ProductId == productId);
+
+                if (existingProduct != null)
+                {
+                    existingProduct.UnitsInStock = existingProduct.UnitsInStock - selledItems;
+                    _dBContext.Entry(existingProduct).State = EntityState.Modified;
+                    await _dBContext.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "UpdateStock.ApiError");
+            }
+        }
+
+        [NonAction]
         private async Task<IActionResult> UpdateTotalSale(int saleId, decimal totalSale)
         {
             try
@@ -108,17 +144,42 @@ namespace UsaloYa.API.Controllers
                 }
 
                 sale.SaleDate = Utils.Util.GetMxDateTime();
-                sale.Status = "Completada";
-                sale.PaymentMethod = "Efectivo";
+                sale.Status = SaleStatus.Completada.ToString();
+                
                 sale.TotalSale = totalSale;
-                _dBContext.Sales.Update(sale);
+                _dBContext.Entry(sale).State = EntityState.Modified;
                 await _dBContext.SaveChangesAsync();
                 return Ok();    
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "UpdateTotalSale.ApiError");
-                return StatusCode(500, new { message = "$_SeeEventLog" });
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
+            }
+        }
+
+        [HttpPost("UpdateSaleStatus")]
+        [ServiceFilter(typeof(AccessValidationFilter))]
+        public async Task<IActionResult> UpdateSaleStatus([FromBody] UpdateSaleDto saleStatus)
+        {
+            try
+            {
+                var sale = await _dBContext.Sales.FindAsync(saleStatus.SaleId);
+                if (sale == null)
+                {
+                    return NotFound();
+                }
+
+                sale.Status = saleStatus.Status.ToString();
+                
+                _dBContext.Entry(sale).State = EntityState.Modified;
+                await _dBContext.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "UpdateTotalSale.ApiError");
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
             }
         }
     }

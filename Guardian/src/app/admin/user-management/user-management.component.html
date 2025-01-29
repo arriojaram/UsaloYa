@@ -1,0 +1,139 @@
+<div class="container-fluid mt-1" *ngIf="isAutorized">
+    <div class="row">
+        <div class="col-12 d-flex justify-content-start align-items-center">
+            <div class="hamburger-menu" (click)="navigationService.toggleSearchPanel()">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+            <h5 class="ms-2 mt-3">Gestión de Usuarios</h5>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 col-md-4 search-panel" [class.d-none]="navigationService.isSearchPanelHidden">
+            <div class="card">
+            <div class="card-body">
+                <h6 class="card-title">Buscar Usuarios</h6>
+                <div class="input-group mb-3">
+                <input type="text" class="form-control" placeholder="Escribe el nombre aqui..." (input)="searchUsers($event)">
+                
+                </div>
+                <ul class="list-group mt-3">
+                <li *ngFor="let user of userList" class="list-group-item list-group-item-action" (click)="selectUser(user.userId)">
+                    {{ user.firstName + ' ' + user.lastName + ' (' + user.userName + ')' }}
+                </li>
+                </ul>
+            </div>
+            </div>
+        </div>
+        <div class="col-12" [class.col-md-8]="!navigationService.isSearchPanelHidden" [class.col-md-12]="navigationService.isSearchPanelHidden">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">Detalles del Usuario</h6>
+                    <div class="user-edit-container">
+                        <form [formGroup]="userForm" (ngSubmit)="saveUser()">
+                            <div class="form-group col-md-12 d-flex">
+                                <div class="col-md-8 mb-2 pr-2">
+                                    <label for="userName">Nombre de Usuario</label>
+                                    <input *ngIf="userForm.get('userId')?.value === 0" id="userName" class="form-control" formControlName="userName" placeholder="Nombre de usuario">
+                                    <label *ngIf="userForm.get('userId')?.value > 0" class="form-control opacity-50 fw-bold">{{userForm.get('userName')?.value}}</label>
+                                    <div *ngIf="userForm.get('userName')?.invalid && userForm.get('userName')?.touched" class="invalid-feedback">
+                                        Nombre de usuario es obligatorio.
+                                    </div>
+                                </div>
+                                <div class="col-md-4 d-flex align-items-end pl-2 mx-2 mb-3">
+                                    <input class="form-check-input form-check-input-lg" formControlName="isEnabled" type="checkbox"> Habilitado
+                                   
+                                </div>
+                            </div>
+                            <div class="form-group mb-2">
+                                <label for="firstName">Nombre</label>
+                                <input id="firstName" class="form-control" formControlName="firstName" placeholder="Nombre">
+                                <div *ngIf="userForm.get('firstName')?.invalid && userForm.get('firstName')?.touched" class="invalid-feedback">
+                                    Nombre es obligatorio.
+                                </div>
+                            </div>    
+                            <div class="form-group mb-2">
+                                <label for="lastName">Apellidos</label>
+                                <input id="lastName" class="form-control" formControlName="lastName" placeholder="Apellido">
+                                <div *ngIf="userForm.get('lastName')?.invalid && userForm.get('lastName')?.touched" class="invalid-feedback">
+                                    Apellido es obligatorio.
+                                </div>
+                            </div>    
+                            <div class="form-group mb-2">
+                                <label for="companyId">Empresa</label>
+                                <select id="companyId" formControlName="companyId" class="form-select">
+                                    <option *ngFor="let company of companies" [value]="company.companyId">
+                                        {{ company.name }}
+                                      </option>
+                                </select>
+                                <div *ngIf="userForm.get('companyId')?.invalid || userForm.get('companyId')?.value === 0" class="invalid-feedback">
+                                    Compañia es obligatorio.
+                                </div>
+                            </div>    
+                            <div class="form-group mb-2">
+                                <label for="groupId">Grupo</label>
+                                <select id="groupId" formControlName="groupId" class="form-select">
+                                    <option *ngFor="let group of groups" [value]="group.groupId">
+                                        {{ group.name }}
+                                      </option>
+                                </select>
+                                <div *ngIf="userForm.get('groupId')?.invalid || userForm.get('groupId')?.value === 0" class="invalid-feedback">
+                                    Grupo es obligatorio.
+                                </div>
+                            </div>    
+                            <div class="form-group mb-2" *ngIf="showRoles">
+                                <label for="groupId">Role</label>
+                                <select id="roleId" formControlName="roleId" class="form-select">
+                                    <option *ngFor="let role of availableRoles" [value]="role.id">
+                                        {{ role.name }}
+                                      </option>
+                                </select>
+                                <div *ngIf="userForm.get('roleId')?.value === 0" class="invalid-feedback">
+                                    El Rol es obligatorio.
+                                </div>
+                            </div>    
+                            <div class="form-group mb-2">
+                                <span placeholder="Ultimo Acceso" >
+                                    <strong>Último acceso:</strong> {{userForm.get('lastAccess4UI')?.value}}
+                                </span>
+                            </div>    
+                            <div class="form-group mb-2">
+                                <span placeholder="Estatus" >
+                                    <strong>Estatus:</strong> {{userForm.get('statusIdStr')?.value}}
+                                </span>
+                            </div>
+                            <div class="form-group mb-2">
+                                <span>
+                                    Creado: {{userForm.get('creationDateUI')?.value}}
+                                    &nbsp;>&nbsp;
+                                    Creado por: {{userForm.get('createdByUserName')?.value}}
+                                </span>
+                            </div>
+                            <div class="form-group mb-2">
+                                <span>
+                                    Actualizado por: {{userForm.get('lastUpdatedByUserName')?.value}}
+                                </span>
+                            </div>
+                            <div class="d-flex justify-content-end my-3">
+                                <button type="button" *ngIf="this.userState.roleId > rol.Admin" class="btn btn-primary mx-2 btn-floating-secondary" (click)="newUser()">Nuevo</button>
+                                <button type="submit" [disabled]="this.userForm.get('roleId')?.value  === rol.Root"  *ngIf="this.userState.roleId > rol.User" class="btn btn-success btn-floating">Guardar Usuario</button>
+                            </div>    
+                        </form>
+
+                        <form [formGroup]="passwordForm" (ngSubmit)="setPassword()" *ngIf="this.userState.roleId > rol.User">
+                            <div class="form-group mb-2">
+                                <input formControlName="password" type="password" class="form-control mb-2 w-50" placeholder="Password">
+                                <div *ngIf="passwordForm.get('password')?.invalid && passwordForm.get('password')?.touched" class="invalid-feedback">
+                                    {{this.passwordErrorMsg}}
+                                </div>
+                                <button type="submit">Actualiza Password</button>
+                            </div>    
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

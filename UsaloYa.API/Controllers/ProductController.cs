@@ -2,11 +2,13 @@
 using Microsoft.EntityFrameworkCore;
 using UsaloYa.API.DTO;
 using UsaloYa.API.Models;
+using UsaloYa.API.Security;
 
 namespace UsaloYa.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [ServiceFilter(typeof(AccessValidationFilter))]
     public class ProductController : Controller
     {
         private readonly ILogger<ProductController> _logger;
@@ -18,21 +20,41 @@ namespace UsaloYa.API.Controllers
             _dBContext = dBContext;
         }
 
-        [HttpGet("SearchProduct")]
-        public async Task<IActionResult> SearchProduct(string keyword, int companyId)
+        [HttpGet("SearchProduct4List")]
+        public async Task<IActionResult> SearchProduct4List(int pageNumber, string keyword, int companyId)
         {
+            int pageSize = 30;
+            if (pageNumber == -1) //Used to manage the cache products function
+            {
+                pageSize = 500;
+                pageNumber = 1;
+            }
             try
             {
                 if (string.IsNullOrEmpty(keyword) || companyId <= 0)
                 {
-                    return BadRequest(new { Message = "$_InvalidCompanyOrProduct" });
+                    return BadRequest(new { Message = "$_Empresa_O_Producto_Invalido" });
                 }
+
                 keyword = keyword.Trim();
-                var products = await _dBContext.Products
+                var products = string.Equals(keyword, "-1", StringComparison.OrdinalIgnoreCase)
+                    ? await _dBContext.Products
+                    .Select(p => new Product4ListDto() { ProductId=p.ProductId, Discontinued=p.Discontinued, Sku=p.Sku, Description=p.Description, Name=p.Name,  CompanyId =  p.CompanyId })
+                    .Where(p => p.CompanyId == companyId)
+                    .OrderBy(p=> p.Name)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync()
+
+                    : await _dBContext.Products
+                    .Select(p => new Product4ListDto() { ProductId = p.ProductId, Discontinued = p.Discontinued, Sku = p.Sku, Description = p.Description, Name = p.Name, CompanyId = p.CompanyId })
                     .Where(p => p.CompanyId == companyId &&
                                 (p.Name.Contains(keyword) || keyword.Contains(p.Name)
                                     || p.Description != null && p.Description.Contains(keyword)
                                     || p.Sku != null && p.Sku.Contains(keyword)))
+                    .OrderBy(p => p.Name)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
                     .ToListAsync();
 
                 if (products == null || products.Count == 0)
@@ -45,7 +67,72 @@ namespace UsaloYa.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "SearchProduct.ApiError");
-                return StatusCode(500, new { message = "$_SeeEventLog" });
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
+            }
+        }
+
+        [HttpGet("SearchProductFull")]
+        public async Task<IActionResult> SearchProductFull(int pageNumber, string keyword, int companyId)
+        {
+            int pageSize = 30;
+            if (pageNumber == -1) //Used to manage the cache products function
+            {
+                pageSize = 4000;
+                pageNumber = 1;
+            }
+            try
+            {
+                if (string.IsNullOrEmpty(keyword) || companyId <= 0)
+                {
+                    return BadRequest(new { Message = "$_Empresa_O_Producto_Invalido" });
+                }
+                keyword = keyword.Trim();
+                var products = string.Equals(keyword, "-1", StringComparison.OrdinalIgnoreCase)
+                    ? await _dBContext.Products
+                    .Where(p => p.CompanyId == companyId)
+                    .OrderBy(p => p.Name)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync()
+
+                    : await _dBContext.Products
+                    .Where(p => p.CompanyId == companyId &&
+                                (p.Name.Contains(keyword) || keyword.Contains(p.Name)
+                                    || p.Description != null && p.Description.Contains(keyword)
+                                    || p.Sku != null && p.Sku.Contains(keyword)))
+                     .OrderBy(p => p.Name)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+
+                if (products == null || products.Count == 0)
+                {
+                    return NotFound();
+                }
+
+                return Ok(products.Select(p => new ProductDto(){ 
+                    Barcode = p.Barcode,
+                    Name = p.Name,
+                    Brand = p.Brand,
+                    BuyPrice = p.BuyPrice,
+                    
+                    CompanyId = companyId,
+                   
+                    Description = p.Description,
+                    Discontinued = p.Discontinued,
+                    ProductId = p.ProductId,
+                    SKU = p.Sku,
+                    UnitPrice = p.UnitPrice,
+                    UnitPrice1 = p.UnitPrice1,
+                    UnitPrice2 = p.UnitPrice2,
+                    UnitPrice3 = p.UnitPrice3,
+                    UnitsInStock = p.UnitsInStock,
+                }));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "SearchProduct.ApiError");
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
             }
         }
 
@@ -56,7 +143,7 @@ namespace UsaloYa.API.Controllers
             {
                 if (productId <= 0 || companyId <= 0)
                 {
-                    return BadRequest(new { Message = "$_InvalidCompanyOrProduct" });
+                    return BadRequest(new { Message = "$_Empresa_O_Producto_Invalido" });
                 }
 
                 var product = await _dBContext.Products.FirstOrDefaultAsync(p => p.ProductId == productId && p.CompanyId == companyId);
@@ -71,31 +158,38 @@ namespace UsaloYa.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "GetProduct.ApiError");
-                return StatusCode(500, new { message = "$_SeeEventLog" });
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
             }
         }
 
         [HttpPost("AddProduct")]
         public async Task<IActionResult> AddProduct([FromBody] ProductDto productDto, int companyId)
         {
-            
             try
             {
                 if (productDto.Equals(default(ProductDto)) || companyId <= 0)
                 {
-                    return BadRequest(new { Message = "$_InvalidCompanyOrProduct" });
+                    return BadRequest(new { Message = "$_Empresa_O_Producto_Invalido" });
                 }
 
                 var existingProduct = await _dBContext.Products
                     .FirstOrDefaultAsync(p => p.ProductId == productDto.ProductId && p.CompanyId == companyId);
 
                 // Check if a product with the same Barcode and SKU already exists
-                var productWithSameBarcodeAndSku = await _dBContext.Products
-                    .FirstOrDefaultAsync(p => p.Barcode == productDto.Barcode && p.Sku == productDto.SKU && p.CompanyId == companyId);
+                var productWithSameBarcodeAndSku = _dBContext.Products
+                    .Where(p => (p.Barcode.Equals(productDto.Barcode) || p.Sku.Equals(productDto.SKU?? "$SKU"))
+                                                    && p.CompanyId == companyId);
 
-                if (productWithSameBarcodeAndSku != null && productWithSameBarcodeAndSku.ProductId != productDto.ProductId)
+                var numOfProducts = await productWithSameBarcodeAndSku.CountAsync();
+                if (numOfProducts > 1)
                 {
-                    return Conflict(new { Message = "$_ProductWithSameBarcodeAndSkuExists" });
+                    return Conflict(new { Message = "$_Producto_Con_Mismo_Codigo_De_Barras_Ya_Existe" });
+                }
+
+                if (numOfProducts > 0 
+                    && productWithSameBarcodeAndSku.First().ProductId != productDto.ProductId)
+                {
+                    return Conflict(new { Message = "$_Producto_Con_Mismo_Codigo_De_Barras_Ya_Existe" });
                 }
 
                 if (existingProduct == null && productDto.ProductId == 0)
@@ -104,19 +198,20 @@ namespace UsaloYa.API.Controllers
                     {
                         Name = productDto.Name.Trim(),
                         Description = productDto.Description,
-                        CategoryId = productDto.CategoryId,
-                        SupplierId = productDto.SupplierId,
-                        UnitPrice = productDto.UnitPrice,
+                       
+                        BuyPrice = productDto.BuyPrice == 1 ? null : productDto.BuyPrice,
+                        UnitPrice = productDto.UnitPrice == 0 ? 1 : productDto.UnitPrice,
+                        UnitPrice1 = productDto.UnitPrice1 == 0 ? null : productDto.UnitPrice1,
+                        UnitPrice2 = productDto.UnitPrice2 == 0 ? null : productDto.UnitPrice2,
+                        UnitPrice3 = productDto.UnitPrice3 == 0 ? null : productDto.UnitPrice3,
+
                         UnitsInStock = productDto.UnitsInStock,
                         Discontinued = productDto.Discontinued,
-                        ImgUrl = productDto.ImgUrl,
                         DateModified = Utils.Util.GetMxDateTime(),
-                        Weight = productDto.Weight,
-                        Sku = productDto.SKU,
+                       
+                        Sku = (string.IsNullOrEmpty(productDto.SKU) ? null: productDto.SKU),
                         Barcode = productDto.Barcode,
-                        Brand = productDto.Brand,
-                        Color = productDto.Color,
-                        Size = productDto.Size,
+                        Brand = string.IsNullOrEmpty( productDto.Brand) ? null: productDto.Brand,
                         DateAdded = Utils.Util.GetMxDateTime(),
                         CompanyId = companyId
                     };
@@ -128,26 +223,28 @@ namespace UsaloYa.API.Controllers
                 {
                     existingProduct.Name = productDto.Name.Trim();
                     existingProduct.Description = productDto.Description;
-                    existingProduct.CategoryId = productDto.CategoryId;
-                    existingProduct.SupplierId = productDto.SupplierId;
+      
+                    existingProduct.BuyPrice = productDto.BuyPrice;
                     existingProduct.UnitPrice = productDto.UnitPrice;
+                    existingProduct.UnitPrice1 = productDto.UnitPrice1;
+                    existingProduct.UnitPrice2 = productDto.UnitPrice2;
+                    existingProduct.UnitPrice3 = productDto.UnitPrice3;
+
                     existingProduct.UnitsInStock = productDto.UnitsInStock;
                     existingProduct.Discontinued = productDto.Discontinued;
-                    existingProduct.ImgUrl = productDto.ImgUrl;
+              
                     existingProduct.DateModified = Utils.Util.GetMxDateTime();
-                    existingProduct.Weight = productDto.Weight;
-                    existingProduct.Sku = productDto.SKU;
+                 
+                    existingProduct.Sku = (string.IsNullOrEmpty(productDto.SKU) ? null : productDto.SKU);
                     existingProduct.Barcode = productDto.Barcode;
                     existingProduct.Brand = productDto.Brand;
-                    existingProduct.Color = productDto.Color;
-                    existingProduct.Size = productDto.Size;
+     
 
-                    _dBContext.Products.Update(existingProduct);
-                    
+                    _dBContext.Entry(existingProduct).State = EntityState.Modified;
                 }
                 else
                 {
-                    return NotFound("$_InvalidCompanyOrProduct");
+                    return NotFound("$_Empresa_O_Producto_Invalido");
                 }
                 await _dBContext.SaveChangesAsync();
                 return Ok(existingProduct);
@@ -155,7 +252,7 @@ namespace UsaloYa.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "AddProduct.ApiError");
-                return StatusCode(500, new { message = "$_SeeEventLog" });
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
             }
         }
 

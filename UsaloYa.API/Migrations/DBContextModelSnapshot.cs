@@ -35,15 +35,110 @@ namespace UsaloYa.API.Migrations
                         .IsUnicode(false)
                         .HasColumnType("varchar(250)");
 
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CreationDate")
+                        .HasColumnType("datetime");
+
+                    b.Property<DateTime?>("ExpirationDate")
+                        .HasColumnType("datetime");
+
+                    b.Property<int?>("LastUpdateBy")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
                         .IsUnicode(false)
                         .HasColumnType("varchar(50)");
 
+                    b.Property<string>("PaymentsJson")
+                        .HasColumnType("xml");
+
+                    b.Property<int>("StatusId")
+                        .HasColumnType("int");
+
                     b.HasKey("CompanyId");
 
+                    b.HasIndex("CreatedBy");
+
+                    b.HasIndex("LastUpdateBy");
+
                     b.ToTable("Company", (string)null);
+                });
+
+            modelBuilder.Entity("UsaloYa.API.Models.Customer", b =>
+                {
+                    b.Property<int>("CustomerId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CustomerId"));
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(300)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(300)");
+
+                    b.Property<string>("CellPhoneNumber")
+                        .HasMaxLength(15)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(15)");
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(35)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(35)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("varchar(150)")
+                        .HasComputedColumnSql("CONCAT(FirstName, ' ', LastName1,  COALESCE(' ' + LastName2, ''))");
+
+                    b.Property<string>("LastName1")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("LastName2")
+                        .HasMaxLength(50)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("WorkPhoneNumber")
+                        .HasMaxLength(15)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(15)");
+
+                    b.HasKey("CustomerId")
+                        .HasName("PK_Customer_Id");
+
+                    b.HasIndex(new[] { "CompanyId" }, "IX_Customer_CompanyId");
+
+                    b.HasIndex(new[] { "Email" }, "IX_Customer_Email");
+
+                    b.HasIndex(new[] { "FirstName", "LastName1", "LastName2" }, "IX_Customer_Name");
+
+                    b.HasIndex(new[] { "CellPhoneNumber", "WorkPhoneNumber" }, "IX_Customer_Phone");
+
+                    b.ToTable("Customers");
                 });
 
             modelBuilder.Entity("UsaloYa.API.Models.Group", b =>
@@ -96,6 +191,9 @@ namespace UsaloYa.API.Migrations
                         .HasMaxLength(50)
                         .IsUnicode(false)
                         .HasColumnType("varchar(50)");
+
+                    b.Property<decimal?>("BuyPrice")
+                        .HasColumnType("decimal(10, 2)");
 
                     b.Property<int?>("CategoryId")
                         .HasColumnType("int");
@@ -154,6 +252,15 @@ namespace UsaloYa.API.Migrations
                     b.Property<decimal?>("UnitPrice")
                         .HasColumnType("decimal(10, 2)");
 
+                    b.Property<decimal?>("UnitPrice1")
+                        .HasColumnType("decimal(10, 2)");
+
+                    b.Property<decimal?>("UnitPrice2")
+                        .HasColumnType("decimal(10, 2)");
+
+                    b.Property<decimal?>("UnitPrice3")
+                        .HasColumnType("decimal(10, 2)");
+
                     b.Property<int>("UnitsInStock")
                         .HasColumnType("int");
 
@@ -164,7 +271,7 @@ namespace UsaloYa.API.Migrations
 
                     b.HasIndex(new[] { "Name", "Description" }, "IX_Products");
 
-                    b.HasIndex(new[] { "Barcode", "Sku" }, "IX_Products_Barcode_SKU")
+                    b.HasIndex(new[] { "CompanyId", "Barcode", "Sku" }, "IX_Products_Barcode_SKU")
                         .IsUnique()
                         .HasFilter("([Barcode] IS NOT NULL AND [SKU] IS NOT NULL)");
 
@@ -226,6 +333,8 @@ namespace UsaloYa.API.Migrations
 
                     b.HasIndex("CompanyId");
 
+                    b.HasIndex("CustomerId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("Sales");
@@ -238,6 +347,9 @@ namespace UsaloYa.API.Migrations
 
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
+
+                    b.Property<decimal>("BuyPrice")
+                        .HasColumnType("decimal(10, 2)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -266,6 +378,12 @@ namespace UsaloYa.API.Migrations
                     b.Property<int>("CompanyId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CreationDate")
+                        .HasColumnType("datetime");
+
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -290,6 +408,15 @@ namespace UsaloYa.API.Migrations
                         .IsUnicode(false)
                         .HasColumnType("varchar(50)");
 
+                    b.Property<int?>("LastUpdateBy")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("RoleId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StatusId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Token")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -305,6 +432,10 @@ namespace UsaloYa.API.Migrations
                     b.HasKey("UserId")
                         .HasName("PK_User_Id");
 
+                    b.HasIndex("CreatedBy");
+
+                    b.HasIndex("LastUpdateBy");
+
                     b.HasIndex(new[] { "CompanyId" }, "IX_Users_CompanyId");
 
                     b.HasIndex(new[] { "GroupId" }, "IX_Users_GroupId");
@@ -313,6 +444,30 @@ namespace UsaloYa.API.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("UsaloYa.API.Models.Company", b =>
+                {
+                    b.HasOne("UsaloYa.API.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("UsaloYa.API.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("LastUpdateBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("UsaloYa.API.Models.Customer", b =>
+                {
+                    b.HasOne("UsaloYa.API.Models.Company", "Company")
+                        .WithMany("Customers")
+                        .HasForeignKey("CompanyId")
+                        .IsRequired()
+                        .HasConstraintName("FK_Customer_Company");
+
+                    b.Navigation("Company");
                 });
 
             modelBuilder.Entity("UsaloYa.API.Models.Group", b =>
@@ -345,6 +500,12 @@ namespace UsaloYa.API.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_Sale_Company");
 
+                    b.HasOne("UsaloYa.API.Models.Customer", "Customer")
+                        .WithMany("Sales")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_Sales_Customers");
+
                     b.HasOne("UsaloYa.API.Models.User", "User")
                         .WithMany("Sales")
                         .HasForeignKey("UserId")
@@ -352,6 +513,8 @@ namespace UsaloYa.API.Migrations
                         .HasConstraintName("FK_Sales_Users");
 
                     b.Navigation("Company");
+
+                    b.Navigation("Customer");
 
                     b.Navigation("User");
                 });
@@ -383,11 +546,21 @@ namespace UsaloYa.API.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_Users_Company");
 
+                    b.HasOne("UsaloYa.API.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("UsaloYa.API.Models.Group", "Group")
                         .WithMany("Users")
                         .HasForeignKey("GroupId")
                         .IsRequired()
                         .HasConstraintName("FK_Users_Groups");
+
+                    b.HasOne("UsaloYa.API.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("LastUpdateBy")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Company");
 
@@ -396,6 +569,8 @@ namespace UsaloYa.API.Migrations
 
             modelBuilder.Entity("UsaloYa.API.Models.Company", b =>
                 {
+                    b.Navigation("Customers");
+
                     b.Navigation("Groups");
 
                     b.Navigation("Products");
@@ -403,6 +578,11 @@ namespace UsaloYa.API.Migrations
                     b.Navigation("Sales");
 
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("UsaloYa.API.Models.Customer", b =>
+                {
+                    b.Navigation("Sales");
                 });
 
             modelBuilder.Entity("UsaloYa.API.Models.Group", b =>
