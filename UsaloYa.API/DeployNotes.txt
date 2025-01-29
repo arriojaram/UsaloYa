@@ -1,0 +1,4 @@
+﻿Agregar columna InVentario INT a Productos
+	- Insertar Cero para todos los productos al declarar la propiedad
+Agregar columna AlertaStockNumProducts INT a Productos
+	- Insertar Zero para todos los productos al declarar la propiedad

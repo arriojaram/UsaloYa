@@ -197,14 +197,11 @@ namespace UsaloYa.API.Controllers
                     GroupId = u.GroupId,
                     LastAccess = u.LastAccess,
                     StatusId = u.StatusId,
-                    CreationDate = u.CreationDate
-                    ,
+                    CreationDate = u.CreationDate,
                     RoleId = u.RoleId ?? 0,
                     CreatedByUserName = u.CreatedByNavigation == null ? "" : u.CreatedByNavigation.UserName,
-                    LastUpdatedByUserName = u.LastUpdateByNavigation == null ? "" : u.LastUpdateByNavigation.UserName
-                    ,
-                    CompanyName = u.Company.Name
-                    ,
+                    LastUpdatedByUserName = u.LastUpdateByNavigation == null ? "" : u.LastUpdateByNavigation.UserName,
+                    CompanyName = u.Company.Name,
                     CompanyStatusId = u.Company.StatusId
                 };
 
@@ -266,8 +263,10 @@ namespace UsaloYa.API.Controllers
                 }
 
                 var companyQuery = (string.IsNullOrEmpty(name) || string.Equals(name, "-1", StringComparison.OrdinalIgnoreCase))
-                    ? await _dBContext.Users.Where(c => (c.CompanyId == companyId || companyId == 0)).OrderByDescending(u => u.UserId).Take(50).ToListAsync()
-                    : await _dBContext.Users.Include(em => em.Company)
+                    ? 
+                    await _dBContext.Users.Where(c => (c.CompanyId == companyId || companyId == 0)).OrderByDescending(u => u.UserId).Take(50).ToListAsync()
+                    : 
+                    await _dBContext.Users.Include(em => em.Company)
                         .Where(u => (
                                    u.FirstName.Contains(name) || u.LastName.Contains(name)
                                 || name.Contains(u.FirstName) || name.Contains(u.LastName)

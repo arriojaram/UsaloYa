@@ -18,7 +18,8 @@
         public string? SKU { get; set; }
         public string Barcode { get; set; }
         public string? Brand { get; set; }
-       
+        public int? AlertaStockNumProducts { get; set; }
+                            
         public int CompanyId { get; set; }
     }
 }

@@ -49,6 +49,9 @@ public partial class Product
 
     public decimal? UnitPrice3 { get; set; }
 
+    public int? InVentario { get; set; }
+    public int? AlertaStockNumProducts { get; set; }
+
     public virtual Company Company { get; set; } = null!;
 
     public virtual ICollection<SaleDetail> SaleDetails { get; set; } = new List<SaleDetail>();
