@@ -48,28 +48,21 @@
             <h6 class="card-title">Detalles del Producto</h6>
             <form [formGroup]="productForm">
               <div class="form-row">
-                <div class="form-group">
+                <div class="form-group mb-2">
                   
                       <label for="name">Nombre</label>
                       <input id="name" type="text" class="form-control required-input" formControlName="name">
                       <div *ngIf="productForm.get('name')?.invalid && productForm.get('name')?.touched" class="invalid-feedback">
                         Nombre es obligatorio.
                       </div>
-                  
-                 
                 </div>
                 <div class="form-group">
-                  <div class="col-md-4 d-flex align-items-end pl-2 mx-2">
-                    <div class="form-check mb-2 ml-3 ">
-                        <input id="discontinued" type="checkbox" class="form-check-input form-check-input-lg" formControlName="discontinued">
-                        <label for="discontinued" class="form-check-label form-check-label-lg ml-1">Esta descontinuado</label>
-                    </div>                      
+                  <div class="d-flex justify-content-end">
+                    <label for="discontinued">
+                      <input id="discontinued" type="checkbox" class="form-check-input form-check-input-lg" formControlName="discontinued">
+                      Esta descontinuado
+                    </label>
                   </div>
-                </div>
-                <div class="form-group">
-                  <label for="description">Notas</label>
-                  <input id="description" type="text" class="form-control" formControlName="description">
-                  
                 </div>
                 <div class="form-group">
                   <label for="barcode">Código de Barras</label>
@@ -85,23 +78,31 @@
                   <input id="sku" type="text" class="form-control required-input" formControlName="sku">
                 </div>
 
-                <div class="form-group">
-                  <label for="unitsInStock">Unidades en Stock</label>
-                  <input id="unitsInStock" type="number" class="form-control required-input" formControlName="unitsInStock">
-                  <div *ngIf="productForm.get('unitsInStock')?.invalid && productForm.get('unitsInStock')?.touched" class="invalid-feedback">
-                    Unidades en Stock es obligatorio.
-                  </div>
-                </div>
-                <div class="form-group">
+               
+                <div class="form-group mb-1">
                   <label for="buyPrice">Precio de Compra</label>
                   <input id="buyPrice" type="number" class="form-control required-input" formControlName="buyPrice" min="0.01" max="10000.00">
                   <div *ngIf="productForm.get('buyPrice')?.invalid &&productForm.get('buyPrice')?.touched" class="invalid-feedback">
                     Precio de compra es obligatorio.
                   </div>
                 </div>
-
+                <div>
+                  <label for="unitsInStock">Unidades Existentes/Stock</label>
+                  <div class="d-flex col-md-4 form-group">
+                    <label *ngIf="!showAddInventarioBox" id="unitsInStock" type="number" class="form-control fake-disabled">
+                      {{ productForm.get('unitsInStock')?.value }}
+                    </label>
+                    <input *ngIf="showAddInventarioBox" class="bg-warning" formControlName="addToInventoryVal" type="number" min="1" max="1000000">
+                    <button *ngIf="this.selectedProduct" class="btn btn-info ms-2" (click)="openCaptureInventory()" >Agregar</button>
+                    
+                  </div>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-center align-items-center">
+                  <strong>Precios Venta</strong>
+                </div>
                 <div class="form-group">
-                  <label for="unitPrice">Precio Unitario</label>
+                  <label for="unitPrice">Precio General/Precio Unitario</label>
                   <input id="unitPrice" type="number" class="form-control required-input" formControlName="unitPrice" min="0.01" max="10000.00">
                   <div *ngIf="productForm.get('unitPrice')?.invalid &&productForm.get('unitPrice')?.touched" class="invalid-feedback">
                     Precio unitario es obligatorio.
@@ -119,7 +120,20 @@
                   <label for="unitPrice">Precio Cliente - 3</label>
                   <input id="unitPrice3" type="number" class="form-control" formControlName="unitPrice3" min="0.01" max="10000.00">
                 </div>
-              
+                <hr>
+               
+                <div class="form-group col-md-6">
+                  <label for="lowInventoryStart">Alertar baja existencia de productos a partir de</label>
+                  <input id="lowInventoryStart" type="number" class="form-control" min="0" formControlName="lowInventoryStart">
+                  <div *ngIf="productForm.get('lowInventoryStart')?.invalid &&productForm.get('lowInventoryStart')?.touched" class="invalid-feedback">
+                    La alerta de inventario bajo debe ser mayor o igual a cero.
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="description">Notas del producto</label>
+                  <input id="description" type="text" class="form-control" formControlName="description">
+                  
+                </div>
                 <div class="d-flex justify-content-end my-3">
                   <button type="button" class="btn btn-primary mx-2 btn-floating-secondary"
                    (click)="newProduct()" *ngIf="this.userState.roleId > rol.User">Nuevo</button>
@@ -133,20 +147,6 @@
       </div>
     </div>
   </div>
-  <div *ngIf="this.isScannerEnabled" class="modal d-flex justify-content-center align-items-center show" tabindex="-1" style="display: block; background: rgba(0, 0, 0, 0.5);">
-    <div class="modal-dialog w-75 w-md-50 w-lg-50">
-        <div class="modal-content">
-            <div class="modal-body p-0">
-            <zxing-scanner [formats]="allowedFormats" 
-                [enable]="isScannerEnabled"
-                (scanSuccess)="onCodeResult($event)">
-            </zxing-scanner>
-            </div>
-        <button type="button" class="btn btn-primary" (click)="setScannerStatus()">
-            {{scannerBtnLabel}}
-        </button>
-        </div>
-    </div>
-</div>
+ 
 
   

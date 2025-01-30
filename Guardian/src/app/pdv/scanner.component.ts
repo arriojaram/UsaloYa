@@ -49,6 +49,11 @@ export class PuntoDeVentaComponent implements OnInit {
         this.scanningAllowed = true;
     }    
 
+    cleanSearchProdPanel() {
+        this.productName = '';
+        this.filteredProduct = []
+    }
+    
     searchProduct() {
        this.filteredProduct = [];
        let searchItem = this.productName.trim().toLowerCase();

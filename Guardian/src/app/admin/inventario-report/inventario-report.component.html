@@ -1,0 +1,108 @@
+<div class="container mt-3">
+    <div class="col-12 d-flex align-items-center fs-5">
+        Productos en el inventario: {{this.totalInventarioProds | number}} -> 
+        Total unidades: {{this.totalInventarioProdsUnits | number}} ->
+        Precio Total {{this.totalInventarioCash | currency:'MXN' }}
+    </div>
+    <div class="d-flex align-items-center justify-content-start">
+        <button type="button" class="btn btn-info btn-block" (click)="setToZeroAllInventory()">
+            <i class="bi bi-gear"></i> Resetear valores del Inventario
+        </button>
+        <button type="button" class="ms-2 btn btn-info btn-block" (click)="setStockEqualInventory()" >
+            <i class="bi bi-gear"></i> Actualizar existencias contra el Inventario
+        </button>
+    </div>
+</div>
+
+<div class="container mt-3">
+    <form form [formGroup]="form" (ngSubmit)="addProductToInventory()" class="d-flex flex-column my-2">
+        <div class="row justify-content-start align-items-stretch mb-2" >
+            <div>Escanea o escribe aqui el código de barras del producto para sumar una unidad en el inventario.</div>
+            <div class="col-12">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">
+                            <i class="bi bi-upc-scan"></i> 
+                        </span>
+                    </div>
+                    <input type="text" formControlName="codigo" class="form-control me-2" placeholder="Escanea producto..."> 
+                    <button type="submit" class="btn btn-warning" [disabled]="form.invalid">
+                        Agregar al Inventario
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="d-flex align-items-center justify-content-start mb-2">
+        <button type="button" class="btn btn-danger btn-block me-2" (click)="loadCriticalProducts()">
+            <i class="bi bi-arrow-clockwise"></i> Cargar Solo Criticos
+        </button>
+        <button type="button" class="btn btn-warning btn-block me-2" (click)="loadWarningProducts()">
+            <i class="bi bi-arrow-clockwise"></i> Cargar Existencias Bajas
+        </button>
+        <button type="button" class="btn btn-primary btn-block me-2" (click)="loadAll()">
+            <i class="bi bi-arrow-clockwise"></i> Cargar Todos
+        </button>
+    </div>
+    <div class="row justify-content-start align-items-stretch">
+        <div class="col-12">
+            <div>Escanea o escribe aqui el código de barras de algún producto para filtrarlo y ver su información.</div>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">
+                        <i class="bi bi-funnel"></i> 
+                    </span>
+                </div>
+                <input type="text" id="filterProdTxt" class="form-control me-2" 
+                    [(ngModel)]="filterBarcode" (keydown.enter)="filtarProducto()"
+                    placeholder="Filtrar productos..." autocomplete="off">
+                <button type="button" class="btn btn-primary" (click)="filtarProducto()" >
+                    Filtrar producto
+                </button>
+            </div>
+        </div>
+    </div>
+  
+    <table class="table table-striped mt-3">
+        <thead>
+            <tr>
+                <th>C. Barras</th>
+                <th>Nombre</th>
+                <th>Existencias</th>
+                <th>+</th>
+                <th>$ Existencias</th>
+                <th>Inventario</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let p of filteredProducts">
+                <td>{{ p.barcode }}</td>
+                <td>{{ p.name }}</td>
+                <td [ngClass]="'a'+p.inVentarioAlertLevel">
+                    <button class="btn btn-primary ms-2 fs-smaller" (click)="openCaptureNewStock(p.productId)">+</button>
+                    <input *ngIf="editingStock[p.productId]" 
+                        class="bg-warning" (keydown.enter)="openCaptureNewStock(p.productId)"
+                        [(ngModel)]="newProdStockVal" type="number" min="1" max="1000000">
+                    <span *ngIf="!editingStock[p.productId]">
+                        {{ p.unitsInStock }}
+                    </span>
+                    
+                </td>
+                <td>
+                   
+                </td>
+                <td>{{ p.totalCashStock | currency:'MXN'}}</td>
+                <td [ngClass]="{'highlight': highlight}">
+                    <button class="btn btn-primary ms-2 fs-smaller" (click)="openCaptureNewInventory(p.productId)">E</button>
+                    <input *ngIf="editingInventario[p.productId]" 
+                        class="bg-warning" (keydown.enter)="openCaptureNewInventory(p.productId)"
+                        [(ngModel)]="newProdInventoryVal" type="number" min="1" max="1000000">
+                    <span *ngIf="!editingInventario[p.productId]">
+                        {{ p.unitsInVentario }}
+                    </span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+   
+</div>

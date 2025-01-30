@@ -10,10 +10,12 @@ import { ImportProductsComponent } from './admin/import-products/import-products
 import { CompanyManagementComponent } from './admin/company-management/company-management.component';
 import { PolicyComponent } from './resources/policy.component';
 import { AgreementsComponent } from './resources/agreements.component';
+import { InventarioReportComponent } from './admin/inventario-report/inventario-report.component';
 
 export const routes: Routes = [
     {path: '', redirectTo: '/login', pathMatch: 'full' },
     {path: 'login', component: LoginComponent },
+    { path: 'reporteinventario', component: InventarioReportComponent, canActivate: [AuthGuard] },
     { path: 'reporteventas', component: SalesReportComponent, canActivate: [AuthGuard] },
     { path: 'importar', component: ImportProductsComponent, canActivate: [AuthGuard] },  
     { path: 'companies', component: CompanyManagementComponent, canActivate: [AuthGuard] },  

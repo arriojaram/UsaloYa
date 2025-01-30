@@ -6,29 +6,26 @@ import { NgFor, NgIf } from '@angular/common';
 import { UserStateService } from '../../services/user-state.service';
 import { userDto } from '../../dto/userDto';
 import { NavigationService } from '../../services/navigation.service';
-import { first, Subscription } from 'rxjs';
-import { BarcodeFormat } from "@zxing/library";
-import { ZXingScannerModule } from "@zxing/ngx-scanner";
-import { barcodeFormats } from '../../shared/barcode-s-formats';
+import { first } from 'rxjs';
 import { AlertLevel, Roles } from '../../Enums/enums';
+import { InventarioService } from '../../services/inventario.service.service';
+import { setUnitsInStockDto } from '../../dto/setUnitsInStockDto';
 
 @Component({
     selector: 'app-product-management',
     templateUrl: './product-management.component.html',
     styleUrls: ['./product-management.component.css'],
-    imports: [ReactiveFormsModule, FormsModule, NgFor, NgIf, ZXingScannerModule]
+    imports: [ReactiveFormsModule, FormsModule, NgFor, NgIf]
 })
 export class ProductManagementComponent implements OnInit {
+
 
   productForm: FormGroup;
   products: Producto[] = [];
   selectedProduct: Producto | null = null;
   userState: userDto;
-  
-  isScannerEnabled: boolean = false;
-  allowedFormats: BarcodeFormat [];
-  qrResultString: string = "init";
-  scannerBtnLabel: string | undefined;
+  showAddInventarioBox: boolean = false;
+
   pageNumber: number = 1;
   rol = Roles;
 
@@ -36,29 +33,12 @@ export class ProductManagementComponent implements OnInit {
     private fb: FormBuilder, 
     private productService: ProductService,
     private userService: UserStateService,
-    public navigationService: NavigationService
+    public navigationService: NavigationService,
+    private inventoryService: InventarioService
   ) 
   {
     this.userState = userService.getUserStateLocalStorage();
     this.productForm = this.initProductForm();
-
-    this.allowedFormats = barcodeFormats.allowedFormats;    
-  }
-
-  setScannerStatus()
-  {
-      this.isScannerEnabled = !this.isScannerEnabled;
-      if(this.isScannerEnabled)
-          this.scannerBtnLabel = "Apagar escaner";
-      else
-          this.scannerBtnLabel = "Prender escaner";
-  }
-
-  onCodeResult(resultString: string) {
-    this.productForm.patchValue({
-      barcode: resultString
-    });
-    this.setScannerStatus();
   }
 
   initProductForm() : FormGroup
@@ -83,15 +63,44 @@ export class ProductManagementComponent implements OnInit {
       brand: [''],
       color: [''],
       size: [''],
-      companyId: [1, Validators.required]
+      companyId: [1, Validators.required],
+      lowInventoryStart: [0],
+      addToInventoryVal: [0]
     });
   }
 
   ngOnInit(): void {
     this.searchProductsInternal('-1');
-    this.scannerBtnLabel = "Abrir escaner";
     this.pageNumber = 1;
     this.navigationService.checkScreenSize();
+  }
+
+  openCaptureInventory() {
+    this.showAddInventarioBox=!this.showAddInventarioBox;
+    if(!this.showAddInventarioBox && this.productForm.get('addToInventoryVal'))
+    {
+      let addVal = this.productForm.get('addToInventoryVal')?.value;
+      let productId = this.productForm.get('productId')?.value;
+      //Si esta abierto y se hace click entonces sumar o restar el valor proporcionado
+      if(addVal !== 0)
+      {
+        let stockInfo:setUnitsInStockDto = {isHardReset:false, productId, unitsInStock:addVal};
+
+        this.inventoryService.setUnitsInStockToProduct(stockInfo, this.userState.companyId).pipe(first())
+          .subscribe({
+            next: (newStock) => {
+              this.navigationService.showUIMessage("Se agregaron las nuevas configuraciones a las existencias del producto.", AlertLevel.Sucess);      
+              this.productForm.get('addToInventoryVal')?.setValue(0);
+              this.productForm.get('unitsInStock')?.setValue(newStock);
+            },
+            error:(err) => {
+              this.navigationService.showUIMessage("No se pudo actualizar el inventario.", AlertLevel.Error);      
+              this.productForm.get('addToInventoryVal')?.setValue(0);
+              console.log("No se pudo actualizar el inventario " + err);
+            },
+          });
+      }
+    }
   }
 
   searchProducts(): void {

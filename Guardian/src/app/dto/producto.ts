@@ -3,7 +3,7 @@ export interface Producto {
   name: string;
   description: string;
   categoryId: number;
-  supplierId: number;
+  
   buyPrice: number;
   unitPrice: number;
   unitPrice1: number,
@@ -11,16 +11,10 @@ export interface Producto {
   unitPrice3: number,
   unitsInStock: number;
   discontinued: boolean;
-  imgUrl: string;
-  dateAdded: Date;
-  dateModified: Date;
-  weight?: number;
   sku: string;
   barcode: string;
-  brand: string;
-  color: string;
-  size: string;
   companyId: number;
+  lowInventoryStart?: number;
 
   count: number;
   total: number;

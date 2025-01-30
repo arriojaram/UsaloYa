@@ -39,9 +39,10 @@ export class AppComponent implements OnInit, OnDestroy {
   private unsubscribe$: Subject<void> = new Subject();
   loading_i$: Observable<boolean> = new BehaviorSubject<boolean>(false);
   currentPath: string = "/";
-
+  environmentClass: string = environment.production ? "bg-success" : "bg-primary";
+  
   public showPaymentAlert: boolean = false;
-
+  
   constructor(
     private connectionService: ConnectionService,
     private loadingService: LoadingService,

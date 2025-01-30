@@ -43,6 +43,7 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddSingleton<AppConfig>();
+
 builder.Services.AddScoped<AccessValidationFilter>();
 
 var app = builder.Build();

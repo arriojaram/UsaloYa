@@ -1,0 +1,18 @@
+.highlight {
+    background-color: hsl(58, 100%, 51%);
+    transition: background-color 1s ease-out;
+  }
+
+.a1 {
+  background-color: hsla(14, 100%, 65%, 0.627);
+  transition: background-color 1s ease-out;
+}
+
+.a2 {
+  background-color: hsl(58, 100%, 83%);
+  transition: background-color 1s ease-out;
+}
+
+.fs-smaller {
+    font-size: 0.675rem; /* Tamaño menor que el fs-6 estándar de Bootstrap */
+}

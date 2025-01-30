@@ -40,16 +40,8 @@ export class ImportCvsProductService {
       barcode: row.CodigoBarras.trim() || '',
       companyId: 0,
       categoryId:0,
-      supplierId:0,
-      imgUrl:'',
-      brand:'',
-      color:'',
-      size:'',
       count:0,
-      total:0,
-      dateAdded: new Date(),
-      dateModified: new Date()
-
+      total:0
     };
   }
 }

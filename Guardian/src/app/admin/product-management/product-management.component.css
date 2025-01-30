@@ -1,0 +1,4 @@
+.fake-disabled {
+    cursor: not-allowed;
+    opacity: 0.65;  /* Reduce la opacidad para imitar la apariencia deshabilitada */
+}

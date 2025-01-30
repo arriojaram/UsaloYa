@@ -38,6 +38,28 @@
             ]
           },
           "configurations": {
+            "qa": {
+              "fileReplacements": [
+                {
+                  "replace": "src/app/environments/enviroment.ts",
+                  "with": "src/app/environments/enviroment.qa.ts"
+                }
+              ],
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "3mb",
+                  "maximumError": "5mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
+                }
+              ],
+              "outputHashing": "all",
+              "serviceWorker": "ngsw-config.json"
+            },
             "production": {
               "fileReplacements": [
                 {

@@ -1,4 +1,4 @@
-<nav class="sb-topnav navbar navbar-expand-md navbar-dark bg-primary">
+<nav class="sb-topnav navbar navbar-expand-md navbar-dark" [ngClass]="environmentClass">
     <!-- Navbar content flex container -->
     <div class="d-flex w-100">
         <!-- Sidebar Toggle-->
@@ -64,17 +64,34 @@
                         Clientes
                     </a>
                     
-                    <a class="nav-link" href="reporteventas" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Admin">
-                        <div class="sb-nav-link-icon"><i class="bi bi-graph-up fs-6"></i></div>
-                        Reporte Ventas
+                    <!-- Submenu for Reports -->
+                    
+                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#submenuReports" aria-expanded="false" aria-controls="submenuReports">
+               
+                        <div class="sb-nav-link-icon"><i class="bi bi-bar-chart fs-6"></i></div>
+                        Reportes
+                    </a>
+                    <div class="collapse" id="submenuReports" data-bs-parent="#sidenavAccordion">
+                        <nav class="sb-sidenav-menu-nested nav">
+                            <a class="nav-link" href="reporteventas" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Admin">
+                                <div class="sb-nav-link-icon"><i class="bi bi-graph-up fs-6"></i></div>
+                                Reporte Ventas
+                            </a>
+                            <a class="nav-link" href="reporteinventario" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Admin">
+                                <div class="sb-nav-link-icon"><i class="bi bi-box-seam fs-6"></i></div>
+                                Inventario
+                            </a>
+                        </nav>
+                    </div>
+
+                    
+                    <a class="nav-link" href="companies" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Admin">
+                        <div class="sb-nav-link-icon"><i class="bi bi-briefcase-fill fs-6"></i></div>
+                        Empresa
                     </a>
                     <a class="nav-link" href="importar" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Admin">
                         <div class="sb-nav-link-icon"><i class="bi bi-file-earmark-arrow-up fs-6"></i></div>
                         Importar Productos
-                    </a>
-                    <a class="nav-link" href="companies" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Admin">
-                        <div class="sb-nav-link-icon"><i class="bi bi-briefcase-fill fs-6"></i></div>
-                        Empresas
                     </a>
                   </div>
             </div>
