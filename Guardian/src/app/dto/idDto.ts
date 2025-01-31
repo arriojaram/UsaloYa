@@ -3,5 +3,6 @@ export interface IdDto {
 }
 
 export interface BarcodeDto {
-    code:string
+    code:string,
+    quantity:number
 }

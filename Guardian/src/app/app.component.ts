@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router, RouterModule, RouterOutlet } from '@angular/router';
 import { ConnectionService } from 'ngx-connection-service';
 import { BehaviorSubject, Observable, Subject, catchError, debounceTime, filter, finalize, first, forkJoin, interval, of, switchMap, takeUntil } from 'rxjs';
@@ -87,7 +87,6 @@ export class AppComponent implements OnInit, OnDestroy {
           this.currentPath = "Bienvenido";
           break;
         default:
-          
           this.setUserDetailsUI();
           this.currentPath = "";
           break;

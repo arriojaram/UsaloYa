@@ -34,14 +34,14 @@
         </div>
     </form>
     <div class="d-flex align-items-center justify-content-start mb-2">
-        <button type="button" class="btn btn-danger btn-block me-2" (click)="loadCriticalProducts()">
+        <button type="button" class="btn btn-danger btn-block me-2" (click)="loadCriticalProducts(1)">
             <i class="bi bi-arrow-clockwise"></i> Cargar Solo Criticos
         </button>
-        <button type="button" class="btn btn-warning btn-block me-2" (click)="loadWarningProducts()">
+        <button type="button" class="btn btn-warning btn-block me-2" (click)="loadWarningProducts(1)">
             <i class="bi bi-arrow-clockwise"></i> Cargar Existencias Bajas
         </button>
-        <button type="button" class="btn btn-primary btn-block me-2" (click)="loadAll()">
-            <i class="bi bi-arrow-clockwise"></i> Cargar Todos
+        <button type="button" class="btn btn-primary btn-block me-2" (click)="loadAll(1)">
+            <i class="bi bi-arrow-clockwise"></i> Cargar con Discrepancias
         </button>
     </div>
     <div class="row justify-content-start align-items-stretch">
@@ -69,7 +69,6 @@
                 <th>C. Barras</th>
                 <th>Nombre</th>
                 <th>Existencias</th>
-                <th>+</th>
                 <th>$ Existencias</th>
                 <th>Inventario</th>
             </tr>
@@ -88,14 +87,12 @@
                     </span>
                     
                 </td>
-                <td>
-                   
-                </td>
                 <td>{{ p.totalCashStock | currency:'MXN'}}</td>
                 <td [ngClass]="{'highlight': highlight}">
-                    <button class="btn btn-primary ms-2 fs-smaller" (click)="openCaptureNewInventory(p.productId)">E</button>
+                    <button class="btn btn-primary ms-2 fs-smaller" 
+                        (click)="openCaptureNewInventory(p.productId, p.barcode)">E</button>
                     <input *ngIf="editingInventario[p.productId]" 
-                        class="bg-warning" (keydown.enter)="openCaptureNewInventory(p.productId)"
+                        class="bg-warning" (keydown.enter)="openCaptureNewInventory(p.productId, p.barcode)"
                         [(ngModel)]="newProdInventoryVal" type="number" min="1" max="1000000">
                     <span *ngIf="!editingInventario[p.productId]">
                         {{ p.unitsInVentario }}
@@ -104,5 +101,7 @@
             </tr>
         </tbody>
     </table>
-   
+    <button *ngIf="moreItems" type="button" class="btn btn-primary" (click)="loadMore()" >
+        Mostrar mas Productos
+    </button>
 </div>

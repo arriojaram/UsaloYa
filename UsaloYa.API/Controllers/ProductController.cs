@@ -279,11 +279,11 @@ namespace UsaloYa.API.Controllers
         }
 
         [HttpGet("GetInventarioByAlertId")]
-        public async Task<IActionResult> GetInventarioByAlertId([FromHeader] string RequestorId, int alertLevel, int companyId)
+        public async Task<IActionResult> GetInventarioByAlertId([FromHeader] string RequestorId, int alertLevel, int companyId, int pageNumber)
         {
             int totalInventoryProds = 0;
             decimal totalInventoryCash = 0;
-            
+            int pageSize = 50;
             try
             {
                 var user = await Util.ValidateRequestorSameCompany(RequestorId, Role.Admin, companyId, _dBContext);
@@ -312,6 +312,8 @@ namespace UsaloYa.API.Controllers
                 .Where(p => p.CompanyId == companyId && !p.Discontinued
                         && p.InVentarioAlertLevel == alertLevel)
                 .OrderBy(p => p.InVentarioAlertLevel).ThenBy(p => p.UnitsInStock)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
 
                 
@@ -326,8 +328,9 @@ namespace UsaloYa.API.Controllers
         }
 
         [HttpGet("GetInventarioAll")]
-        public async Task<IActionResult> GetInventarioAll([FromHeader] string RequestorId, int companyId)
+        public async Task<IActionResult> GetInventarioAll([FromHeader] string RequestorId, int companyId, int pageNumber)
         {
+            int pageSize = 50;
             int totalInventoryProds = 0;
             decimal totalInventoryCash = 0;
             try
@@ -355,7 +358,9 @@ namespace UsaloYa.API.Controllers
                             InVentarioAlertLevel = p.UnitsInStock <= 0 ? CRITICAL : p.UnitsInStock <= p.AlertaStockNumProducts ? WARNING : NORMAL,
                             UnitPrice = p.UnitPrice?? 0
                         })
-                        .Where(p => p.CompanyId == companyId && !p.Discontinued)
+                        .Where(p => p.CompanyId == companyId 
+                                    && !p.Discontinued
+                                    && (p.UnitsInVentario > 0 && p.UnitsInVentario != p.UnitsInStock))
                         .ToListAsync();
 
                 if (products.Any())
@@ -364,7 +369,11 @@ namespace UsaloYa.API.Controllers
                     totalInventoryCash = products.Sum(p => (p.UnitsInStock < 0 ? 0 : p.UnitsInStock?? 0) * p.UnitPrice);
                 }
                 InventoryDto inventory = new InventoryDto();
-                inventory.Products = products.OrderBy(p => p.InVentarioAlertLevel).ThenBy(p => p.UnitsInStock).ToList();
+                inventory.Products = products
+                        .OrderBy(p => p.InVentarioAlertLevel).ThenBy(p => p.UnitsInStock)
+                        .Skip((pageNumber - 1) * pageSize)
+                        .Take(pageSize)
+                        .ToList();
                 inventory.TotalProductUnits = totalInventoryProds;
                 inventory.TotalProducts = products.Count;
                 inventory.TotalCash = totalInventoryCash;
@@ -504,9 +513,15 @@ namespace UsaloYa.API.Controllers
 
                 if (p != null)
                 {
-                    existignInventario = p.InVentario ?? 0;
-                    p.InVentario = ++existignInventario;
-
+                    if (barcodeDto.Quantity > 1)
+                    {
+                        p.InVentario = barcodeDto.Quantity;
+                    }
+                    else
+                    {
+                        existignInventario = p.InVentario ?? 0;
+                        p.InVentario = ++existignInventario;
+                    }
                     _dBContext.Entry(p).State = EntityState.Modified;
                     await _dBContext.SaveChangesAsync();
                 }

@@ -54,11 +54,11 @@ export class InventarioService {
       );
     }
 
-    setProductInventarioValue(barcode: string, companyId:number): Observable<InventoryProduct> {
-      const id: BarcodeDto = {code: barcode};
+    setProductInventarioValue(setInVentario: BarcodeDto, companyId:number): Observable<InventoryProduct> {
+      
       const apiUrl = `${this.baseUrl}/SetInVentario?companyId=${companyId}`;
       
-      return this.httpClient.post<InventoryProduct>(apiUrl, id).pipe(
+      return this.httpClient.post<InventoryProduct>(apiUrl, setInVentario).pipe(
         catchError(error => {
           console.error('setProductInventarioValue() | ', error);
           throw error;
@@ -66,8 +66,8 @@ export class InventarioService {
       );
     }
 
-    getInventoryByAlertId(alertId:number, companyId: number): Observable<InventoryProduct[]> {
-      const apiUrl =`${this.baseUrl}/GetInventarioByAlertId?alertLevel=${alertId}&companyId=${companyId}`;
+    getInventoryByAlertId(pageNumber:number, alertId:number, companyId: number): Observable<InventoryProduct[]> {
+      const apiUrl =`${this.baseUrl}/GetInventarioByAlertId?alertLevel=${alertId}&companyId=${companyId}&pageNumber=${pageNumber}`;
       
       return this.httpClient.get<InventoryProduct[]>(apiUrl).pipe(
         catchError(error => {
@@ -77,8 +77,8 @@ export class InventarioService {
       );
     }
 
-    getInventoryAll(companyId: number): Observable<Inventory> {
-      const apiUrl =`${this.baseUrl}/GetInventarioAll?companyId=${companyId}`;
+    getInventoryAll(pageNumber:number, companyId: number): Observable<Inventory> {
+      const apiUrl =`${this.baseUrl}/GetInventarioAll?pageNumber${pageNumber}&companyId=${companyId}`;
       
       return this.httpClient.get<Inventory>(apiUrl).pipe(
         catchError(error => {

@@ -15,6 +15,7 @@ import { registerLocaleData } from '@angular/common';
 import localeEs from '@angular/common/locales/es-MX';
 import { provideToastr } from 'ngx-toastr';
 import { environment } from './environments/enviroment';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 // Registrar el locale español
 registerLocaleData(localeEs);
@@ -46,6 +47,6 @@ export const appConfig: ApplicationConfig = {
       positionClass: 'toast-bottom-center',
       preventDuplicates: true,
       closeButton: true
-    }),
+    }), provideAnimationsAsync(),
   ]
 };

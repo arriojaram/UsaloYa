@@ -14,6 +14,12 @@ export enum PriceLevel
     UnitPrice3 = 3,
 }
 
+export enum InventoryView
+{ 
+    Critical = 1,
+    Warning = 2,
+    Other = 3
+}
 
 export enum Roles {
     Unknown = 0,
