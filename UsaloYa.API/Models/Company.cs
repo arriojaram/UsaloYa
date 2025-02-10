@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
+﻿
 namespace UsaloYa.API.Models;
 
 public partial class Company
@@ -43,11 +41,13 @@ public partial class Company
 
     public virtual PlanRenta? Plan { get; set; }
 
+    public virtual ICollection<ProductCategory> ProductCategories { get; set; } = new List<ProductCategory>();
+
     public virtual ICollection<Product> Products { get; set; } = new List<Product>();
+
+    public virtual ICollection<Renta> Renta { get; set; } = new List<Renta>();
 
     public virtual ICollection<Sale> Sales { get; set; } = new List<Sale>();
 
     public virtual ICollection<User> Users { get; set; } = new List<User>();
-
-    public virtual ICollection<Renta> Renta { get; set; } = new List<Renta>();
 }

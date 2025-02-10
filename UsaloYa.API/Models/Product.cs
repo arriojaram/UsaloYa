@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-
+﻿
 namespace UsaloYa.API.Models;
+
 
 public partial class Product
 {
@@ -49,8 +48,16 @@ public partial class Product
 
     public decimal? UnitPrice3 { get; set; }
 
+    /// <summary>
+    /// Valor utilizado para guardar informacion temporal del inventario del producto
+    /// </summary>
     public int? InVentario { get; set; }
+
     public int? AlertaStockNumProducts { get; set; }
+
+    public bool? IsInVentarioUpdated { get; set; }
+
+    public virtual ProductCategory? Category { get; set; }
 
     public virtual Company Company { get; set; } = null!;
 

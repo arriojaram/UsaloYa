@@ -106,7 +106,7 @@ export class SalesReportComponent implements OnInit, OnDestroy {
   updateSaleStatus(saleId: number, status: string)
   {
     const newStatus = this.resolveSaleStatus(status);
-    console.log(status + ' > ' + newStatus );
+    
     this.salesService.updateSaleStatus(saleId, newStatus).pipe(
       first()
     ).subscribe({

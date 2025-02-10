@@ -49,10 +49,23 @@
                       Punto de Venta
                     </a>
                   
-                    <a class="nav-link" href="productos" *ngIf="(this.userStateUI?.roleId?? 0) > rol.Unknown">
-                      <div class="sb-nav-link-icon"><i class="bi bi-box-seam fs-6"></i></div>
-                      Productos
+                    <!-- Submenu for Productos -->
+                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#submenuReports" aria-expanded="false" aria-controls="submenuReports">
+                        <div class="sb-nav-link-icon"><i class="bi bi-bar-chart fs-6"></i></div>
+                        Productos
                     </a>
+                    <div class="collapse" id="submenuReports" data-bs-parent="#sidenavAccordion">
+                        <nav class="sb-sidenav-menu-nested nav">
+                            <a class="nav-link" href="productos" *ngIf="(this.userStateUI?.roleId?? 0) > rol.Unknown">
+                                <div class="sb-nav-link-icon"><i class="bi bi-box-seam fs-6"></i></div>
+                                Gestión
+                            </a>
+                            <a class="nav-link" href="categorias" *ngIf="(this.userStateUI?.roleId?? 0) > rol.User">
+                                <div class="sb-nav-link-icon"><i class="bi bi-tags fs-6"></i></div>
+                                Categorias
+                            </a>
+                        </nav>
+                    </div>
 
                     <a class="nav-link" href="usuarios" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Admin">
                         <div class="sb-nav-link-icon"><i class="bi bi-people fs-6"></i></div>
@@ -65,9 +78,7 @@
                     </a>
                     
                     <!-- Submenu for Reports -->
-                    
                     <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#submenuReports" aria-expanded="false" aria-controls="submenuReports">
-               
                         <div class="sb-nav-link-icon"><i class="bi bi-bar-chart fs-6"></i></div>
                         Reportes
                     </a>

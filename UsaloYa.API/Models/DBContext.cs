@@ -25,6 +25,8 @@ public partial class DBContext : DbContext
 
     public virtual DbSet<Product> Products { get; set; }
 
+    public virtual DbSet<ProductCategory> ProductCategories { get; set; }
+
     public virtual DbSet<Renta> Rentas { get; set; }
 
     public virtual DbSet<Sale> Sales { get; set; }
@@ -68,8 +70,8 @@ public partial class DBContext : DbContext
             entity.HasOne(d => d.LastUpdateByNavigation).WithMany(p => p.CompanyLastUpdateByNavigations).HasForeignKey(d => d.LastUpdateBy);
 
             entity.HasOne(d => d.Plan).WithMany(p => p.Companies)
-               .HasForeignKey(d => d.PlanId)
-               .HasConstraintName("FK_Company_PlanRentas");
+                .HasForeignKey(d => d.PlanId)
+                .HasConstraintName("FK_Company_PlanRentas");
         });
 
         modelBuilder.Entity<Customer>(entity =>
@@ -180,6 +182,7 @@ public partial class DBContext : DbContext
             entity.Property(e => e.ImgUrl)
                 .HasMaxLength(250)
                 .IsUnicode(false);
+            entity.Property(e => e.InVentario).HasComment("Valor utilizado para guardar informacion temporal del inventario del producto");
             entity.Property(e => e.Name)
                 .HasMaxLength(250)
                 .IsUnicode(false);
@@ -196,18 +199,43 @@ public partial class DBContext : DbContext
             entity.Property(e => e.UnitPrice3).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.Weight).HasColumnType("decimal(10, 2)");
 
+            entity.HasOne(d => d.Category).WithMany(p => p.Products)
+                .HasForeignKey(d => d.CategoryId)
+                .HasConstraintName("FK_Products_ProductCategory");
+
             entity.HasOne(d => d.Company).WithMany(p => p.Products)
                 .HasForeignKey(d => d.CompanyId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Products_Company");
         });
 
+        modelBuilder.Entity<ProductCategory>(entity =>
+        {
+            entity.HasKey(e => e.CategoryId);
+
+            entity.ToTable("ProductCategory");
+
+            entity.Property(e => e.Description)
+                .HasMaxLength(500)
+                .IsUnicode(false);
+            entity.Property(e => e.Name)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.Company).WithMany(p => p.ProductCategories)
+                .HasForeignKey(d => d.CompanyId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ProductCategory_Company");
+        });
+
         modelBuilder.Entity<Renta>(entity =>
         {
             entity.Property(e => e.Amount).HasColumnType("decimal(10, 2)");
-            entity.Property(e => e.ReferenceDate).HasColumnType("datetime");
             entity.Property(e => e.ExpirationDate).HasColumnType("datetime");
-
+            entity.Property(e => e.Notas)
+                .HasMaxLength(500)
+                .IsUnicode(false);
+            entity.Property(e => e.ReferenceDate).HasColumnType("datetime");
             entity.Property(e => e.TipoRentaDesc)
                 .HasMaxLength(15)
                 .IsUnicode(false);
@@ -272,7 +300,6 @@ public partial class DBContext : DbContext
             entity.Property(e => e.BuyPrice).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.TotalPrice).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.UnitPrice).HasColumnType("decimal(10, 2)");
-            entity.Property(e => e.PriceLevel).HasColumnType("int");
 
             entity.HasOne(d => d.Product).WithMany(p => p.SaleDetails)
                 .HasForeignKey(d => d.ProductId)
@@ -300,11 +327,7 @@ public partial class DBContext : DbContext
             entity.HasIndex(e => e.UserName, "IX_Users_UserName").IsUnique();
 
             entity.Property(e => e.CreationDate).HasColumnType("datetime");
-
-            entity.Property(e => e.RoleId).HasColumnType("int");
-
-            entity.Property(e => e.DeviceId).HasColumnType("nvarchar(255)");
-
+            entity.Property(e => e.DeviceId).HasMaxLength(255);
             entity.Property(e => e.FirstName)
                 .HasMaxLength(50)
                 .IsUnicode(false);
@@ -312,7 +335,6 @@ public partial class DBContext : DbContext
                 .IsRequired()
                 .HasDefaultValueSql("(CONVERT([bit],(0)))");
             entity.Property(e => e.LastAccess).HasColumnType("datetime");
-            entity.Property(e => e.StatusId).HasColumnType("StatusId");
             entity.Property(e => e.LastName)
                 .HasMaxLength(50)
                 .IsUnicode(false);

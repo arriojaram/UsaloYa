@@ -1,5 +1,4 @@
-Scaffold-DbContext "Data Source=DESKTOP-PL9432I\MSSQLSERVER01;Initial Catalog=Avatar;Integrated Security=True;TrustServerCertificate=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Utils
-
+Scaffold-DbContext "Data Source=DESKTOP-PL9432I\MSSQLSERVER01;Initial Catalog=UsaloYa;Integrated Security=True;TrustServerCertificate=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir NewModels
 
 // Commands to do the code first in VS and start working with the DB in PostgreSql
 dotnet ef migrations add InitialMigration

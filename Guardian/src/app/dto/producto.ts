@@ -15,6 +15,7 @@ export interface Producto {
   barcode: string;
   companyId: number;
   lowInventoryStart?: number;
+  isInVentarioUpdated?: boolean;
 
   count: number;
   total: number;

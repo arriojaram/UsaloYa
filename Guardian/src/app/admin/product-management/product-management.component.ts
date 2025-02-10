@@ -10,6 +10,8 @@ import { first } from 'rxjs';
 import { AlertLevel, Roles } from '../../Enums/enums';
 import { InventarioService } from '../../services/inventario.service.service';
 import { setUnitsInStockDto } from '../../dto/setUnitsInStockDto';
+import { productCategoryDto } from '../../dto/productCategoryDto';
+import { ProductCategoryService } from '../../services/product-category.service';
 
 @Component({
     selector: 'app-product-management',
@@ -19,7 +21,7 @@ import { setUnitsInStockDto } from '../../dto/setUnitsInStockDto';
 })
 export class ProductManagementComponent implements OnInit {
 
-
+  categoryList: productCategoryDto[] = [];
   productForm: FormGroup;
   products: Producto[] = [];
   selectedProduct: Producto | null = null;
@@ -28,13 +30,15 @@ export class ProductManagementComponent implements OnInit {
 
   pageNumber: number = 1;
   rol = Roles;
+  selectedCategoryId: number = 0;
 
   constructor(
     private fb: FormBuilder, 
     private productService: ProductService,
     private userService: UserStateService,
     public navigationService: NavigationService,
-    private inventoryService: InventarioService
+    private inventoryService: InventarioService,
+    private categoryService: ProductCategoryService
   ) 
   {
     this.userState = userService.getUserStateLocalStorage();
@@ -73,6 +77,7 @@ export class ProductManagementComponent implements OnInit {
     this.searchProductsInternal('-1');
     this.pageNumber = 1;
     this.navigationService.checkScreenSize();
+    this.getCategories();
   }
 
   openCaptureInventory() {
@@ -103,6 +108,23 @@ export class ProductManagementComponent implements OnInit {
     }
   }
 
+  filterProducts(): void {
+    
+    this.pageNumber = 1;
+    let categoryId = this.selectedCategoryId;
+    let companyId = this.userState.companyId;
+    this.productService.filterProducts(this.pageNumber, companyId, categoryId).pipe(first())
+      .subscribe({
+        next:(products) => {
+          if(products.length == 0)
+            this.navigationService.showUIMessage('No hay productos en la categoria seleccionada.');
+          
+          this.products = products.sort((a,b) => a.name.localeCompare(b.name));
+          }
+      });
+    
+  }
+
   searchProducts(): void {
     this.pageNumber = 1;
     let keyword = this.navigationService.searchItem;
@@ -115,11 +137,26 @@ export class ProductManagementComponent implements OnInit {
   
   loadMore(): void {
     this.pageNumber++;
-    let keyword = this.navigationService.searchItem;
-    if (!keyword || keyword.trim() === "") {
-      keyword="-1";
+    if(this.selectedCategoryId > 0)
+    {
+      this.appendToFilteredResults();
     }
-    this.appendToSearchResults(keyword);
+    else
+    {
+      let keyword = this.navigationService.searchItem;
+      if (!keyword || keyword.trim() === "") {
+        keyword="-1";
+      }
+  
+      this.appendToSearchResults(keyword);
+    }
+  }
+
+  private appendToFilteredResults(): void {
+    this.productService.filterProducts(this.pageNumber, this.userState.companyId, this.selectedCategoryId).pipe(first())
+    .subscribe(products => {
+      this.products = this.products.concat(products.sort((a,b) => a.name.localeCompare(b.name)));
+    });
   }
 
   private appendToSearchResults(name: string): void {
@@ -154,7 +191,7 @@ export class ProductManagementComponent implements OnInit {
     if (this.productForm.valid) {
       const product: Producto = this.productForm.value;
       product.companyId = this.userState.companyId;
-      
+      console.log(JSON.stringify(product));
       this.productService.saveProduct(this.userState.companyId, product).pipe(first())
       .subscribe({
         next: (savedProduct) => {
@@ -183,5 +220,20 @@ export class ProductManagementComponent implements OnInit {
   isFieldInvalid(field: string): boolean {
     const control = this.productForm.get(field);
     return control ? control.invalid && control.touched : false;
+  }
+
+  private getCategories(): void {
+    if(this.userState != null)
+    {
+      this.categoryService.getAll(this.userState.companyId).pipe(first())
+      .subscribe(users => {
+        this.categoryList = users.sort((a,b) => (a.name?? '').localeCompare((b.name?? '')));
+        
+      });
+    }
+    else
+    {
+      console.error("Estado de usuario invalido.");
+    }
   }
 }

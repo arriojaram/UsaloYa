@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { CustomerService } from '../../services/customer.service';
@@ -16,7 +16,7 @@ import { AlertLevel } from '../../Enums/enums';
     templateUrl: './customer-management.component.html',
     styleUrl: './customer-management.component.css'
 })
-export class CustomerManagementComponent {
+export class CustomerManagementComponent implements OnInit{
   customerForm: FormGroup;
   customerId!: number;
   userState: userDto | undefined;
@@ -120,7 +120,7 @@ export class CustomerManagementComponent {
   private searchCustomersInternal(nameOrPhoneOrEmail: string): void {
     if(this.userState != null)
     {
-     console.log(JSON.stringify(this.userState));
+     
       this.customerService.getAllCustomer(this.userState.companyId, nameOrPhoneOrEmail).pipe(first())
       .subscribe(users => {
         this.customerList = users.sort((a,b) => (a.firstName?? '').localeCompare((b.firstName?? '')));

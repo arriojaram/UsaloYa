@@ -11,6 +11,7 @@ import { CompanyManagementComponent } from './admin/company-management/company-m
 import { PolicyComponent } from './resources/policy.component';
 import { AgreementsComponent } from './resources/agreements.component';
 import { InventarioReportComponent } from './admin/inventario-report/inventario-report.component';
+import { PcategoriesComponent } from './admin/pcategories/pcategories.component';
 
 export const routes: Routes = [
     {path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -20,6 +21,7 @@ export const routes: Routes = [
     { path: 'importar', component: ImportProductsComponent, canActivate: [AuthGuard] },  
     { path: 'companies', component: CompanyManagementComponent, canActivate: [AuthGuard] },  
     { path: 'productos', component: ProductManagementComponent, canActivate: [AuthGuard] },
+    { path: 'categorias', component: PcategoriesComponent, canActivate: [AuthGuard] },
     { path: 'usuarios', component: UserManagementComponent, canActivate: [AuthGuard] },
     { path: 'clientes', component: CustomerManagementComponent, canActivate: [AuthGuard] },
     { path: 'main', component: PuntoDeVentaComponent, canActivate: [AuthGuard] },

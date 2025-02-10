@@ -29,6 +29,56 @@ namespace UsaloYa.API.Controllers
             _dBContext = dBContext;
         }
 
+        [HttpGet("FilterProducts")]
+        public async Task<IActionResult> FilterProducts(int pageNumber, int categoryId, int companyId)
+        {
+            int pageSize = 30;
+            if (pageNumber == -1) //Used to manage the cache products function
+            {
+                pageSize = 500;
+                pageNumber = 1;
+            }
+            try
+            {
+                if (companyId <= 0)
+                {
+                    return BadRequest(new { Message = "$_Empresa_O_Producto_Invalido" });
+                }
+
+                var products = categoryId == 0
+                    ? await _dBContext.Products
+                    .Select(p => new Product4ListDto() { ProductId = p.ProductId, Discontinued = p.Discontinued, Sku = p.Sku, Description = p.Description, Name = p.Name, CompanyId = p.CompanyId })
+                    .Where(p => p.CompanyId == companyId)
+                    .OrderBy(p => p.Name)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync()
+
+                    : await _dBContext.Products
+                    .Select(p => new Product4ListDto() 
+                        { ProductId = p.ProductId, Discontinued = p.Discontinued, 
+                            Sku = p.Sku, Description = p.Description, Name = p.Name, 
+                            CompanyId = p.CompanyId, CategoryId = p.CategoryId?? 0 })
+                    .Where(p => p.CompanyId == companyId && p.CategoryId == categoryId )
+                    .OrderBy(p => p.Name)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+
+                if (products == null || products.Count == 0)
+                {
+                    return NotFound();
+                }
+
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "FilterProducts.ApiError");
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
+            }
+        }
+
         [HttpGet("SearchProduct4List")]
         public async Task<IActionResult> SearchProduct4List(int pageNumber, string keyword, int companyId)
         {
@@ -79,8 +129,6 @@ namespace UsaloYa.API.Controllers
                 return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
             }
         }
-
-      
 
         [HttpGet("SearchProductFull")]
         public async Task<IActionResult> SearchProductFull(int pageNumber, string keyword, int companyId)
@@ -154,7 +202,7 @@ namespace UsaloYa.API.Controllers
                 var p = new ProductDto() { 
                     
                     Barcode = product.Barcode??"",
-                    
+                    CategoryId = product.CategoryId?? 0,
                     BuyPrice = product.BuyPrice,
                     CompanyId = product.CompanyId,
                     Description = product.Description??"",
@@ -167,7 +215,8 @@ namespace UsaloYa.API.Controllers
                     UnitPrice2 = product.UnitPrice,
                     UnitPrice3 = product.UnitPrice,
                     UnitsInStock = product.UnitsInStock,
-                    LowInventoryStart = product.AlertaStockNumProducts
+                    LowInventoryStart = product.AlertaStockNumProducts,
+                    IsInventarioUpdated = product.IsInVentarioUpdated
                 };
                 return Ok(p);
             }
@@ -218,7 +267,7 @@ namespace UsaloYa.API.Controllers
                     {
                         Name = productDto.Name.Trim(),
                         Description = productDto.Description,
-
+                        CategoryId = productDto.CategoryId,
                         BuyPrice = productDto.BuyPrice == 1 ? null : productDto.BuyPrice,
                         UnitPrice = productDto.UnitPrice == 0 ? 1 : productDto.UnitPrice,
                         UnitPrice1 = productDto.UnitPrice1 == 0 ? null : productDto.UnitPrice1,
@@ -234,7 +283,8 @@ namespace UsaloYa.API.Controllers
                         
                         DateAdded = Utils.Util.GetMxDateTime(),
                         CompanyId = companyId,
-                        AlertaStockNumProducts = productDto.LowInventoryStart?? 0
+                        AlertaStockNumProducts = productDto.LowInventoryStart?? 0,
+                        IsInVentarioUpdated = productDto.IsInventarioUpdated
                     };
 
                     _dBContext.Products.Add(existingProduct);
@@ -244,6 +294,7 @@ namespace UsaloYa.API.Controllers
                 {
                     existingProduct.Name = productDto.Name.Trim();
                     existingProduct.Description = productDto.Description;
+                    existingProduct.CategoryId = productDto.CategoryId;
 
                     existingProduct.BuyPrice = productDto.BuyPrice;
                     existingProduct.UnitPrice = productDto.UnitPrice;
@@ -261,6 +312,7 @@ namespace UsaloYa.API.Controllers
                     
 
                     existingProduct.AlertaStockNumProducts = productDto.LowInventoryStart ?? 0;
+                    existingProduct.IsInVentarioUpdated = productDto.IsInventarioUpdated;
 
                     _dBContext.Entry(existingProduct).State = EntityState.Modified;
                 }

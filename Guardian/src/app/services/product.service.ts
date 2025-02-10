@@ -17,6 +17,21 @@ export class ProductService {
 
   }
 
+  filterProducts(pageNumber: number, companyId: number, categoryId: number): Observable<Producto[]> {
+    const apiUrl =`${this.baseUrl}/FilterProducts?pageNumber=${pageNumber}&companyId=${companyId}&categoryId=${categoryId}`;
+    
+    return this.http.get<Producto[]>(apiUrl).pipe(
+      catchError(error => {
+        
+        if (error.status === 404) {
+          return of([]);  // Retorna null si el error es 404 Not Found
+        } else {
+          throw error;  // Lanza la excepción para otros tipos de errores
+        }
+      })
+    );
+  }
+
   searchProducts4List(pageNumber: number, companyId: number, keyword: string): Observable<Producto[]> {
     const apiUrl =`${this.baseUrl}/SearchProduct4List?pageNumber=${pageNumber}&companyId=${companyId}&keyword=${keyword}`;
     

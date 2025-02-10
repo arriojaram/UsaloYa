@@ -8,6 +8,7 @@
         public string Name { get; set; }
         public bool Discontinued { get; set; }
         public int CompanyId { get; set; }
+        public int CategoryId { get; set; }
     }
 
     public class Product4InventariotDto : Product4ListDto

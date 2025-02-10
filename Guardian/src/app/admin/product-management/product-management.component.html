@@ -16,7 +16,7 @@
         <div class="card">
           <div class="card-body">
             <h6 class="card-title">Buscar Productos</h6>
-            <div class="input-group mb-3">
+            <div class="input-group mb-1">
               <input type="text" class="form-control" [(ngModel)]="navigationService.searchItem" placeholder="Buscar...">
               <div class="input-group-append">
                 <button class="btn close-btn" type="button" (click)="navigationService.searchItem = ''; searchProducts()">
@@ -27,7 +27,21 @@
                 </button>
               </div>
             </div>
-            
+            <div class="input-group mb-1">
+              <select [(ngModel)]="selectedCategoryId" id="selectedCategoryId" class="form-select me-1">
+                <option *ngFor="let option of categoryList" [value]="option.categoryId">
+                    {{ option.name }}
+                </option>
+              </select>
+              <div class="input-group-append">
+                <button class="btn close-btn" type="button" (click)="selectedCategoryId = 0; filterProducts()">
+                  &times;
+                </button>
+                <button class="btn btn-outline-secondary" type="button" (click)="filterProducts()">
+                  Filtrar
+                </button>
+              </div>
+            </div>
             <ul class="list-group mt-3">
               <li *ngFor="let product of products" class="list-group-item list-group-item-action" (click)="selectProduct(product.productId)">
                 {{ product.name }}
@@ -95,6 +109,16 @@
                     <input *ngIf="showAddInventarioBox" class="bg-warning" formControlName="addToInventoryVal" type="number" min="1" max="1000000">
                     <button *ngIf="this.selectedProduct" class="btn btn-info ms-2" (click)="openCaptureInventory()" >Agregar</button>
                     
+                  </div>
+                </div>
+                <div>
+                  <label for="unitsInStock">Categoria</label>
+                  <div class="col-lg-4 col-md-6 col-12">
+                    <select formControlName="categoryId" id="categoryId" class="form-select">
+                        <option *ngFor="let option of categoryList" [value]="option.categoryId">
+                            {{ option.name }}
+                        </option>
+                    </select>
                   </div>
                 </div>
                 <hr>
