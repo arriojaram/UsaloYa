@@ -17,6 +17,7 @@ import { ProductCategoryService } from '../../services/product-category.service'
   styleUrl: './pcategories.component.css'
 })
 export class PcategoriesComponent {
+
   cForm: FormGroup;
   cId!: number;
   userState: userDto | undefined;
@@ -38,7 +39,7 @@ export class PcategoriesComponent {
     this.userState = this.userService.getUserStateLocalStorage();
     this.cForm = this.initializeForm();
     this.navigationService.checkScreenSize();
-    this.getAll();
+    this.getAll('-1');
   }
 
   // Inicializa el formulario
@@ -59,11 +60,36 @@ export class PcategoriesComponent {
     });
   }
 
-  newCustomer(): void {
+  newRecord(): void {
     this.selectedItem = null;
     this.cForm?.reset();
     this.cForm?.patchValue({companyId: this.userState?.companyId, categoryId:0, name:'', description:''});
     window.scrollTo(0, 0);
+  }
+  
+  deleteRecord() {
+    if (this.cForm?.valid) {
+      let catInfo = this.cForm.value;
+      this.categoryService.delete(catInfo).subscribe({
+        complete: () => {
+          this.getAll('-1');
+          this.navigationService.showUIMessage("Categoria eliminada", AlertLevel.Info);
+        },
+        error: (err) => 
+        {
+          if (err.status === 500) 
+          {
+            this.navigationService.showUIMessage('No se pudo eliminar, verifica que la categoría no este en uso por algun producto.');  
+          }
+          else
+            this.navigationService.showUIMessage(err.error.message);
+        }
+      });
+    } 
+    else 
+    {
+      this.navigationService.showUIMessage("El formulario contiene datos no válidos");
+    }
   }
 
   save(): void {
@@ -72,20 +98,22 @@ export class PcategoriesComponent {
       return;
     }
     if (this.cForm?.valid) {
-      
-      this.categoryService.save(this.cForm.value).subscribe({
+      let catInfo = this.cForm.value;
+      this.categoryService.save(catInfo).subscribe({
         next: (savedItem) => {
-          this.getAll();
+          this.getAll('-1');
           this.selectItem(savedItem.categoryId);
           this.navigationService.showUIMessage("Categoria guardada (" + savedItem.categoryId + ")", AlertLevel.Sucess);
         },
         error: (e) => 
         {
-          this.navigationService.showUIMessage(e.error.message);
+          this.navigationService.showUIMessage(e.error);
         }
       });
-    } else {
-      console.log('Form is invalid');
+    } 
+    else 
+    {
+      this.navigationService.showUIMessage("El formulario contiene datos no válidos");
     }
   }
   
@@ -101,10 +129,19 @@ export class PcategoriesComponent {
     });
   }
 
-  private getAll(): void {
+  filter()
+  {
+    let keyword = this.navigationService.searchItem;
+    if (!keyword || keyword.trim() === "") {
+      keyword="-1";
+    }
+    this.getAll(keyword);
+  }
+
+  private getAll(keyword:string): void {
     if(this.userState != null)
     {
-      this.categoryService.getAll(this.userState.companyId).pipe(first())
+      this.categoryService.getAll(this.userState.companyId, keyword).pipe(first())
       .subscribe(users => {
         this.categoryList = users.sort((a,b) => (a.name?? '').localeCompare((b.name?? '')));
       });

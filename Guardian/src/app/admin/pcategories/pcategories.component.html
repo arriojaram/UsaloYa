@@ -13,13 +13,25 @@
       <div class="row">
         <div class="col-12 col-md-4 search-panel" [class.d-none]="navigationService.isSearchPanelHidden">
               <div class="card">
-              <div class="card-body">
-                  <ul class="list-group mt-3">
-                    <li *ngFor="let c of categoryList" class="list-group-item list-group-item-action" (click)="selectItem(c.categoryId)">
-                        {{ c.name }}
-                    </li>
-                  </ul>
-              </div>
+                <div class="card-body">
+                    <h6 class="card-title">Filtar</h6>
+                    <div class="input-group mb-1">
+                      <input type="text" class="form-control" [(ngModel)]="navigationService.searchItem" placeholder="Buscar...">
+                      <div class="input-group-append">
+                        <button class="btn close-btn" type="button" (click)="navigationService.searchItem = ''; filter()">
+                          &times;
+                        </button>
+                        <button class="btn btn-outline-secondary" type="button" (click)="filter()">
+                          Filtrar
+                        </button>
+                      </div>
+                    </div>
+                    <ul class="list-group mt-3">
+                      <li *ngFor="let c of categoryList" class="list-group-item list-group-item-action" (click)="selectItem(c.categoryId)">
+                          {{ c.name }}
+                      </li>
+                    </ul>
+                </div>
               </div>
           </div>
           <div class="col-12" [class.col-md-8]="!navigationService.isSearchPanelHidden" [class.col-md-12]="navigationService.isSearchPanelHidden">
@@ -42,7 +54,8 @@
                               </div>  
 
                               <div class="d-flex justify-content-end my-3">
-                                <button type="button" class="btn btn-primary mx-2 btn-floating-secondary" (click)="newCustomer()">Nuevo</button>
+                                <button [disabled]="!this.selectedItem" type="button" class="btn btn-danger mx-2" (click)="deleteRecord()">Eliminar</button>
+                                <button type="button" class="btn btn-primary mx-2 btn-floating-secondary" (click)="newRecord()">Nuevo</button>
                                 <button type="submit" [disabled]="cForm.invalid" class="btn btn-success btn-floating">Guardar Categoria</button>
                             </div>    
                           </form>

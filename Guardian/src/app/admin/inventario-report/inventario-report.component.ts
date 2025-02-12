@@ -10,7 +10,10 @@ import { userDto } from '../../dto/userDto';
 import { AlertLevel, InventoryView, Roles } from '../../Enums/enums';
 import { ProductService } from '../../services/product.service';
 import { setUnitsInStockDto } from '../../dto/setUnitsInStockDto';
-import { BarcodeDto as setInVentarioByBarcodeDto } from '../../dto/idDto';
+import { IdDto, BarcodeDto as setInVentarioByBarcodeDto } from '../../dto/idDto';
+import { productCategoryDto } from '../../dto/productCategoryDto';
+import { ProductCategoryService } from '../../services/product-category.service';
+import { Producto } from '../../dto/producto';
 
 @Component({
   selector: 'app-inventario-report',
@@ -28,8 +31,10 @@ export class InventarioReportComponent implements OnInit, OnDestroy{
   currentPage = 1;
   currentView: InventoryView = InventoryView.Other;
   moreItems: boolean | undefined;
+  categoryList: productCategoryDto[] = [];
 
   highlight = false;
+  selectedCategoryId: number = 0;
 
   form = new FormGroup({
     codigo : new FormControl('', Validators.required)
@@ -51,7 +56,9 @@ export class InventarioReportComponent implements OnInit, OnDestroy{
       private inventoryService: InventarioService,
       private productService: ProductService,
       private navigationService: NavigationService,
-      private userService: UserStateService,) 
+      private userService: UserStateService,
+      private categoryService: ProductCategoryService
+    ) 
   {
     this.userState = userService.getUserStateLocalStorage();
   }
@@ -63,27 +70,91 @@ export class InventarioReportComponent implements OnInit, OnDestroy{
 
   ngOnInit(): void {
     this.userState = this.userService.getUserStateLocalStorage();
- 
+    this.currentPage = 1;
     if(this.userState.roleId < Roles.Admin)
       this.navigationService.showUIMessage("Petición incorrecta.");
     else
       this.getProductsTop50("-1");
  
+    this.getCategories();
+  }
+
+  
+  private getCategories(): void {
+    if(this.userState != null)
+    {
+      this.categoryService.getAll(this.userState.companyId, '-1').pipe(first())
+      .subscribe(users => {
+        this.categoryList = users.sort((a,b) => (a.name?? '').localeCompare((b.name?? '')));
+        
+      });
+    }
+    else
+    {
+      console.error("Estado de usuario invalido.");
+    }
   }
 
   setStockEqualInventory() {
-    if (!confirm('¿Estás seguro de que quieres asignar los valores del inventario a las existencias de todos los productos?')) 
+    if (!confirm('Los productos modificados serán actualizados. El valor del "Inventario" será asignago al valor "Existencias" ¿Estás seguro de que quieres continuar?')) 
       return;
 
     this.inventoryService.setAllStockEqualsInventory(this.userState.companyId).pipe(first())
     .subscribe({
       complete:() => {
         this.navigationService.showUIMessage("Se igualaron los valores de las existencias al de los capturados en el inventario.", AlertLevel.Sucess);
+        this.currentPage = 1;
         this.getProductsTop50("-1");
       },
       error:(err) => {
         if (err.status === 404) {  
           this.navigationService.showUIMessage("El producto no fue encontrado.");
+        } else {
+          this.navigationService.showUIMessage("Error al procesar la solicitud. Servidor no disponible" );
+        }
+      },
+    });
+  }
+
+  filterProductsByCategoryId(pageNumber: number)
+  {
+    let categoryId = this.selectedCategoryId;
+    if(categoryId == 0)
+    {
+      this.currentPage = 1;
+      this.getProductsTop50("-1");
+      return;
+    }
+
+    if(pageNumber == 1)
+      this.filteredProducts = [];
+
+    this.inventoryService.getInventoryByCategoryId(pageNumber, categoryId, this.userState.companyId).pipe(first())
+    .subscribe({
+      next:(data: InventoryProduct[]) => {
+        
+        this.products = data;
+        this.filteredProducts.push(...this.products);
+
+        if((!data || data.length == 0) && this.currentPage == 1)
+        {
+          this.navigationService.showUIMessage(`No se encontraron productos con la categoria seleccionada.`);  
+        }
+        this.moreItems = true;
+        if((!data || data.length == 0) && this.currentPage > 1)
+        {
+          this.moreItems = false;
+        }
+        this.filterBarcode= undefined;
+        this.currentView = InventoryView.ByCategory;
+      },
+      error:(err) => {
+        this.filterBarcode= undefined;
+        if (err.status === 404) {  
+          if(this.currentPage > 1)
+            this.moreItems = false;
+          else
+            this.navigationService.showUIMessage("El producto no fue encontrado.");
         } else {
           this.navigationService.showUIMessage("Error al procesar la solicitud. Servidor no disponible" );
         }
@@ -100,9 +171,8 @@ export class InventarioReportComponent implements OnInit, OnDestroy{
     if(this.isCapturingStock && this.productIdEditing != productId)
       return;
 
-    
     this.editingInventario[productId] = !this.editingInventario[productId];
-    if(!this.editingStock[productId])
+    if(!this.editingInventario[productId])
       this.isCapturingStock = false;
 
    
@@ -124,6 +194,7 @@ export class InventarioReportComponent implements OnInit, OnDestroy{
               if(p)
               {
                 p.unitsInVentario = prodUpdate.unitsInVentario;
+                p.isInVentarioUpdated = true;
               }
             },
             error:(err) => {
@@ -156,30 +227,59 @@ export class InventarioReportComponent implements OnInit, OnDestroy{
     {
       if(this.newProdStockVal !== 0)
       {
-        let stockInfo:setUnitsInStockDto = {isHardReset:false, productId, unitsInStock:this.newProdStockVal};
-        
-        this.inventoryService.setUnitsInStockToProduct(stockInfo, this.userState.companyId).pipe(first())
-          .subscribe({
-            next: (newStock) => {
-              this.navigationService.showUIMessage("Actualizado.", AlertLevel.Sucess);      
-              this.newProdStockVal = undefined;
-              let p = this.filteredProducts.find(p=>p.productId == productId);
-              if(p)
-              {
-                p.unitsInStock = newStock;
-                p.inVentarioAlertLevel = p.unitsInStock <= 0 ? InventoryView.Critical:
-                                         p.unitsInStock <= p.alertaStockNumProducts ? InventoryView.Warning
-                                        : InventoryView.Other;
-              }
-            },
-            error:(err) => {
-              this.navigationService.showUIMessage("Error no se pudo actualizar.", AlertLevel.Error);      
-              this.newProdStockVal = undefined;
-              console.log("No se pudo actualizar el stock " + err);
-            },
-          }); 
+        this.setNewProdStockVal(productId, this.newProdStockVal, false);
       }
     }
+  }
+
+  updateTable(productId:number, newStock: number)
+  {
+    this.navigationService.showUIMessage("Actualizado.", AlertLevel.Sucess);      
+    this.newProdStockVal = undefined;
+    let p = this.filteredProducts.find(p=>p.productId == productId);
+    if(p)
+    {
+      p.unitsInStock = newStock;
+      p.inVentarioAlertLevel = p.unitsInStock <= 0 ? InventoryView.Critical:
+                               p.unitsInStock <= p.alertaStockNumProducts ? InventoryView.Warning
+                              : InventoryView.Other;
+      p.isInVentarioUpdated = false;
+    }
+
+  }
+
+  setNewProdStockVal(productId:number, newProdStockVal: number, isHardReset:boolean)
+  {
+    let stockInfo:setUnitsInStockDto = {isHardReset, productId, unitsInStock:newProdStockVal};
+        
+    this.inventoryService.setUnitsInStockToProduct(stockInfo, this.userState.companyId).pipe(first())
+      .subscribe({
+        next: (newStock) => {
+          this.updateTable(productId, newStock);
+        },
+        error:(err) => {
+          this.navigationService.showUIMessage("Error no se pudo actualizar.", AlertLevel.Error);      
+          this.newProdStockVal = undefined;
+          console.log("No se pudo actualizar el stock " + err);
+        },
+      }); 
+  }
+
+  syncStockWinventoryByProduct(productId:number)
+  {
+    let productInfo:IdDto = {id: productId};
+        
+    this.inventoryService.setUnitsInStockByProductId(productInfo, this.userState.companyId).pipe(first())
+      .subscribe({
+        next: (newStock) => {
+          this.updateTable(productId, newStock);
+        },
+        error:(err) => {
+          this.navigationService.showUIMessage("Error no se pudo actualizar.", AlertLevel.Error);      
+          this.newProdStockVal = undefined;
+          console.log("No se pudo actualizar el stock " + err);
+        },
+      }); 
   }
 
   get codigo(){
@@ -191,7 +291,11 @@ export class InventarioReportComponent implements OnInit, OnDestroy{
     let code = this.codigo.value;
     if(code)
     {  
-      this.inventoryService.setProductInventarioValue(code.trim(), this.userState.companyId).pipe(first())
+      let stockInfo:setInVentarioByBarcodeDto = {
+        code: code,
+        quantity: 1
+     };
+      this.inventoryService.setProductInventarioValue(stockInfo, this.userState.companyId).pipe(first())
       .subscribe({
         next:(product) => {
           if(product)
@@ -225,6 +329,7 @@ export class InventarioReportComponent implements OnInit, OnDestroy{
       .subscribe({
         complete:() => {
           this.navigationService.showUIMessage("Se inicializaron todos los valores del inventario a cero.", AlertLevel.Sucess);
+          this.currentPage = 1;
           this.getProductsTop50("-1");
         },
         error:(err) => {
@@ -240,6 +345,7 @@ export class InventarioReportComponent implements OnInit, OnDestroy{
   filtarProducto()
   {
     let keyword = this.filterBarcode?? "-1";
+    this.currentPage = 1;
     if(keyword != '-1')
       this.getProductsTop50(keyword);
   }
@@ -255,10 +361,20 @@ export class InventarioReportComponent implements OnInit, OnDestroy{
       case InventoryView.Warning:
         this.loadWarningProducts(this.currentPage);
         break;
+      case InventoryView.ByCategory:
+          this.filterProductsByCategoryId(this.currentPage);
+          break;
+      case InventoryView.WithDiscrepancia:
+          this.loadWithDiscrepancias(this.currentPage);
+          break;
+      case InventoryView.ItemsUpdated:
+          this.getInventarioItemsUpdated(this.currentPage);
+          break;
       default:
-        this.loadAll(this.currentPage);
+        this.getProductsTop50('-1');
         break;
     }
+    console.log(this.currentView + ' currentPage:' + this.currentPage);
   }
 
   loadProductsByAlertId(pageNumber: number, alertId: number)
@@ -315,19 +431,19 @@ export class InventarioReportComponent implements OnInit, OnDestroy{
     this.loadProductsByAlertId(pageNumber, InventoryView.Warning);
   }
 
-  loadAll(pageNumber:number)
+  getInventarioItemsUpdated(pageNumber:number)
   {
     if(pageNumber == 1)
       this.filteredProducts = [];
 
     this.currentPage = pageNumber;
-    this.currentView = InventoryView.Other;
-    this.inventoryService.getInventoryAll(pageNumber, this.userState.companyId).pipe(first())
+    this.currentView = InventoryView.ItemsUpdated;
+    this.inventoryService.getInventarioItemsUpdated(pageNumber, this.userState.companyId).pipe(first())
     .subscribe({
-      next:(data: Inventory) => {
+      next:(data: InventoryProduct[]) => {
         if(data)
         {
-          this.products = data.products;
+          this.products = data;
           this.filteredProducts.push(...this.products);
           this.moreItems = true;
         }
@@ -336,7 +452,47 @@ export class InventarioReportComponent implements OnInit, OnDestroy{
           if(this.currentPage > 1)
             this.moreItems = false;
           else
-            this.navigationService.showUIMessage('No se encontraron productos con estado critico en existencias.');  
+            this.navigationService.showUIMessage('No se encontraron productos.');  
+        }
+        this.filterBarcode= undefined;
+        
+      },
+      error:(err) => {
+        this.filterBarcode= undefined;
+        if (err.status === 404) {  
+          if(this.currentPage > 1)
+            this.moreItems = false;
+          else
+            this.navigationService.showUIMessage("El producto no fue encontrado.");
+        } else {
+          this.navigationService.showUIMessage("Error al procesar la solicitud. Servidor no disponible" );
+        }
+      },
+    });
+  }
+
+  loadWithDiscrepancias(pageNumber:number)
+  {
+    if(pageNumber == 1)
+      this.filteredProducts = [];
+
+    this.currentPage = pageNumber;
+    this.currentView = InventoryView.WithDiscrepancia;
+    this.inventoryService.getInventarioWithDiscrepancias(pageNumber, this.userState.companyId).pipe(first())
+    .subscribe({
+      next:(data: InventoryProduct[]) => {
+        if(data)
+        {
+          this.products = data;
+          this.filteredProducts.push(...this.products);
+          this.moreItems = true;
+        }
+        else
+        {
+          if(this.currentPage > 1)
+            this.moreItems = false;
+          else
+            this.navigationService.showUIMessage('No se encontraron productos.');  
         }
         this.filterBarcode= undefined;
         
@@ -370,38 +526,51 @@ export class InventarioReportComponent implements OnInit, OnDestroy{
   }
 
   getProductsTop50(keyword: string): void {
-    this.products = [];
-    this.filteredProducts = [];
-    this.resetProdsTotal();
     
-    let pageNumber = 1;
-    
-    this.inventoryService.getInventoryTop50(this.userState.companyId, keyword, pageNumber).pipe(first())
+    if(this.currentPage == 1)
+    {
+      this.products = [];
+      this.filteredProducts = [];
+      this.resetProdsTotal();
+    }
+
+    this.currentView = InventoryView.Other;
+    this.inventoryService.getInventoryTop50(this.userState.companyId, keyword, this.currentPage)
+    .pipe(first())
     .subscribe({
       next:(data: Inventory) => {
         if(data)
         {
+          
           this.products = data.products;
           this.filteredProducts = this.products;
           this.setNewProdsTotal(data);
         }
         else
         {
-          this.navigationService.showUIMessage('No se encontraron productos');  
+          this.navigationService.showUIMessage('No se encontraron mas productos');  
         }
         this.filterBarcode= undefined;
         this.moreItems = true;
       },
       error:(err) => {
         this.filterBarcode= undefined;
+        this.moreItems = false;
         if (err.status === 404) {  
-          this.navigationService.showUIMessage("El producto no fue encontrado.");
-        } else {
+          if(keyword != '-1')  
+            this.navigationService.showUIMessage("El producto no fue encontrado.");
+        }
+        else 
+        {
           this.navigationService.showUIMessage("Error al procesar la solicitud. Servidor no disponible" );
         }
       },
     });
   }
 
-
+  restToDefaultValues() {
+    this.currentView = InventoryView.Other; 
+    this.selectedCategoryId = 0;
+    this.getProductsTop50('-1')
+  }
 }

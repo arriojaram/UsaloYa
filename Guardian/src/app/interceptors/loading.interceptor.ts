@@ -31,7 +31,19 @@ export class LoadingInterceptor implements HttpInterceptor {
     {
       return 0;
     }
-    
+  }
+
+  getDeviceId(): string
+  {
+    try
+    {
+      let deviceId = this.navigationService.getItemWithExpiry('deviceId')?? '';
+      return  deviceId
+    }
+    catch(e)
+    {
+      return "";
+    }
   }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
@@ -49,8 +61,9 @@ export class LoadingInterceptor implements HttpInterceptor {
       const clonedRequest = req.clone({
           setHeaders: {
             RequestorId: this.getUserId().toString() || '', // Asegúrate de manejar posibles valores nulos o indefinidos
-            DeviceId: this.navigationService.getItemWithExpiry('deviceId')?? '',
-            Authorization: environment.apiToken
+            DeviceId: this.getDeviceId(),
+            Authorization: environment.apiToken,
+           
           }
         });
         
@@ -59,13 +72,18 @@ export class LoadingInterceptor implements HttpInterceptor {
            
           }),
           catchError((e) => {
-            var msg = "La sesión ha sido cerrada porque se inicio una nueva en otro dispositivo.";
-            if (e.status === 401 && e.error === '$_Duplicated_Session') {
+            var msg = "Esta sesión ha sido cerrada porque ha caducado o se inicio sesión en otro dispositivo.";
+            if (e.status === 401 && (e.error === '$_Duplicated_Session' || e.error === 'Dispositivo no reconocido.')) {
               this.authService.clearStorageVariables();
               this.router.navigate(['/login']);
               e.error = msg;
               e.message = msg;
               return throwError(() => e);
+            }
+            if(this.getUserId() === 0 || this.getDeviceId() === '' )
+            {
+              this.authService.clearStorageVariables();
+              this.router.navigate(['/login']);
             }
             // Propagar otros errores
             return throwError(() => e);

@@ -93,7 +93,7 @@ export class ImportProductsComponent implements OnInit, OnDestroy {
       this.csvReaderService.parseCsv(this.selectedFile).pipe(
         switchMap(productos => from(productos).pipe(
           concatMap(producto => 
-            this.productService.saveProduct(this.userState.companyId, producto).pipe(
+            this.productService.importProduct(this.userState.companyId, producto).pipe(
               catchError((error) => {
                 this.productsFailed++;
                 this.log(error.error.message, producto.name, producto.barcode);

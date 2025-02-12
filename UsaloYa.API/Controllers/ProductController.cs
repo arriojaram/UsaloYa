@@ -8,6 +8,7 @@ using UsaloYa.API.DTO;
 using UsaloYa.API.Enums;
 using UsaloYa.API.Models;
 using UsaloYa.API.Security;
+using UsaloYa.API.Services;
 using UsaloYa.API.Utils;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
@@ -20,13 +21,17 @@ namespace UsaloYa.API.Controllers
     {
         private readonly ILogger<ProductController> _logger;
         private readonly DBContext _dBContext;
+        private readonly ProductCategoryService _productCategoryService;
+
         int NORMAL = 3;
         int WARNING = 2;
         int CRITICAL = 1;
-        public ProductController(DBContext dBContext, ILogger<ProductController> logger)
+
+        public ProductController(DBContext dBContext, ILogger<ProductController> logger, ProductCategoryService prodCatService)
         {
             _logger = logger;
             _dBContext = dBContext;
+            _productCategoryService = prodCatService;
         }
 
         [HttpGet("FilterProducts")]
@@ -227,6 +232,102 @@ namespace UsaloYa.API.Controllers
             }
         }
 
+        [HttpPost("ImportProduct")]
+        public async Task<IActionResult> ImportProduct([FromHeader] string RequestorId, [FromBody] ProductDto productDto, int companyId)
+        {
+            try
+            {
+                var user = await Util.ValidateRequestor(RequestorId, Role.Admin, _dBContext);
+                if (user.UserId <= 0)
+                    return Unauthorized(AppConfig.NO_AUTORIZADO);
+
+                if (productDto.Equals(default(ProductDto)) || companyId <= 0)
+                {
+                    return BadRequest(new { Message = "$_Empresa_O_Producto_Invalido" });
+                }
+
+                // Check if a product with the same Barcode and SKU in the company already exists
+                var productWithSameBarcodeAndSku = _dBContext.Products
+                    .Where(p => (p.Barcode.Equals(productDto.Barcode) || p.Sku.Equals(productDto.SKU ?? "$SKU"))
+                                                    && p.CompanyId == companyId);
+
+                var numOfProducts = await productWithSameBarcodeAndSku.CountAsync();
+                if (numOfProducts > 1)
+                {
+                    return Conflict(new { Message = "$_Producto_Con_Mismo_Codigo_De_Barras_Ya_Existe" });
+                }
+
+                if (numOfProducts > 0
+                    && productWithSameBarcodeAndSku.First().ProductId != productDto.ProductId)
+                {
+                    return Conflict(new { Message = "$_Producto_Con_Mismo_Codigo_De_Barras_Ya_Existe" });
+                }
+
+                // Generar la categoria y traer el ID
+                var categoryId = await GetOrCreateProductCategory(productDto.Categoria, companyId);
+
+                if (productDto.ProductId == 0)
+                {
+                    var existingProduct = new Product
+                    {
+                        Name = productDto.Name.Trim(),
+                        Description = productDto.Description,
+                        CategoryId = categoryId == 0 ? null : categoryId,
+                        BuyPrice = productDto.BuyPrice == 1 ? null : productDto.BuyPrice,
+                        UnitPrice = productDto.UnitPrice == 0 ? 1 : productDto.UnitPrice,
+                        UnitPrice1 = productDto.UnitPrice1 == 0 ? null : productDto.UnitPrice1,
+                        UnitPrice2 = productDto.UnitPrice2 == 0 ? null : productDto.UnitPrice2,
+                        UnitPrice3 = productDto.UnitPrice3 == 0 ? null : productDto.UnitPrice3,
+
+                        UnitsInStock = productDto.UnitsInStock,
+                        Discontinued = productDto.Discontinued,
+                        DateModified = Utils.Util.GetMxDateTime(),
+
+                        Sku = (string.IsNullOrEmpty(productDto.SKU) ? null : productDto.SKU),
+                        Barcode = productDto.Barcode,
+
+                        DateAdded = Utils.Util.GetMxDateTime(),
+                        CompanyId = companyId,
+                        AlertaStockNumProducts = productDto.LowInventoryStart ?? 0,
+                        IsInVentarioUpdated = productDto.IsInventarioUpdated
+                    };
+
+                    _dBContext.Products.Add(existingProduct);
+
+                }
+                else
+                {
+                    return NotFound("$_Empresa_O_Producto_Invalido");
+                }
+                await _dBContext.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "AddProduct.ApiError");
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
+            }
+        }
+
+        private async Task<int> GetOrCreateProductCategory(string? categoria, int companyId)
+        {
+            if (string.IsNullOrEmpty((categoria ?? "").Trim()))
+                return 0;
+
+            int categoryId;
+            try
+            {
+                var catInfo = await _productCategoryService.GetCategoryByName(categoria, companyId);
+                categoryId = catInfo.CategoryId;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "GetOrCreateProductCategory.ApiError");
+                categoryId = 0;
+            }
+            return categoryId;
+        }
+
         [HttpPost("AddProduct")]
         public async Task<IActionResult> AddProduct([FromHeader] string RequestorId, [FromBody] ProductDto productDto, int companyId)
         {
@@ -330,6 +431,57 @@ namespace UsaloYa.API.Controllers
             }
         }
 
+        [HttpGet("GetInventarioByCategoryId")]
+        public async Task<IActionResult> GetInventarioByCategoryId([FromHeader] string RequestorId, int categoryId, int companyId, int pageNumber)
+        {
+            int totalInventoryProds = 0;
+            decimal totalInventoryCash = 0;
+            int pageSize = 50;
+            try
+            {
+                var user = await Util.ValidateRequestorSameCompany(RequestorId, Role.Admin, companyId, _dBContext);
+                if (user.UserId <= 0)
+                    return Unauthorized(AppConfig.NO_AUTORIZADO);
+
+                if (companyId <= 0)
+                {
+                    return BadRequest(new { Message = "$_Empresa_O_Producto_Invalido" });
+                }
+                var products = await _dBContext.Products
+                    .Include(c=> c.Category)
+                    .Select(p => new Product4InventariotDto()
+                {
+                    ProductId = p.ProductId,
+                    Discontinued = p.Discontinued,
+                    Sku = p.Sku ?? "",
+                    Barcode = p.Barcode ?? "",
+                    Name = p.Name,
+                    CompanyId = p.CompanyId,
+                    UnitsInStock = p.UnitsInStock,
+                    TotalCashStock = p.UnitsInStock * p.UnitPrice,
+                    UnitsInVentario = p.InVentario ?? 0,
+                    AlertaStockNumProducts = p.AlertaStockNumProducts,
+                    InVentarioAlertLevel = p.UnitsInStock <= 0 ? CRITICAL : p.UnitsInStock <= p.AlertaStockNumProducts ? WARNING : NORMAL,
+                    UnitPrice = p.UnitPrice ?? 0,
+                    CategoryId= p.CategoryId?? -1,
+                    CategoryName = p.Category != null ? p.Category.Name : "",
+                    IsInVentarioUpdated = p.IsInVentarioUpdated?? false
+                })
+                .Where(p => p.CompanyId == companyId && !p.Discontinued && p.CategoryId == categoryId)
+                .OrderBy(p => p.InVentarioAlertLevel).ThenBy(p => p.UnitsInStock)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "SearchProduct.ApiError");
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
+            }
+        }
+
         [HttpGet("GetInventarioByAlertId")]
         public async Task<IActionResult> GetInventarioByAlertId([FromHeader] string RequestorId, int alertLevel, int companyId, int pageNumber)
         {
@@ -346,7 +498,9 @@ namespace UsaloYa.API.Controllers
                 {
                     return BadRequest(new { Message = "$_Empresa_O_Producto_Invalido" });
                 }
-                var products = await _dBContext.Products.Select(p => new Product4InventariotDto()
+                var products = await _dBContext.Products
+                    .Include(c => c.Category)
+                    .Select(p => new Product4InventariotDto()
                 {
                     ProductId = p.ProductId,
                     Discontinued = p.Discontinued,
@@ -359,7 +513,10 @@ namespace UsaloYa.API.Controllers
                     UnitsInVentario = p.InVentario?? 0,
                     AlertaStockNumProducts = p.AlertaStockNumProducts,
                     InVentarioAlertLevel = p.UnitsInStock <= 0 ? CRITICAL : p.UnitsInStock <= p.AlertaStockNumProducts ? WARNING : NORMAL,
-                    UnitPrice = p.UnitPrice ?? 0
+                    UnitPrice = p.UnitPrice ?? 0,
+                    CategoryId = p.CategoryId ?? 0,
+                    CategoryName = p.Category != null ? p.Category.Name : "",
+                    IsInVentarioUpdated = p.IsInVentarioUpdated?? false
                 })
                 .Where(p => p.CompanyId == companyId && !p.Discontinued
                         && p.InVentarioAlertLevel == alertLevel)
@@ -379,12 +536,11 @@ namespace UsaloYa.API.Controllers
             }
         }
 
-        [HttpGet("GetInventarioAll")]
-        public async Task<IActionResult> GetInventarioAll([FromHeader] string RequestorId, int companyId, int pageNumber)
+        [HttpGet("GetInventarioWithDiscrepancias")]
+        public async Task<IActionResult> GetInventarioWithDiscrepancias([FromHeader] string RequestorId, int companyId, int pageNumber)
         {
             int pageSize = 50;
-            int totalInventoryProds = 0;
-            decimal totalInventoryCash = 0;
+           
             try
             {
                 var user = await Util.ValidateRequestorSameCompany(RequestorId, Role.Admin, companyId, _dBContext);
@@ -395,7 +551,9 @@ namespace UsaloYa.API.Controllers
                 {
                     return BadRequest(new { Message = "$_Empresa_O_Producto_Invalido" });
                 }
-                var products = await _dBContext.Products.Select(p => new Product4InventariotDto()
+                var products = await _dBContext.Products
+                    .Include(c => c.Category)
+                    .Select(p => new Product4InventariotDto()
                         {
                             ProductId = p.ProductId,
                             Discontinued = p.Discontinued,
@@ -408,34 +566,28 @@ namespace UsaloYa.API.Controllers
                             UnitsInVentario = p.InVentario ?? 0,
                             AlertaStockNumProducts = p.AlertaStockNumProducts,
                             InVentarioAlertLevel = p.UnitsInStock <= 0 ? CRITICAL : p.UnitsInStock <= p.AlertaStockNumProducts ? WARNING : NORMAL,
-                            UnitPrice = p.UnitPrice?? 0
-                        })
+                            UnitPrice = p.UnitPrice?? 0,
+                            CategoryId = p.CategoryId ?? 0,
+                    CategoryName = p.Category != null ? p.Category.Name : "",
+                    IsInVentarioUpdated = p.IsInVentarioUpdated?? false
+                })
                         .Where(p => p.CompanyId == companyId 
                                     && !p.Discontinued
-                                    && (p.UnitsInVentario > 0 && p.UnitsInVentario != p.UnitsInStock))
-                        .ToListAsync();
-
-                if (products.Any())
-                {
-                    totalInventoryProds = products.Sum(p => p.UnitsInStock < 0 ? 0 : p.UnitsInStock?? 0);
-                    totalInventoryCash = products.Sum(p => (p.UnitsInStock < 0 ? 0 : p.UnitsInStock?? 0) * p.UnitPrice);
-                }
-                InventoryDto inventory = new InventoryDto();
-                inventory.Products = products
-                        .OrderBy(p => p.InVentarioAlertLevel).ThenBy(p => p.UnitsInStock)
+                                    && p.UnitsInVentario != p.UnitsInStock)
                         .Skip((pageNumber - 1) * pageSize)
                         .Take(pageSize)
-                        .ToList();
-                inventory.TotalProductUnits = totalInventoryProds;
-                inventory.TotalProducts = products.Count;
-                inventory.TotalCash = totalInventoryCash;
+                        .ToListAsync();
+
+
+                var sortedProds = products.OrderBy(p => p.InVentarioAlertLevel).ThenBy(p => p.UnitsInStock).ToList();
+                        
 
                 if (products == null || products.Count == 0)
                 {
                     return NotFound();
                 }
 
-                return Ok(inventory);
+                return Ok(sortedProds);
             }
             catch (Exception ex)
             {
@@ -443,7 +595,6 @@ namespace UsaloYa.API.Controllers
                 return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
             }
         }
-
 
         [HttpGet("GetInventarioTop50")]
         public async Task<IActionResult> GetInventarioTop50([FromHeader] string RequestorId, int pageNumber, string keyword, int companyId)
@@ -465,6 +616,7 @@ namespace UsaloYa.API.Controllers
                 keyword = keyword.Trim();
                 var products = string.Equals(keyword, "-1", StringComparison.OrdinalIgnoreCase)
                     ? await _dBContext.Products
+                        .Include(c => c.Category)
                         .Select(p => new Product4InventariotDto()
                         {
                             ProductId = p.ProductId,
@@ -478,7 +630,9 @@ namespace UsaloYa.API.Controllers
                             UnitsInVentario = p.InVentario??0,
                             AlertaStockNumProducts = p.AlertaStockNumProducts,
                             InVentarioAlertLevel = p.UnitsInStock <= 0 ? CRITICAL : p.UnitsInStock <= p.AlertaStockNumProducts ? WARNING : NORMAL,
-
+                            CategoryId = p.CategoryId ?? 0,
+                            CategoryName = p.Category != null ? p.Category.Name : "",
+                            IsInVentarioUpdated = p.IsInVentarioUpdated?? false
 
                         })
                         .Where(p => p.CompanyId == companyId && !p.Discontinued)
@@ -487,7 +641,8 @@ namespace UsaloYa.API.Controllers
                         .ToListAsync()
 
                     : await _dBContext.Products
-                         .Select(p => new Product4InventariotDto()
+                            .Include(c => c.Category)
+                            .Select(p => new Product4InventariotDto()
                          {
                              ProductId = p.ProductId,
                              Discontinued = p.Discontinued,
@@ -500,6 +655,8 @@ namespace UsaloYa.API.Controllers
                              UnitsInVentario = p.InVentario,
                              AlertaStockNumProducts = p.AlertaStockNumProducts,
                              InVentarioAlertLevel = p.UnitsInStock <= 0 ? CRITICAL : p.UnitsInStock <= p.AlertaStockNumProducts ? WARNING : NORMAL,
+                             CategoryId = p.CategoryId ?? 0,
+                             CategoryName = p.Category != null ? p.Category.Name : ""
                          })
                          .Where(p => p.CompanyId == companyId && !p.Discontinued
                                     && (p.Name.Contains(keyword) || keyword.Contains(p.Name)
@@ -545,6 +702,66 @@ namespace UsaloYa.API.Controllers
             }
         }
 
+        [HttpGet("GetInventarioItemsUpdated")]
+        public async Task<IActionResult> GetInventarioItemsUpdated([FromHeader] string RequestorId, int pageNumber, int companyId)
+        {
+            int pageSize = 50;
+            try
+            {
+                var user = await Util.ValidateRequestorSameCompany(RequestorId, Role.Admin, companyId, _dBContext);
+                if (user.UserId <= 0)
+                    return Unauthorized(AppConfig.NO_AUTORIZADO);
+
+                if (companyId <= 0)
+                {
+                    return BadRequest(new { Message = "$_Empresa_O_Producto_Invalido" });
+                }
+
+                var products = await _dBContext.Products
+                        .Include(c => c.Category)
+                        .Select(p => new Product4InventariotDto()
+                        {
+                            ProductId = p.ProductId,
+                            Discontinued = p.Discontinued,
+                            Sku = p.Sku ?? "",
+                            Barcode = p.Barcode ?? "",
+                            Name = p.Name,
+                            CompanyId = p.CompanyId,
+                            UnitsInStock = p.UnitsInStock,
+                            TotalCashStock = p.UnitsInStock * p.UnitPrice,
+                            UnitsInVentario = p.InVentario ?? 0,
+                            AlertaStockNumProducts = p.AlertaStockNumProducts,
+                            InVentarioAlertLevel = p.UnitsInStock <= 0 ? CRITICAL : p.UnitsInStock <= p.AlertaStockNumProducts ? WARNING : NORMAL,
+                            CategoryId = p.CategoryId ?? 0,
+                            CategoryName = p.Category != null ? p.Category.Name : "",
+                            IsInVentarioUpdated = p.IsInVentarioUpdated?? false
+
+                        })
+                        .Where(p => p.CompanyId == companyId 
+                                            && !p.Discontinued
+                                            && p.IsInVentarioUpdated)
+                        .Skip((pageNumber - 1) * pageSize)
+                        .Take(pageSize)
+                        .ToListAsync();
+
+              
+                var sortedProds = products.OrderBy(p => p.InVentarioAlertLevel).ThenBy(p => p.UnitsInStock).ToList();
+
+                if (products == null || products.Count == 0)
+                {
+                    return NotFound();
+                }
+
+                return Ok(sortedProds);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "SearchProduct.ApiError");
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
+            }
+        }
+
+
         [HttpPost("SetInVentario")]
         public async Task<IActionResult> SetInVentario([FromHeader] string RequestorId, [FromBody] BarcodeDto barcodeDto, int companyId)
         {
@@ -560,7 +777,9 @@ namespace UsaloYa.API.Controllers
                     return BadRequest(new { Message = "$_Empresa_O_Producto_Invalido" });
                 }
 
-                var p = await _dBContext.Products
+                var p = await _dBContext
+                    .Products
+                    .Include(c=> c.Category)
                     .FirstOrDefaultAsync(p => p.Barcode == barcodeDto.Code.Trim() && p.CompanyId == companyId);
 
                 if (p != null)
@@ -574,6 +793,7 @@ namespace UsaloYa.API.Controllers
                         existignInventario = p.InVentario ?? 0;
                         p.InVentario = ++existignInventario;
                     }
+                    p.IsInVentarioUpdated = true;
                     _dBContext.Entry(p).State = EntityState.Modified;
                     await _dBContext.SaveChangesAsync();
                 }
@@ -594,6 +814,7 @@ namespace UsaloYa.API.Controllers
                     UnitsInVentario = p.InVentario,
                     AlertaStockNumProducts = p.AlertaStockNumProducts,
                     InVentarioAlertLevel = p.UnitsInStock <= 0 ? CRITICAL : p.UnitsInStock <= p.AlertaStockNumProducts ? WARNING : NORMAL,
+                    CategoryName = p.Category != null ? p.Category.Name : ""
 
                 };
                 
@@ -606,6 +827,13 @@ namespace UsaloYa.API.Controllers
             }
         }
         
+        /// <summary>
+        /// Toma los valores capturados en la columna inventario y sincroniza la columna Stock (Existencias).
+        /// Afecta a los productos modificados.
+        /// </summary>
+        /// <param name="RequestorId"></param>
+        /// <param name="company"></param>
+        /// <returns></returns>
         [HttpPost("SetAllUnitsStock")]
         public async Task<IActionResult> SetAllUnitsStock([FromHeader] string RequestorId, [FromBody] IdDto company)
         {
@@ -619,7 +847,7 @@ namespace UsaloYa.API.Controllers
                 {
                     return BadRequest(new { Message = "$_Empresa_Invalida" });
                 }
-                string query = "UPDATE [Products] SET UnitsInStock = InVentario WHERE Discontinued = 0 AND InVentario<>UnitsInStock AND CompanyId=" + company.Id;
+                string query = "UPDATE [Products] SET UnitsInStock = InVentario, IsInVentarioUpdated=0 WHERE Discontinued = 0 AND IsInVentarioUpdated=1 AND CompanyId=" + company.Id;
                 await _dBContext.Database.ExecuteSqlRawAsync(query);
 
                 return Ok();
@@ -652,6 +880,47 @@ namespace UsaloYa.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "ResetAllInVentario.ApiError");
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
+            }
+        }
+
+        [HttpPost("SetUnitsInStockByProductId")]
+        public async Task<IActionResult> SetUnitsInStockByProductId([FromHeader] string RequestorId, [FromBody] IdDto product, int companyId)
+        {
+            var newStockVal = 0;
+            try
+            {
+                var user = await Util.ValidateRequestorSameCompany(RequestorId, Role.Admin, companyId, _dBContext);
+                if (user.UserId <= 0)
+                    return Unauthorized(AppConfig.NO_AUTORIZADO);
+
+                if (product.Id == 0 || companyId <= 0)
+                {
+                    return BadRequest(new { Message = "$_Empresa_O_Producto_Invalido" });
+                }
+
+                var existingProduct = await _dBContext.Products
+                    .FirstOrDefaultAsync(p => p.ProductId == product.Id && p.CompanyId == companyId);
+
+                if (existingProduct != null)
+                {
+                    existingProduct.UnitsInStock = existingProduct.InVentario?? 0;
+                    existingProduct.IsInVentarioUpdated = false;
+
+                    _dBContext.Entry(existingProduct).State = EntityState.Modified;
+                    await _dBContext.SaveChangesAsync();
+                    newStockVal = existingProduct.UnitsInStock;
+                }
+                else
+                {
+                    return NotFound("$_Empresa_O_Producto_Invalido");
+                }
+
+                return Ok(newStockVal);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "SetUnitsInStock.ApiError");
                 return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
             }
         }

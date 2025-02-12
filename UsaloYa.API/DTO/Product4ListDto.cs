@@ -20,6 +20,8 @@
         public int? InVentarioAlertLevel { get; set; } //3:Normal, 2:Warning, 1:Critial
         public int? AlertaStockNumProducts { get; set; }
         public decimal UnitPrice { get; set; }
+        public string CategoryName { get; set; }
+        public bool IsInVentarioUpdated { get; set; }
     }
 
     public class InventoryDto

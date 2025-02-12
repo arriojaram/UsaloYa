@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.Eventing.Reader;
 using UsaloYa.API.Config;
 using UsaloYa.API.DTO;
 using UsaloYa.API.Enums;
 using UsaloYa.API.Models;
 using UsaloYa.API.Security;
+using UsaloYa.API.Services;
 using UsaloYa.API.Utils;
 
 namespace UsaloYa.API.Controllers
@@ -16,15 +18,17 @@ namespace UsaloYa.API.Controllers
     {
         private readonly ILogger<CategoryController> _logger;
         private readonly DBContext _dBContext;
+        private readonly ProductCategoryService _productCategoryService;
 
-        public CategoryController(DBContext dBContext, ILogger<CategoryController> logger)
+        public CategoryController(DBContext dBContext, ILogger<CategoryController> logger, ProductCategoryService prodCatService)
         {
             _logger = logger;
             _dBContext = dBContext;
+            _productCategoryService = prodCatService;
         }
 
         [HttpGet("GetAll4List")]
-        public async Task<IActionResult> GetAll4List([FromHeader] string RequestorId, int companyId)
+        public async Task<IActionResult> GetAll4List([FromHeader] string RequestorId, int companyId, string keyword)
         {
             try
             {
@@ -35,11 +39,17 @@ namespace UsaloYa.API.Controllers
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
                 }
 
-                var categories = await _dBContext.ProductCategories
+                var categories = keyword == "-1" ?
+                    await _dBContext.ProductCategories
                                             .Where(c => c.CompanyId == companyId)
                                             .OrderBy(u => u.Name)
+                                            .ToListAsync()
+                    :
+                    await _dBContext.ProductCategories
+                                            .Where(c => c.CompanyId == companyId
+                                                        && c.Name.Contains(keyword))
+                                            .OrderBy(u => u.Name)
                                             .ToListAsync();
-               
 
                 return Ok(categories.Select(c => new ProductCategoryDto
                 {
@@ -58,26 +68,58 @@ namespace UsaloYa.API.Controllers
             }
         }
 
+        [HttpPost("DeleteCategory")]
+        public async Task<IActionResult> DeleteCategory([FromHeader] string RequestorId, ProductCategoryDto categoryInfo, int companyId)
+        {
+            try
+            {
+                var user = await Util.ValidateRequestorSameCompany(RequestorId, Role.Admin, companyId, _dBContext);
+                if (user.UserId <= 0)
+                    return Unauthorized(AppConfig.NO_AUTORIZADO);
+
+                var c = await _dBContext.ProductCategories
+                    .FirstOrDefaultAsync(u => u.CompanyId == companyId && u.CategoryId == categoryInfo.CategoryId);
+                if (c == null)
+                    return NotFound();
+
+                _dBContext.ProductCategories.Remove(c);
+
+                await _dBContext.SaveChangesAsync();
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "DeleteCategory.ApiError");
+
+                // Return a 500 Internal Server Error with a custom message
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
+            }
+        }
+
+
         [HttpGet("GetCategory")]
         public async Task<IActionResult> GetCategory([FromHeader] string RequestorId, int categoryId, int companyId)
         {
-            var user = await Util.ValidateRequestorSameCompany(RequestorId, Role.Admin, companyId, _dBContext);
-            if (user.UserId <= 0)
-                return Unauthorized(AppConfig.NO_AUTORIZADO);
-
-            var c = await _dBContext.ProductCategories
-                .FirstOrDefaultAsync(u => u.CompanyId == companyId && u.CategoryId == categoryId);
-            if (c == null)
-                return NotFound();
-
-            var responseDto = new ProductCategoryDto()
+            try
             {
-                CategoryId = c.CategoryId,
-                Description = c.Description?? "",
-                Name = c.Name
-            };
+                var user = await Util.ValidateRequestorSameCompany(RequestorId, Role.Admin, companyId, _dBContext);
+                if (user.UserId <= 0)
+                    return Unauthorized(AppConfig.NO_AUTORIZADO);
 
-            return Ok(responseDto);
+                var catInfo = await _productCategoryService.GetCategory(categoryId, companyId);
+                if (catInfo == null)
+                    return NotFound();
+
+                return Ok(catInfo);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "GetCategory.ApiError");
+
+                // Return a 500 Internal Server Error with a custom message
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
+            }
         }
 
         [HttpPost("SaveCategory")]
@@ -90,38 +132,16 @@ namespace UsaloYa.API.Controllers
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 
-                if (categoryDto.CategoryId == 0)
-                {
-                    
-                    objectToSave = new ProductCategory
-                    {
-                       Name = categoryDto.Name,
-                       CategoryId = categoryDto.CategoryId,
-                       CompanyId = categoryDto.CompanyId,
-                       Description = categoryDto.Description
-                    };
-                    _dBContext.ProductCategories.Add(objectToSave);
-                }
-                else
-                {
-                    objectToSave = await _dBContext.ProductCategories.FindAsync(categoryDto.CategoryId);
-                    if (objectToSave == null)
-                        return NotFound();
+                var existingCategoryName = await _dBContext.ProductCategories.FirstOrDefaultAsync(c => c.Name.ToLower() == categoryDto.Name.ToLower() && c.CompanyId == categoryDto.CompanyId);
+                if (existingCategoryName != null)
+                    return Conflict("La categoria ya existe");
+                
 
-                    objectToSave.Description = categoryDto.Description;
-                    objectToSave.Name = categoryDto.Name;
+                var catInfo = await _productCategoryService.SaveCategory(categoryDto);
+                if (catInfo == null)
+                    return NotFound();
 
-                    _dBContext.Entry(objectToSave).State = EntityState.Modified;
-
-                }
-
-                await _dBContext.SaveChangesAsync();
-                return Ok(new ProductCategoryDto() { 
-                    Name = categoryDto.Name,
-                    CategoryId = objectToSave.CategoryId,
-                    CompanyId = categoryDto.CompanyId,
-                    Description = categoryDto.Description
-                });
+                return Ok(catInfo);
             }
             catch (Exception ex)
             {

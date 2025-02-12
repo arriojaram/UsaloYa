@@ -28,7 +28,8 @@ export class ImportCvsProductService {
     return {
       productId: 0, 
       name: row.Nombre.trim() || '',
-      description: row.Descripcion.trim() || '',
+      description: row.Descripcion ? row.Descripcion.trim() : '',
+      categoria: row.Categoria ? row.Categoria.trim() : '',
       buyPrice: parseFloat(row.PrecioCompra) || 0,
       unitPrice: parseFloat(row.PrecioUnitario) || 0,
       unitPrice1: parseFloat(row.Precio1) || 0,
@@ -41,7 +42,8 @@ export class ImportCvsProductService {
       companyId: 0,
       categoryId:0,
       count:0,
-      total:0
+      total:0,
+      lowInventoryStart: parseInt(row.AlertaExistencias) || 0,
     };
   }
 }

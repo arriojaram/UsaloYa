@@ -5,13 +5,14 @@ import { environment } from '../environments/enviroment';
 import { BarcodeDto, IdDto } from '../dto/idDto';
 import { Inventory, InventoryProduct } from '../dto/inventoryDto';
 import { setUnitsInStockDto } from '../dto/setUnitsInStockDto';
+import { Producto } from '../dto/producto';
 
 @Injectable({
   providedIn: 'root'
 })
 export class InventarioService {
 
-   private baseUrl = environment.apiUrlBase + '/api/Product';
+    private baseUrl = environment.apiUrlBase + '/api/Product';
   
     constructor(private httpClient: HttpClient) 
     { 
@@ -54,6 +55,18 @@ export class InventarioService {
       );
     }
 
+    setUnitsInStockByProductId(productId: IdDto, companyId:number): Observable<number> {
+      
+      const apiUrl = `${this.baseUrl}/SetUnitsInStockByProductId?companyId=${companyId}`;
+      
+      return this.httpClient.post<number>(apiUrl, productId).pipe(
+        catchError(error => {
+          console.error('setUnitsInStockByProductId() | ', error);
+          throw error;
+        })
+      );
+    }
+
     setProductInventarioValue(setInVentario: BarcodeDto, companyId:number): Observable<InventoryProduct> {
       
       const apiUrl = `${this.baseUrl}/SetInVentario?companyId=${companyId}`;
@@ -77,12 +90,34 @@ export class InventarioService {
       );
     }
 
-    getInventoryAll(pageNumber:number, companyId: number): Observable<Inventory> {
-      const apiUrl =`${this.baseUrl}/GetInventarioAll?pageNumber${pageNumber}&companyId=${companyId}`;
+    getInventoryByCategoryId(pageNumber:number, categoryId:number, companyId: number): Observable<InventoryProduct[]> {
+      const apiUrl =`${this.baseUrl}/GetInventarioByCategoryId?categoryId=${categoryId}&companyId=${companyId}&pageNumber=${pageNumber}`;
       
-      return this.httpClient.get<Inventory>(apiUrl).pipe(
+      return this.httpClient.get<InventoryProduct[]>(apiUrl).pipe(
         catchError(error => {
-          console.error('getInventoryAll() | ', error);
+          console.error('getInventoryByCategoryId() | ', error);
+          throw error;
+        })
+      );
+    }
+
+    getInventarioWithDiscrepancias(pageNumber:number, companyId: number): Observable<InventoryProduct[]> {
+      const apiUrl =`${this.baseUrl}/GetInventarioWithDiscrepancias?pageNumber=${pageNumber}&companyId=${companyId}`;
+      
+      return this.httpClient.get<InventoryProduct[]>(apiUrl).pipe(
+        catchError(error => {
+          console.error('getInventarioWithDiscrepancias() | ', error);
+          throw error;
+        })
+      );
+    }
+
+    getInventarioItemsUpdated(pageNumber:number, companyId: number): Observable<InventoryProduct[]> {
+      const apiUrl =`${this.baseUrl}/GetInventarioItemsUpdated?pageNumber=${pageNumber}&companyId=${companyId}`;
+      
+      return this.httpClient.get<InventoryProduct[]>(apiUrl).pipe(
+        catchError(error => {
+          console.error('getInventarioItemsUpdated() | ', error);
           throw error;
         })
       );

@@ -88,7 +88,8 @@ namespace UsaloYa.API.Controllers
                                 UserId = r.Sale.UserId,
                                 UserName = r.Sale.User.UserName,
                                 FullName = r.Sale.User.FirstName + ' ' + r.Sale.User.LastName,
-                                PriceLevel = r.PriceLevel?? 0
+                                PriceLevel = r.PriceLevel?? 0,
+                                r.Sale.Status
 
                             }).ToListAsync();
 

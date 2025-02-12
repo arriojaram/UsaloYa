@@ -171,9 +171,11 @@ namespace UsaloYa.API.Controllers
                 }
 
                 sale.Status = saleStatus.Status.ToString();
-                
                 _dBContext.Entry(sale).State = EntityState.Modified;
                 await _dBContext.SaveChangesAsync();
+
+                await UpdateStockAfterStatusChange(sale.SaleId, saleStatus.CompanyId, saleStatus.Status == SaleStatus.Cancelada);
+
                 return Ok();
             }
             catch (Exception ex)
@@ -181,6 +183,43 @@ namespace UsaloYa.API.Controllers
                 _logger.LogError(ex, "UpdateTotalSale.ApiError");
                 return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
             }
+        }
+
+        [NonAction]
+        public async Task<bool> UpdateStockAfterStatusChange(int saleId, int companyId, bool isCancelAction)
+        {
+            try
+            {
+                var saleProds = await _dBContext.SaleDetails
+                                .Include(d => d.Product)
+                            .Where(s => s.SaleId == saleId && s.Sale.CompanyId == companyId)
+                            .Select(r => new
+                            {
+                                r.Product.ProductId,
+                                r.Quantity,
+                            }).ToListAsync();
+                
+                foreach (var item in saleProds)
+                {
+                    var prod = await _dBContext.Products.FindAsync(item.ProductId);
+                    if (prod != null)
+                    {
+                        if(isCancelAction)
+                            prod.UnitsInStock = prod.UnitsInStock + item.Quantity;
+                        else
+                            prod.UnitsInStock = prod.UnitsInStock - item.Quantity;
+
+                        _dBContext.Entry(prod).State = EntityState.Modified;
+                    }
+
+                    await _dBContext.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "UpdateStockAfterStatusChange.ApiError");
+            }
+            return true;
         }
     }
 }

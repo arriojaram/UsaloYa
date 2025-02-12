@@ -18,7 +18,10 @@ export enum InventoryView
 { 
     Critical = 1,
     Warning = 2,
-    Other = 3
+    Other = 3,
+    ByCategory = 4,
+    WithDiscrepancia = 5,
+    ItemsUpdated = 6
 }
 
 export enum Roles {

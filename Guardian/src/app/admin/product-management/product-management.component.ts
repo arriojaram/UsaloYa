@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ProductService } from '../../services/product.service';
 import { Producto } from '../../dto/producto';
-import { NgFor, NgIf } from '@angular/common';
+import { NgClass, NgFor, NgIf } from '@angular/common';
 import { UserStateService } from '../../services/user-state.service';
 import { userDto } from '../../dto/userDto';
 import { NavigationService } from '../../services/navigation.service';
@@ -17,7 +17,7 @@ import { ProductCategoryService } from '../../services/product-category.service'
     selector: 'app-product-management',
     templateUrl: './product-management.component.html',
     styleUrls: ['./product-management.component.css'],
-    imports: [ReactiveFormsModule, FormsModule, NgFor, NgIf]
+    imports: [ReactiveFormsModule, FormsModule, NgFor, NgIf, NgClass]
 })
 export class ProductManagementComponent implements OnInit {
 
@@ -31,6 +31,7 @@ export class ProductManagementComponent implements OnInit {
   pageNumber: number = 1;
   rol = Roles;
   selectedCategoryId: number = 0;
+  moreItems: boolean | undefined;
 
   constructor(
     private fb: FormBuilder, 
@@ -74,8 +75,9 @@ export class ProductManagementComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.searchProductsInternal('-1');
     this.pageNumber = 1;
+    this.moreItems = true;
+    this.searchProductsInternal('-1');
     this.navigationService.checkScreenSize();
     this.getCategories();
   }
@@ -109,8 +111,8 @@ export class ProductManagementComponent implements OnInit {
   }
 
   filterProducts(): void {
-    
     this.pageNumber = 1;
+    this.moreItems = true;
     let categoryId = this.selectedCategoryId;
     let companyId = this.userState.companyId;
     this.productService.filterProducts(this.pageNumber, companyId, categoryId).pipe(first())
@@ -127,6 +129,7 @@ export class ProductManagementComponent implements OnInit {
 
   searchProducts(): void {
     this.pageNumber = 1;
+    this.moreItems = true;
     let keyword = this.navigationService.searchItem;
     if (!keyword || keyword.trim() === "") {
       keyword="-1";
@@ -154,22 +157,60 @@ export class ProductManagementComponent implements OnInit {
 
   private appendToFilteredResults(): void {
     this.productService.filterProducts(this.pageNumber, this.userState.companyId, this.selectedCategoryId).pipe(first())
-    .subscribe(products => {
-      this.products = this.products.concat(products.sort((a,b) => a.name.localeCompare(b.name)));
+    .subscribe({
+      next: (products) => {
+        if(products.length == 0)
+        {
+          this.moreItems = false;
+          return;
+        }
+        this.products = this.products.concat(products.sort((a,b) => a.name.localeCompare(b.name)));
+      }
     });
   }
 
   private appendToSearchResults(name: string): void {
     this.productService.searchProducts4List(this.pageNumber, this.userState.companyId, name).pipe(first())
-    .subscribe(products => {
-      this.products = this.products.concat(products.sort((a,b) => a.name.localeCompare(b.name)));
+    .subscribe({
+      next: (products) => {
+        if(products.length == 0)
+        {
+          this.moreItems = false;
+          return;
+        }
+        
+        this.products = this.products.concat(products.sort((a,b) => a.name.localeCompare(b.name)));
+      },
+      error:(err) => {
+
+        if (err.status === 404) {  
+          if(this.pageNumber > 1)
+            this.moreItems = false;
+          else
+            this.navigationService.showUIMessage("El producto no fue encontrado.");
+        } else {
+          this.navigationService.showUIMessage("Error al procesar la solicitud. Servidor no disponible" );
+        }
+      },
     });
   }
 
   private searchProductsInternal(name: string): void {
     this.productService.searchProducts4List(this.pageNumber, this.userState.companyId, name).pipe(first())
-    .subscribe(products => {
-      this.products = products.sort((a,b) => a.name.localeCompare(b.name));
+    .subscribe({
+      next: (products) => {
+        this.products = products.sort((a,b) => a.name.localeCompare(b.name));
+      },
+      error:(err) => {
+        if (err.status === 404) {  
+          if(this.pageNumber > 1)
+            this.moreItems = false;
+          else
+            this.navigationService.showUIMessage("El producto no fue encontrado.");
+        } else {
+          this.navigationService.showUIMessage("Error al procesar la solicitud. Servidor no disponible" );
+        }
+      },
     });
   }
 
@@ -191,10 +232,11 @@ export class ProductManagementComponent implements OnInit {
     if (this.productForm.valid) {
       const product: Producto = this.productForm.value;
       product.companyId = this.userState.companyId;
-      console.log(JSON.stringify(product));
+      
       this.productService.saveProduct(this.userState.companyId, product).pipe(first())
       .subscribe({
         next: (savedProduct) => {
+          this.pageNumber = 1;
           this.searchProductsInternal('-1');
           this.selectProduct(savedProduct.productId);
           this.navigationService.showUIMessage("Producto guardado (" + savedProduct.productId + ")", AlertLevel.Sucess);
@@ -225,7 +267,7 @@ export class ProductManagementComponent implements OnInit {
   private getCategories(): void {
     if(this.userState != null)
     {
-      this.categoryService.getAll(this.userState.companyId).pipe(first())
+      this.categoryService.getAll(this.userState.companyId, '-1').pipe(first())
       .subscribe(users => {
         this.categoryList = users.sort((a,b) => (a.name?? '').localeCompare((b.name?? '')));
         

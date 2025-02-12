@@ -9,7 +9,7 @@
             <i class="bi bi-gear"></i> Resetear valores del Inventario
         </button>
         <button type="button" class="ms-2 btn btn-info btn-block" (click)="setStockEqualInventory()" >
-            <i class="bi bi-gear"></i> Actualizar existencias contra el Inventario
+            <i class="bi bi-gear"></i> Actualizar existencias con valores Inventario
         </button>
     </div>
 </div>
@@ -33,17 +33,29 @@
             </div>
         </div>
     </form>
-    <div class="d-flex align-items-center justify-content-start mb-2">
-        <button type="button" class="btn btn-danger btn-block me-2" (click)="loadCriticalProducts(1)">
-            <i class="bi bi-arrow-clockwise"></i> Cargar Solo Criticos
-        </button>
-        <button type="button" class="btn btn-warning btn-block me-2" (click)="loadWarningProducts(1)">
-            <i class="bi bi-arrow-clockwise"></i> Cargar Existencias Bajas
-        </button>
-        <button type="button" class="btn btn-primary btn-block me-2" (click)="loadAll(1)">
-            <i class="bi bi-arrow-clockwise"></i> Cargar con Discrepancias
-        </button>
+    <div class="d-flex flex-wrap align-items-center justify-content-start mb-2">
+        <div class="col-12 col-md-auto px-1 mb-2 mb-md-0">
+            <button type="button" class="btn btn-danger w-100" (click)="loadCriticalProducts(1)">
+                <i class="bi bi-arrow-clockwise"></i> Cargar Solo Críticos
+            </button>
+        </div>
+        <div class="col-12 col-md-auto px-1 mb-2 mb-md-0">
+            <button type="button" class="btn btn-warning w-100" (click)="loadWarningProducts(1)">
+                <i class="bi bi-arrow-clockwise"></i> Cargar Existencias Bajas
+            </button>
+        </div>
+        <div class="col-12 col-md-auto px-1 mb-2 mb-md-0">
+            <button type="button" class="btn btn-primary w-100" (click)="loadWithDiscrepancias(1)">
+                <i class="bi bi-arrow-clockwise"></i> Cargar con Discrepancias
+            </button>
+        </div>
+        <div class="col-12 col-md-auto px-1">
+            <button type="button" class="btn btn-primary w-100" (click)="getInventarioItemsUpdated(1)">
+                <i class="bi bi-arrow-clockwise"></i> Cargar Actualizados
+            </button>
+        </div>
     </div>
+    
     <div class="row justify-content-start align-items-stretch">
         <div class="col-12">
             <div>Escanea o escribe aqui el código de barras de algún producto para filtrarlo y ver su información.</div>
@@ -55,9 +67,30 @@
                 </div>
                 <input type="text" id="filterProdTxt" class="form-control me-2" 
                     [(ngModel)]="filterBarcode" (keydown.enter)="filtarProducto()"
-                    placeholder="Filtrar productos..." autocomplete="off">
+                    placeholder="Filtrar producto (c. barras)" autocomplete="off">
                 <button type="button" class="btn btn-primary" (click)="filtarProducto()" >
                     Filtrar producto
+                </button>
+            </div>
+        </div>
+        <div class="col-md-9 col-lg-5">
+            <div>Filtrar por categoria.</div>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">
+                        <i class="bi bi-funnel"></i> 
+                    </span>
+                </div>
+                <select [(ngModel)]="selectedCategoryId" id="selectedCategoryId" class="form-select me-1">
+                    <option *ngFor="let option of categoryList" [value]="option.categoryId">
+                        {{ option.name }}
+                    </option>
+                </select>
+                <button class="btn close-btn" type="button" (click)="restToDefaultValues()">
+                    &times;
+                </button>
+                <button type="button" class="btn btn-primary" (click)="filterProductsByCategoryId(1)" >
+                    Filtrar categoria
                 </button>
             </div>
         </div>
@@ -68,17 +101,21 @@
             <tr>
                 <th>C. Barras</th>
                 <th>Nombre</th>
+                <th>Categoria</th>
                 <th>Existencias</th>
-                <th>$ Existencias</th>
+                <th class="d-none d-md-table-cell">$ Existencias</th>
                 <th>Inventario</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
             <tr *ngFor="let p of filteredProducts">
                 <td>{{ p.barcode }}</td>
                 <td>{{ p.name }}</td>
+                <td>{{ p.categoryName }}</td>
                 <td [ngClass]="'a'+p.inVentarioAlertLevel">
-                    <button class="btn btn-primary ms-2 fs-smaller" (click)="openCaptureNewStock(p.productId)">+</button>
+                    <button class="btn btn-primary ms-2 fs-smaller" [ngClass]="{'btn-success': editingStock[p.productId]}"
+                        (click)="openCaptureNewStock(p.productId)">{{editingStock[p.productId] ? "G" : "+"}}</button>
                     <input *ngIf="editingStock[p.productId]" 
                         class="bg-warning" (keydown.enter)="openCaptureNewStock(p.productId)"
                         [(ngModel)]="newProdStockVal" type="number" min="1" max="1000000">
@@ -87,16 +124,21 @@
                     </span>
                     
                 </td>
-                <td>{{ p.totalCashStock | currency:'MXN'}}</td>
+                <td class="d-none d-md-table-cell">{{ p.totalCashStock | currency:'MXN'}}</td>
                 <td [ngClass]="{'highlight': highlight}">
-                    <button class="btn btn-primary ms-2 fs-smaller" 
-                        (click)="openCaptureNewInventory(p.productId, p.barcode)">E</button>
+                    <button class="btn btn-primary ms-2 fs-smaller" [ngClass]="{'btn-success': editingInventario[p.productId]}"
+                        (click)="openCaptureNewInventory(p.productId, p.barcode)">{{editingInventario[p.productId] ? "G" : "E"}}</button>
                     <input *ngIf="editingInventario[p.productId]" 
                         class="bg-warning" (keydown.enter)="openCaptureNewInventory(p.productId, p.barcode)"
                         [(ngModel)]="newProdInventoryVal" type="number" min="1" max="1000000">
                     <span *ngIf="!editingInventario[p.productId]">
                         {{ p.unitsInVentario }}
                     </span>
+                </td>
+                <td>
+                    <button *ngIf="p.isInVentarioUpdated" type="button" class="btn btn-success" (click)="syncStockWinventoryByProduct(p.productId)">
+                        <i class="bi-arrow-repeat"></i>
+                    </button>
                 </td>
             </tr>
         </tbody>

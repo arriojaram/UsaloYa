@@ -1,8 +1,9 @@
 export interface Producto {
   productId: number;
   name: string;
-  description: string;
+  description?: string;
   categoryId: number;
+  categoria: string; //Usada para la importacion de datos
   
   buyPrice: number;
   unitPrice: number;

@@ -1,8 +1,8 @@
 export interface IdDto {
-    id:number
+    id:number;
 }
 
 export interface BarcodeDto {
-    code:string,
-    quantity:number
+    code:string;
+    quantity:number;
 }

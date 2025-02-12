@@ -50,7 +50,7 @@
             <div class="input-group mb-3">
               
               <div class="input-group-append">
-                <button class="btn btn-outline-secondary" type="button" (click)="loadMore()">Cargar mas...</button>
+                <button *ngIf="moreItems" class="btn btn-outline-secondary" type="button" (click)="loadMore()">Cargar mas...</button>
               </div>
             </div>
           </div>
@@ -103,16 +103,18 @@
                 <div>
                   <label for="unitsInStock">Unidades Existentes/Stock</label>
                   <div class="d-flex col-md-4 form-group">
-                    <label *ngIf="!showAddInventarioBox" id="unitsInStock" type="number" class="form-control fake-disabled">
+                    <label *ngIf="!showAddInventarioBox && this.selectedProduct != null" id="unitsInStock" type="number" class="form-control fake-disabled">
                       {{ productForm.get('unitsInStock')?.value }}
                     </label>
+                    <input *ngIf="this.selectedProduct == null" id="unitsInStock" type="number" class="form-control" formControlName="unitsInStock" min="0.01" max="10000.00">
                     <input *ngIf="showAddInventarioBox" class="bg-warning" formControlName="addToInventoryVal" type="number" min="1" max="1000000">
-                    <button *ngIf="this.selectedProduct" class="btn btn-info ms-2" (click)="openCaptureInventory()" >Agregar</button>
+                    <button *ngIf="this.selectedProduct" class="ms-2 btn btn-primary" [ngClass]="{'btn-success': showAddInventarioBox}"
+                        (click)="openCaptureInventory()" >{{showAddInventarioBox ? "Actualizar" : "Agregar"}}</button>
                     
                   </div>
                 </div>
                 <div>
-                  <label for="unitsInStock">Categoria</label>
+                  <label for="categoryId">Categoria</label>
                   <div class="col-lg-4 col-md-6 col-12">
                     <select formControlName="categoryId" id="categoryId" class="form-select">
                         <option *ngFor="let option of categoryList" [value]="option.categoryId">

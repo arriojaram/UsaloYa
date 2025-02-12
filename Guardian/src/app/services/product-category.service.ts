@@ -19,6 +19,17 @@ export class ProductCategoryService {
   
     }
   
+    delete(c: productCategoryDto): Observable<productCategoryDto> {
+      const apiUrl = `${this.baseUrl}/DeleteCategory?companyId=${c.companyId}`;
+  
+      return this.http.post<productCategoryDto>(apiUrl, c).pipe(
+        catchError(error => {
+          console.error('deleteCategory() | ', error);
+          throw error;
+        })
+      );
+    }
+
     save(c: productCategoryDto): Observable<productCategoryDto> {
       const apiUrl = `${this.baseUrl}/SaveCategory`;
   
@@ -41,9 +52,9 @@ export class ProductCategoryService {
       );
     }
   
-    getAll(companyId: number): Observable<productCategoryDto[]> {
+    getAll(companyId: number, keyword:string): Observable<productCategoryDto[]> {
       
-      const apiUrl =`${this.baseUrl}/GetAll4List?companyId=${companyId}`;
+      const apiUrl =`${this.baseUrl}/GetAll4List?keyword=${keyword}&companyId=${companyId}`;
       
       return this.http.get<productCategoryDto[]>(apiUrl).pipe(
         catchError(error => {

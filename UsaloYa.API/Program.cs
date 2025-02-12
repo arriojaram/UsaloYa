@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using UsaloYa.API.Config;
 using UsaloYa.API.Security;
+using UsaloYa.API.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -42,8 +43,8 @@ builder.Services.AddCors(options =>
         });
 });
 
+builder.Services.AddScoped<ProductCategoryService>();
 builder.Services.AddSingleton<AppConfig>();
-
 builder.Services.AddScoped<AccessValidationFilter>();
 
 var app = builder.Build();

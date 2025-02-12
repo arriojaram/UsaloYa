@@ -69,6 +69,16 @@ export class ProductService {
     );
   }
 
+  importProduct(companyId: number, product: Producto): Observable<void> {
+    const apiUrl = `${this.baseUrl}/ImportProduct?companyId=${companyId}`;
+    return this.http.post<void>(apiUrl, product).pipe(
+      catchError(error => {
+        console.error('importProduct() | ', error);
+        throw error;
+      })
+    );
+  }
+
   saveProduct(companyId: number, product: Producto): Observable<Producto> {
     const apiUrl = `${this.baseUrl}/AddProduct?companyId=${companyId}`;
     return this.http.post<Producto>(apiUrl, product).pipe(
