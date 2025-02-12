@@ -364,11 +364,12 @@ namespace UsaloYa.API.Controllers
 
                 if (existingProduct == null && productDto.ProductId == 0)
                 {
+                    
                     existingProduct = new Product
                     {
                         Name = productDto.Name.Trim(),
                         Description = productDto.Description,
-                        CategoryId = productDto.CategoryId,
+                        CategoryId = productDto.CategoryId == 0 ? null : productDto.CategoryId,
                         BuyPrice = productDto.BuyPrice == 1 ? null : productDto.BuyPrice,
                         UnitPrice = productDto.UnitPrice == 0 ? 1 : productDto.UnitPrice,
                         UnitPrice1 = productDto.UnitPrice1 == 0 ? null : productDto.UnitPrice1,
@@ -395,7 +396,7 @@ namespace UsaloYa.API.Controllers
                 {
                     existingProduct.Name = productDto.Name.Trim();
                     existingProduct.Description = productDto.Description;
-                    existingProduct.CategoryId = productDto.CategoryId;
+                    existingProduct.CategoryId = productDto.CategoryId == 0 ? null : productDto.CategoryId;
 
                     existingProduct.BuyPrice = productDto.BuyPrice;
                     existingProduct.UnitPrice = productDto.UnitPrice;

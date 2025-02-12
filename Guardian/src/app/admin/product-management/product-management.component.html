@@ -106,7 +106,7 @@
                     <label *ngIf="!showAddInventarioBox && this.selectedProduct != null" id="unitsInStock" type="number" class="form-control fake-disabled">
                       {{ productForm.get('unitsInStock')?.value }}
                     </label>
-                    <input *ngIf="this.selectedProduct == null" id="unitsInStock" type="number" class="form-control" formControlName="unitsInStock" min="0.01" max="10000.00">
+                    <input *ngIf="this.selectedProduct == null" id="unitsInStock" type="number" class="form-control" formControlName="unitsInStock">
                     <input *ngIf="showAddInventarioBox" class="bg-warning" formControlName="addToInventoryVal" type="number" min="1" max="1000000">
                     <button *ngIf="this.selectedProduct" class="ms-2 btn btn-primary" [ngClass]="{'btn-success': showAddInventarioBox}"
                         (click)="openCaptureInventory()" >{{showAddInventarioBox ? "Actualizar" : "Agregar"}}</button>
