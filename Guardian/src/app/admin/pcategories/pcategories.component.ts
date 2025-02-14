@@ -7,12 +7,12 @@ import { AlertLevel } from '../../Enums/enums';
 import { NavigationService } from '../../services/navigation.service';
 import { UserStateService } from '../../services/user-state.service';
 import { productCategoryDto } from '../../dto/productCategoryDto';
-import { NgFor, NgIf } from '@angular/common';
+import { NgClass, NgFor, NgIf } from '@angular/common';
 import { ProductCategoryService } from '../../services/product-category.service';
 
 @Component({
   selector: 'app-pcategories',
-  imports: [ReactiveFormsModule, FormsModule, NgFor, NgIf],
+  imports: [ReactiveFormsModule, FormsModule, NgFor, NgIf, NgClass],
   templateUrl: './pcategories.component.html',
   styleUrl: './pcategories.component.css'
 })
@@ -142,8 +142,12 @@ export class PcategoriesComponent {
     if(this.userState != null)
     {
       this.categoryService.getAll(this.userState.companyId, keyword).pipe(first())
-      .subscribe(users => {
-        this.categoryList = users.sort((a,b) => (a.name?? '').localeCompare((b.name?? '')));
+      .subscribe(c => {
+        this.categoryList = c.sort((a,b) => (a.name?? '').localeCompare((b.name?? '')));
+        if(c.length > 0)
+        {
+          this.selectItem(c[0].categoryId);
+        }
       });
     }
     else

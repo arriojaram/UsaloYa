@@ -132,9 +132,12 @@ namespace UsaloYa.API.Controllers
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 
-                var existingCategoryName = await _dBContext.ProductCategories.FirstOrDefaultAsync(c => c.Name.ToLower() == categoryDto.Name.ToLower() && c.CompanyId == categoryDto.CompanyId);
+                var existingCategoryName = await _dBContext.ProductCategories
+                    .FirstOrDefaultAsync(c => c.Name.ToLower() == categoryDto.Name.ToLower() 
+                                                && c.CompanyId == categoryDto.CompanyId
+                                                && c.CategoryId != categoryDto.CategoryId);
                 if (existingCategoryName != null)
-                    return Conflict("La categoria ya existe");
+                    return Conflict("El nombre de la categoria ya existe");
                 
 
                 var catInfo = await _productCategoryService.SaveCategory(categoryDto);

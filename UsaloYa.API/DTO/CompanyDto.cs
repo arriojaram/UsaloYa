@@ -25,5 +25,8 @@
         public int? PlanId { get; set; }
         public string? PlanIdUI { get; set; }
         public decimal? PlanPrice { get; set; }
+        public int? PlanNumUsers { get; set; }
     }
+
+    
 }

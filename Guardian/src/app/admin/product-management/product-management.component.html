@@ -43,7 +43,9 @@
               </div>
             </div>
             <ul class="list-group mt-3">
-              <li *ngFor="let product of products" class="list-group-item list-group-item-action" (click)="selectProduct(product.productId)">
+              <li *ngFor="let product of products" class="list-group-item list-group-item-action" 
+                    [ngClass]="{'text-primary': this.selectedProduct?.productId == product.productId}" 
+                    (click)="selectProduct(product.productId)">
                 {{ product.name }}
               </li>
             </ul>

@@ -144,6 +144,7 @@ namespace UsaloYa.API.Controllers
                 {
                     return BadRequest(new { Message = "$_Empresa_O_Producto_Invalido" });
                 }
+
                 keyword = keyword.Trim();
                 var products = string.Equals(keyword, "-1", StringComparison.OrdinalIgnoreCase)
                     ? await _dBContext.Products

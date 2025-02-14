@@ -20,7 +20,9 @@
                
                 </div>
                 <ul class="list-group mt-3">
-                <li *ngFor="let c of customerList" class="list-group-item list-group-item-action" (click)="selectUser(c.customerId)">
+                <li *ngFor="let c of customerList" class="list-group-item list-group-item-action" 
+                      [ngClass]="{'text-primary': this.selectedCustomer?.customerId == c.customerId}"
+                      (click)="selectUser(c.customerId)">
                     {{ c.firstName + ' ' + c.lastName1 + ' ' + c.lastName2 }}
                 </li>
                 </ul>

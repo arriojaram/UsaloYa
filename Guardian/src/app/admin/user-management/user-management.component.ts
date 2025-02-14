@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import { UserService } from '../../services/user.service';
 import { ActivatedRoute } from '@angular/router';
-import { FormBuilder, FormGroup,  ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup,  ReactiveFormsModule, Validators } from '@angular/forms';
 import { userDto } from '../../dto/userDto';
 import { NavigationService } from '../../services/navigation.service';
 import { UserStateService } from '../../services/user-state.service';
-import { NgFor, NgIf } from '@angular/common';
+import { NgClass, NgFor, NgIf } from '@angular/common';
 import { format } from 'date-fns';
 import { first } from 'rxjs';
 import { adminGroupDto } from '../../dto/adminGroupDto';
@@ -15,7 +15,7 @@ import { CompanyService } from '../../services/company.service';
 
 @Component({
     selector: 'app-user-management',
-    imports: [ReactiveFormsModule, NgFor, NgIf],
+    imports: [ReactiveFormsModule, NgFor, NgIf, NgClass],
     templateUrl: './user-management.component.html',
     styleUrl: './user-management.component.css'
 })
@@ -25,13 +25,15 @@ export class UserManagementComponent {
   selectedUser: userDto | null = null;
   userList: userDto[] = [];
   userState: userDto;
-  passwordErrorMsg: string;
+  
   groups: adminGroupDto [] = [];
   availableRoles: any;
   showRoles: boolean = false;
   companies: AdminCompanyDto [] = [];
   rol = Roles;
   isAutorized: boolean = false;
+
+  passwordVisible: boolean = false;
 
   constructor(
     private fb: FormBuilder,
@@ -49,12 +51,10 @@ export class UserManagementComponent {
       this.userForm.get('roleId')?.disable();
     
     this.passwordForm = this.initPasswordForm();
-    this.passwordErrorMsg = '';
+    
   }
 
   ngOnInit(): void {
-   
-
     this.userState = this.userStateService.getUserStateLocalStorage();
     this.userForm.get('lastAccess')?.disable();
     this.userForm.get('statusId')?.disable();
@@ -157,10 +157,29 @@ export class UserManagementComponent {
     });
   }
 
+  togglePasswordVisibility(): void {
+    this.passwordVisible = !this.passwordVisible;
+  }
+
   private initPasswordForm() : FormGroup {
-    return this.fb.group({
-      password: ['', [Validators.required, Validators.minLength(8)]]
-    });
+    let passForm = this.fb.group({
+      password: ['', [Validators.required, Validators.minLength(8)]],
+      passwordConfirmation:['', [Validators.required, Validators.minLength(8)]],
+    },);
+
+    passForm.addValidators(this.passwordMatchValidator);
+
+    return passForm;
+  }
+
+  passwordMatchValidator(formGroup: AbstractControl): { [key: string]: boolean } | null {
+    const password = formGroup.get('password')?.value;
+    const confirmPassword = formGroup.get('passwordConfirmation')?.value;
+    return password === confirmPassword ? null : { mismatch: true };
+  }
+
+  private resetPasswordForm() {
+    this.passwordForm.reset();
   }
 
   newUser(): void {
@@ -170,6 +189,7 @@ export class UserManagementComponent {
   }
 
   selectUser(userId: number): void {
+    this.resetPasswordForm();
     this.userService.getUser(userId).pipe(first())
     .subscribe(user => {
         user.lastAccess4UI = undefined;
@@ -237,18 +257,7 @@ export class UserManagementComponent {
   }
 
   setPassword(): void {
-    if(this.selectedUser == null){
-      this.passwordForm.markAllAsTouched(); 
-      this.passwordErrorMsg = 'Selecciona un usuario';
-      return;
-    }
-
-    if (this.passwordForm.invalid) {
-      this.passwordForm.markAllAsTouched(); 
-      this.passwordErrorMsg = 'La contraseña debe tener una longitud mínima de 8 caracteres.';
-      return;
-    }
-    
+     
     if(this.selectedUser != null){
       const username = this.selectedUser.userName;
 
@@ -274,6 +283,10 @@ export class UserManagementComponent {
     .subscribe({
       next: (users) => {
         this.userList = users.sort((a,b) => (a.firstName?? '').localeCompare((b.firstName?? '')));
+        if(users.length > 0)
+        {
+          this.selectUser(users[0].userId);
+        }
       },
       error: (e) => {
         this.navigationService.showUIMessage(e.error);

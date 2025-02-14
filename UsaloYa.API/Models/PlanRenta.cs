@@ -15,5 +15,7 @@ public partial class PlanRenta
 
     public int StatusId { get; set; }
 
+    public int NumUsers { get; set; }
+
     public virtual ICollection<Company> Companies { get; set; } = new List<Company>();
 }

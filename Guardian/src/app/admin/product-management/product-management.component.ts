@@ -200,6 +200,10 @@ export class ProductManagementComponent implements OnInit {
     .subscribe({
       next: (products) => {
         this.products = products.sort((a,b) => a.name.localeCompare(b.name));
+        if(this.products.length > 0)
+        {
+          this.selectProduct(products[0].productId);
+        }
       },
       error:(err) => {
         if (err.status === 404) {  

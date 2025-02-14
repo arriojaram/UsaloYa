@@ -202,6 +202,10 @@ export class CompanyManagementComponent implements OnInit {
     .subscribe({
       next: (c) => {
         this.companyList = c.sort((a,b) => (a.name?? '').localeCompare((b.name?? '')));
+        if(c.length > 0)
+        {
+          this.selectCompany(c[0].companyId, true);
+        }
       },
       error: (e) =>{
         this.navigationService.showUIMessage(e.error);

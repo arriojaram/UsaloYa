@@ -20,7 +20,9 @@
                     
                     </div>
                     <ul class="list-group mt-3">
-                    <li *ngFor="let c of companyList" class="list-group-item list-group-item-action" (click)="selectCompany(c.companyId, true)">
+                    <li *ngFor="let c of companyList" class="list-group-item list-group-item-action" 
+                            [ngClass]="{'text-primary': this.selectedCompany?.companyId == c.companyId}" 
+                            (click)="selectCompany(c.companyId, true)">
                         {{ c.name }}
                     </li>
                     </ul>

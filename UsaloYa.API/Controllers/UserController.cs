@@ -266,7 +266,8 @@ namespace UsaloYa.API.Controllers
                     ? 
                     await _dBContext.Users.Where(c => (c.CompanyId == companyId || companyId == 0)).OrderByDescending(u => u.UserId).Take(50).ToListAsync()
                     : 
-                    await _dBContext.Users.Include(em => em.Company)
+                    await _dBContext.Users
+                        .Include(em => em.Company)
                         .Where(u => (
                                    u.FirstName.Contains(name) || u.LastName.Contains(name)
                                 || name.Contains(u.FirstName) || name.Contains(u.LastName)
@@ -335,20 +336,24 @@ namespace UsaloYa.API.Controllers
                 if (!isUserEnabled)
                     return Unauthorized("Usuario no valido");
 
-             
-                var userRol = EConverter.GetEnumFromValue<Role>(user.RoleId?? 0);
+
+                var userRol = EConverter.GetEnumFromValue<Role>(user.RoleId ?? 0);
                 // Check company expiration
-                var companyStatus = await GetCompanyStatus(user.CompanyId);
-     
-                if (userRol != Role.Root && companyStatus == CompanyStatus.Expired)
-                        return Unauthorized("$_Expired_License");
+                var companyInfo = await GetCompanyStatus(user.CompanyId);
+                if(companyInfo == null)
+                {
+                    return Unauthorized("Hay un error con la información del negocio.");
+                }
+
+                if (userRol != Role.Root && companyInfo.StatusId == (int)CompanyStatus.Expired)
+                    return Unauthorized("$_Expired_License");
 
                 if (!string.IsNullOrEmpty(user.DeviceId) && user.DeviceId != DeviceId.Trim())
                 {
                     msg = "Este usuario esta activo en otro dispositivo. La sesión en ese otro dispositivo será terminada.";
                 }
 
-                if (userRol == Role.Root || (companyStatus == CompanyStatus.Active || companyStatus == CompanyStatus.PendingPayment))
+                if (userRol == Role.Root || (companyInfo.StatusId == (int)CompanyStatus.Active || companyInfo.StatusId == (int)CompanyStatus.PendingPayment))
                 {
                     user.LastAccess = DateTime.Now;
                     user.StatusId = (int)Enumerations.UserStatus.Conectado;
@@ -362,9 +367,11 @@ namespace UsaloYa.API.Controllers
                 else
                     return Unauthorized("La compañia se encuentra en un estado inactivo, contacta a tu vendedor.");
 
+                await ManageNumConnectedUsers(user.CompanyId, companyInfo.PlanNumUsers?? 1);
+
                 if (!string.IsNullOrEmpty(user.DeviceId) && user.DeviceId != DeviceId)
                 {
-                    return Ok(new {Id=user.UserId, Msg="El usuario estaba usando otro dispositivo. La sesión en ese dispositivo será cerrada."});
+                    return Ok(new { Id = user.UserId, Msg = "El usuario estaba usando otro dispositivo. La sesión en ese dispositivo será cerrada." });
                 }
 
                 return Ok(new { Id = user.UserId, Msg = msg });
@@ -379,13 +386,36 @@ namespace UsaloYa.API.Controllers
             }
         }
 
+        private async Task ManageNumConnectedUsers(int companyId, int licenseNumUsers)
+        {
+            var companyActiveUsers = await _dBContext.Users
+                    .Where(u => u.CompanyId == companyId)
+                    .OrderBy(u => u.LastAccess)
+                    .ToListAsync();
+
+            if (companyActiveUsers.Count > licenseNumUsers)
+            {
+                var firstLoggedInUser = companyActiveUsers[0];
+                firstLoggedInUser.SessionToken = null;
+                firstLoggedInUser.DeviceId = null;
+                firstLoggedInUser.StatusId = (int)Enumerations.UserStatus.Desconectado;
+                _dBContext.Entry(firstLoggedInUser).State = EntityState.Modified;
+                await _dBContext.SaveChangesAsync();
+            }
+        }
+
         [NonAction]
-        public async Task<CompanyStatus> GetCompanyStatus(int companyId)
+        public async Task<CompanyDto> GetCompanyStatus(int companyId)
         {
             CompanyStatus status = CompanyStatus.Inactive;
+            CompanyDto companyInfo = null;
             try
             {
-                var company = await _dBContext.Companies.FindAsync(companyId);
+                var company = await _dBContext
+                    .Companies
+                    .Include(c => c.Plan)
+                    .FirstOrDefaultAsync(c => c.CompanyId == companyId);
+
                 if (company != null)
                 {
                     status = EConverter.GetEnumFromValue<CompanyStatus>(company.StatusId);
@@ -403,7 +433,12 @@ namespace UsaloYa.API.Controllers
                         _dBContext.Entry(company).State = EntityState.Modified;
                         await _dBContext.SaveChangesAsync();
 
-                    } 
+                    }
+                    companyInfo = new CompanyDto();
+                    companyInfo.CompanyId = companyId;
+                    companyInfo.StatusId = company.StatusId;
+                    companyInfo.PlanNumUsers = company.Plan.NumUsers;
+                    
                 }
             }
             catch (Exception ex)
@@ -411,7 +446,7 @@ namespace UsaloYa.API.Controllers
                 _logger.LogError(ex, "IsCompanyExpired.ApiFunctionError");
                 
             }
-            return status;
+            return companyInfo;
         }
         
 

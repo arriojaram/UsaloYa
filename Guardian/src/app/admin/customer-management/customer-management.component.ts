@@ -7,12 +7,12 @@ import { UserStateService } from '../../services/user-state.service';
 import { customerDto } from '../../dto/customerDto';
 import { first } from 'rxjs';
 import { NavigationService } from '../../services/navigation.service';
-import { NgFor, NgIf } from '@angular/common';
+import { NgClass, NgFor, NgIf } from '@angular/common';
 import { AlertLevel } from '../../Enums/enums';
 
 @Component({
     selector: 'app-customer-management',
-    imports: [ReactiveFormsModule, FormsModule, NgFor, NgIf],
+    imports: [ReactiveFormsModule, FormsModule, NgFor, NgIf, NgClass],
     templateUrl: './customer-management.component.html',
     styleUrl: './customer-management.component.css'
 })
@@ -122,8 +122,17 @@ export class CustomerManagementComponent implements OnInit{
     {
      
       this.customerService.getAllCustomer(this.userState.companyId, nameOrPhoneOrEmail).pipe(first())
-      .subscribe(users => {
-        this.customerList = users.sort((a,b) => (a.firstName?? '').localeCompare((b.firstName?? '')));
+      .subscribe({
+        next:(users) => {
+          this.customerList = users.sort((a,b) => (a.firstName?? '').localeCompare((b.firstName?? '')));
+          if(users.length > 0)
+          {
+            this.selectUser(users[0].customerId);
+          }
+        },
+        error:(err) => {
+          this.navigationService.showUIMessage("Ocurrio un error al cargar la información de los clientes", AlertLevel.Error);
+        },
       });
     }
     else

@@ -374,6 +374,7 @@ export class SaleService extends Dexie implements OnInit{
     this.getAllOfflineTableProducts().pipe(first()).subscribe(
       {
         next: (products: Producto[]) => {
+          let companyProds = products; //.filter(p => p.companyId = this.use);
           this.productCatalog = products;
           console.log("Productos cargados de la memoria");
         },
