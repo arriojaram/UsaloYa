@@ -241,7 +241,9 @@ export class UserManagementComponent {
       this.userService.saveUser(user).pipe(first())
         .subscribe({
           next: (result) => {
-            this.searchUsersInternal("-1");
+            if(user.userId == 0)
+              this.userList.unshift(result);
+            
             this.selectUser(result.userId);
             this.navigationService.showUIMessage("Usuario guardado (" + result.userName + ")", AlertLevel.Sucess);
           },

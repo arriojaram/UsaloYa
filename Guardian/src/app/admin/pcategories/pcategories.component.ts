@@ -98,10 +98,12 @@ export class PcategoriesComponent {
       return;
     }
     if (this.cForm?.valid) {
-      let catInfo = this.cForm.value;
+      let catInfo: productCategoryDto = this.cForm.value;
       this.categoryService.save(catInfo).subscribe({
         next: (savedItem) => {
-          this.getAll('-1');
+          if(catInfo.categoryId == 0)
+            this.categoryList.unshift(savedItem);
+          
           this.selectItem(savedItem.categoryId);
           this.navigationService.showUIMessage("Categoria guardada (" + savedItem.categoryId + ")", AlertLevel.Sucess);
         },

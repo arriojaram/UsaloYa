@@ -9,7 +9,6 @@ import { userDto } from '../../dto/userDto';
 import { first, Subject, takeUntil } from 'rxjs';
 import { SaleService } from '../../services/sale.service';
 import { PriceLevel, Roles, StatusVentaEnum } from '../../Enums/enums';
-import { CompanyService } from '../../services/company.service';
 import { UserService } from '../../services/user.service';
 
 @Component({
@@ -37,7 +36,7 @@ export class SalesReportComponent implements OnInit, OnDestroy {
   showColumns = false;
   companyUsers: userDto[] | undefined;
   selectedUserName: string | undefined;
-
+  rol = Roles;
   private unsubscribe$: Subject<void> = new Subject();
   
   constructor(private fb: FormBuilder,
@@ -48,13 +47,13 @@ export class SalesReportComponent implements OnInit, OnDestroy {
     private userService: UserService
   ) 
   {
-    this.reportForm = this.initForm();
     this.userState = userStateService.getUserStateLocalStorage();
     this.showMainReport = true;
+    this.reportForm = this.initForm();
   }
 
   ngOnInit(): void {
-     if(this.userState.roleId < Roles.Admin)
+     if(this.userState.roleId < Roles.User)
           this.navigationService.showUIMessage("Petición incorrecta.");
         else
           this.isAutorized = true;
@@ -66,14 +65,12 @@ export class SalesReportComponent implements OnInit, OnDestroy {
     });
 
     this.loadCompanyUsers();
-    
   }
 
   ngOnDestroy(): void {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
   }
-
 
   // Función para alternar la visibilidad de las columnas
   toggleColumns() {
@@ -90,7 +87,7 @@ export class SalesReportComponent implements OnInit, OnDestroy {
       dateFrom: [today, [Validators.required]],
       dateTo: [tomorrow, [Validators.required]],
       filterText:[''],
-      userId:[0]
+      userId:[this.userState.userId]
     });
   }
 
@@ -105,7 +102,6 @@ export class SalesReportComponent implements OnInit, OnDestroy {
         this.navigationService.showUIMessage(e.error);
       }
     });
-
   }
   
   redirectToDetails(saleId: number) {
@@ -223,8 +219,9 @@ export class SalesReportComponent implements OnInit, OnDestroy {
 
     const fromDate = this.reportForm.get('dateFrom')?.value ?? new Date();
     const toDate = this.reportForm.get('dateTo')?.value ?? new Date();
-    const userId = this.reportForm.get('userId')?.value ?? 0;
-    
+    let userId = this.reportForm.get('userId')?.value ?? 0;
+    if(this.userState.roleId == this.rol.User)
+      userId = this.userState.userId;
 
     this.reportService.getSales(fromDate, toDate, this.userState.companyId, userId).pipe(first())
     .subscribe({

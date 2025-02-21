@@ -180,10 +180,7 @@ namespace UsaloYa.API.Controllers
                     {
                         return Unauthorized(AppConfig.NO_AUTORIZADO);
                     }
-                    if (requestor.RoleId == (int)Role.Ventas && u.CreatedBy != requestor.UserId)
-                    {
-                        return Unauthorized(AppConfig.NO_AUTORIZADO);
-                    }
+                   
                 }
 
                 var userResponseDto = new UserResponseDto()
@@ -245,7 +242,7 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var requestor = await Util.ValidateRequestorSameCompanyOrTopRol(RequestorId, companyId, Role.Admin, _dBContext);
+                var requestor = await Util.ValidateRequestorSameCompanyOrTopRol(RequestorId, companyId, Role.User, _dBContext);
 
                 if (requestor.UserId <= 0)
                 {
@@ -257,9 +254,22 @@ namespace UsaloYa.API.Controllers
                     if (requestor.RoleId < (int)Role.SysAdmin)
                         return Unauthorized(AppConfig.NO_AUTORIZADO);
                 }
-                else if (companyId == requestor.CompanyId && requestor.RoleId < (int)Role.Admin)
+                else if (requestor.RoleId == (int)Role.User)
                 {
-                    return Unauthorized(AppConfig.NO_AUTORIZADO);
+                    var userQuery = await _dBContext.Users
+                     .Include(em => em.Company)
+                     .Where(u => u.CompanyId == companyId && u.UserId == requestor.UserId)
+                     .ToListAsync();
+                    var userDtos1 = userQuery.Select(u => new UserResponseDto
+                    {
+                        UserId = u.UserId,
+                        IsEnabled = u.IsEnabled ?? false,
+                        UserName = u.UserName,
+                        FirstName = u.FirstName,
+                        LastName = u.LastName,
+
+                    });
+                    return Ok(userDtos1);
                 }
 
                 var companyQuery = (string.IsNullOrEmpty(name) || string.Equals(name, "-1", StringComparison.OrdinalIgnoreCase))

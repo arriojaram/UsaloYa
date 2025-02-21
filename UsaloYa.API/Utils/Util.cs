@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
+using System.Xml.Serialization;
 using UsaloYa.API.DTO;
 using UsaloYa.API.Enums;
 using UsaloYa.API.Migrations;
@@ -131,6 +132,40 @@ namespace UsaloYa.API.Utils
             DateTime mexicoTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, mexicoTimeZone);
 
             return mexicoTime;
+        }
+
+        /// <summary>
+        /// Serializa una lista de PairSettingsDto a una cadena XML.
+        /// </summary>
+        /// <param name="settings">Lista de configuraciones.</param>
+        /// <returns>Cadena XML representando la lista.</returns>
+        public static string XmlSerializeSettings(List<PairSettingsDto> settings)
+        {
+            // Se define un atributo raíz para darle un nombre a la etiqueta contenedora
+            var xmlRoot = new XmlRootAttribute("PairSettings");
+            var serializer = new XmlSerializer(typeof(List<PairSettingsDto>), xmlRoot);
+
+            using (var stringWriter = new StringWriter())
+            {
+                serializer.Serialize(stringWriter, settings);
+                return stringWriter.ToString();
+            }
+        }
+
+        /// <summary>
+        /// Deserializa una cadena XML a una lista de PairSettingsDto.
+        /// </summary>
+        /// <param name="xml">Cadena XML a deserializar.</param>
+        /// <returns>Lista de PairSettingsDto obtenida del XML.</returns>
+        public static List<PairSettingsDto> DeserializeSettings(string xml)
+        {
+            var xmlRoot = new XmlRootAttribute("PairSettings");
+            var serializer = new XmlSerializer(typeof(List<PairSettingsDto>), xmlRoot);
+
+            using (var stringReader = new StringReader(xml))
+            {
+                return (List<PairSettingsDto>)serializer.Deserialize(stringReader);
+            }
         }
     }
 }

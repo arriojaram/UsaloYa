@@ -8,10 +8,12 @@ import { CommonModule } from '@angular/common';
 import { catchError, concatMap, finalize } from 'rxjs/operators';
 import { Roles } from '../../Enums/enums';
 import { NavigationService } from '../../services/navigation.service';
+import { FormsModule } from '@angular/forms';
+import { UpdateProdSettings } from '../../dto/updateProdSettings';
 
 @Component({
     selector: 'app-import-products',
-    imports: [CommonModule],
+    imports: [CommonModule, FormsModule],
     templateUrl: './import-products.component.html',
     styleUrl: './import-products.component.css'
 })
@@ -28,6 +30,18 @@ export class ImportProductsComponent implements OnInit, OnDestroy {
   user_message: string | undefined;
   messages: string[] = [];
   isAutorized: boolean = false;
+  updateExistingProducts = false;
+
+  checkboxes: UpdateProdSettings = {
+    updateNombre: false,
+    updateCategoria: false,
+    updatePrecioUnitario: false,
+    updatePrecio1: false,
+    updatePrecio2: false,
+    updatePrecio3: false,
+    updateStock: false,
+    updateAlertaExistencias: false
+  };
 
   initialMessage: string= "El proceso de importación esta en ejecución, el proceso puede tardar varios minutos, no cambies de página mientras estoy trabajando con la importación de datos.";
   constructor(
@@ -92,8 +106,8 @@ export class ImportProductsComponent implements OnInit, OnDestroy {
 
       this.csvReaderService.parseCsv(this.selectedFile).pipe(
         switchMap(productos => from(productos).pipe(
-          concatMap(producto => 
-            this.productService.importProduct(this.userState.companyId, producto).pipe(
+          concatMap(producto =>  
+            this.productService.importProduct(this.userState.companyId, producto, this.updateExistingProducts, this.checkboxes).pipe(
               catchError((error) => {
                 this.productsFailed++;
                 this.log(error.error.message, producto.name, producto.barcode);

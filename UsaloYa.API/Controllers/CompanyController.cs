@@ -1,12 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.Design;
-using System.Net;
-using System.Numerics;
+using System.Reflection;
+using System.Runtime;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using UsaloYa.API.Config;
 using UsaloYa.API.DTO;
 using UsaloYa.API.Enums;
-using UsaloYa.API.Migrations;
 using UsaloYa.API.Models;
 using UsaloYa.API.Security;
 using UsaloYa.API.Utils;
@@ -26,7 +27,6 @@ namespace UsaloYa.API.Controllers
             _logger = logger;
             _dBContext = dBContext;
         }
-
 
         [HttpGet("GetAll4List")]
         public async Task<IActionResult> GetAll4List([FromHeader] string RequestorId, int companyId, string name = "-1")
@@ -51,8 +51,13 @@ namespace UsaloYa.API.Controllers
                     companies = companies.Where(u => u.CompanyId == requestor.CompanyId).ToList();
                 }
                 else if (requestor.RoleId < (int)Role.SysAdmin)
-                { 
+                {
+                    var userCompany = companies.FirstOrDefault(c => c.CompanyId == requestor.CompanyId);
                     companies = companies.Where(u => u.CreatedBy == requestor.UserId).ToList();
+                    if (!companies.Contains(userCompany))
+                    {
+                        companies.Add(userCompany);
+                    }
                 }
 
                 return Ok(companies.Select(c => new GenericObjectDto
@@ -98,9 +103,9 @@ namespace UsaloYa.API.Controllers
                 PaymentsJson = c.PaymentsJson ?? "",
                 StatusId = c.StatusId,
                 ExpirationDate = c.ExpirationDate,
-                CreatedByUserName = c.CreatedByNavigation?.UserName, 
+                CreatedByUserName = c.CreatedByNavigation?.UserName,
                 CreatedByFullName = c.CreatedByNavigation?.FirstName + " " + c.CreatedByNavigation?.LastName,
-                LastUpdateByUserName = c.LastUpdateByNavigation?.UserName, 
+                LastUpdateByUserName = c.LastUpdateByNavigation?.UserName,
 
                 TelNumber = c.PhoneNumber,
                 CelNumber = c.CelphoneNumber,
@@ -166,7 +171,7 @@ namespace UsaloYa.API.Controllers
                     objectToSave.OwnerInfo = companyDto.OwnerInfo;
                     objectToSave.PlanId = PlanId;
 
-                    if (objectToSave.ExpirationDate == null) 
+                    if (objectToSave.ExpirationDate == null)
                         objectToSave.ExpirationDate = Util.GetMxDateTime();
 
                     _dBContext.Entry(objectToSave).State = EntityState.Modified;
@@ -174,9 +179,10 @@ namespace UsaloYa.API.Controllers
                 }
 
                 await _dBContext.SaveChangesAsync();
-                return Ok(new CompanyDto() { 
-                    CompanyId=objectToSave.CompanyId, 
-                    Name = objectToSave.Name 
+                return Ok(new CompanyDto()
+                {
+                    CompanyId = objectToSave.CompanyId,
+                    Name = objectToSave.Name
                 });
             }
             catch (Exception ex)
@@ -188,6 +194,74 @@ namespace UsaloYa.API.Controllers
             }
         }
 
+        [HttpPost("SetSettings")]
+        public async Task<ActionResult> SetSettings([FromHeader] string RequestorId, [FromBody] CompanySettingsDto settingsDto)
+        {
+            Company objectToSave = null;
+            try
+            {
+                if (settingsDto.CompanyId  <= 0)
+                    return NotFound();
+
+                var user = await Util.ValidateRequestor(RequestorId, Role.Admin, _dBContext);
+                if (user.UserId <= 0)
+                    return Unauthorized(AppConfig.NO_AUTORIZADO);
+
+               
+                objectToSave = await _dBContext.Companies.FindAsync(settingsDto.CompanyId);
+                if (objectToSave == null)
+                    return NotFound();
+
+                
+                objectToSave.PaymentsJson = Util.XmlSerializeSettings(settingsDto.Settings);
+                _dBContext.Entry(objectToSave).State = EntityState.Modified;
+
+                await _dBContext.SaveChangesAsync();
+                return Ok(0);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "SetSettings.ApiError");
+
+                // Return a 500 Internal Server Error with a custom message
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
+            }
+        }
+
+        [HttpGet("GetSettings")]
+        public async Task<ActionResult> GetSettings([FromHeader] string RequestorId, int companyId)
+        {
+            try
+            {
+                if (companyId <= 0)
+                    return NotFound();
+
+                var user = await Util.ValidateRequestor(RequestorId, Role.Admin, _dBContext);
+                if (user.UserId <= 0)
+                    return Unauthorized(AppConfig.NO_AUTORIZADO);
+
+
+                var companySettings = await _dBContext.Companies.FindAsync(companyId);
+                if (companySettings == null)
+                    return NotFound();
+
+                var settingsStr = companySettings.PaymentsJson ?? "";
+                if (string.IsNullOrEmpty(settingsStr))
+                {
+                    return Ok();
+                }
+                var settings = Util.DeserializeSettings(settingsStr);
+                
+                return Ok(settings);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "GetSettings.ApiError");
+
+                // Return a 500 Internal Server Error with a custom message
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
+            }
+        }
 
         [HttpPost("SetCompanyStatus")]
         public async Task<ActionResult> SetCompanyStatus([FromHeader] string RequestorId, [FromBody] SetStatusDto statusDto)
@@ -195,7 +269,7 @@ namespace UsaloYa.API.Controllers
             Company objectToSave = null;
             try
             {
-                if(statusDto.ObjectId <= 0)
+                if (statusDto.ObjectId <= 0)
                     return NotFound();
 
                 var user = await Util.ValidateRequestor(RequestorId, Role.SysAdmin, _dBContext);
@@ -263,13 +337,13 @@ namespace UsaloYa.API.Controllers
             int sumExpirationDays = 0;
             try
             {
-                if(rentDto.CompanyId <= 0)
+                if (rentDto.CompanyId <= 0)
                     return BadRequest("$_Compañia_Invalida");
                 if (rentDto.Amount <= 0)
                     return BadRequest("$_El_monto_debe_ser_mayor_a_cero");
 
                 var user = await Util.ValidateRequestor(RequestorId, Role.Ventas, _dBContext);
-                
+
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 
@@ -285,7 +359,7 @@ namespace UsaloYa.API.Controllers
 
                 if (rentType == RentTypeId.Mensualidad && rentDto.Amount < c.Plan.Price)
                     return BadRequest("$_Revisa_la_cantidad_ingresada");
-                
+
                 objectToSave = new Renta
                 {
                     Id = rentDto.Id,
@@ -316,23 +390,32 @@ namespace UsaloYa.API.Controllers
             }
         }
 
-     
+
         private async Task<DateTime> SetExpirationDate(Company company, decimal rentAmount, RentTypeId typeId)
         {
-            DateTime newExpirationDate = company.ExpirationDate == null ? DateTime.Now.Date : company.ExpirationDate.Value;
+            var newExpirationDate = DateTime.Now;
             try
             {
-                DateTime tmpExpDate = company.ExpirationDate ?? newExpirationDate;
+                var expirationDate = company.ExpirationDate ?? Util.GetMxDateTime();
+
+                if (Util.GetMxDateTime().Date > expirationDate.Date && expirationDate.AddDays(5) <= Util.GetMxDateTime())
+                {
+                    //status = CompanyStatus.Expired; -- If the company is expired then take the current day as the new initial subscription day
+                    expirationDate = Util.GetMxDateTime();
+                }
+                
+               
                 switch (typeId)
                 {
                     case RentTypeId.Mensualidad:
-                        newExpirationDate = tmpExpDate.AddMonths(1);
+                        var numMonths = rentAmount / company.Plan.Price;
+                        newExpirationDate = expirationDate.AddMonths((int)numMonths);
                         break;
                     case RentTypeId.Condonacion:
                     case RentTypeId.Extension:
-                        int costDay = (int)(company.Plan.Price/30);
+                        int costDay = (int)(company.Plan.Price / 31);
                         int days = (int)(rentAmount / costDay);
-                        newExpirationDate = tmpExpDate.AddDays(days);
+                        newExpirationDate = expirationDate.AddDays(days);
                         break;
                     default:
                         break;
@@ -361,7 +444,8 @@ namespace UsaloYa.API.Controllers
                 return Unauthorized(AppConfig.NO_AUTORIZADO);
 
             var c = await _dBContext.Rentas.Where(c => c.CompanyId == companyId)
-                                .Select(r => new RentDto { 
+                                .Select(r => new RentDto
+                                {
                                     AddedByUserId = r.AddedByUserId,
                                     StatusId = r.StatusId,
                                     Amount = r.Amount,
@@ -370,7 +454,7 @@ namespace UsaloYa.API.Controllers
                                     ReferenceDate = r.ReferenceDate,
                                     TipoRentaDesc = r.TipoRentaDesc,
                                     ByUserName = r.AddedByUser.UserName,
-                                    ExpirationDate = r.ExpirationDate == null ? Util.GetMxDateTime(): r.ExpirationDate.Value,
+                                    ExpirationDate = r.ExpirationDate == null ? Util.GetMxDateTime() : r.ExpirationDate.Value,
                                     Notas = r.Notas
                                 })
                                 .OrderByDescending(d => d.ReferenceDate)

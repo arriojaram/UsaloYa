@@ -40,7 +40,9 @@
                         <li class="nav-item">
                             <a class="nav-link" [class.active]="activeTab === 'tabPagos'" (click)="setActiveTab('tabPagos')">Pagos</a>
                         </li>
-                        
+                        <li class="nav-item">
+                            <a class="nav-link" [class.active]="activeTab === 'tabSettings'" (click)="setActiveTab('tabSettings')">Configuraciones</a>
+                        </li>
                     </ul>
                     <div class="tab-content mt-3">
                         <div class="tab-pane" [class.active]="activeTab === 'tabDetalles'" id="tabDetalles">
@@ -152,7 +154,7 @@
                                             <div class="mb-3">Contacta a tu vendedor para obtener más información: {{this.selectedCompany?.createdByFullName}}</div>
                                             
                                             <div *ngIf="this.userState.roleId > rol.Admin">
-                                                <button class="btn btn-primary" [disabled]="showAddPaymentSection" (click)="showAddPaymentSection = true">Agregar Pago</button>
+                                                <button class="btn btn-outline-light" [disabled]="showAddPaymentSection" (click)="showAddPaymentSection = true">Agregar Pago</button>
                                             </div>
                                         </div>
                                     </div>
@@ -177,9 +179,9 @@
                                     <div class="col-lg-4 col-md-6 col-12">
                                         Notas <input type="text" class="form-control" placeholder="Notas" [(ngModel)]="notas">
                                     </div>
-                                    <div class="col-lg-4 col-md-12 col-12"> 
+                                    <div class="col-lg-4 col-md-12 col-12 mt-2"> 
                                         <div class="d-grid gap-2 d-md-block"> 
-                                            <button class="btn btn-success me-1" (click)="mostrarConfirmacion = true">Agregar</button>
+                                            <button class="btn btn-success me-1" (click)="ValidateEnteredAmount()">Agregar</button>
                                             <button class="btn btn-secondary ms-1" (click)="cancelAddPayment()">Cancelar</button>
                                         </div>
                                     </div>
@@ -222,11 +224,11 @@
                                     </tbody>
                                 </table>
                             </div>
-
-
-                        
                         </div>
-                </div>
+                        <div class="tab-pane" [class.active]="activeTab === 'tabSettings'" id="tabSettings">
+                            <app-settings #settingsComponent></app-settings>
+                        </div>
+                    </div>
             </div>
         </div>
     </div>

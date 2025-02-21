@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { SaleService } from '../services/sale.service';
 import { CommonModule } from '@angular/common';
 import { OfflineDbStore } from '../services/offline-db-store.service';
@@ -13,6 +13,8 @@ import { Producto } from '../dto/producto';
 import { customerDto } from '../dto/customerDto';
 import { CustomerService } from '../services/customer.service';
 import { AlertLevel } from '../Enums/enums';
+import { QzprintService } from '../services/qzprint.service';
+import { CompanyService } from '../services/company.service';
 
 @Component({
     selector: 'app-lista-venta',
@@ -30,7 +32,8 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
   message?: string;
   numVenta: string;
   messageClass: string = "alert  alert-success mt-2";
- 
+  selectedPrinterName: string = '';
+
   @ViewChild('inputNumber') inputNumber?: ElementRef;
   tempProductCounter: number | undefined;
   isSelectingCustomer: boolean = false;
@@ -49,7 +52,9 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
     private offlineDbStore: OfflineDbStore,
     private userStateService: UserStateService,
     private navigationService: NavigationService,
-    private customerService: CustomerService
+    private customerService: CustomerService,
+    private qzService: QzprintService,
+    private companyService: CompanyService
   )
   {
     this.isHidden = true;
@@ -57,17 +62,50 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
     this.numVenta = "-1";
     this.userState = this.userStateService.getUserStateLocalStorage();
   }
+
   ngOnDestroy(): void {
     if(this.enableQz)
-      qz.websocket.disconnect();
+      this.qzService.disconnectQZTray();
   }
 
   ngOnInit(): void {
     this.metodoPago = "Efectivo";
     this.userState = this.userStateService.getUserStateLocalStorage();
-    if(this.enableQz)
-      this.retryConnect(0);
+    this.validatePrinterSettings();
   }
+
+  validatePrinterSettings()
+  {
+    if(!this.navigationService.isMobile())
+    {
+      this.companyService.getCompanySettings(this.userState.companyId)
+        .pipe(first())
+          .subscribe({
+            next:(settings) => {
+              let activarImpresora: boolean = false;
+              let printerName: string = '';
+              if(settings && settings.length > 0)
+              {
+                for (let index = 0; index < settings.length; index++) {
+                  const s = settings[index];
+                  if(s.key == environment.PAIRSETT_ACTIVAR_IMPRESORA)
+                    activarImpresora = s.value == 'true';
+                  if(s.key == environment.PAIRSETT_NOMBRE_IMPRESORA)
+                    printerName = s.value;
+                }
+                if(activarImpresora && (printerName!= undefined || printerName != ''))
+                {
+                  this.selectedPrinterName = printerName;
+                  this.enableQz = true;
+                  this.qzService.retryConnect(0);
+                }
+              }
+            },
+          });
+    }
+  }
+
+
 
   onSelectPrice(event: Event, productId: number): void {
     const selectElement = event.target as HTMLSelectElement;
@@ -181,18 +219,17 @@ Cajero: ${cashierName}
     <div style="font-size: 12px;">Cajero: ${cashierName}</div>
     <div style="font-size: 12px;"><strong>¡Gracias por su compra!</strong></div>`;
 
-    if(this.isMobile()){
-      this.sendToPrinter(ticket);
+    if(this.navigationService.isMobile()){
+      this.printViaRawBt(ticket);
     }
     else
     {
       if(this.enableQz)
         this.printInPC(ticketHtml);
     }
-   
   }
 
-  sendToPrinter(ticket: string)
+  printViaRawBt(ticket: string)
   {
     try
     {
@@ -210,47 +247,26 @@ Cajero: ${cashierName}
   }
 
   /****************** END TICKET *******************************/
-  async connectToQZTray() {
-    try {
-    
-      qz.websocket.connect();
-      console.log('Connected to QZ Tray successfully');
-    } catch (error) {
-      console.error('Error connecting to QZ Tray:', error);
-    }
-  }
-  retryConnect(attempts: number) {
-    if (attempts > 3) {
-      console.error('Failed to connect to QZ Tray after multiple attempts');
-      return;
-    }
-  
-    if (!window.qzReady)   {
-      setTimeout(() => this.retryConnect(attempts + 1), 1000); // Retry after 1 second
-    } else {
-      this.connectToQZTray();
-    }
-  }
-
   async printInPC(data: string) {
-    var config = qz.configs.create("POS58 Printer");               // Exact printer name from OS
-    
-    qz.print(config, [{
-      type: 'pixel',
-      format: 'html',
-      flavor: 'plain',
-      data: data
-    }]).then(function() {
-       console.log("Sent data to printer");
-    });
+    if(this.selectedPrinterName != '' || this.selectedPrinterName != undefined)
+    {
+      await this.qzService.connectToQZTray();
+      // Exact printer name from OS
+      var config = qz.configs.create(this.selectedPrinterName);
+      await qz.print(config, [{
+        type: 'pixel',
+        format: 'html',
+        flavor: 'plain',
+        data: data
+      }]).then(function() {
+        console.log("Sent data to printer");
+      });
+
+      
+    }
   }
 
-  isMobile(): boolean {
-    const userAgent = window.navigator.userAgent;
-    // Regex que busca patrones comunes de agentes de usuario móviles
-    const mobileRegex = /iPhone|iPad|iPod|Android/i;
-    return mobileRegex.test(userAgent);
-  }
+  
   /****************** END QZ Try *******************************/
 
   onInputChange(value: string): void {

@@ -6,6 +6,7 @@ import { companyDto } from '../dto/companyDto';
 import { rentRequestDto } from '../dto/rentRequestDto';
 import { setStatusDto } from '../dto/setStatusDto';
 import { AdminCompanyDto } from '../dto/adminCompanyDto';
+import { companySettingsDto, pairSettingsDto } from '../dto/companySettingsDto';
 
 @Injectable({
   providedIn: 'root'
@@ -13,14 +14,12 @@ import { AdminCompanyDto } from '../dto/adminCompanyDto';
 export class CompanyService {
 
   private baseUrl = environment.apiUrlBase + '/api/Company';
- 
+  selectedCompanyId: number = 0;
+  
   constructor(
     private http: HttpClient
   ) 
-  {
-    
-  }
-
+  { }
 
   addCompanyRent(c: rentRequestDto): Observable<number> {
     const apiUrl = `${this.baseUrl}/AddRent`;
@@ -28,6 +27,28 @@ export class CompanyService {
     return this.http.post<number>(apiUrl, c).pipe(
       catchError(error => {
         console.error('addCompanyRent() | ', error);
+        throw error;
+      })
+    );
+  }
+
+  setCompanySettings(s: companySettingsDto): Observable<number> {
+    const apiUrl = `${this.baseUrl}/SetSettings`;
+
+    return this.http.post<number>(apiUrl, s).pipe(
+      catchError(error => {
+        console.error('setCompanyStatus() | ', error);
+        throw error;
+      })
+    );
+  }
+  
+  getCompanySettings(companyId: number): Observable<pairSettingsDto[]> {
+    const apiUrl = `${this.baseUrl}/GetSettings?companyId=${companyId}`;
+
+    return this.http.get<pairSettingsDto[]>(apiUrl).pipe(
+      catchError(error => {
+        console.error('getCompanySettins() | ', error);
         throw error;
       })
     );

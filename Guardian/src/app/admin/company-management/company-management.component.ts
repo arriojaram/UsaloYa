@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NavigationService } from '../../services/navigation.service';
 import { UserStateService } from '../../services/user-state.service';
@@ -10,14 +10,16 @@ import { CompanyService } from '../../services/company.service';
 import { first } from 'rxjs';
 import { AlertLevel, getCompanyStatusEnumName, RentTypeId, Roles } from '../../Enums/enums';
 import { rentRequestDto } from '../../dto/rentRequestDto';
+import { SettingsComponent } from "./settings.component";
 
 @Component({
     selector: 'app-company-management',
-    imports: [CommonModule, FormsModule, ReactiveFormsModule, NgFor, NgIf],
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, NgFor, NgIf, SettingsComponent],
     templateUrl: './company-management.component.html',
     styleUrl: './company-management.component.css'
 })
 export class CompanyManagementComponent implements OnInit {
+  @ViewChild('settingsComponent') settingsCompont: SettingsComponent | undefined;
 
   companyForm: FormGroup;
   selectedCompany: companyDto | null = null;
@@ -102,6 +104,18 @@ export class CompanyManagementComponent implements OnInit {
     });
   }
 
+  ValidateEnteredAmount() {
+    if(this.rentAmmount > 0)
+    {
+      if(this.paymentTypeId != RentTypeId.Desconocido)
+        this.mostrarConfirmacion = true;
+      else
+        this.navigationService.showUIMessage('Elige un tipo de pago válido.', AlertLevel.Warning);
+    } 
+    else
+      this.navigationService.showUIMessage('Ingresa un monto mayor a cero.', AlertLevel.Warning);
+  }
+
   newCompany(): void {
     this.selectedCompany = null;
     this.companyForm.reset();
@@ -124,12 +138,13 @@ export class CompanyManagementComponent implements OnInit {
         }
         c.statusDesc = getCompanyStatusEnumName(c.statusId);
         
-      this.selectedCompany = c;
-      this.companyForm.patchValue(c);
-      this.navigationService.checkScreenSize();
-      
-      if(selectDetails)
-        this.activeTab = "tabDetalles";
+        this.companyService.selectedCompanyId = c.companyId;
+        this.selectedCompany = c;
+        this.companyForm.patchValue(c);
+        this.navigationService.checkScreenSize();
+        
+        if(selectDetails)
+          this.activeTab = "tabDetalles";
      
 
     });
@@ -148,8 +163,9 @@ export class CompanyManagementComponent implements OnInit {
         this.cancelAddPayment();
       
         break;
-      case 'tab3':
-        return;
+      case 'tabSettings':
+        this.activeTab = "tabSettings";
+        this.settingsCompont?.loadSettings(this.selectedCompany?.companyId?? 0);
         break;
     }
     this.activeTab = tab;
@@ -174,7 +190,9 @@ export class CompanyManagementComponent implements OnInit {
       this.companyService.saveCompany(c).pipe(first())
         .subscribe({
           next: (result) => {
-            this.searchCompaniesInternal("-1");
+            if(c.companyId == 0)
+              this.companyList.unshift(result);
+            
             this.selectCompany(result.companyId, true);
             this.navigationService.showUIMessage("Información guardada (" + result.name + ")", AlertLevel.Sucess);
           },

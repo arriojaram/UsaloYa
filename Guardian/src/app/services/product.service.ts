@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, catchError, of, timeInterval } from 'rxjs';
 import { Producto } from '../dto/producto';
 import { environment } from '../environments/enviroment';
+import { UpdateProdSettings } from '../dto/updateProdSettings';
 
 @Injectable({
   providedIn: 'root'
@@ -69,8 +70,11 @@ export class ProductService {
     );
   }
 
-  importProduct(companyId: number, product: Producto): Observable<void> {
+  importProduct(companyId: number, product: Producto, updateProduct:boolean, updateSettings:UpdateProdSettings): Observable<void> {
     const apiUrl = `${this.baseUrl}/ImportProduct?companyId=${companyId}`;
+    product.updateProduct = updateProduct;
+    product.updateSettings = updateSettings;
+
     return this.http.post<void>(apiUrl, product).pipe(
       catchError(error => {
         console.error('importProduct() | ', error);
@@ -81,6 +85,7 @@ export class ProductService {
 
   saveProduct(companyId: number, product: Producto): Observable<Producto> {
     const apiUrl = `${this.baseUrl}/AddProduct?companyId=${companyId}`;
+    
     return this.http.post<Producto>(apiUrl, product).pipe(
       catchError(error => {
         console.error('saveProduct() | ', error);

@@ -1,8 +1,10 @@
+import { UpdateProdSettings } from "./updateProdSettings";
+
 export interface Producto {
   productId: number;
   name: string;
   description?: string;
-  categoryId: number;
+  categoryId?: number;
   categoria: string; //Usada para la importacion de datos
   
   buyPrice: number;
@@ -22,4 +24,7 @@ export interface Producto {
   total: number;
   editing?: boolean;
   priceLevel?: number;
+
+  updateProduct?:boolean;
+  updateSettings?:UpdateProdSettings;
 }

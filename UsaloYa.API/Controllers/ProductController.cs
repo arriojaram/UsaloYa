@@ -217,9 +217,9 @@ namespace UsaloYa.API.Controllers
                     ProductId = product.ProductId,
                     SKU = product.Sku,
                     UnitPrice = product.UnitPrice,
-                    UnitPrice1 = product.UnitPrice,
-                    UnitPrice2 = product.UnitPrice,
-                    UnitPrice3 = product.UnitPrice,
+                    UnitPrice1 = product.UnitPrice1,
+                    UnitPrice2 = product.UnitPrice2,
+                    UnitPrice3 = product.UnitPrice3,
                     UnitsInStock = product.UnitsInStock,
                     LowInventoryStart = product.AlertaStockNumProducts,
                     IsInventarioUpdated = product.IsInVentarioUpdated
@@ -248,26 +248,57 @@ namespace UsaloYa.API.Controllers
                 }
 
                 // Check if a product with the same Barcode and SKU in the company already exists
-                var productWithSameBarcodeAndSku = _dBContext.Products
+                var productWithSameBarcodeAndSku = await _dBContext.Products
                     .Where(p => (p.Barcode.Equals(productDto.Barcode) || p.Sku.Equals(productDto.SKU ?? "$SKU"))
-                                                    && p.CompanyId == companyId);
+                                                    && p.CompanyId == companyId).ToListAsync();
+                
+                var userWantsUpdateTheProduct = productDto.UpdateProduct ?? false;
+                
+                var numOfProducts = productWithSameBarcodeAndSku.Count;
+                
+                Product firstProduct = null;
+                if (productWithSameBarcodeAndSku.Any())
+                    firstProduct = productWithSameBarcodeAndSku[0];
 
-                var numOfProducts = await productWithSameBarcodeAndSku.CountAsync();
-                if (numOfProducts > 1)
+                if (numOfProducts > 1 && !userWantsUpdateTheProduct)
                 {
                     return Conflict(new { Message = "$_Producto_Con_Mismo_Codigo_De_Barras_Ya_Existe" });
                 }
 
-                if (numOfProducts > 0
-                    && productWithSameBarcodeAndSku.First().ProductId != productDto.ProductId)
+                if (numOfProducts > 0 && !userWantsUpdateTheProduct
+                    && firstProduct?.ProductId != productDto.ProductId)
                 {
                     return Conflict(new { Message = "$_Producto_Con_Mismo_Codigo_De_Barras_Ya_Existe" });
                 }
 
                 // Generar la categoria y traer el ID
                 var categoryId = await GetOrCreateProductCategory(productDto.Categoria, companyId);
+                if (userWantsUpdateTheProduct && firstProduct != null) 
+                {
+                    var prodUpdateSettings = productDto.UpdateSettings;
+                    if (prodUpdateSettings != null)
+                    {
+                        if(prodUpdateSettings.UpdateNombre)
+                            firstProduct.Name = productDto.Name.Trim();
+                        if (prodUpdateSettings.UpdateAlertaExistencias)
+                            firstProduct.AlertaStockNumProducts = productDto.LowInventoryStart ?? 0;
+                        if(prodUpdateSettings.UpdatePrecioUnitario)
+                            firstProduct.UnitPrice = productDto.UnitPrice;
+                        if (prodUpdateSettings.UpdatePrecio1)
+                            firstProduct.UnitPrice1 = productDto.UnitPrice1;
+                        if (prodUpdateSettings.UpdatePrecio2)
+                            firstProduct.UnitPrice2 = productDto.UnitPrice2;
+                        if (prodUpdateSettings.UpdatePrecio3)
+                            firstProduct.UnitPrice3 = productDto.UnitPrice3;
+                        if (prodUpdateSettings.UpdateCategoria)
+                            firstProduct.CategoryId = categoryId == 0 ? null : categoryId;
+                        if(prodUpdateSettings.UpdateStock)
+                            firstProduct.UnitsInStock = productDto.UnitsInStock;
 
-                if (productDto.ProductId == 0)
+                    }
+                    _dBContext.Entry(firstProduct).State = EntityState.Modified;
+                }
+                else if (productDto.ProductId == 0)
                 {
                     var existingProduct = new Product
                     {
@@ -370,7 +401,7 @@ namespace UsaloYa.API.Controllers
                     {
                         Name = productDto.Name.Trim(),
                         Description = productDto.Description,
-                        CategoryId = productDto.CategoryId == 0 ? null : productDto.CategoryId,
+                        CategoryId = (productDto.CategoryId?? 0) == 0 ? null : productDto.CategoryId,
                         BuyPrice = productDto.BuyPrice == 1 ? null : productDto.BuyPrice,
                         UnitPrice = productDto.UnitPrice == 0 ? 1 : productDto.UnitPrice,
                         UnitPrice1 = productDto.UnitPrice1 == 0 ? null : productDto.UnitPrice1,
@@ -397,7 +428,7 @@ namespace UsaloYa.API.Controllers
                 {
                     existingProduct.Name = productDto.Name.Trim();
                     existingProduct.Description = productDto.Description;
-                    existingProduct.CategoryId = productDto.CategoryId == 0 ? null : productDto.CategoryId;
+                    existingProduct.CategoryId = (productDto.CategoryId ?? 0) == 0 ? null : productDto.CategoryId;
 
                     existingProduct.BuyPrice = productDto.BuyPrice;
                     existingProduct.UnitPrice = productDto.UnitPrice;

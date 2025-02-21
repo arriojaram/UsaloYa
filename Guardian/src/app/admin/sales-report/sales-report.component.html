@@ -15,7 +15,7 @@
             </div>
             <div class="col-12 col-md mt-2 mt-md-0">
                 <select formControlName="userId" id="userId" class="form-select me-1" >
-                    <option value="0" selected>Todo los Usuarios</option>
+                    <option *ngIf="(this.userState?.roleId?? 0) > rol.User" value="0" selected>Todo los Usuarios</option>
                     <option *ngFor="let option of companyUsers" [value]="option.userId">
                         {{ option.userName }}
                     </option>

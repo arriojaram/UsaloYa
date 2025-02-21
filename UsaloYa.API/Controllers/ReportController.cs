@@ -26,11 +26,8 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                if (fromDate.Date == toDate.Date)
-                {
-                    toDate = fromDate.AddDays(1);
-                }
-
+                toDate = toDate.AddDays(1);
+               
                 var result = await _dBContext.Sales
                             .Include(s => s.User)
                             .Include(c => c.Customer)

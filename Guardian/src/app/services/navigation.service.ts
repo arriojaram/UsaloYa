@@ -92,4 +92,11 @@ export class NavigationService {
     else
       this.toastr.error(message);
   }
+
+  isMobile(): boolean {
+    const userAgent = window.navigator.userAgent;
+    // Regex que busca patrones comunes de agentes de usuario móviles
+    const mobileRegex = /iPhone|iPad|iPod|Android/i;
+    return mobileRegex.test(userAgent);
+  }
 }

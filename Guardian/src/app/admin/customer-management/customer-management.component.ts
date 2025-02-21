@@ -81,13 +81,14 @@ export class CustomerManagementComponent implements OnInit{
       return;
     }
     if (this.customerForm?.valid) {
-      
-      this.customerService.saveCustomer(this.customerForm.value).subscribe({
+      let customerDto : customerDto = this.customerForm.value;
+      this.customerService.saveCustomer(customerDto).subscribe({
         next: (savedCustomer) => {
-          this.searchCustomersInternal('-1');
+          if(customerDto.customerId == 0)
+            this.customerList.unshift(savedCustomer);
+          
           this.selectUser(savedCustomer.customerId);
           this.navigationService.showUIMessage("Cliente guardado (" + savedCustomer.customerId + ")", AlertLevel.Sucess);
-          //window.scrollTo(0, 0);
         },
         error: (e) => 
         {

@@ -52,7 +52,7 @@ export class ProductManagementComponent implements OnInit {
       productId: [0],
       name: ['', Validators.required],
       description: [''],
-      categoryId: [null],
+      categoryId: [0],
       supplierId: [null],
       buyPrice: [0, Validators.required],
       unitPrice: [0, Validators.required],
@@ -241,10 +241,11 @@ export class ProductManagementComponent implements OnInit {
       .subscribe({
         next: (savedProduct) => {
           this.pageNumber = 1;
-          this.searchProductsInternal('-1');
+          if(product.productId == 0)
+            this.products.unshift(savedProduct);
+          
           this.selectProduct(savedProduct.productId);
           this.navigationService.showUIMessage("Producto guardado (" + savedProduct.productId + ")", AlertLevel.Sucess);
-          //window.scrollTo(0, 0);
         },
         error: (e) => 
         {

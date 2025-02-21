@@ -1,0 +1,20 @@
+
+openssl genpkey -algorithm RSA -out usaloyakey.pem -pkeyopt rsa_keygen_bits:2048
+
+openssl req -new -key usaloyakey.pem -out usaloyacsr.csr
+password: 364BB88E36904FC0AE2
+
+openssl req -x509 -sha256 -days 1825 -key usaloyakey.pem -in usaloyacsr.csr -out usaloya.pem
+o
+openssl req -x509 -sha256 -days 1825 -key usaloyakey.pem -in usaloyacsr.csr -out usaloya.pfx
+
+
+Validar
+openssl x509 -in usaloya.pem -text -noout
+
+Extraer clave publica:
+openssl x509 -pubkey -noout -in usaloya.pem > publickey.pem
+o
+openssl x509 -pubkey -noout -in usaloya.pem > publickey.txt
+
+
