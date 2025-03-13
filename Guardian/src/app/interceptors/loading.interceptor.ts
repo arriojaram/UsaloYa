@@ -72,6 +72,7 @@ export class LoadingInterceptor implements HttpInterceptor {
            
           }),
           catchError((e) => {
+           
             var msg = "Esta sesión ha sido cerrada porque ha caducado o se inicio sesión en otro dispositivo.";
             if (e.status === 401 && (e.error === '$_Duplicated_Session' || e.error === 'Dispositivo no reconocido.')) {
               this.authService.clearStorageVariables();
@@ -82,8 +83,10 @@ export class LoadingInterceptor implements HttpInterceptor {
             }
             if(this.getUserId() === 0 || this.getDeviceId() === '' )
             {
+              
               this.authService.clearStorageVariables();
               this.router.navigate(['/login']);
+             
             }
             // Propagar otros errores
             return throwError(() => e);

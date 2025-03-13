@@ -77,14 +77,19 @@ export class AppComponent implements OnInit, OnDestroy {
       this.salesService.isOnline = this.isOnline;
     });
 
-    // Init the navigation end to manage the UI
+    // Init the navigation end to manage the UI, introduced to check user inactivity
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd), takeUntil(this.unsubscribe$)
     ).subscribe(() => {
       this.currentPath = this.getCurrentRoute(this.activatedRoute);
+      
       switch (this.currentPath) {
         case "/":
           this.currentPath = "Bienvenido";
+          break;
+        case "policy":
+        case "agreements":
+          this.currentPath = "";
           break;
         default:
           this.setUserDetailsUI();
@@ -132,7 +137,9 @@ export class AppComponent implements OnInit, OnDestroy {
   {
     if(this.userStateUI)
       {
+       
         this.userStateUI.statusId = this.uStatus.Desconectado;
+        this.userStateUI.userId = 0;
         this.authService.clearStorageVariables();
         this.router.navigate(['/login']);
       }
@@ -143,6 +150,7 @@ export class AppComponent implements OnInit, OnDestroy {
   {
     try
     {
+      
       var storedUserInfo = this.userStateService.getUserStateLocalStorage();
       this.userStateUI = storedUserInfo;
       this.showPaymentAlert = false;

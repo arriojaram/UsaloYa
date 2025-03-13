@@ -26,8 +26,8 @@ export const routes: Routes = [
     { path: 'clientes', component: CustomerManagementComponent, canActivate: [AuthGuard] },
     { path: 'main', component: PuntoDeVentaComponent, canActivate: [AuthGuard] },
 
-    { path: 'policy', component: PolicyComponent },
-    { path: 'agreements', component: AgreementsComponent }
+    { path: 'policy', component: PolicyComponent, canActivate: [AuthGuard] },
+    { path: 'agreements', component: AgreementsComponent, canActivate: [AuthGuard] }
 ];
 
 

@@ -253,7 +253,10 @@ namespace UsaloYa.API.Controllers
                                                     && p.CompanyId == companyId).ToListAsync();
                 
                 var userWantsUpdateTheProduct = productDto.UpdateProduct ?? false;
-                
+                // Disable update if the user is free role
+                if (user.RoleId == (int)Role.Free)
+                    userWantsUpdateTheProduct = false;
+
                 var numOfProducts = productWithSameBarcodeAndSku.Count;
                 
                 Product firstProduct = null;

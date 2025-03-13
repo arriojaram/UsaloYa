@@ -6,9 +6,11 @@ export const environment =
     sessionDurationMinutes: 600,
     databaseName: 'DbOfflinev1',
     databaseVersion: 2,
-    notificationsDisplayTimeSeconds: 10000,
+    notificationsDisplayTimeSeconds: 5000,
     paymentExpiredMsg: 'El pago de tu membresia ha caducado y el acceso esta restringido. Contacta a tu vendedor para renovar la membresia.',
     paymentPendingMsg: 'El pago de tu membresia esta próximo a vencer, contacta a tu vendedor para renovar tu membresia y continuar disfrutando de tu acceso.',
     PAIRSETT_ACTIVAR_IMPRESORA: "activarImpresionWeb",
-    PAIRSETT_NOMBRE_IMPRESORA: "impresoraWeb"
+    PAIRSETT_NOMBRE_IMPRESORA: "impresoraWeb",
+    freeLicenseMessage: 'La versión gratuita está limitada en funciones. Actualiza a Premium para desbloquear y potenciar tu experiencia.',
+    whatsNumber: 2481569632
 }

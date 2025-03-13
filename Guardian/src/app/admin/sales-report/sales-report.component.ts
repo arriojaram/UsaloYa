@@ -8,8 +8,9 @@ import { UserStateService } from '../../services/user-state.service';
 import { userDto } from '../../dto/userDto';
 import { first, Subject, takeUntil } from 'rxjs';
 import { SaleService } from '../../services/sale.service';
-import { PriceLevel, Roles, StatusVentaEnum } from '../../Enums/enums';
+import { AlertLevel, PriceLevel, Roles, StatusVentaEnum } from '../../Enums/enums';
 import { UserService } from '../../services/user.service';
+import { environment } from '../../environments/enviroment';
 
 @Component({
     selector: 'app-sales-report',
@@ -53,11 +54,14 @@ export class SalesReportComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-     if(this.userState.roleId < Roles.User)
-          this.navigationService.showUIMessage("Petición incorrecta.");
-        else
-          this.isAutorized = true;
-        
+    if(this.userState.roleId < Roles.User)
+      this.navigationService.showUIMessage("Petición incorrecta.");
+    else
+      this.isAutorized = true;
+    
+    if(this.userState.roleId == Roles.Free)
+      this.navigationService.showUIMessage(environment.freeLicenseMessage, AlertLevel.Warning);
+
     this.reportForm.get('dateFrom')?.valueChanges.pipe(takeUntil(this.unsubscribe$)
     ).subscribe(newDate => {
       // Establecer 'dateTo' igual a 'dateFrom'
@@ -211,17 +215,37 @@ export class SalesReportComponent implements OnInit, OnDestroy {
       
       return;
     }
+
+   
     this.sales = [];
     this.filteredSales = [];
     this.setTotalsToZero();
     this.filteredProducts = [];
     
 
-    const fromDate = this.reportForm.get('dateFrom')?.value ?? new Date();
+    let fromDate = this.reportForm.get('dateFrom')?.value ?? new Date();
+    const fromDateInput = this.reportForm.get('dateFrom')?.value;
+    const fromDate2 = fromDateInput ? new Date(fromDateInput) : new Date();
     const toDate = this.reportForm.get('dateTo')?.value ?? new Date();
     let userId = this.reportForm.get('userId')?.value ?? 0;
     if(this.userState.roleId == this.rol.User)
       userId = this.userState.userId;
+
+    if(this.userState.roleId == Roles.Free)
+    {
+      this.navigationService.showUIMessage(environment.freeLicenseMessage, AlertLevel.Warning);
+      const currentDate = new Date();
+            
+      const diffTime = currentDate.getTime() - fromDate2.getTime();
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays >= 7) {
+        const adjustedDate = new Date(currentDate);
+        adjustedDate.setDate(currentDate.getDate() - 7);
+        fromDate = adjustedDate.toISOString().substring(0, 10); // 'yyyy-MM-dd'
+        this.reportForm.get('dateFrom')?.setValue(fromDate);
+      }
+    }
 
     this.reportService.getSales(fromDate, toDate, this.userState.companyId, userId).pipe(first())
     .subscribe({

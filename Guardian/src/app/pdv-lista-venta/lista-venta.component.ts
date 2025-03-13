@@ -88,6 +88,7 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
               {
                 for (let index = 0; index < settings.length; index++) {
                   const s = settings[index];
+                  
                   if(s.key == environment.PAIRSETT_ACTIVAR_IMPRESORA)
                     activarImpresora = s.value == 'true';
                   if(s.key == environment.PAIRSETT_NOMBRE_IMPRESORA)

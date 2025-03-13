@@ -6,10 +6,11 @@ import { userDto } from '../../dto/userDto';
 import { UserStateService } from '../../services/user-state.service';
 import { CommonModule } from '@angular/common';
 import { catchError, concatMap, finalize } from 'rxjs/operators';
-import { Roles } from '../../Enums/enums';
+import { AlertLevel, Roles } from '../../Enums/enums';
 import { NavigationService } from '../../services/navigation.service';
 import { FormsModule } from '@angular/forms';
 import { UpdateProdSettings } from '../../dto/updateProdSettings';
+import { environment } from '../../environments/enviroment';
 
 @Component({
     selector: 'app-import-products',
@@ -31,6 +32,7 @@ export class ImportProductsComponent implements OnInit, OnDestroy {
   messages: string[] = [];
   isAutorized: boolean = false;
   updateExistingProducts = false;
+  rol = Roles;
 
   checkboxes: UpdateProdSettings = {
     updateNombre: false,
@@ -64,6 +66,9 @@ export class ImportProductsComponent implements OnInit, OnDestroy {
       this.navigationService.showUIMessage("Petición incorrecta.");
     else
       this.isAutorized = true;
+
+    if(this.userState.roleId == Roles.Free)
+      this.navigationService.showUIMessage(environment.freeLicenseMessage, AlertLevel.Warning);
 
   }
 
@@ -103,8 +108,8 @@ export class ImportProductsComponent implements OnInit, OnDestroy {
       this.isRunning = true;
       this.user_message = this.initialMessage;
       this.alertClass = "alert alert-warning";
-
-      this.csvReaderService.parseCsv(this.selectedFile).pipe(
+      
+      this.csvReaderService.parseCsv(this.selectedFile, this.userState.roleId == Roles.Free).pipe(
         switchMap(productos => from(productos).pipe(
           concatMap(producto =>  
             this.productService.importProduct(this.userState.companyId, producto, this.updateExistingProducts, this.checkboxes).pipe(

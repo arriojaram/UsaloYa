@@ -13,7 +13,7 @@ import { setUnitsInStockDto } from '../../dto/setUnitsInStockDto';
 import { IdDto, BarcodeDto as setInVentarioByBarcodeDto } from '../../dto/idDto';
 import { productCategoryDto } from '../../dto/productCategoryDto';
 import { ProductCategoryService } from '../../services/product-category.service';
-import { Producto } from '../../dto/producto';
+
 
 @Component({
   selector: 'app-inventario-report',
@@ -32,7 +32,8 @@ export class InventarioReportComponent implements OnInit, OnDestroy{
   currentView: InventoryView = InventoryView.Other;
   moreItems: boolean | undefined;
   categoryList: productCategoryDto[] = [];
-
+  rol = Roles;
+  
   highlight = false;
   selectedCategoryId: number = 0;
 

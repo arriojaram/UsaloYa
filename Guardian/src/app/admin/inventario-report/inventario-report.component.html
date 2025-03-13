@@ -1,5 +1,5 @@
 <div class="container mt-3">
-    <div class="col-12 d-flex align-items-center fs-5">
+    <div class="col-12 d-flex align-items-center fs-5" *ngIf="(this.userState?.roleId?? 0) >= rol.User">
         Productos en el inventario: {{this.totalInventarioProds | number}} -> 
         Total unidades: {{this.totalInventarioProdsUnits | number}} ->
         Precio Total {{this.totalInventarioCash | currency:'MXN' }}

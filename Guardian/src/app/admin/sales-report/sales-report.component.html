@@ -15,7 +15,8 @@
             </div>
             <div class="col-12 col-md mt-2 mt-md-0">
                 <select formControlName="userId" id="userId" class="form-select me-1" >
-                    <option *ngIf="(this.userState?.roleId?? 0) > rol.User" value="0" selected>Todo los Usuarios</option>
+                    <option *ngIf="(this.userState?.roleId?? 0) > rol.User && (this.userState?.roleId?? 0) != rol.Free" 
+                        value="0" selected>Todo los Usuarios</option>
                     <option *ngFor="let option of companyUsers" [value]="option.userId">
                         {{ option.userName }}
                     </option>
@@ -36,7 +37,8 @@
                             <i class="bi bi-funnel"></i> <!-- Icono de búsqueda de Bootstrap Icons -->
                         </span>
                     </div>
-                    <input type="text" [value]="filterText" (keyup)="filterSales($event)" class="form-control" placeholder="Filtrar ventas...">
+                    <input type="text" [value]="filterText" (keyup)="filterSales($event)"
+                        [disabled]="this.userState.roleId == rol.Free" class="form-control" placeholder="Filtrar ventas...">
                 </div>
             </div>
           
@@ -83,7 +85,9 @@
                 <td>{{ sale.totalSale | currency:'MXN' }}</td>
                 <td class="d-none d-md-table-cell" [ngClass]="{'d-none d-md-table-cell': !showColumns}">{{ sale.fullName }} ({{sale.userName}})</td>
                 <td>
-                    <button class="btn btn-sm btn-primary" (click)="redirectToDetails(sale.saleID)">Ver Detalle</button>
+                    <button class="btn btn-sm btn-primary" 
+                        [disabled]="this.userState.roleId == rol.Free"
+                        (click)="redirectToDetails(sale.saleID)">Ver Detalle</button>
                 </td>
             </tr>
         </tbody>

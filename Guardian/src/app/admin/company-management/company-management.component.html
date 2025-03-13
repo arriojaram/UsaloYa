@@ -40,7 +40,7 @@
                         <li class="nav-item">
                             <a class="nav-link" [class.active]="activeTab === 'tabPagos'" (click)="setActiveTab('tabPagos')">Pagos</a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item" *ngIf="this.userState.roleId >= rol.Admin && this.userState.roleId != rol.Free ">
                             <a class="nav-link" [class.active]="activeTab === 'tabSettings'" (click)="setActiveTab('tabSettings')">Configuraciones</a>
                         </li>
                     </ul>
@@ -50,11 +50,17 @@
                                 <div class="form-row"> 
                                     <div class="form-group">
                                        
-                                            <label for="userName">Nombre de la empresa</label>
-                                            <input id="name" class="form-control" formControlName="name" placeholder="Empresa">
-                                            <div *ngIf="companyForm.get('name')?.invalid && companyForm.get('name')?.touched" class="invalid-feedback">
-                                                Nombre de la empresa es obligatorio.
-                                            </div>
+                                        <label for="userName">Nombre de la empresa</label>
+                                        
+                                        <input id="name" class="form-control" formControlName="name" placeholder="Empresa"
+                                           *ngIf="companyForm.get('companyId')?.value <= 0 || this.userState.roleId > rol.Ventas">
+                                        <label class="form-control opacity-50 fw-bold"
+                                            *ngIf="companyForm.get('companyId')?.value > 0 && this.userState.roleId <= rol.Free">
+                                            {{companyForm.get('name')?.value}}</label>
+                                 
+                                        <div *ngIf="companyForm.get('name')?.invalid && companyForm.get('name')?.touched" class="invalid-feedback">
+                                            Nombre de la empresa es obligatorio.
+                                        </div>
                                         
                                     </div>
                                 
@@ -63,7 +69,8 @@
                                             <label for="userName">Estatus <i class="bi bi-power"></i></label>
                                             <label class="form-control opacity-50 fw-bold">{{companyForm.get('statusDesc')?.value}}</label>
                                         </div>
-                                        <div class="d-flex justify-content-end mx-2 my-4" *ngIf="this.userState.roleId > rol.Admin">
+                                        <div class="d-flex justify-content-end mx-2 my-4" 
+                                            *ngIf="this.userState.roleId > rol.Admin && this.userState.roleId != rol.Free">
                                             <button type="button" class="btn btn-danger ">Desactivar</button>
                                         </div>    
                                     </div>
@@ -126,8 +133,9 @@
                                     </div>
                                 
                                 
-                                    <div class="d-flex justify-content-end my-3" *ngIf="this.userState.roleId > rol.Admin">
-                                        <button type="button" class="btn btn-primary mx-2 btn-floating-secondary" *ngIf="this.userState.roleId > rol.Admin"
+                                    <div class="d-flex justify-content-end my-3" *ngIf="this.userState.roleId >= rol.Admin">
+                                        <button type="button" class="btn btn-primary mx-2 btn-floating-secondary"
+                                            *ngIf="this.userState.roleId > rol.Admin && this.userState.roleId != rol.Free"
                                             (click)="newCompany()">Nuevo</button>
                                         <button type="submit" class="btn btn-success btn-floating">Guardar</button>
                                     </div>    
@@ -143,17 +151,25 @@
                                         <!-- Primer Div: Lista de opciones -->
                                         <!-- Cambio de col-6 a col-12 col-md-6 para mejorar la visualización en móviles -->
                                         <div class="col-12 col-md-6">
-                                            <div class="ms-3"> * Hasta dos cuentas.</div>
                                             <div class="ms-3"> * Sin límite de uso.</div>
+                                            <div class="ms-3"> * La cuenta gratuita esta limitada en funcionalidad.</div>
+
                                         </div>
                                         <!-- Segundo Div: Información de pagos -->
                                         <!-- Cambio de col-6 a col-12 col-md-6 para mejorar la visualización en móviles -->
                                         <div class="col-12 col-md-6 mb-3">
                                             <div class="mb-3">Pago</div>
-                                            <div class="mb-1">Tu próxima factura será de {{this.selectedCompany?.planPrice | currency:'MXN'}} y llegará el {{this.selectedCompany?.expirationDate | date:'fullDate'}}</div>
+                                            <div class="mb-1"  *ngIf="this.userState.roleId == rol.Free">No requiere pago - Plan Gratuito</div>
+                                            <div class="mb-1"  *ngIf="this.userState.roleId != rol.Free">Tu próxima factura será de {{this.selectedCompany?.planPrice | currency:'MXN'}} y llegará el {{this.selectedCompany?.expirationDate | date:'fullDate'}}</div>
                                             <div class="mb-3">Contacta a tu vendedor para obtener más información: {{this.selectedCompany?.createdByFullName}}</div>
+                                            <div class="mb-3">
+                                                <a href="https://api.whatsapp.com/send?phone=2481569632" target="_blank" class="text-white text-decoration-none">
+                                                    
+                                                    Ó escribenos al <i class="bi bi-whatsapp fs-5 text-white me-1"></i>WhatsApp
+                                                </a> 
+                                            </div>
                                             
-                                            <div *ngIf="this.userState.roleId > rol.Admin">
+                                            <div *ngIf="this.userState.roleId >= rol.Admin && this.userState.roleId != rol.Free ">
                                                 <button class="btn btn-outline-light" [disabled]="showAddPaymentSection" (click)="showAddPaymentSection = true">Agregar Pago</button>
                                             </div>
                                         </div>
@@ -197,7 +213,7 @@
                             
 
                             <!-- Sección 3: Historial de pagos -->
-                            <div class="container">
+                            <div class="container" *ngIf="this.userState.roleId >= rol.Admin && this.userState.roleId != rol.Free ">
                                 <h3>Historial de Pagos</h3>
                                 <table class="table">
                                     <thead>

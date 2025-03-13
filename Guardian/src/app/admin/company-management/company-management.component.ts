@@ -68,7 +68,7 @@ export class CompanyManagementComponent implements OnInit {
         this.isAutorized = true;
       }
 
-      if(this.userState.roleId <= Roles.Admin)
+      if(this.userState.roleId <= Roles.Free)
       {
         this.selectCompany(this.userState.companyId, true);
         this.navigationService.toggleSearchPanel();

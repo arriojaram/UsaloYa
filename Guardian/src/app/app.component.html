@@ -85,17 +85,16 @@
                     </a>
                     <div class="collapse" id="submenuReports" data-bs-parent="#sidenavAccordion">
                         <nav class="sb-sidenav-menu-nested nav">
-                            <a class="nav-link" href="reporteventas">
+                            <a class="nav-link" href="reporteventas" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Admin">
                                 <div class="sb-nav-link-icon"><i class="bi bi-graph-up fs-6"></i></div>
                                 Reporte Ventas
                             </a>
-                            <a class="nav-link" href="reporteinventario" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Admin">
+                            <a class="nav-link" href="reporteinventario" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.User">
                                 <div class="sb-nav-link-icon"><i class="bi bi-box-seam fs-6"></i></div>
                                 Inventario
                             </a>
                         </nav>
                     </div>
-
                     
                     <a class="nav-link" href="companies" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Admin">
                         <div class="sb-nav-link-icon"><i class="bi bi-briefcase-fill fs-6"></i></div>
@@ -126,7 +125,7 @@
                 </div>    
             </div>
         </main>
-        <footer class="py-4 bg-light mt-auto">
+        <footer class="py-2 bg-light mt-auto">
             <div class="container-fluid px-4">
                 <div class="d-flex align-items-center justify-content-between small">
                     <div class="text-muted">Copyright &copy; UsaloYa 2024</div>
@@ -135,6 +134,16 @@
                         &middot;
                         <a href="agreements" target="_blank" rel="noopener noreferrer">Terminos &amp; Condiciones</a>
                     </div>
+                    <div *ngIf="(this.userStateUI?.userId ?? 0) > 0"
+                        class="p-1 rounded d-flex align-items-center justify-content-center justify-content-md-start" 
+                        style="background-color: #25D366;">
+                        <i class="bi bi-whatsapp fs-6 text-white me-1"></i>
+                        <a href="https://api.whatsapp.com/send?phone=2481569632" target="_blank" class="text-white text-decoration-none">
+                          WhatsApp
+                        </a>
+                      </div>
+                      
+                      
                 </div>
             </div>
         </footer>
