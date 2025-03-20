@@ -19,7 +19,7 @@
         </div>
         <div class="input-group">
           <label>
-            <input type="checkbox" [(ngModel)]="updateExistingProducts" [disabled]="this.userState.roleId == rol.Free" name="updateExistingProds" />
+            <input type="checkbox" [(ngModel)]="updateExistingProducts" [disabled]="this.userState.companyStatusId == cStatus.Free" name="updateExistingProds" />
             Actualizar Productos existentes
           </label>
         </div>

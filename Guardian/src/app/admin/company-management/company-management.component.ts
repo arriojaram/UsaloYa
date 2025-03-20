@@ -8,9 +8,14 @@ import { userDto } from '../../dto/userDto';
 import { companyDto } from '../../dto/companyDto';
 import { CompanyService } from '../../services/company.service';
 import { first } from 'rxjs';
-import { AlertLevel, getCompanyStatusEnumName, RentTypeId, Roles } from '../../Enums/enums';
+import { AlertLevel, CompanyStatus, getCompanyStatusEnumName, RentTypeId, Roles } from '../../Enums/enums';
 import { rentRequestDto } from '../../dto/rentRequestDto';
 import { SettingsComponent } from "./settings.component";
+import { environment } from '../../environments/enviroment';
+import { setStatusDto } from '../../dto/setStatusDto';
+import { licenseDto } from '../../dto/licenseDto';
+import { GeneralService } from '../../services/general.service';
+import { setValueDto } from '../../dto/setValueDto';
 
 @Component({
     selector: 'app-company-management',
@@ -26,9 +31,11 @@ export class CompanyManagementComponent implements OnInit {
   companyList: companyDto[] = [];
   userState: userDto;
   rol = Roles;
+  cStatus = CompanyStatus;
   activeTab: string = 'tab1';
   isSearchPanelHidden: boolean;
   isAutorized: boolean = false;
+  whatsUrl = environment.whatsNumber;
   
   tipoPagoList = Object.keys(RentTypeId).filter(key => !isNaN(Number(key)))
                   .map(key => ({
@@ -37,16 +44,20 @@ export class CompanyManagementComponent implements OnInit {
                   }));
 
   showAddPaymentSection: boolean = false;
+  showUpgradeSection: boolean = false;
   mostrarConfirmacion: boolean = false;
   paymentHistory: rentRequestDto[] = [];
   rentAmmount: number = 0;
   paymentTypeId: any;
+  licenseId: number = 0;
+  licenseList: licenseDto [] = [];
   notas: string = "";
 
   constructor(
     private fb: FormBuilder,
     private companyService: CompanyService,
     private userStateService: UserStateService,
+    private generalService: GeneralService,
     public navigationService: NavigationService
   ) 
   {
@@ -59,26 +70,27 @@ export class CompanyManagementComponent implements OnInit {
   ngOnInit(): void {
     this.userState = this.userStateService.getUserStateLocalStorage();
     if(this.userState.roleId < Roles.Admin)
-      {
-        this.navigationService.showUIMessage("Petición incorrecta.");
-        return;
-      }
-      else
-      {
-        this.isAutorized = true;
-      }
+    {
+      this.navigationService.showUIMessage("Petición incorrecta.");
+      return;
+    }
+    else
+    {
+      this.isAutorized = true;
+    }
 
-      if(this.userState.roleId <= Roles.Free)
-      {
-        this.selectCompany(this.userState.companyId, true);
-        this.navigationService.toggleSearchPanel();
-      }
-      else
-      {
-        this.searchCompaniesInternal('-1');      
-      }
-    this.navigationService.checkScreenSize();
+    if(this.userState.roleId <= Roles.Admin)
+    {
+      this.selectCompany(this.userState.companyId, true);
+      this.navigationService.toggleSearchPanel();
+    }
+    else
+    {
+      this.searchCompaniesInternal('-1');
+      this.getLicenses();      
+    }
     
+    this.navigationService.checkScreenSize();
   }
 
   private initCompanyForm(): FormGroup {
@@ -127,7 +139,9 @@ export class CompanyManagementComponent implements OnInit {
     .subscribe(c => {
         c.expirationDateUI = undefined;
         c.creationDateUI = undefined;
-        
+        this.showAddPaymentSection = false;
+        this.showUpgradeSection = false;
+
         if(c.expirationDate != null)
         {
           c.expirationDateUI = format(c.expirationDate, 'dd-MMM-yyyy hh:mm a');
@@ -231,7 +245,70 @@ export class CompanyManagementComponent implements OnInit {
     });
   }
 
+  setDisabled()
+  {
+    let status = CompanyStatus.Inactive;
+    if(this.selectedCompany?.statusId == CompanyStatus.Inactive)
+      status = CompanyStatus.Active;
+
+    let companyId = (this.selectedCompany?.companyId) ?? 0;
+    let companyStatus: setStatusDto = {objectId: companyId, statusId: status};
+    this.companyService.setCompanyStatus(companyStatus).pipe(first())
+    .subscribe({
+      next: (c) => {
+        this.selectCompany(c, true);
+      },
+      error: (e) =>{
+        this.navigationService.showUIMessage(e.error);
+      }
+    });
+  }
+
   /***** Pagos TAB - Start *******/
+  upgradeLicense()
+  {
+    if(this.licenseId>1)
+    {
+      let companyId = (this.selectedCompany?.companyId) ?? 0;
+      let licenseDto: setValueDto = {objectId: companyId, valueId: this.licenseId };
+      this.companyService.setCompanyLicense(licenseDto).pipe(first())
+      .subscribe({
+        next: (c) => {
+          this.navigationService.showUIMessage('Actualizado a Premium', AlertLevel.Sucess);
+        },
+        error: (e) =>{
+          this.navigationService.showUIMessage(e.error);
+        }
+      });
+    }
+    else
+    {
+      this.navigationService.showUIMessage('Selecciona una licencia premium válida', AlertLevel.Warning);
+    }
+  }
+
+  showUpgradeLicense()
+  {
+    if(this.userState.companyStatusId == this.cStatus.Free)
+    {
+      this.navigationService.showUIMessage('Contactanos via WhatsApp para actualizar tu plan Gratuito a Premium ó escribemos a soporte@usaloya.xyz', AlertLevel.Info);
+    }
+    else
+    {
+      this.showUpgradeSection = true;
+    }
+  }
+
+  cancelUpgrade()
+  {
+    this.showUpgradeSection = false;
+  }
+
+  showPaymentPanel()
+  {
+    this.showAddPaymentSection = !this.showAddPaymentSection;
+  }
+
   getPaymentHistory() {
     let companyId = 0;
     if(this.selectedCompany != null)
@@ -249,7 +326,7 @@ export class CompanyManagementComponent implements OnInit {
         else
           this.navigationService.showUIMessage(err.error);
       },
-  });
+    });
   }
 
   addConfirmedPayment(): void {
@@ -305,6 +382,21 @@ export class CompanyManagementComponent implements OnInit {
 
   /*** End TAB - Pagos *****/
 
+  getLicenses() {
+    this.generalService.getLicenses().pipe(first())
+    .subscribe({
+      next: (result) => {
+        this.licenseList = result;
+      },
+      error:(err) => {
+        const m1 = err.error.message;
+        if(m1)
+          this.navigationService.showUIMessage(m1);
+        else
+          this.navigationService.showUIMessage(err.error);
+      },
+    });
+  }
 }
 
 

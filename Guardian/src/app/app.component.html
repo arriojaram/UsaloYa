@@ -21,8 +21,12 @@
         
         <div class="navbar-nav nav-link px-4" *ngIf="this.userStateUI?.statusId === uStatus.Conectado">
             <span class="d-flex align-items-center justify-content-center">
-                <span class="d-none d-md-inline">{{ this.userStateUI?.userName }} -</span>
-                <a class="nav-link px-2" id="navbarDropdown" href="#" (click)="logoutApp($event)" role="button">
+                <i class="bi bi-stars me-1" *ngIf="this.userStateUI?.companyStatusId != cStatus.Free"></i>
+                <span class="d-none d-md-inline">{{ this.userStateUI?.userName }}
+                    <span>-</span>
+                </span>
+                
+                <a class="nav-link" id="navbarDropdown" href="#" (click)="logoutApp($event)" role="button">
                     Salir
                 </a>
             </span>
@@ -117,7 +121,7 @@
     <div id="layoutSidenav_content">
         <main>
             <div class="container-fluid px-4">
-                <h1 class="mt-4">{{ this.currentPath }}</h1>
+                <h1 class="mt-1">{{ this.currentPath }}</h1>
                 
                 <div class="card-body">
                     <mat-spinner *ngIf="loading_i$ | async" class="loading-spinner"></mat-spinner>
@@ -134,14 +138,12 @@
                         &middot;
                         <a href="agreements" target="_blank" rel="noopener noreferrer">Terminos &amp; Condiciones</a>
                     </div>
-                    <div *ngIf="(this.userStateUI?.userId ?? 0) > 0"
-                        class="p-1 rounded d-flex align-items-center justify-content-center justify-content-md-start" 
-                        style="background-color: #25D366;">
-                        <i class="bi bi-whatsapp fs-6 text-white me-1"></i>
-                        <a href="https://api.whatsapp.com/send?phone=2481569632" target="_blank" class="text-white text-decoration-none">
+                    <div *ngIf="(userStateUI?.userId ?? 0) > 0" class="d-flex justify-content-center justify-content-md-start">
+                        <a [href]="whatsAppUrl" target="_blank" class="btn-outline-whatsapp">
+                          <i class="bi bi-whatsapp fs-5 mx-1"></i>
                           WhatsApp
                         </a>
-                      </div>
+                    </div>
                       
                       
                 </div>

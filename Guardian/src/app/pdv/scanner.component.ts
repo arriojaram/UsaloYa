@@ -46,7 +46,7 @@ export class PuntoDeVentaComponent implements OnInit {
         this.isHidden = true;
         const companyId = this.userState.getUserStateLocalStorage().companyId;
         this.ventasService.cacheProductCatalog(companyId);
-        
+        this.navigationService.showFreeLicenseMsg(this.userState.getUserStateLocalStorage().companyStatusId ?? 0);
     }    
 
     cleanSearchProdPanel() {
@@ -55,6 +55,7 @@ export class PuntoDeVentaComponent implements OnInit {
     }
     
     searchProduct() {
+       this.navigationService.showFreeLicenseMsg(this.userState.getUserStateLocalStorage().companyStatusId?? 0);
        this.filteredProduct = [];
        let searchItem = this.productName.trim().toLowerCase();
        if(searchItem != '')

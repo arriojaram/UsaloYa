@@ -14,6 +14,7 @@
         public int LastUpdatedBy { get; set; }
         public DateTime? LastAccess { get; set; }
         public DateTime? CreationDate { get; set; }
+        public int CompanyStatusId { get; set; }
 
         public int? RoleId { get; set; }
     }

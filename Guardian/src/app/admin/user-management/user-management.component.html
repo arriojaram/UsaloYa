@@ -2,9 +2,7 @@
     <div class="row">
         <div class="col-12 d-flex justify-content-start align-items-center">
             <div class="hamburger-menu" (click)="navigationService.toggleSearchPanel()">
-                <div></div>
-                <div></div>
-                <div></div>
+                <i class="{{navigationService.toogleClass}} fs-4" ></i>
             </div>
             <h5 class="ms-2 mt-3">Gestión de Usuarios</h5>
         </div>
@@ -117,7 +115,8 @@
                                 </span>
                             </div>
                             <div class="d-flex justify-content-end my-3">
-                                <button type="button" *ngIf="this.userState.roleId > rol.Admin" class="btn btn-primary mx-2 btn-floating-secondary" (click)="newUser()">Nuevo</button>
+                                <button type="button" *ngIf="this.userState.roleId > rol.Admin && this.userState.companyStatusId != cStatus.Free" 
+                                    class="btn btn-primary mx-2 btn-floating-secondary" (click)="newUser()">Nuevo</button>
                                 <button type="submit" [disabled]="this.userForm.get('roleId')?.value  === rol.Root"  *ngIf="this.userState.roleId > rol.User" class="btn btn-success btn-floating">Guardar Usuario</button>
                             </div>    
                         </form>

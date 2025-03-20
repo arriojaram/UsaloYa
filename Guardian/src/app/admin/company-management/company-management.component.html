@@ -2,9 +2,7 @@
     <div class="row">
         <div class="col-12 d-flex justify-content-start align-items-center">
             <div class="hamburger-menu" (click)="navigationService.toggleSearchPanel()">
-                <div></div>
-                <div></div>
-                <div></div>
+                <i class="{{navigationService.toogleClass}} fs-4" ></i>
             </div>
             <h5 class="ms-2 mt-3">Empresas</h5>
         </div>
@@ -40,7 +38,7 @@
                         <li class="nav-item">
                             <a class="nav-link" [class.active]="activeTab === 'tabPagos'" (click)="setActiveTab('tabPagos')">Pagos</a>
                         </li>
-                        <li class="nav-item" *ngIf="this.userState.roleId >= rol.Admin && this.userState.roleId != rol.Free ">
+                        <li class="nav-item" *ngIf="this.userState.roleId >= rol.Admin && this.userState.companyStatusId != cStatus.Free ">
                             <a class="nav-link" [class.active]="activeTab === 'tabSettings'" (click)="setActiveTab('tabSettings')">Configuraciones</a>
                         </li>
                     </ul>
@@ -55,7 +53,7 @@
                                         <input id="name" class="form-control" formControlName="name" placeholder="Empresa"
                                            *ngIf="companyForm.get('companyId')?.value <= 0 || this.userState.roleId > rol.Ventas">
                                         <label class="form-control opacity-50 fw-bold"
-                                            *ngIf="companyForm.get('companyId')?.value > 0 && this.userState.roleId <= rol.Free">
+                                            *ngIf="companyForm.get('companyId')?.value > 0 && this.userState.roleId <= rol.Admin">
                                             {{companyForm.get('name')?.value}}</label>
                                  
                                         <div *ngIf="companyForm.get('name')?.invalid && companyForm.get('name')?.touched" class="invalid-feedback">
@@ -70,8 +68,10 @@
                                             <label class="form-control opacity-50 fw-bold">{{companyForm.get('statusDesc')?.value}}</label>
                                         </div>
                                         <div class="d-flex justify-content-end mx-2 my-4" 
-                                            *ngIf="this.userState.roleId > rol.Admin && this.userState.roleId != rol.Free">
-                                            <button type="button" class="btn btn-danger ">Desactivar</button>
+                                            *ngIf="this.userState.roleId > rol.Admin && this.userState.companyStatusId != cStatus.Free">
+                                            <button type="button" class="btn"
+                                                [ngClass]="{'btn-success' : this.selectedCompany?.statusId == cStatus.Inactive, 'btn-danger' : this.selectedCompany?.statusId != cStatus.Inactive}" 
+                                                (click)="setDisabled()">{{this.selectedCompany?.statusId == cStatus.Inactive ? 'Activar' : 'Desactivar'}}</button>
                                         </div>    
                                     </div>
                                     <div class="form-group col-md-12 d-flex">
@@ -135,7 +135,7 @@
                                 
                                     <div class="d-flex justify-content-end my-3" *ngIf="this.userState.roleId >= rol.Admin">
                                         <button type="button" class="btn btn-primary mx-2 btn-floating-secondary"
-                                            *ngIf="this.userState.roleId > rol.Admin && this.userState.roleId != rol.Free"
+                                            *ngIf="this.userState.roleId > rol.Admin && this.userState.companyStatusId != cStatus.Free"
                                             (click)="newCompany()">Nuevo</button>
                                         <button type="submit" class="btn btn-success btn-floating">Guardar</button>
                                     </div>    
@@ -159,19 +159,21 @@
                                         <!-- Cambio de col-6 a col-12 col-md-6 para mejorar la visualización en móviles -->
                                         <div class="col-12 col-md-6 mb-3">
                                             <div class="mb-3">Pago</div>
-                                            <div class="mb-1"  *ngIf="this.userState.roleId == rol.Free">No requiere pago - Plan Gratuito</div>
-                                            <div class="mb-1"  *ngIf="this.userState.roleId != rol.Free">Tu próxima factura será de {{this.selectedCompany?.planPrice | currency:'MXN'}} y llegará el {{this.selectedCompany?.expirationDate | date:'fullDate'}}</div>
+                                            <div class="mb-1"  *ngIf="this.userState.companyStatusId == cStatus.Free">No requiere pago - Plan Gratuito</div>
+                                            <div class="mb-1"  *ngIf="this.userState.companyStatusId != cStatus.Free">Tu próxima factura será de {{this.selectedCompany?.planPrice | currency:'MXN'}} y llegará el {{this.selectedCompany?.expirationDate | date:'fullDate'}}</div>
                                             <div class="mb-3">Contacta a tu vendedor para obtener más información: {{this.selectedCompany?.createdByFullName}}</div>
                                             <div class="mb-3">
-                                                <a href="https://api.whatsapp.com/send?phone=2481569632" target="_blank" class="text-white text-decoration-none">
+                                                <a [href]="whatsUrl" target="_blank" class="text-white text-decoration-none">
                                                     
                                                     Ó escribenos al <i class="bi bi-whatsapp fs-5 text-white me-1"></i>WhatsApp
                                                 </a> 
                                             </div>
                                             
-                                            <div *ngIf="this.userState.roleId >= rol.Admin && this.userState.roleId != rol.Free ">
-                                                <button class="btn btn-outline-light" [disabled]="showAddPaymentSection" (click)="showAddPaymentSection = true">Agregar Pago</button>
+                                            <div *ngIf="this.userState.roleId >= rol.Admin">
+                                                <button class="btn btn-outline-light me-2" *ngIf="this.selectedCompany?.statusId != cStatus.Free" [disabled]="showAddPaymentSection" (click)="showPaymentPanel()">Agregar Pago</button>
+                                                <button class="btn btn-outline-light" *ngIf="this.selectedCompany?.statusId == cStatus.Free" [disabled]="showUpgradeSection" (click)="showUpgradeLicense()">Hacer Premium</button>
                                             </div>
+                                           
                                         </div>
                                     </div>
                                 </div>
@@ -211,9 +213,25 @@
                                 </div>
                             </div>
                             
+                            <div *ngIf="showUpgradeSection" class="container mb-4">
+                                <div class="col-lg-4 col-md-6 col-12">
+                                    <select [(ngModel)]="licenseId" class="form-select">
+                                        <option value="0" selected>Selecciona Licencia</option>
+                                        <option *ngFor="let option of licenseList" [value]="option.id">
+                                            {{ option.name }}
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-lg-4 col-md-12 col-12 mt-2"> 
+                                    <div class="d-grid gap-2 d-md-block"> 
+                                        <button class="btn btn-success me-1" (click)="upgradeLicense()">Actualizar</button>
+                                        <button class="btn btn-secondary ms-1" (click)="cancelUpgrade()">Cancelar</button>
+                                    </div>
+                                </div>
+                            </div>
 
                             <!-- Sección 3: Historial de pagos -->
-                            <div class="container" *ngIf="this.userState.roleId >= rol.Admin && this.userState.roleId != rol.Free ">
+                            <div class="container" *ngIf="this.userState.roleId >= rol.Admin && this.selectedCompany?.statusId != cStatus.Free ">
                                 <h3>Historial de Pagos</h3>
                                 <table class="table">
                                     <thead>

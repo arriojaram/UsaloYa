@@ -7,12 +7,13 @@ import { UserStateService } from '../../services/user-state.service';
 import { NavigationService } from '../../services/navigation.service';
 import { InventarioService } from '../../services/inventario.service.service';
 import { userDto } from '../../dto/userDto';
-import { AlertLevel, InventoryView, Roles } from '../../Enums/enums';
+import { AlertLevel, CompanyStatus, InventoryView, Roles } from '../../Enums/enums';
 import { ProductService } from '../../services/product.service';
 import { setUnitsInStockDto } from '../../dto/setUnitsInStockDto';
 import { IdDto, BarcodeDto as setInVentarioByBarcodeDto } from '../../dto/idDto';
 import { productCategoryDto } from '../../dto/productCategoryDto';
 import { ProductCategoryService } from '../../services/product-category.service';
+import { environment } from '../../environments/enviroment';
 
 
 @Component({
@@ -32,6 +33,7 @@ export class InventarioReportComponent implements OnInit, OnDestroy{
   currentView: InventoryView = InventoryView.Other;
   moreItems: boolean | undefined;
   categoryList: productCategoryDto[] = [];
+  cStatus = CompanyStatus;
   rol = Roles;
   
   highlight = false;
@@ -78,17 +80,22 @@ export class InventarioReportComponent implements OnInit, OnDestroy{
       this.getProductsTop50("-1");
  
     this.getCategories();
+    this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId?? 0);
   }
+
 
   
   private getCategories(): void {
     if(this.userState != null)
     {
-      this.categoryService.getAll(this.userState.companyId, '-1').pipe(first())
-      .subscribe(users => {
-        this.categoryList = users.sort((a,b) => (a.name?? '').localeCompare((b.name?? '')));
-        
-      });
+      if(this.userState.companyStatusId != this.cStatus.Free)
+      {
+        this.categoryService.getAll(this.userState.companyId, '-1').pipe(first())
+        .subscribe(users => {
+          this.categoryList = users.sort((a,b) => (a.name?? '').localeCompare((b.name?? '')));
+          
+        });
+      }
     }
     else
     {
@@ -119,6 +126,7 @@ export class InventarioReportComponent implements OnInit, OnDestroy{
 
   filterProductsByCategoryId(pageNumber: number)
   {
+    this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId?? 0);
     let categoryId = this.selectedCategoryId;
     if(categoryId == 0)
     {
@@ -126,7 +134,7 @@ export class InventarioReportComponent implements OnInit, OnDestroy{
       this.getProductsTop50("-1");
       return;
     }
-
+   
     if(pageNumber == 1)
       this.filteredProducts = [];
 
@@ -189,6 +197,7 @@ export class InventarioReportComponent implements OnInit, OnDestroy{
         this.inventoryService.setProductInventarioValue(stockInfo, this.userState.companyId).pipe(first())
           .subscribe({
             next: (prodUpdate) => {
+              this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId?? 0);
               this.navigationService.showUIMessage("Actualizado.", AlertLevel.Sucess);      
               this.newProdInventoryVal = undefined;
               let p = this.filteredProducts.find(p=>p.productId == productId);
@@ -289,6 +298,7 @@ export class InventarioReportComponent implements OnInit, OnDestroy{
 
   async addProductToInventory()
   {
+    this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId?? 0);
     let code = this.codigo.value;
     if(code)
     {  
@@ -354,6 +364,7 @@ export class InventarioReportComponent implements OnInit, OnDestroy{
 
   loadMore()
   {
+    this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId?? 0);
     this.currentPage++;
     switch (this.currentView) {
       case InventoryView.Critical:
@@ -375,11 +386,12 @@ export class InventarioReportComponent implements OnInit, OnDestroy{
         this.getProductsTop50('-1');
         break;
     }
-    console.log(this.currentView + ' currentPage:' + this.currentPage);
+    
   }
 
   loadProductsByAlertId(pageNumber: number, alertId: number)
   {
+    this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId?? 0);
     if(pageNumber == 1)
       this.filteredProducts = [];
 
@@ -434,6 +446,7 @@ export class InventarioReportComponent implements OnInit, OnDestroy{
 
   getInventarioItemsUpdated(pageNumber:number)
   {
+    this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId?? 0);
     if(pageNumber == 1)
       this.filteredProducts = [];
 
@@ -474,6 +487,7 @@ export class InventarioReportComponent implements OnInit, OnDestroy{
 
   loadWithDiscrepancias(pageNumber:number)
   {
+    this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId?? 0);
     if(pageNumber == 1)
       this.filteredProducts = [];
 
@@ -527,7 +541,7 @@ export class InventarioReportComponent implements OnInit, OnDestroy{
   }
 
   getProductsTop50(keyword: string): void {
-    
+    this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId?? 0);
     if(this.currentPage == 1)
     {
       this.products = [];

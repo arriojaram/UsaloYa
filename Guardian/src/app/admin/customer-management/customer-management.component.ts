@@ -8,7 +8,8 @@ import { customerDto } from '../../dto/customerDto';
 import { first } from 'rxjs';
 import { NavigationService } from '../../services/navigation.service';
 import { NgClass, NgFor, NgIf } from '@angular/common';
-import { AlertLevel } from '../../Enums/enums';
+import { AlertLevel, Roles } from '../../Enums/enums';
+import { environment } from '../../environments/enviroment';
 
 @Component({
     selector: 'app-customer-management',
@@ -43,6 +44,8 @@ export class CustomerManagementComponent implements OnInit{
     if (this.customerId > 0) {
       this.loadCustomerData(this.customerId);
     }
+
+    this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId?? 0);
   }
 
   // Inicializa el formulario
@@ -71,7 +74,7 @@ export class CustomerManagementComponent implements OnInit{
   newCustomer(): void {
     this.selectedCustomer = null;
     this.customerForm?.reset();
-    this.customerForm?.patchValue({customerId:0, lastName1:'', lastName2:'', firstName:'', cellPhoneNumber:'', workPhoneNumber:'', email:''});
+    this.customerForm?.patchValue({companyId:this.userState?.companyId, customerId:0, lastName1:'', lastName2:'', firstName:'', cellPhoneNumber:'', workPhoneNumber:'', email:''});
     window.scrollTo(0, 0);
   }
 

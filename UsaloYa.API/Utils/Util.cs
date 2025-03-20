@@ -66,13 +66,14 @@ namespace UsaloYa.API.Utils
                 return user;
 
             //Validate user status and rol
-            var userDb = await _dBContext.Users.FindAsync(userId);
+            var userDb = await _dBContext.Users.Include(c => c.Company).FirstOrDefaultAsync(u => u.UserId == userId);
             if (userDb == null || user.RoleId < (int)topRol)
                 return user;
 
             user.UserId = userDb.UserId;
             user.UserName = userDb.UserName;
             user.RoleId = userDb.RoleId;
+            user.CompanyStatusId= userDb.Company.StatusId;
 
             return user;
         }
@@ -166,6 +167,11 @@ namespace UsaloYa.API.Utils
             {
                 return (List<PairSettingsDto>)serializer.Deserialize(stringReader);
             }
+        }
+
+        public static string? EmptyToNull(string? value) 
+        {
+            return string.IsNullOrEmpty(value) ? null: value.Trim();
         }
     }
 }

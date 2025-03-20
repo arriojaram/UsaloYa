@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.SqlServer.Server;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
+using System.Runtime;
 using UsaloYa.API.Config;
 using UsaloYa.API.DTO;
 using UsaloYa.API.Enums;
@@ -21,17 +22,19 @@ namespace UsaloYa.API.Controllers
     {
         private readonly ILogger<ProductController> _logger;
         private readonly DBContext _dBContext;
+        private readonly AppConfig _settings;
         private readonly ProductCategoryService _productCategoryService;
 
         int NORMAL = 3;
         int WARNING = 2;
         int CRITICAL = 1;
 
-        public ProductController(DBContext dBContext, ILogger<ProductController> logger, ProductCategoryService prodCatService)
+        public ProductController(DBContext dBContext, ILogger<ProductController> logger, ProductCategoryService prodCatService, AppConfig settings)
         {
             _logger = logger;
             _dBContext = dBContext;
             _productCategoryService = prodCatService;
+            _settings = settings;
         }
 
         [HttpGet("FilterProducts")]
@@ -254,7 +257,7 @@ namespace UsaloYa.API.Controllers
                 
                 var userWantsUpdateTheProduct = productDto.UpdateProduct ?? false;
                 // Disable update if the user is free role
-                if (user.RoleId == (int)Role.Free)
+                if (user.CompanyStatusId == (int)CompanyStatus.Free)
                     userWantsUpdateTheProduct = false;
 
                 var numOfProducts = productWithSameBarcodeAndSku.Count;
@@ -399,7 +402,15 @@ namespace UsaloYa.API.Controllers
 
                 if (existingProduct == null && productDto.ProductId == 0)
                 {
-                    
+                    if (user.CompanyStatusId == (int)CompanyStatus.Free)
+                    {
+                        var numExistingRecords = await _dBContext.Products.CountAsync(c => c.CompanyId == companyId);
+                        if (numExistingRecords >= _settings.FreeRoleMaxProducts)
+                        {
+                            return Conflict(new { message = _settings.FreeRoleMaxLimitReachedMsg });
+                        }
+                    }
+
                     existingProduct = new Product
                     {
                         Name = productDto.Name.Trim(),
@@ -692,8 +703,9 @@ namespace UsaloYa.API.Controllers
                              AlertaStockNumProducts = p.AlertaStockNumProducts,
                              InVentarioAlertLevel = p.UnitsInStock <= 0 ? CRITICAL : p.UnitsInStock <= p.AlertaStockNumProducts ? WARNING : NORMAL,
                              CategoryId = p.CategoryId ?? 0,
-                             CategoryName = p.Category != null ? p.Category.Name : ""
-                         })
+                             CategoryName = p.Category != null ? p.Category.Name : "",
+                             IsInVentarioUpdated = p.IsInVentarioUpdated ?? false
+                            })
                          .Where(p => p.CompanyId == companyId && !p.Discontinued
                                     && (p.Name.Contains(keyword) || keyword.Contains(p.Name)
                                         || p.Barcode != null && p.Barcode == keyword)

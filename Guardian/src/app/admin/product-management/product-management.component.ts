@@ -7,7 +7,7 @@ import { UserStateService } from '../../services/user-state.service';
 import { userDto } from '../../dto/userDto';
 import { NavigationService } from '../../services/navigation.service';
 import { first } from 'rxjs';
-import { AlertLevel, Roles } from '../../Enums/enums';
+import { AlertLevel, CompanyStatus, Roles } from '../../Enums/enums';
 import { InventarioService } from '../../services/inventario.service.service';
 import { setUnitsInStockDto } from '../../dto/setUnitsInStockDto';
 import { productCategoryDto } from '../../dto/productCategoryDto';
@@ -22,6 +22,7 @@ import { ProductCategoryService } from '../../services/product-category.service'
 export class ProductManagementComponent implements OnInit {
 
   categoryList: productCategoryDto[] = [];
+  categoryListFilter: productCategoryDto[] = [];
   productForm: FormGroup;
   products: Producto[] = [];
   selectedProduct: Producto | null = null;
@@ -30,8 +31,10 @@ export class ProductManagementComponent implements OnInit {
 
   pageNumber: number = 1;
   rol = Roles;
+  cStatus = CompanyStatus;
   selectedCategoryId: number = 0;
   moreItems: boolean | undefined;
+  
 
   constructor(
     private fb: FormBuilder, 
@@ -79,6 +82,8 @@ export class ProductManagementComponent implements OnInit {
     this.moreItems = true;
     this.searchProductsInternal('-1');
     this.navigationService.checkScreenSize();
+    this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId?? 0);
+    
     this.getCategories();
   }
 
@@ -96,6 +101,7 @@ export class ProductManagementComponent implements OnInit {
         this.inventoryService.setUnitsInStockToProduct(stockInfo, this.userState.companyId).pipe(first())
           .subscribe({
             next: (newStock) => {
+              this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId?? 0);
               this.navigationService.showUIMessage("Se agregaron las nuevas configuraciones a las existencias del producto.", AlertLevel.Sucess);      
               this.productForm.get('addToInventoryVal')?.setValue(0);
               this.productForm.get('unitsInStock')?.setValue(newStock);
@@ -111,6 +117,7 @@ export class ProductManagementComponent implements OnInit {
   }
 
   filterProducts(): void {
+    this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId?? 0);
     this.pageNumber = 1;
     this.moreItems = true;
     let categoryId = this.selectedCategoryId;
@@ -124,7 +131,6 @@ export class ProductManagementComponent implements OnInit {
           this.products = products.sort((a,b) => a.name.localeCompare(b.name));
           }
       });
-    
   }
 
   searchProducts(): void {
@@ -139,6 +145,7 @@ export class ProductManagementComponent implements OnInit {
   }
   
   loadMore(): void {
+    this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId?? 0);
     this.pageNumber++;
     if(this.selectedCategoryId > 0)
     {
@@ -223,7 +230,12 @@ export class ProductManagementComponent implements OnInit {
     .subscribe(product => {
       this.selectedProduct = product;
       this.productForm.patchValue(product);
-      
+      if(this.userState.companyStatusId == this.cStatus.Free)
+      {
+        this.productForm.get('unitPrice1')?.disable();
+        this.productForm.get('unitPrice2')?.disable();
+        this.productForm.get('unitPrice3')?.disable();
+      }
       this.navigationService.checkScreenSize();
     });
   }
@@ -234,6 +246,7 @@ export class ProductManagementComponent implements OnInit {
       return;
     }
     if (this.productForm.valid) {
+      this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId?? 0);
       const product: Producto = this.productForm.value;
       product.companyId = this.userState.companyId;
       
@@ -275,7 +288,14 @@ export class ProductManagementComponent implements OnInit {
       this.categoryService.getAll(this.userState.companyId, '-1').pipe(first())
       .subscribe(users => {
         this.categoryList = users.sort((a,b) => (a.name?? '').localeCompare((b.name?? '')));
-        
+        if(this.userState.companyStatusId != this.cStatus.Free)
+        {
+          this.categoryListFilter = this.categoryList;
+        }
+        else
+        {
+          this.categoryListFilter = [];
+        }
       });
     }
     else

@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1740093640056,
+  "timestamp": 1742418245365,
   "index": "/index.html",
   "assetGroups": [
     {
@@ -11,15 +11,15 @@
         "ignoreVary": true
       },
       "urls": [
-        "/chunk-HWFM7C3F.js",
-        "/chunk-OU7LSJ3F.js",
+        "/chunk-FWVPWKEK.js",
+        "/chunk-OLDUEFHV.js",
         "/favicon.ico",
         "/index.html",
-        "/main-BC4TJ35A.js",
+        "/main-QVPWUASG.js",
         "/manifest.webmanifest",
         "/polyfills-FFHMD2TL.js",
         "/scripts-VI4YLN3P.js",
-        "/styles-ZL57HUQL.css"
+        "/styles-BIJWRAZ2.css"
       ],
       "patterns": [
         "https:\\/\\/cdn\\.jsdelivr\\.net\\/npm\\/bootstrap@5\\.3\\.3\\/dist\\/css\\/bootstrap\\.min\\.css"
@@ -50,7 +50,8 @@
         "/assets/js/jsrsasign-all-min.js",
         "/assets/js/qz-tray.js",
         "/assets/js/sign-message.js",
-        "/assets/ping.json"
+        "/assets/ping.json",
+        "/assets/templates/plantilla_carga.csv"
       ],
       "patterns": []
     }
@@ -75,15 +76,16 @@
     "/assets/js/qz-tray.js": "1d57042727b771c44a337052194ef9a85d4b6eb3",
     "/assets/js/sign-message.js": "6d0eab718c30c75cf0aed85e5cf1a1aa48f9e89a",
     "/assets/ping.json": "bf21a9e8fbc5a3846fb05b4fa0859e0917b2202f",
-    "/chunk-HWFM7C3F.js": "a32b40366d520deab4a437881e1b681c355ae30b",
-    "/chunk-OU7LSJ3F.js": "38ea8b3b51340ef4533edf9e2dcf4c7f1bd8b313",
+    "/assets/templates/plantilla_carga.csv": "e1a4ffd1de9a4d0b2705cbd4ea36acebc7c72083",
+    "/chunk-FWVPWKEK.js": "f79799778fb2c110022f7f0083692665e6037171",
+    "/chunk-OLDUEFHV.js": "38b4539bc5f3ec3c2cf5b880072eba7c1bac7f6f",
     "/favicon.ico": "e22765148cb4650057b89bc04e4630adf9b8c41f",
-    "/index.html": "ce27e83396bfb8289cc68f8b73262ea8a0eb66bf",
-    "/main-BC4TJ35A.js": "babfb940d0011baff4604fe4d3b9114dd0c35f6f",
+    "/index.html": "97fdb338ee7a03b99ebf7d2719559d8c44a87938",
+    "/main-QVPWUASG.js": "db5f146b9ea851c02043a9c5ffb14bc1397f3988",
     "/manifest.webmanifest": "809207714d301d69211b1e1c91e9dc75a58868f2",
     "/polyfills-FFHMD2TL.js": "f49b49a155bc7d192db62a4c15d0a612b460a667",
     "/scripts-VI4YLN3P.js": "f611fffeacdacf5e213b19352e0b87a544991233",
-    "/styles-ZL57HUQL.css": "545cf3be732a33f9085d059b26dc383ce27d6ded"
+    "/styles-BIJWRAZ2.css": "9352e175f2f415ec20202210d3e61c1287ebc46a"
   },
   "navigationUrls": [
     {

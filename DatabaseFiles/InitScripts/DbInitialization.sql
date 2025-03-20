@@ -48,8 +48,22 @@ IF NOT EXISTS(SELECT * FROM [PlanRentas]) BEGIN
 		 VALUES
 			   ('BETA-24-1'
 			   ,'Plan piloto'
+			   ,'0'
+			   ,1
+			   ,1)
+
+	INSERT INTO [PlanRentas]
+			   ([Name]
+			   ,[Notes]
+			   ,[Price]
+			   ,[StatusId]
+			   ,[NumUsers])
+		 VALUES
+			   ('PR-25-1'
+			   ,'Plan Premium'
 			   ,'250'
 			   ,1
 			   ,2)
+	UPDATE [PlanRentas] SET Price = 0, NumUsers = 1 WHERE Id = 1
 
 END

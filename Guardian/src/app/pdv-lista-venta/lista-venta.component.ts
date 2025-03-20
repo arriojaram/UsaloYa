@@ -12,7 +12,7 @@ import { NavigationService } from '../services/navigation.service';
 import { Producto } from '../dto/producto';
 import { customerDto } from '../dto/customerDto';
 import { CustomerService } from '../services/customer.service';
-import { AlertLevel } from '../Enums/enums';
+import { AlertLevel, CompanyStatus, Roles } from '../Enums/enums';
 import { QzprintService } from '../services/qzprint.service';
 import { CompanyService } from '../services/company.service';
 
@@ -76,7 +76,7 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
 
   validatePrinterSettings()
   {
-    if(!this.navigationService.isMobile())
+    if(!this.navigationService.isMobile() && this.userState.companyStatusId != CompanyStatus.Free)
     {
       this.companyService.getCompanySettings(this.userState.companyId)
         .pipe(first())
@@ -117,6 +117,7 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
   }
 
   searchCustomers() {
+    this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId?? 0);
     this.filteredCustomer = [];
     let searchItem = this.customerName.trim() == '' ? '-1' : this.customerName.trim();
     this.customerService.getAllCustomer(this.userState.companyId, searchItem).pipe(first())
@@ -144,6 +145,7 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
   }
 
   showSearchCustomerPanel(): void {
+    this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId?? 0);
     this.isSelectingCustomer = !this.isSelectingCustomer;
     this.custButtonClass = this.isSelectingCustomer ? 'btn btn-danger' : 'btn btn-success';
     this.custButtonLabel = this.isSelectingCustomer ? '-' : '+';
@@ -163,15 +165,18 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
  
   showTicket() {
     this.ticketVisible = true;
-    
-    setTimeout(() => {
-      this.generatePrintableTicket();
-    }, 2);
+    // Si no es licencia free entonces enviar trabajo de impresion
+    if(this.userState.companyStatusId != CompanyStatus.Free)
+    {
+      setTimeout(() => {
+        this.generatePrintableTicket();
+      }, 2);
+    }
 
     setTimeout(() => {
       this.ticketVisible = false;
       this.resetListaVenta();
-    }, environment.notificationsDisplayTimeSeconds);
+    }, environment.virtualTicketDisplayTimeSeconds);
   }
 
   generatePrintableTicket() {
@@ -292,6 +297,7 @@ Cajero: ${cashierName}
   
   resetListaVenta()
   {
+    this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId?? 0);
     this.ventaService.saleProductsGrouped = [];
     this.ventaService.totalVenta = 0;
     this.pagoRecibido = undefined;
@@ -341,6 +347,7 @@ Cajero: ${cashierName}
 
     if(finVenta === true)
     {
+      this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId?? 0);
       this.isHidden = false;
       
       this.ventaService.finishSale(this.userState.userId, this.userState.companyId, this.notaVenta?? '', this.metodoPago?? 'Efectivo').pipe(first())

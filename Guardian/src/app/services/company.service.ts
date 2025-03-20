@@ -7,6 +7,7 @@ import { rentRequestDto } from '../dto/rentRequestDto';
 import { setStatusDto } from '../dto/setStatusDto';
 import { AdminCompanyDto } from '../dto/adminCompanyDto';
 import { companySettingsDto, pairSettingsDto } from '../dto/companySettingsDto';
+import { setValueDto } from '../dto/setValueDto';
 
 @Injectable({
   providedIn: 'root'
@@ -60,6 +61,17 @@ export class CompanyService {
     return this.http.post<number>(apiUrl, c).pipe(
       catchError(error => {
         console.error('setCompanyStatus() | ', error);
+        throw error;
+      })
+    );
+  }
+
+  setCompanyLicense(c: setValueDto): Observable<number> {
+    const apiUrl = `${this.baseUrl}/SetCompanyLicense`;
+
+    return this.http.post<number>(apiUrl, c).pipe(
+      catchError(error => {
+        console.error('setCompanyLicense() | ', error);
         throw error;
       })
     );

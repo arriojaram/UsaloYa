@@ -8,7 +8,7 @@ import { UserStateService } from '../../services/user-state.service';
 import { userDto } from '../../dto/userDto';
 import { first, Subject, takeUntil } from 'rxjs';
 import { SaleService } from '../../services/sale.service';
-import { AlertLevel, PriceLevel, Roles, StatusVentaEnum } from '../../Enums/enums';
+import { AlertLevel, CompanyStatus, PriceLevel, Roles, StatusVentaEnum } from '../../Enums/enums';
 import { UserService } from '../../services/user.service';
 import { environment } from '../../environments/enviroment';
 
@@ -38,6 +38,8 @@ export class SalesReportComponent implements OnInit, OnDestroy {
   companyUsers: userDto[] | undefined;
   selectedUserName: string | undefined;
   rol = Roles;
+  cStatus = CompanyStatus;
+  
   private unsubscribe$: Subject<void> = new Subject();
   
   constructor(private fb: FormBuilder,
@@ -59,8 +61,7 @@ export class SalesReportComponent implements OnInit, OnDestroy {
     else
       this.isAutorized = true;
     
-    if(this.userState.roleId == Roles.Free)
-      this.navigationService.showUIMessage(environment.freeLicenseMessage, AlertLevel.Warning);
+    this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId?? 0);
 
     this.reportForm.get('dateFrom')?.valueChanges.pipe(takeUntil(this.unsubscribe$)
     ).subscribe(newDate => {
@@ -231,9 +232,9 @@ export class SalesReportComponent implements OnInit, OnDestroy {
     if(this.userState.roleId == this.rol.User)
       userId = this.userState.userId;
 
-    if(this.userState.roleId == Roles.Free)
+    if(this.userState.companyStatusId == CompanyStatus.Free)
     {
-      this.navigationService.showUIMessage(environment.freeLicenseMessage, AlertLevel.Warning);
+      this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId?? 0);
       const currentDate = new Date();
             
       const diffTime = currentDate.getTime() - fromDate2.getTime();

@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using UsaloYa.API.Config;
 using UsaloYa.API.DTO;
+using UsaloYa.API.Enums;
 using UsaloYa.API.Models;
 using UsaloYa.API.Security;
+using UsaloYa.API.Utils;
 
 namespace UsaloYa.API.Controllers
 {
@@ -13,11 +16,13 @@ namespace UsaloYa.API.Controllers
     {
         private readonly ILogger<CustomerController> _logger;
         private readonly DBContext _dBContext;
+        private readonly AppConfig _settings;
 
-        public CustomerController(DBContext dBContext, ILogger<CustomerController> logger)
+        public CustomerController(DBContext dBContext, ILogger<CustomerController> logger, AppConfig settings)
         {
             _logger = logger;
             _dBContext = dBContext;
+            _settings = settings;
         }
 
         [HttpGet("GetAll")]
@@ -50,7 +55,7 @@ namespace UsaloYa.API.Controllers
                   CustomerId = u.CustomerId,
                   Email = u.Email,
                   FirstName = u.FirstName,
-                  LastName2 = u.LastName2,
+                  LastName2 = u.LastName2?? "",
                   Notes = u.Notes
                 });
 
@@ -91,11 +96,13 @@ namespace UsaloYa.API.Controllers
         }
 
         [HttpPost("SaveCustomer")]
-        public async Task<ActionResult> SaveCustomer([FromBody] CustomerDto customerDto)
+        public async Task<ActionResult> SaveCustomer([FromHeader] string RequestorId, [FromBody] CustomerDto customerDto)
         {
             Customer objectToSave = null;
             try
             {
+                var user = await Util.ValidateRequestor(RequestorId, Role.User, _dBContext);
+
                 if (customerDto.CustomerId == 0)
                 {
                     var existsObject = await _dBContext.Customers.AnyAsync(
@@ -108,17 +115,26 @@ namespace UsaloYa.API.Controllers
                     if (existsObject)
                         return Conflict(new { message = "$_Email_O_Telefono_Existente" });
 
+                    if (user.CompanyStatusId == (int)CompanyStatus.Free)
+                    {
+                        var numExistingRecords = await _dBContext.Customers.CountAsync(c => c.CompanyId == customerDto.CompanyId);
+                        if (numExistingRecords >= _settings.FreeRoleMaxCustomers)
+                        {
+                            return Conflict(new { message = _settings.FreeRoleMaxLimitReachedMsg });
+                        }
+                    }
+
                     objectToSave = new Customer
                     {
-                        Address = customerDto.Address,
+                        Address = Util.EmptyToNull(customerDto.Address),
                         CellPhoneNumber = customerDto.CellPhoneNumber,
-                        WorkPhoneNumber = customerDto.WorkPhoneNumber,
-                        Email = customerDto.Email,
+                        WorkPhoneNumber = Util.EmptyToNull(customerDto.WorkPhoneNumber),
+                        Email = Util.EmptyToNull(customerDto.Email),
                         FirstName = customerDto.FirstName,
                         CompanyId = customerDto.CompanyId,
                         LastName1 = customerDto.LastName1,
-                        LastName2 = customerDto.LastName2,
-                        Notes = customerDto.Notes
+                        LastName2 = Util.EmptyToNull(customerDto.LastName2),
+                        Notes = Util.EmptyToNull(customerDto.Notes),
                     };
                     _dBContext.Customers.Add(objectToSave);
                 }
@@ -130,12 +146,12 @@ namespace UsaloYa.API.Controllers
 
                     objectToSave.FirstName = customerDto.FirstName;
                     objectToSave.LastName1 = customerDto.LastName1;
-                    objectToSave.LastName2 = customerDto.LastName2;
-                    objectToSave.Address = customerDto.Address;
+                    objectToSave.LastName2 = Util.EmptyToNull(customerDto.LastName2);
+                    objectToSave.Address = Util.EmptyToNull(customerDto.Address);
                     objectToSave.CellPhoneNumber = customerDto.CellPhoneNumber;
-                    objectToSave.WorkPhoneNumber = customerDto.WorkPhoneNumber;
-                    objectToSave.Email = customerDto.Email;
-                    objectToSave.Notes = customerDto.Notes;
+                    objectToSave.WorkPhoneNumber = Util.EmptyToNull(customerDto.WorkPhoneNumber);
+                    objectToSave.Email = Util.EmptyToNull(customerDto.Email);
+                    objectToSave.Notes = Util.EmptyToNull(customerDto.Notes);
 
                     _dBContext.Entry(objectToSave).State = EntityState.Modified;
                 }

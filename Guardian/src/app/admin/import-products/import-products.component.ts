@@ -6,7 +6,7 @@ import { userDto } from '../../dto/userDto';
 import { UserStateService } from '../../services/user-state.service';
 import { CommonModule } from '@angular/common';
 import { catchError, concatMap, finalize } from 'rxjs/operators';
-import { AlertLevel, Roles } from '../../Enums/enums';
+import { AlertLevel, CompanyStatus, Roles } from '../../Enums/enums';
 import { NavigationService } from '../../services/navigation.service';
 import { FormsModule } from '@angular/forms';
 import { UpdateProdSettings } from '../../dto/updateProdSettings';
@@ -32,7 +32,7 @@ export class ImportProductsComponent implements OnInit, OnDestroy {
   messages: string[] = [];
   isAutorized: boolean = false;
   updateExistingProducts = false;
-  rol = Roles;
+  cStatus = CompanyStatus;
 
   checkboxes: UpdateProdSettings = {
     updateNombre: false,
@@ -67,9 +67,7 @@ export class ImportProductsComponent implements OnInit, OnDestroy {
     else
       this.isAutorized = true;
 
-    if(this.userState.roleId == Roles.Free)
-      this.navigationService.showUIMessage(environment.freeLicenseMessage, AlertLevel.Warning);
-
+    this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId?? 0);
   }
 
   ngOnDestroy() {
@@ -109,7 +107,7 @@ export class ImportProductsComponent implements OnInit, OnDestroy {
       this.user_message = this.initialMessage;
       this.alertClass = "alert alert-warning";
       
-      this.csvReaderService.parseCsv(this.selectedFile, this.userState.roleId == Roles.Free).pipe(
+      this.csvReaderService.parseCsv(this.selectedFile, this.userState.companyStatusId == CompanyStatus.Free).pipe(
         switchMap(productos => from(productos).pipe(
           concatMap(producto =>  
             this.productService.importProduct(this.userState.companyId, producto, this.updateExistingProducts, this.checkboxes).pipe(

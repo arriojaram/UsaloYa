@@ -33,7 +33,7 @@ export class AppComponent implements OnInit, OnDestroy {
   cStatus = CompanyStatus;
   uStatus = UserStatus;
   userRol: string | undefined;
-
+  whatsAppUrl = environment.whatsNumber
   paymentMsg: string= "";
   
   private unsubscribe$: Subject<void> = new Subject();

@@ -13,7 +13,6 @@
         Unknown = 0,
         User = 1,
         Admin = 2,
-        Free = 3,
         Ventas = 4,
         SysAdmin = 13,
         Root = 14
@@ -24,7 +23,8 @@
         Inactive = 0,
         PendingPayment = 1,
         Expired = 2,
-        Active = 3
+        Active = 3,
+        Free = 4
     }
 
     public static class EConverter

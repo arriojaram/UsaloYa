@@ -55,6 +55,9 @@ namespace UsaloYa.API.Controllers
                     if (existsUser)
                         return Conflict(new { message = "$_Nombre_De_Usuario_Duplicado" });
 
+
+                    //TODO: Agregar validación de número de usuarios permitidos por la licencia
+
                     userToSave = new User
                     {
                         UserName = userDto.UserName.Trim(),
@@ -355,15 +358,22 @@ namespace UsaloYa.API.Controllers
                     return Unauthorized("Hay un error con la información del negocio.");
                 }
 
-                if (userRol != Role.Root && companyInfo.StatusId == (int)CompanyStatus.Expired)
+                if (userRol < Role.SysAdmin && companyInfo.StatusId == (int)CompanyStatus.Expired)
                     return Unauthorized("$_Expired_License");
+                if (userRol < Role.SysAdmin && companyInfo.StatusId == (int)CompanyStatus.Inactive)
+                    return Unauthorized("Empresa desactivada");
 
                 if (!string.IsNullOrEmpty(user.DeviceId) && user.DeviceId != DeviceId.Trim())
                 {
                     msg = "Este usuario esta activo en otro dispositivo. La sesión en ese otro dispositivo será terminada.";
                 }
 
-                if (userRol == Role.Root || (companyInfo.StatusId == (int)CompanyStatus.Active || companyInfo.StatusId == (int)CompanyStatus.PendingPayment))
+                if (userRol == Role.Root || 
+                    (companyInfo.StatusId == (int)CompanyStatus.Active 
+                        || companyInfo.StatusId == (int)CompanyStatus.PendingPayment
+                        || companyInfo.StatusId == (int)CompanyStatus.Free
+                    )
+                )
                 {
                     user.LastAccess = DateTime.Now;
                     user.StatusId = (int)Enumerations.UserStatus.Conectado;
@@ -418,6 +428,7 @@ namespace UsaloYa.API.Controllers
         public async Task<CompanyDto> GetCompanyStatus(int companyId)
         {
             CompanyStatus status = CompanyStatus.Inactive;
+            int numUsers = 1;
             CompanyDto companyInfo = null;
             try
             {
@@ -430,13 +441,19 @@ namespace UsaloYa.API.Controllers
                 {
                     status = EConverter.GetEnumFromValue<CompanyStatus>(company.StatusId);
                     var expirationDate = company.ExpirationDate ?? Util.GetMxDateTime();
-                    
-                    if (Util.GetMxDateTime().Date > expirationDate.Date)
+                    numUsers = company.Plan.NumUsers;
+                    if (status != CompanyStatus.Inactive && Util.GetMxDateTime().Date > expirationDate.Date)
                     {
-                        status = CompanyStatus.Expired;
+                        
                         if (expirationDate.AddDays(_settings.MaxPendingPaymentDaysAllowAccess) >= Util.GetMxDateTime())
                         {
                             status = CompanyStatus.PendingPayment;
+                        }
+                        else 
+                        {
+                            status = CompanyStatus.Free; // Compañia marcada con acceso free
+                            company.PlanId = 1;
+                            numUsers = 1;
                         }
 
                         company.StatusId = (int)status;
@@ -447,14 +464,13 @@ namespace UsaloYa.API.Controllers
                     companyInfo = new CompanyDto();
                     companyInfo.CompanyId = companyId;
                     companyInfo.StatusId = company.StatusId;
-                    companyInfo.PlanNumUsers = company.Plan.NumUsers;
+                    companyInfo.PlanNumUsers = numUsers;
                     
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "IsCompanyExpired.ApiFunctionError");
-                
             }
             return companyInfo;
         }

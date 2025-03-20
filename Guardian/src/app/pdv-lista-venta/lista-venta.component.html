@@ -47,14 +47,14 @@
       </tbody>
     </table>
 
-    <div class="my-1 d-flex justify-content-start ">
+    <div class="my-1 d-flex justify-content-start">
       <div class="my-1 d-flex justify-content-end">
         <button [class]="custButtonClass" class="d-flex me-1 align-items-center" (click)="showSearchCustomerPanel()">
           <i class="bi bi-person-lines-fill me-1"></i>{{this.custButtonLabel}}
         </button>
-        <span class="d-flex me-2" *ngIf="this.selectedCustomer">{{this.selectedCustomer.firstName + ' ' + this.selectedCustomer.lastName1}}</span>
+        <span class="d-flex me-2 mt-2" *ngIf="this.selectedCustomer">{{this.selectedCustomer.firstName + ' ' + this.selectedCustomer.lastName1}}</span>
       </div>
-      <h4 class="me-3 text-danger">Total de la Venta: {{ ventaService.getTotalVenta() | currency :'MXN'}}</h4>
+      <h4 class="me-3 mt-2 text-danger">Total de la Venta: {{ ventaService.getTotalVenta() | currency :'MXN'}}</h4>
     </div>
     
     <!-- Panel para seleccionar cliente -->
@@ -85,7 +85,8 @@
           <div class="row">
             <div class="col-12 col-md-3 mb-2" >
                 <div>Dinero Recibido</div>
-                <input type="number" class="form-control fs-5" style="background-color: rgba(255, 255, 0, 0.26);" [(ngModel)]="pagoRecibido" (ngModelChange)="onInputChange($event)" 
+                <input type="number" class="form-control fs-5" #pagoRecibidoInput (click)="pagoRecibidoInput.select()"
+                        style="background-color: rgba(255, 255, 0, 0.26);" [(ngModel)]="pagoRecibido" (ngModelChange)="onInputChange($event)" 
                         step="0.50" min="0" placeholder="Ingresa cantidad recibida"  (keydown.enter)="finalizarVenta()">
             </div>
               <div class="col-12 col-md-3 mb-2"> <!-- Colocamos mb-2 para margin-bottom en dispositivos móviles y desktop -->

@@ -10,8 +10,9 @@ import { format } from 'date-fns';
 import { first } from 'rxjs';
 import { adminGroupDto } from '../../dto/adminGroupDto';
 import { AdminCompanyDto } from '../../dto/adminCompanyDto';
-import { AlertLevel, getUserStatusEnumName, Roles } from '../../Enums/enums';
+import { AlertLevel, CompanyStatus, getUserStatusEnumName, Roles } from '../../Enums/enums';
 import { CompanyService } from '../../services/company.service';
+import { environment } from '../../environments/enviroment';
 
 @Component({
     selector: 'app-user-management',
@@ -31,6 +32,7 @@ export class UserManagementComponent {
   showRoles: boolean = false;
   companies: AdminCompanyDto [] = [];
   rol = Roles;
+  cStatus = CompanyStatus;
   isAutorized: boolean = false;
 
   passwordVisible: boolean = false;
@@ -105,12 +107,19 @@ export class UserManagementComponent {
       });
 
     this.initRoles();
+    this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId?? 0);
   }
 
   private initRoles()
   {
     if(this.userState.roleId !== 0)
     {
+      if(this.userState.companyStatusId == CompanyStatus.Free)
+      {
+        this.availableRoles = [];
+        return;
+      }
+
       this.showRoles = true;
       this.availableRoles = Object.values(Roles)
       .filter(value => typeof value === 'number')
@@ -121,17 +130,17 @@ export class UserManagementComponent {
       // Delete this role by security purposes and on purpose, this rol must be assigned directly on the DB
       this.availableRoles = this.availableRoles.filter((role: { id: any; }) => role.id !== Roles.Root);
 
-      
-       if(this.userState.roleId <= Roles.Admin)
+      if(this.userState.roleId <= Roles.Admin)
       {
+        
         this.availableRoles = this.availableRoles.filter((role: { id: any; }) => role.id !== Roles.Ventas);
         this.availableRoles = this.availableRoles.filter((role: { id: any; }) => role.id !== Roles.SysAdmin);  
       }
       else if(this.userState.roleId <= Roles.Ventas)
-        {
-          this.availableRoles = this.availableRoles.filter((role: { id: any; }) => role.id !== Roles.SysAdmin);    
-        }
-        
+      {
+        this.availableRoles = this.availableRoles.filter((role: { id: any; }) => role.id !== Roles.SysAdmin);    
+      }
+      
       const groupIdControl = this.userForm.get('groupId');
       const roleIdControl = this.userForm.get('roleId');
       this.userState.roleId > 1 ? groupIdControl?.enable() : groupIdControl?.disable();   

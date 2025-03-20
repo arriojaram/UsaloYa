@@ -3,9 +3,7 @@
     <div class="col-12 d-flex justify-content-start align-items-center">
       
       <div class="hamburger-menu" (click)="navigationService.toggleSearchPanel()">
-          <div></div>
-          <div></div>
-          <div></div>
+        <i class="{{navigationService.toogleClass}} fs-4" ></i>
       </div>
       <h5 class="ms-2 mt-3">Gestión de Productos</h5>
     </div>
@@ -16,20 +14,24 @@
         <div class="card">
           <div class="card-body">
             <h6 class="card-title">Buscar Productos</h6>
-            <div class="input-group mb-1">
+            <div class="input-group mb-2">
               <input type="text" class="form-control" [(ngModel)]="navigationService.searchItem" placeholder="Buscar...">
               <div class="input-group-append">
                 <button class="btn close-btn" type="button" (click)="navigationService.searchItem = ''; searchProducts()">
                   &times;
                 </button>
-                <button class="btn btn-outline-secondary" type="button" (click)="searchProducts()">
+                <button class="btn btn-outline-primary" type="button" (click)="searchProducts()">
                   Buscar
                 </button>
               </div>
             </div>
+            <div class="card-title">
+              <i class="bi bi-funnel me-1"></i>Categorias
+            </div>
             <div class="input-group mb-1">
               <select [(ngModel)]="selectedCategoryId" id="selectedCategoryId" class="form-select me-1">
-                <option *ngFor="let option of categoryList" [value]="option.categoryId">
+                <option value="0" selected>Todas</option>
+                <option *ngFor="let option of categoryListFilter" [value]="option.categoryId">
                     {{ option.name }}
                 </option>
               </select>
@@ -37,7 +39,7 @@
                 <button class="btn close-btn" type="button" (click)="selectedCategoryId = 0; filterProducts()">
                   &times;
                 </button>
-                <button class="btn btn-outline-secondary" type="button" (click)="filterProducts()">
+                <button class="btn btn-outline-primary" type="button" (click)="filterProducts()">
                   Filtrar
                 </button>
               </div>
@@ -61,7 +63,7 @@
       <div class="col-12" [class.col-md-8]="!navigationService.isSearchPanelHidden" [class.col-md-12]="navigationService.isSearchPanelHidden">
         <div class="card">
           <div class="card-body">
-            <h6 class="card-title">Detalles del Producto</h6>
+            <h6 class="card-title">Detalles del Producto</h6>  
             <form [formGroup]="productForm">
               <div class="form-row">
                 <div class="form-group mb-2">
@@ -108,10 +110,12 @@
                     <label *ngIf="!showAddInventarioBox && this.selectedProduct != null" id="unitsInStock" type="number" class="form-control fake-disabled">
                       {{ productForm.get('unitsInStock')?.value }}
                     </label>
-                    <input *ngIf="this.selectedProduct == null" id="unitsInStock" type="number" class="form-control" formControlName="unitsInStock">
-                    <input *ngIf="showAddInventarioBox" class="bg-warning" formControlName="addToInventoryVal" type="number" min="1" max="1000000">
+                    <input *ngIf="this.selectedProduct == null" id="unitsInStock" #unitsInStockInput (click)="unitsInStockInput.select()"
+                            type="number" class="form-control" formControlName="unitsInStock">
+                    <input *ngIf="showAddInventarioBox" class="bg-warning"  #addToInventoryValInput (click)="addToInventoryValInput.select()"
+                            formControlName="addToInventoryVal" type="number" min="1" max="1000000">
                     <button *ngIf="this.selectedProduct" class="ms-2 btn btn-primary" [ngClass]="{'btn-success': showAddInventarioBox}"
-                        (click)="openCaptureInventory()" >{{showAddInventarioBox ? "Actualizar" : "Agregar"}}</button>
+                        (click)="openCaptureInventory()" >{{showAddInventarioBox ? "Sumar" : "Agregar"}}</button>
                     
                   </div>
                 </div>

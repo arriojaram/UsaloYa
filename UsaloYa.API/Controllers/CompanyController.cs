@@ -124,7 +124,7 @@ namespace UsaloYa.API.Controllers
         public async Task<ActionResult> SaveCompany([FromHeader] string RequestorId, [FromBody] CompanyDto companyDto)
         {
             Company objectToSave = null;
-            int PlanId = 1; //TODO: Capturar desde la interfaz (Fase 3)
+
             try
             {
                 var user = await Util.ValidateRequestor(RequestorId, Role.Ventas, _dBContext);
@@ -146,13 +146,13 @@ namespace UsaloYa.API.Controllers
                         Name = companyDto.Name,
                         CreatedBy = companyDto.CreatedBy,
                         CreationDate = Util.GetMxDateTime(),
-                        ExpirationDate = Util.GetMxDateTime().AddDays(10),
+                        ExpirationDate = Util.GetMxDateTime().AddDays(365),
                         StatusId = (int)CompanyStatus.Active,
                         PhoneNumber = companyDto.TelNumber,
                         CelphoneNumber = companyDto.CelNumber,
                         Email = companyDto.Email,
                         OwnerInfo = companyDto.OwnerInfo,
-                        PlanId = PlanId
+                        PlanId = 1 // Hardcode the beta plan for new companies.
                     };
                     _dBContext.Companies.Add(objectToSave);
                 }
@@ -169,13 +169,11 @@ namespace UsaloYa.API.Controllers
                     objectToSave.CelphoneNumber = companyDto.CelNumber;
                     objectToSave.Email = companyDto.Email;
                     objectToSave.OwnerInfo = companyDto.OwnerInfo;
-                    objectToSave.PlanId = PlanId;
-
+                    
                     if (objectToSave.ExpirationDate == null)
                         objectToSave.ExpirationDate = Util.GetMxDateTime();
 
                     _dBContext.Entry(objectToSave).State = EntityState.Modified;
-
                 }
 
                 await _dBContext.SaveChangesAsync();
@@ -277,8 +275,7 @@ namespace UsaloYa.API.Controllers
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 
                 var statusId = EConverter.GetEnumFromValue<CompanyStatus>(statusDto.StatusId);
-                if (statusId == default)
-                    return BadRequest("$_Estatus_Invalido");
+               
 
                 objectToSave = await _dBContext.Companies.FindAsync(statusDto.ObjectId);
                 if (objectToSave == null)
@@ -293,6 +290,38 @@ namespace UsaloYa.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "SetCompanyStatus.ApiError");
+
+                // Return a 500 Internal Server Error with a custom message
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
+            }
+        }
+
+        [HttpPost("SetCompanyLicense")]
+        public async Task<ActionResult> SetCompanyLicense([FromHeader] string RequestorId, [FromBody] SetValueDto valDto)
+        {
+            Company objectToSave = null;
+            try
+            {
+                if (valDto.ObjectId <= 0)
+                    return NotFound();
+
+                var user = await Util.ValidateRequestor(RequestorId, Role.SysAdmin, _dBContext);
+                if (user.UserId <= 0)
+                    return Unauthorized(AppConfig.NO_AUTORIZADO);
+
+                objectToSave = await _dBContext.Companies.FindAsync(valDto.ObjectId);
+                if (objectToSave == null)
+                    return NotFound();
+
+                objectToSave.PlanId = valDto.ValueId;
+                _dBContext.Entry(objectToSave).State = EntityState.Modified;
+
+                await _dBContext.SaveChangesAsync();
+                return Ok(objectToSave.CompanyId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "SetCompanyLicense.ApiError");
 
                 // Return a 500 Internal Server Error with a custom message
                 return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });

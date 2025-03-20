@@ -3,12 +3,13 @@ import { FormGroup, FormBuilder, Validators, FormsModule, ReactiveFormsModule } 
 import { ActivatedRoute } from '@angular/router';
 import { first } from 'rxjs'
 import { userDto } from '../../dto/userDto';
-import { AlertLevel } from '../../Enums/enums';
+import { AlertLevel, Roles } from '../../Enums/enums';
 import { NavigationService } from '../../services/navigation.service';
 import { UserStateService } from '../../services/user-state.service';
 import { productCategoryDto } from '../../dto/productCategoryDto';
 import { NgClass, NgFor, NgIf } from '@angular/common';
 import { ProductCategoryService } from '../../services/product-category.service';
+import { environment } from '../../environments/enviroment';
 
 @Component({
   selector: 'app-pcategories',
@@ -40,6 +41,8 @@ export class PcategoriesComponent {
     this.cForm = this.initializeForm();
     this.navigationService.checkScreenSize();
     this.getAll('-1');
+
+    this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId?? 0);
   }
 
   // Inicializa el formulario
@@ -98,6 +101,7 @@ export class PcategoriesComponent {
       return;
     }
     if (this.cForm?.valid) {
+      this.navigationService.showFreeLicenseMsg((this.userState?.companyStatusId ?? 0));
       let catInfo: productCategoryDto = this.cForm.value;
       this.categoryService.save(catInfo).subscribe({
         next: (savedItem) => {

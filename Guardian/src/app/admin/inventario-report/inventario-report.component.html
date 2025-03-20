@@ -1,14 +1,20 @@
-<div class="container mt-3">
-    <div class="col-12 d-flex align-items-center fs-5" *ngIf="(this.userState?.roleId?? 0) >= rol.User">
-        Productos en el inventario: {{this.totalInventarioProds | number}} -> 
-        Total unidades: {{this.totalInventarioProdsUnits | number}} ->
-        Precio Total {{this.totalInventarioCash | currency:'MXN' }}
+<div class="container mt-1">
+    <div class="col-12 align-items-center fs-5 mb-3" *ngIf="(this.userState?.roleId?? 0) >= rol.User">
+        <div class="fs-5">
+            Productos en el inventario: {{this.totalInventarioProds | number}}  
+        </div>
+        <div class="fs-6">
+            Total unidades: <span [ngClass]="{'fuzzy-div': this.userState.companyStatusId == cStatus.Free}">{{this.totalInventarioProdsUnits | number}} </span>
+        </div>
+        <div class="fs-6">
+            Precio Total <span [ngClass]="{'fuzzy-div': this.userState.companyStatusId == cStatus.Free}">{{this.totalInventarioCash | currency:'MXN' }}</span>
+        </div>
     </div>
     <div class="d-flex align-items-center justify-content-start">
-        <button type="button" class="btn btn-info btn-block" (click)="setToZeroAllInventory()">
+        <button type="button" class="btn btn-success" (click)="setToZeroAllInventory()">
             <i class="bi bi-gear"></i> Resetear valores del Inventario
         </button>
-        <button type="button" class="ms-2 btn btn-info btn-block" (click)="setStockEqualInventory()" >
+        <button type="button" class="ms-2 btn btn-success" (click)="setStockEqualInventory()" >
             <i class="bi bi-gear"></i> Actualizar existencias con valores Inventario
         </button>
     </div>
@@ -20,37 +26,39 @@
             <div>Escanea o escribe aqui el código de barras del producto para sumar una unidad en el inventario.</div>
             <div class="col-12">
                 <div class="input-group">
-                    <div class="input-group-prepend">
+                    <div class="input-group-prepend ">
                         <span class="input-group-text">
                             <i class="bi bi-upc-scan"></i> 
                         </span>
                     </div>
                     <input type="text" formControlName="codigo" class="form-control me-2" placeholder="Escanea producto..."> 
                     <button type="submit" class="btn btn-warning" [disabled]="form.invalid">
-                        Agregar al Inventario
+                        <i class="bi bi-plus-square d-lg-none"></i>
+                        <div class="d-none d-md-flex">Agregar al Inventario</div>
                     </button>
                 </div>
             </div>
         </div>
     </form>
-    <div class="d-flex flex-wrap align-items-center justify-content-start mb-2">
-        <div class="col-12 col-md-auto px-1 mb-2 mb-md-0">
-            <button type="button" class="btn btn-danger w-100" (click)="loadCriticalProducts(1)">
-                <i class="bi bi-arrow-clockwise"></i> Cargar Solo Críticos
+    <div class="row table-lg g-2 mb-2">
+        <div class="col">
+            <button type="button" class="btn bgc-primary w-100" (click)="loadWithDiscrepancias(1)">
+              <i class="bi bi-arrow-clockwise"></i> Cargar con Discrepancias
             </button>
         </div>
-        <div class="col-12 col-md-auto px-1 mb-2 mb-md-0">
-            <button type="button" class="btn btn-warning w-100" (click)="loadWarningProducts(1)">
-                <i class="bi bi-arrow-clockwise"></i> Cargar Existencias Bajas
-            </button>
+        <div class="col">
+          <button type="button" class="btn bgc-danger  w-100 " (click)="loadCriticalProducts(1)" >
+            <i class="bi bi-arrow-clockwise"></i> Cargar Solo Críticos
+          </button>
         </div>
-        <div class="col-12 col-md-auto px-1 mb-2 mb-md-0">
-            <button type="button" class="btn btn-primary w-100" (click)="loadWithDiscrepancias(1)">
-                <i class="bi bi-arrow-clockwise"></i> Cargar con Discrepancias
-            </button>
+        <div class="col">
+          <button type="button" class="btn bgc-warning  w-100" (click)="loadWarningProducts(1)">
+            <i class="bi bi-arrow-clockwise"></i> Cargar Existencias Bajas
+          </button>
         </div>
-        <div class="col-12 col-md-auto px-1">
-            <button type="button" class="btn btn-primary w-100" (click)="getInventarioItemsUpdated(1)">
+       
+        <div class="col">
+            <button type="button" class="btn bgc-success  w-100" (click)="getInventarioItemsUpdated(1)">
                 <i class="bi bi-arrow-clockwise"></i> Cargar Actualizados
             </button>
         </div>
@@ -82,6 +90,7 @@
                     </span>
                 </div>
                 <select [(ngModel)]="selectedCategoryId" id="selectedCategoryId" class="form-select me-1">
+                    <option value="0" selected>Todas</option>
                     <option *ngFor="let option of categoryList" [value]="option.categoryId">
                         {{ option.name }}
                     </option>
@@ -95,26 +104,28 @@
             </div>
         </div>
     </div>
-  
-    <table class="table table-striped mt-3">
-        <thead>
+    <div class="table-responsive">
+    <table class="table table-striped table-sm mt-3">
+        <thead class="table-dark">
             <tr>
-                <th>C. Barras</th>
+                <th>Código</th>
                 <th>Nombre</th>
-                <th>Categoria</th>
                 <th>Existencias</th>
                 <th class="d-none d-md-table-cell">$ Existencias</th>
                 <th>Inventario</th>
-                <th></th>
+                <th>Categoria</th>
+                <th>Sync</th>
             </tr>
         </thead>
         <tbody>
             <tr *ngFor="let p of filteredProducts">
-                <td>{{ p.barcode }}</td>
+                <td class="tbl-col-sm">{{ p.barcode }}</td>
                 <td>{{ p.name }}</td>
-                <td>{{ p.categoryName }}</td>
+               
                 <td [ngClass]="'a'+p.inVentarioAlertLevel">
-                    <button class="btn btn-primary ms-2 fs-smaller" [ngClass]="{'btn-success': editingStock[p.productId]}"
+                    <button class="btn btn-primary ms-2 fs-smaller" 
+                        [disabled]="this.userState.companyStatusId == cStatus.Free"
+                        [ngClass]="{'btn-success': editingStock[p.productId]}"
                         (click)="openCaptureNewStock(p.productId)">{{editingStock[p.productId] ? "G" : "+"}}</button>
                     <input *ngIf="editingStock[p.productId]" 
                         class="bg-warning" (keydown.enter)="openCaptureNewStock(p.productId)"
@@ -124,7 +135,9 @@
                     </span>
                     
                 </td>
+
                 <td class="d-none d-md-table-cell">{{ p.totalCashStock | currency:'MXN'}}</td>
+
                 <td [ngClass]="{'highlight': highlight}">
                     <button class="btn btn-primary ms-2 fs-smaller" [ngClass]="{'btn-success': editingInventario[p.productId]}"
                         (click)="openCaptureNewInventory(p.productId, p.barcode)">{{editingInventario[p.productId] ? "G" : "E"}}</button>
@@ -135,14 +148,18 @@
                         {{ p.unitsInVentario }}
                     </span>
                 </td>
+                <td>{{ p.categoryName }}</td>
                 <td>
-                    <button *ngIf="p.isInVentarioUpdated" type="button" class="btn btn-success" (click)="syncStockWinventoryByProduct(p.productId)">
+                    <button *ngIf="p.isInVentarioUpdated" [disabled]="this.userState.companyStatusId == cStatus.Free"
+                    matTooltip="Este es un tooltip" matTooltipPosition="above"
+                         type="button" class="btn btn-success" (click)="syncStockWinventoryByProduct(p.productId)">
                         <i class="bi-arrow-repeat"></i>
                     </button>
                 </td>
             </tr>
         </tbody>
     </table>
+    </div>
     <button *ngIf="moreItems" type="button" class="btn btn-primary" (click)="loadMore()" >
         Mostrar mas Productos
     </button>
