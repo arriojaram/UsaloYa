@@ -1,6 +1,6 @@
 export enum RentTypeId
 { 
-    Desconocido = 0,
+   
     Mensualidad = 1,
     Condonacion = 2,
     Extension = 3,
@@ -29,7 +29,7 @@ export enum Roles {
     User = 1,
     Admin = 2,
     
-    Ventas = 4,
+    Ventas = 3,
     SysAdmin = 13,
     Root = 14
 }

@@ -146,7 +146,7 @@ namespace UsaloYa.API.Controllers
                         Name = companyDto.Name,
                         CreatedBy = companyDto.CreatedBy,
                         CreationDate = Util.GetMxDateTime(),
-                        ExpirationDate = Util.GetMxDateTime().AddDays(365),
+                        ExpirationDate = Util.GetMxDateTime().AddDays(30),
                         StatusId = (int)CompanyStatus.Active,
                         PhoneNumber = companyDto.TelNumber,
                         CelphoneNumber = companyDto.CelNumber,
@@ -314,6 +314,7 @@ namespace UsaloYa.API.Controllers
                     return NotFound();
 
                 objectToSave.PlanId = valDto.ValueId;
+                objectToSave.StatusId = (int)CompanyStatus.Active;
                 _dBContext.Entry(objectToSave).State = EntityState.Modified;
 
                 await _dBContext.SaveChangesAsync();
@@ -387,7 +388,7 @@ namespace UsaloYa.API.Controllers
                     return NotFound("$_Compañia_Invalida");
 
                 if (rentType == RentTypeId.Mensualidad && rentDto.Amount < c.Plan.Price)
-                    return BadRequest("$_Revisa_la_cantidad_ingresada");
+                    return BadRequest("Revisa la cantidad ingresada");
 
                 objectToSave = new Renta
                 {

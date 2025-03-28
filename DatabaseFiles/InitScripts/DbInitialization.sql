@@ -64,6 +64,6 @@ IF NOT EXISTS(SELECT * FROM [PlanRentas]) BEGIN
 			   ,'250'
 			   ,1
 			   ,2)
-	UPDATE [PlanRentas] SET Price = 0, NumUsers = 1 WHERE Id = 1
+	UPDATE [PlanRentas] SET Price = 0, NumUsers = 2 WHERE Id = 1
 
 END

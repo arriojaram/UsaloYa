@@ -48,6 +48,7 @@ export class LoadingInterceptor implements HttpInterceptor {
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     this.loadingService.show();
+     
     if(this.shouldSkip(req))
     {
       return next.handle(req).pipe(
@@ -69,7 +70,7 @@ export class LoadingInterceptor implements HttpInterceptor {
         
         return next.handle(clonedRequest).pipe(
           tap((event) => {
-           
+            
           }),
           catchError((e) => {
            
@@ -95,12 +96,16 @@ export class LoadingInterceptor implements HttpInterceptor {
             this.loadingService.hide();
           })
         );
-        
-
     }
   }
 
   private shouldSkip(request: HttpRequest<any>): boolean {
-    return request.url.includes('i=login');
+    let shouldSkip = false;
+    if(request.url.includes('i=login'))
+      shouldSkip = true;
+    else if(request.url.includes('ping.json'))
+      shouldSkip = true;
+
+    return shouldSkip;
   }
 }

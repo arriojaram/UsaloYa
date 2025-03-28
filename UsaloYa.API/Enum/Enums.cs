@@ -13,7 +13,7 @@
         Unknown = 0,
         User = 1,
         Admin = 2,
-        Ventas = 4,
+        Ventas = 3,
         SysAdmin = 13,
         Root = 14
     }

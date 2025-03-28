@@ -48,7 +48,7 @@ builder.Services.AddSingleton<AppConfig>();
 builder.Services.AddScoped<AccessValidationFilter>();
 
 var app = builder.Build();
-app.UseCors("AllowSpecificOrigin");
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -58,11 +58,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors("AllowSpecificOrigin");
 
 app.UseAuthorization();
-
 app.MapControllers();
-
 
 app.UseMiddleware<TokenValidationMiddleware>();
 

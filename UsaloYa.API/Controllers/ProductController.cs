@@ -486,7 +486,7 @@ namespace UsaloYa.API.Controllers
             int pageSize = 50;
             try
             {
-                var user = await Util.ValidateRequestorSameCompany(RequestorId, Role.Admin, companyId, _dBContext);
+                var user = await Util.ValidateRequestorSameCompany(RequestorId, Role.User, companyId, _dBContext);
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 
@@ -537,7 +537,7 @@ namespace UsaloYa.API.Controllers
             int pageSize = 50;
             try
             {
-                var user = await Util.ValidateRequestorSameCompany(RequestorId, Role.Admin, companyId, _dBContext);
+                var user = await Util.ValidateRequestorSameCompany(RequestorId, Role.User, companyId, _dBContext);
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 
@@ -590,7 +590,7 @@ namespace UsaloYa.API.Controllers
            
             try
             {
-                var user = await Util.ValidateRequestorSameCompany(RequestorId, Role.Admin, companyId, _dBContext);
+                var user = await Util.ValidateRequestorSameCompany(RequestorId, Role.User, companyId, _dBContext);
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 
@@ -651,7 +651,7 @@ namespace UsaloYa.API.Controllers
             decimal totalInventoryCash = 0;
             try
             {
-                var user = await Util.ValidateRequestorSameCompany(RequestorId, Role.Admin, companyId, _dBContext);
+                var user = await Util.ValidateRequestorSameCompany(RequestorId, Role.User, companyId, _dBContext);
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 
@@ -756,7 +756,7 @@ namespace UsaloYa.API.Controllers
             int pageSize = 50;
             try
             {
-                var user = await Util.ValidateRequestorSameCompany(RequestorId, Role.Admin, companyId, _dBContext);
+                var user = await Util.ValidateRequestorSameCompany(RequestorId, Role.User, companyId, _dBContext);
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 
@@ -816,7 +816,7 @@ namespace UsaloYa.API.Controllers
             var existignInventario = 0;
             try
             {
-                var user = await Util.ValidateRequestorSameCompany(RequestorId, Role.Admin, companyId, _dBContext);
+                var user = await Util.ValidateRequestorSameCompany(RequestorId, Role.User, companyId, _dBContext);
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 

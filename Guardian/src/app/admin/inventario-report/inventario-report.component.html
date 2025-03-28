@@ -6,11 +6,11 @@
         <div class="fs-6">
             Total unidades: <span [ngClass]="{'fuzzy-div': this.userState.companyStatusId == cStatus.Free}">{{this.totalInventarioProdsUnits | number}} </span>
         </div>
-        <div class="fs-6">
+        <div class="fs-6" *ngIf="(this.userState?.roleId?? 0) >= rol.Admin">
             Precio Total <span [ngClass]="{'fuzzy-div': this.userState.companyStatusId == cStatus.Free}">{{this.totalInventarioCash | currency:'MXN' }}</span>
         </div>
     </div>
-    <div class="d-flex align-items-center justify-content-start">
+    <div class="d-flex align-items-center justify-content-start" *ngIf="(this.userState?.roleId?? 0) >= rol.Admin">
         <button type="button" class="btn btn-success" (click)="setToZeroAllInventory()">
             <i class="bi bi-gear"></i> Resetear valores del Inventario
         </button>
@@ -111,7 +111,7 @@
                 <th>Código</th>
                 <th>Nombre</th>
                 <th>Existencias</th>
-                <th class="d-none d-md-table-cell">$ Existencias</th>
+                <th class="d-none d-md-table-cell" *ngIf="(this.userState?.roleId?? 0) > rol.User">$ Existencias</th>
                 <th>Inventario</th>
                 <th>Categoria</th>
                 <th>Sync</th>
@@ -136,7 +136,7 @@
                     
                 </td>
 
-                <td class="d-none d-md-table-cell">{{ p.totalCashStock | currency:'MXN'}}</td>
+                <td class="d-none d-md-table-cell" *ngIf="(this.userState?.roleId?? 0) > rol.User">{{ p.totalCashStock | currency:'MXN'}}</td>
 
                 <td [ngClass]="{'highlight': highlight}">
                     <button class="btn btn-primary ms-2 fs-smaller" [ngClass]="{'btn-success': editingInventario[p.productId]}"

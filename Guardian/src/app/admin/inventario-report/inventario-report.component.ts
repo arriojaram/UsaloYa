@@ -74,7 +74,7 @@ export class InventarioReportComponent implements OnInit, OnDestroy{
   ngOnInit(): void {
     this.userState = this.userService.getUserStateLocalStorage();
     this.currentPage = 1;
-    if(this.userState.roleId < Roles.Admin)
+    if(this.userState.roleId < Roles.User)
       this.navigationService.showUIMessage("Petición incorrecta.");
     else
       this.getProductsTop50("-1");

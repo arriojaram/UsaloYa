@@ -5,13 +5,16 @@ import { Router, RouterStateSnapshot } from "@angular/router";
 
 export const AuthGuard = (state: RouterStateSnapshot) => {
 
-    const authService = inject(AuthorizationService);
-    const router = inject(Router);
-
-    const publicRoutes = ['/policy', '/agreements'];
-    if (publicRoutes.includes(state.url)) {
+   
+    const publicRoutes = ['policy', 'agreements'];
+    const currentUrl = state.url.toString();
+    const normalizedUrl = currentUrl.startsWith("/") ? state.url.substring(1) : state.url;
+    if (publicRoutes.includes(normalizedUrl.toString()))  {
       return true;
     }
+    
+    const authService = inject(AuthorizationService);
+    const router = inject(Router);
 
     let isloggedIn = authService.checkAuthentication();
     return !isloggedIn ? router.navigate(['/login']) : true;

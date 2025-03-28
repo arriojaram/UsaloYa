@@ -36,7 +36,8 @@ export class CompanyManagementComponent implements OnInit {
   isSearchPanelHidden: boolean;
   isAutorized: boolean = false;
   whatsUrl = environment.whatsNumber;
-  
+  selectedLicenceInfo: licenseDto = {id:0, numUsers:1, price:0};
+
   tipoPagoList = Object.keys(RentTypeId).filter(key => !isNaN(Number(key)))
                   .map(key => ({
                       name: RentTypeId[key as any],
@@ -48,7 +49,7 @@ export class CompanyManagementComponent implements OnInit {
   mostrarConfirmacion: boolean = false;
   paymentHistory: rentRequestDto[] = [];
   rentAmmount: number = 0;
-  paymentTypeId: any;
+  paymentTypeId: number = 1;
   licenseId: number = 0;
   licenseList: licenseDto [] = [];
   notas: string = "";
@@ -79,6 +80,8 @@ export class CompanyManagementComponent implements OnInit {
       this.isAutorized = true;
     }
 
+    this.getLicenses();
+
     if(this.userState.roleId <= Roles.Admin)
     {
       this.selectCompany(this.userState.companyId, true);
@@ -86,8 +89,7 @@ export class CompanyManagementComponent implements OnInit {
     }
     else
     {
-      this.searchCompaniesInternal('-1');
-      this.getLicenses();      
+      this.searchCompaniesInternal('-1');    
     }
     
     this.navigationService.checkScreenSize();
@@ -119,10 +121,7 @@ export class CompanyManagementComponent implements OnInit {
   ValidateEnteredAmount() {
     if(this.rentAmmount > 0)
     {
-      if(this.paymentTypeId != RentTypeId.Desconocido)
-        this.mostrarConfirmacion = true;
-      else
-        this.navigationService.showUIMessage('Elige un tipo de pago válido.', AlertLevel.Warning);
+      this.mostrarConfirmacion = true;
     } 
     else
       this.navigationService.showUIMessage('Ingresa un monto mayor a cero.', AlertLevel.Warning);
@@ -154,6 +153,8 @@ export class CompanyManagementComponent implements OnInit {
         
         this.companyService.selectedCompanyId = c.companyId;
         this.selectedCompany = c;
+        this.getLicenseInfo(c.planId?? 0);
+        this.licenseId = 0;
         this.companyForm.patchValue(c);
         this.navigationService.checkScreenSize();
         
@@ -275,6 +276,7 @@ export class CompanyManagementComponent implements OnInit {
       .subscribe({
         next: (c) => {
           this.navigationService.showUIMessage('Actualizado a Premium', AlertLevel.Sucess);
+          this.selectCompany(companyId, false);
         },
         error: (e) =>{
           this.navigationService.showUIMessage(e.error);
@@ -356,7 +358,7 @@ export class CompanyManagementComponent implements OnInit {
         this.selectCompany(renta.companyId, false); // Recarga la información de la compañia
       },
       error:(err) => {
-        this.navigationService.showUIMessage('Error al agregar el pago');
+        //this.navigationService.showUIMessage('Error al agregar el pago');
         const m1 = err.error.message;
         if(m1)
           this.navigationService.showUIMessage(m1);
@@ -377,10 +379,19 @@ export class CompanyManagementComponent implements OnInit {
   cancelAddPayment() {
     this.showAddPaymentSection = false; 
     this.rentAmmount=0; 
-    this.paymentTypeId=0;
+    this.paymentTypeId=1;
   }
 
   /*** End TAB - Pagos *****/
+
+  getLicenseInfo(licenseId: number)
+  {
+    if(licenseId>0)
+    {
+      let licIndex = this.licenseList.findIndex(l => l.id == licenseId);
+      this.selectedLicenceInfo = this.licenseList[licIndex];
+    }
+  }
 
   getLicenses() {
     this.generalService.getLicenses().pipe(first())

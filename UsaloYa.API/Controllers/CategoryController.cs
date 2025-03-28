@@ -32,7 +32,7 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var requestor = await Util.ValidateRequestorSameCompany(RequestorId, Role.Admin, companyId, _dBContext);
+                var requestor = await Util.ValidateRequestorSameCompany(RequestorId, Role.User, companyId, _dBContext);
 
                 if (requestor.UserId <= 0)
                 {

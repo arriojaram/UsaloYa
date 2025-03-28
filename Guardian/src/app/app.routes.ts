@@ -14,7 +14,7 @@ import { InventarioReportComponent } from './admin/inventario-report/inventario-
 import { PcategoriesComponent } from './admin/pcategories/pcategories.component';
 
 export const routes: Routes = [
-    {path: '', redirectTo: '/login', pathMatch: 'full' },
+    {path: '', redirectTo: 'login', pathMatch: 'full' },
     {path: 'login', component: LoginComponent },
     { path: 'reporteinventario', component: InventarioReportComponent, canActivate: [AuthGuard] },
     { path: 'reporteventas', component: SalesReportComponent, canActivate: [AuthGuard] },

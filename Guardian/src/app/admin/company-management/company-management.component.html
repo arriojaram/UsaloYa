@@ -151,14 +151,15 @@
                                         <!-- Primer Div: Lista de opciones -->
                                         <!-- Cambio de col-6 a col-12 col-md-6 para mejorar la visualización en móviles -->
                                         <div class="col-12 col-md-6">
+                                            <div class="ms-3"> * {{this.selectedLicenceInfo.notes}}</div>
                                             <div class="ms-3"> * Sin límite de uso.</div>
-                                            <div class="ms-3"> * La cuenta gratuita esta limitada en funcionalidad.</div>
+                                            <div class="ms-3" *ngIf="this.userState.companyStatusId == cStatus.Free"> * La cuenta gratuita esta limitada en funcionalidad.</div>
 
                                         </div>
                                         <!-- Segundo Div: Información de pagos -->
                                         <!-- Cambio de col-6 a col-12 col-md-6 para mejorar la visualización en móviles -->
                                         <div class="col-12 col-md-6 mb-3">
-                                            <div class="mb-3">Pago</div>
+                                            <div class="mb-3 fs-5">Pago</div>
                                             <div class="mb-1"  *ngIf="this.userState.companyStatusId == cStatus.Free">No requiere pago - Plan Gratuito</div>
                                             <div class="mb-1"  *ngIf="this.userState.companyStatusId != cStatus.Free">Tu próxima factura será de {{this.selectedCompany?.planPrice | currency:'MXN'}} y llegará el {{this.selectedCompany?.expirationDate | date:'fullDate'}}</div>
                                             <div class="mb-3">Contacta a tu vendedor para obtener más información: {{this.selectedCompany?.createdByFullName}}</div>
@@ -170,8 +171,10 @@
                                             </div>
                                             
                                             <div *ngIf="this.userState.roleId >= rol.Admin">
-                                                <button class="btn btn-outline-light me-2" *ngIf="this.selectedCompany?.statusId != cStatus.Free" [disabled]="showAddPaymentSection" (click)="showPaymentPanel()">Agregar Pago</button>
-                                                <button class="btn btn-outline-light" *ngIf="this.selectedCompany?.statusId == cStatus.Free" [disabled]="showUpgradeSection" (click)="showUpgradeLicense()">Hacer Premium</button>
+                                                <button class="btn btn-outline-light me-2" [disabled]="showAddPaymentSection" (click)="showPaymentPanel()"
+                                                    *ngIf="(this.userState?.roleId ?? 0) > rol.Admin">Agregar Pago</button>
+                                                <button class="btn btn-outline-light" [disabled]="showUpgradeSection" (click)="showUpgradeLicense()"
+                                                    *ngIf="this.selectedCompany?.statusId == cStatus.Free || (this.userState.roleId > rol.Admin && this.selectedCompany?.planId == 1)">Hacer Premium</button>
                                             </div>
                                            
                                         </div>
@@ -199,7 +202,7 @@
                                     </div>
                                     <div class="col-lg-4 col-md-12 col-12 mt-2"> 
                                         <div class="d-grid gap-2 d-md-block"> 
-                                            <button class="btn btn-success me-1" (click)="ValidateEnteredAmount()">Agregar</button>
+                                            <button class="btn btn-primary me-1" (click)="ValidateEnteredAmount()">Agregar</button>
                                             <button class="btn btn-secondary ms-1" (click)="cancelAddPayment()">Cancelar</button>
                                         </div>
                                     </div>
@@ -231,7 +234,8 @@
                             </div>
 
                             <!-- Sección 3: Historial de pagos -->
-                            <div class="container" *ngIf="this.userState.roleId >= rol.Admin && this.selectedCompany?.statusId != cStatus.Free ">
+                            <div class="container" *ngIf="this.userState.roleId >= rol.Admin && this.selectedCompany?.statusId != cStatus.Free 
+                                && this.selectedCompany?.planId != 1">
                                 <h3>Historial de Pagos</h3>
                                 <table class="table">
                                     <thead>

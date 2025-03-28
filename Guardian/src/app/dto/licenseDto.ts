@@ -1,8 +1,8 @@
 export interface licenseDto{
     id: number;
-    name: string;
-    notes: string;
+    name?: string;
+    notes?: string;
     price: number;
-    statusId: number;
+    statusId?: number;
     numUsers: number;
 }
