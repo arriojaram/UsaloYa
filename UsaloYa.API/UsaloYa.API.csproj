@@ -30,4 +30,9 @@
     <Folder Include="Logs\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\UsaloYa.Dto\UsaloYa.Dto.csproj" />
+    <ProjectReference Include="..\UsaloYa.Services\UsaloYa.Services.csproj" />
+  </ItemGroup>
+
 </Project>
