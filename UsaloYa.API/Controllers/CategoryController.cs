@@ -2,12 +2,12 @@
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.Eventing.Reader;
 using UsaloYa.API.Config;
-using UsaloYa.API.DTO;
-using UsaloYa.API.Enums;
-using UsaloYa.API.Models;
+using UsaloYa.Dto;
+using UsaloYa.Dto.Enums;
+using UsaloYa.Library.Models;
 using UsaloYa.API.Security;
-using UsaloYa.API.Services;
-using UsaloYa.API.Utils;
+using UsaloYa.Services;
+using UsaloYa.Services.interfaces;
 
 namespace UsaloYa.API.Controllers
 {
@@ -16,15 +16,17 @@ namespace UsaloYa.API.Controllers
     [ServiceFilter(typeof(AccessValidationFilter))]
     public class CategoryController : Controller
     {
+        private readonly ICategoryService _CategoryService;
         private readonly ILogger<CategoryController> _logger;
         private readonly DBContext _dBContext;
         private readonly ProductCategoryService _productCategoryService;
 
-        public CategoryController(DBContext dBContext, ILogger<CategoryController> logger, ProductCategoryService prodCatService)
+        public CategoryController(DBContext dBContext, ILogger<CategoryController> logger, ProductCategoryService prodCatService, ICategoryService categoryService)
         {
             _logger = logger;
             _dBContext = dBContext;
             _productCategoryService = prodCatService;
+            _CategoryService = categoryService;
         }
 
         [HttpGet("GetAll4List")]
@@ -32,32 +34,14 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var requestor = await Util.ValidateRequestorSameCompany(RequestorId, Role.User, companyId, _dBContext);
+                var requestor = await HeaderValidatorService.ValidateRequestorSameCompany(RequestorId, Role.User, companyId, _dBContext);
 
                 if (requestor.UserId <= 0)
                 {
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
                 }
-
-                var categories = keyword == "-1" ?
-                    await _dBContext.ProductCategories
-                                            .Where(c => c.CompanyId == companyId)
-                                            .OrderBy(u => u.Name)
-                                            .ToListAsync()
-                    :
-                    await _dBContext.ProductCategories
-                                            .Where(c => c.CompanyId == companyId
-                                                        && c.Name.Contains(keyword))
-                                            .OrderBy(u => u.Name)
-                                            .ToListAsync();
-
-                return Ok(categories.Select(c => new ProductCategoryDto
-                {
-                    CategoryId = c.CategoryId,
-                    Description = c.Description?? "",
-                    Name = c.Name,
-                    CompanyId = c.CompanyId
-                }));
+                var ListAll = await _CategoryService.GetAll4List(companyId, keyword);
+                return Ok(ListAll); 
             }
             catch (Exception ex)
             {
@@ -73,7 +57,7 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var user = await Util.ValidateRequestorSameCompany(RequestorId, Role.Admin, companyId, _dBContext);
+                var user = await HeaderValidatorService.ValidateRequestorSameCompany(RequestorId, Role.Admin, companyId, _dBContext);
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 
@@ -103,7 +87,7 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var user = await Util.ValidateRequestorSameCompany(RequestorId, Role.Admin, companyId, _dBContext);
+                var user = await HeaderValidatorService.ValidateRequestorSameCompany(RequestorId, Role.Admin, companyId, _dBContext);
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 
@@ -128,7 +112,7 @@ namespace UsaloYa.API.Controllers
             ProductCategory objectToSave;
             try
             {
-                var user = await Util.ValidateRequestor(RequestorId, Role.Admin, _dBContext);
+                var user = await HeaderValidatorService.ValidateRequestor(RequestorId, Role.Admin, _dBContext);
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 

@@ -9,7 +9,7 @@ using UsaloYa.API.DTO;
 using UsaloYa.API.Enums;
 using UsaloYa.API.Models;
 using UsaloYa.API.Security;
-using UsaloYa.API.Services;
+using UsaloYa.Services;
 using UsaloYa.API.Utils;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 

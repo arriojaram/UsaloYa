@@ -2,7 +2,7 @@
 using UsaloYa.Dto;
 using UsaloYa.Library.Models;
 
-namespace UsaloYa.API.Services
+namespace UsaloYa.Services
 {
     public class ProductCategoryService
     {

@@ -2,7 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using UsaloYa.API.Config;
 using UsaloYa.API.Security;
-using UsaloYa.API.Services;
+using UsaloYa.Services;
+using UsaloYa.Services.interfaces;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,7 +22,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<UsaloYa.API.Models.DBContext>(
+builder.Services.AddDbContext<UsaloYa.Library.Models.DBContext>(
     options =>
     {
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
@@ -46,6 +47,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddScoped<ProductCategoryService>();
 builder.Services.AddSingleton<AppConfig>();
 builder.Services.AddScoped<AccessValidationFilter>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 var app = builder.Build();
 

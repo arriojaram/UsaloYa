@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
-using UsaloYa.API.DTO;
-using UsaloYa.API.Models;
+using UsaloYa.Dto;
+using UsaloYa.Library.Models;
 
 namespace UsaloYa.API.Security
 {

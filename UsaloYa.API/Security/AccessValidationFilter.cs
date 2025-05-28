@@ -1,7 +1,7 @@
 ﻿using Azure.Core;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using UsaloYa.API.Models;
+using UsaloYa.Library.Models;
 namespace UsaloYa.API.Security
 {
 

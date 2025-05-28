@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace UsaloYa.Services
 {
-    class HeaderValidatorService
+    public class HeaderValidatorService
     {
         /// <summary>
         /// Esta funcion valida si el Requestor es un usuario existente en la base de datos y si el topRol del requestor es igual o mayor.
