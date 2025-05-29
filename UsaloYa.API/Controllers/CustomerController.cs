@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UsaloYa.API.Config;
-using UsaloYa.API.DTO;
-using UsaloYa.API.Enums;
-using UsaloYa.API.Models;
 using UsaloYa.API.Security;
-using UsaloYa.API.Utils;
+using UsaloYa.Dto;
+using UsaloYa.Dto.Enums;
+using UsaloYa.Dto.Utils;
+using UsaloYa.Library.Models;
+using UsaloYa.Services;
+
 
 namespace UsaloYa.API.Controllers
 {
@@ -101,7 +103,7 @@ namespace UsaloYa.API.Controllers
             Customer objectToSave = null;
             try
             {
-                var user = await Util.ValidateRequestor(RequestorId, Role.User, _dBContext);
+                var user = await HeaderValidatorService.ValidateRequestor(RequestorId, Role.User, _dBContext);
 
                 if (customerDto.CustomerId == 0)
                 {
@@ -126,15 +128,15 @@ namespace UsaloYa.API.Controllers
 
                     objectToSave = new Customer
                     {
-                        Address = Util.EmptyToNull(customerDto.Address),
+                        Address = Utils.EmptyToNull(customerDto.Address),
                         CellPhoneNumber = customerDto.CellPhoneNumber,
-                        WorkPhoneNumber = Util.EmptyToNull(customerDto.WorkPhoneNumber),
-                        Email = Util.EmptyToNull(customerDto.Email),
+                        WorkPhoneNumber = Utils.EmptyToNull(customerDto.WorkPhoneNumber),
+                        Email = Utils.EmptyToNull(customerDto.Email),
                         FirstName = customerDto.FirstName,
                         CompanyId = customerDto.CompanyId,
                         LastName1 = customerDto.LastName1,
-                        LastName2 = Util.EmptyToNull(customerDto.LastName2),
-                        Notes = Util.EmptyToNull(customerDto.Notes),
+                        LastName2 = Utils.EmptyToNull(customerDto.LastName2),
+                        Notes = Utils.EmptyToNull(customerDto.Notes),
                     };
                     _dBContext.Customers.Add(objectToSave);
                 }
@@ -146,12 +148,12 @@ namespace UsaloYa.API.Controllers
 
                     objectToSave.FirstName = customerDto.FirstName;
                     objectToSave.LastName1 = customerDto.LastName1;
-                    objectToSave.LastName2 = Util.EmptyToNull(customerDto.LastName2);
-                    objectToSave.Address = Util.EmptyToNull(customerDto.Address);
+                    objectToSave.LastName2 = Utils.EmptyToNull(customerDto.LastName2);
+                    objectToSave.Address = Utils.EmptyToNull(customerDto.Address);
                     objectToSave.CellPhoneNumber = customerDto.CellPhoneNumber;
-                    objectToSave.WorkPhoneNumber = Util.EmptyToNull(customerDto.WorkPhoneNumber);
-                    objectToSave.Email = Util.EmptyToNull(customerDto.Email);
-                    objectToSave.Notes = Util.EmptyToNull(customerDto.Notes);
+                    objectToSave.WorkPhoneNumber = Utils.EmptyToNull(customerDto.WorkPhoneNumber);
+                    objectToSave.Email = Utils.EmptyToNull(customerDto.Email);
+                    objectToSave.Notes = Utils.EmptyToNull(customerDto.Notes);
 
                     _dBContext.Entry(objectToSave).State = EntityState.Modified;
                 }

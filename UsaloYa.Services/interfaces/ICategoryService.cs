@@ -10,5 +10,9 @@ namespace UsaloYa.Services.interfaces
     public interface ICategoryService
     {
         Task<List<ProductCategoryDto>> GetAll4List(int companyId, string keyword);
+        Task<ProductCategoryDto?> GetCategory(int categoryId, int companyId);
+        Task<ProductCategoryDto?> SaveCategory(ProductCategoryDto dto);
+        Task<bool> DeleteCategory(int categoryId, int companyId);
+
     }
 }

@@ -1,16 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection;
-using System.Runtime;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using UsaloYa.API.Config;
-using UsaloYa.API.DTO;
-using UsaloYa.API.Enums;
-using UsaloYa.API.Models;
 using UsaloYa.API.Security;
-using UsaloYa.API.Utils;
+using UsaloYa.Dto;
+using UsaloYa.Dto.Enums;
+using UsaloYa.Dto.Utils;
+using UsaloYa.Library.Models;
+using UsaloYa.Services;
 
 namespace UsaloYa.API.Controllers
 {
@@ -33,7 +29,7 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var requestor = await Util.ValidateRequestorSameCompanyOrTopRol(RequestorId, companyId, Role.Admin, _dBContext);
+                var requestor = await HeaderValidatorService.ValidateRequestorSameCompanyOrTopRol(RequestorId, companyId, Role.Admin, _dBContext);
 
                 if (requestor.UserId <= 0)
                 {
@@ -64,7 +60,7 @@ namespace UsaloYa.API.Controllers
                 {
                     Name = c.Name,
                     CompanyId = c.CompanyId,
-                    IsActive = !(c.StatusId == (int)Enums.CompanyStatus.Inactive || c.StatusId == (int)Enums.CompanyStatus.Expired)
+                    IsActive = !(c.StatusId == (int)CompanyStatus.Inactive || c.StatusId == (int)CompanyStatus.Expired)
                 }));
             }
             catch (Exception ex)
@@ -80,7 +76,7 @@ namespace UsaloYa.API.Controllers
         [HttpGet("GetCompany")]
         public async Task<IActionResult> GetCompany([FromHeader] string RequestorId, int companyId)
         {
-            var user = await Util.ValidateRequestor(RequestorId, Role.Admin, _dBContext);
+            var user = await HeaderValidatorService.ValidateRequestor(RequestorId, Role.Admin, _dBContext);
             if (user.UserId <= 0)
                 return Unauthorized(AppConfig.NO_AUTORIZADO);
 
@@ -127,7 +123,7 @@ namespace UsaloYa.API.Controllers
 
             try
             {
-                var user = await Util.ValidateRequestor(RequestorId, Role.Ventas, _dBContext);
+                var user = await HeaderValidatorService.ValidateRequestor(RequestorId, Role.Ventas, _dBContext);
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 
@@ -145,8 +141,8 @@ namespace UsaloYa.API.Controllers
                         LastUpdateBy = companyDto.LastUpdateBy,
                         Name = companyDto.Name,
                         CreatedBy = companyDto.CreatedBy,
-                        CreationDate = Util.GetMxDateTime(),
-                        ExpirationDate = Util.GetMxDateTime().AddDays(30),
+                        CreationDate = Utils.GetMxDateTime(),
+                        ExpirationDate = Utils.GetMxDateTime().AddDays(30),
                         StatusId = (int)CompanyStatus.Active,
                         PhoneNumber = companyDto.TelNumber,
                         CelphoneNumber = companyDto.CelNumber,
@@ -171,7 +167,7 @@ namespace UsaloYa.API.Controllers
                     objectToSave.OwnerInfo = companyDto.OwnerInfo;
                     
                     if (objectToSave.ExpirationDate == null)
-                        objectToSave.ExpirationDate = Util.GetMxDateTime();
+                        objectToSave.ExpirationDate = Utils.GetMxDateTime();
 
                     _dBContext.Entry(objectToSave).State = EntityState.Modified;
                 }
@@ -201,7 +197,7 @@ namespace UsaloYa.API.Controllers
                 if (settingsDto.CompanyId  <= 0)
                     return NotFound();
 
-                var user = await Util.ValidateRequestor(RequestorId, Role.Admin, _dBContext);
+                var user = await HeaderValidatorService.ValidateRequestor(RequestorId, Role.Admin, _dBContext);
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 
@@ -211,7 +207,7 @@ namespace UsaloYa.API.Controllers
                     return NotFound();
 
                 
-                objectToSave.PaymentsJson = Util.XmlSerializeSettings(settingsDto.Settings);
+                objectToSave.PaymentsJson = Utils.XmlSerializeSettings(settingsDto.Settings);
                 _dBContext.Entry(objectToSave).State = EntityState.Modified;
 
                 await _dBContext.SaveChangesAsync();
@@ -234,7 +230,7 @@ namespace UsaloYa.API.Controllers
                 if (companyId <= 0)
                     return NotFound();
 
-                var user = await Util.ValidateRequestor(RequestorId, Role.Admin, _dBContext);
+                var user = await HeaderValidatorService.ValidateRequestor(RequestorId, Role.Admin, _dBContext);
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 
@@ -248,7 +244,7 @@ namespace UsaloYa.API.Controllers
                 {
                     return Ok();
                 }
-                var settings = Util.DeserializeSettings(settingsStr);
+                var settings = Utils.DeserializeSettings(settingsStr);
                 
                 return Ok(settings);
             }
@@ -270,7 +266,7 @@ namespace UsaloYa.API.Controllers
                 if (statusDto.ObjectId <= 0)
                     return NotFound();
 
-                var user = await Util.ValidateRequestor(RequestorId, Role.SysAdmin, _dBContext);
+                var user = await HeaderValidatorService.ValidateRequestor(RequestorId, Role.SysAdmin, _dBContext);
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 
@@ -305,7 +301,7 @@ namespace UsaloYa.API.Controllers
                 if (valDto.ObjectId <= 0)
                     return NotFound();
 
-                var user = await Util.ValidateRequestor(RequestorId, Role.SysAdmin, _dBContext);
+                var user = await HeaderValidatorService.ValidateRequestor(RequestorId, Role.SysAdmin, _dBContext);
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 
@@ -339,9 +335,9 @@ namespace UsaloYa.API.Controllers
                 if (company == null)
                     return NotFound();
 
-                var expirationDate = company.ExpirationDate ?? Util.GetMxDateTime();
+                var expirationDate = company.ExpirationDate ?? Utils.GetMxDateTime();
 
-                if (expirationDate.Date > Util.GetMxDateTime().Date)
+                if (expirationDate.Date > Utils.GetMxDateTime().Date)
                 {
                     company.StatusId = (int)CompanyStatus.Expired;
 
@@ -372,7 +368,7 @@ namespace UsaloYa.API.Controllers
                 if (rentDto.Amount <= 0)
                     return BadRequest("$_El_monto_debe_ser_mayor_a_cero");
 
-                var user = await Util.ValidateRequestor(RequestorId, Role.Ventas, _dBContext);
+                var user = await HeaderValidatorService.ValidateRequestor(RequestorId, Role.Ventas, _dBContext);
 
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
@@ -394,7 +390,7 @@ namespace UsaloYa.API.Controllers
                 {
                     Id = rentDto.Id,
                     CompanyId = rentDto.CompanyId,
-                    ReferenceDate = Util.GetMxDateTime(),
+                    ReferenceDate = Utils.GetMxDateTime(),
                     Amount = rentDto.Amount,
                     AddedByUserId = rentDto.AddedByUserId,
                     StatusId = rentDto.StatusId,
@@ -426,12 +422,12 @@ namespace UsaloYa.API.Controllers
             var newExpirationDate = DateTime.Now;
             try
             {
-                var expirationDate = company.ExpirationDate ?? Util.GetMxDateTime();
+                var expirationDate = company.ExpirationDate ?? Utils.GetMxDateTime();
 
-                if (Util.GetMxDateTime().Date > expirationDate.Date && expirationDate.AddDays(5) <= Util.GetMxDateTime())
+                if (Utils.GetMxDateTime().Date > expirationDate.Date && expirationDate.AddDays(5) <= Utils.GetMxDateTime())
                 {
                     //status = CompanyStatus.Expired; -- If the company is expired then take the current day as the new initial subscription day
-                    expirationDate = Util.GetMxDateTime();
+                    expirationDate = Utils.GetMxDateTime();
                 }
                 
                
@@ -469,7 +465,7 @@ namespace UsaloYa.API.Controllers
         [HttpGet("GetPaymentHistory")]
         public async Task<IActionResult> GetPaymentHistory([FromHeader] string RequestorId, int companyId)
         {
-            var user = await Util.ValidateRequestorSameCompanyOrTopRol(RequestorId, companyId, Role.Admin, _dBContext);
+            var user = await HeaderValidatorService.ValidateRequestorSameCompanyOrTopRol(RequestorId, companyId, Role.Admin, _dBContext);
             if (user.UserId <= 0)
                 return Unauthorized(AppConfig.NO_AUTORIZADO);
 
@@ -484,12 +480,12 @@ namespace UsaloYa.API.Controllers
                                     ReferenceDate = r.ReferenceDate,
                                     TipoRentaDesc = r.TipoRentaDesc,
                                     ByUserName = r.AddedByUser.UserName,
-                                    ExpirationDate = r.ExpirationDate == null ? Util.GetMxDateTime() : r.ExpirationDate.Value,
+                                    ExpirationDate = r.ExpirationDate == null ? Utils.GetMxDateTime() : r.ExpirationDate.Value,
                                     Notas = r.Notas
                                 })
                                 .OrderByDescending(d => d.ReferenceDate)
                                 .ToListAsync();
-            c.ForEach(c => c.StatusIdUI = Enums.EConverter.GetEnumNameFromValue<RentTypeId>(c.StatusId));
+            c.ForEach(c => c.StatusIdUI = EConverter.GetEnumNameFromValue<RentTypeId>(c.StatusId));
 
             return Ok(c);
         }

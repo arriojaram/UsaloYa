@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 using System.Xml.Serialization;
 
 
-namespace UsaloYa.Dto.utils
+namespace UsaloYa.Dto.Utils
 {
-    class Utils
+    public class Utils
     {
         public static string EncryptPassword(string password)
         {
