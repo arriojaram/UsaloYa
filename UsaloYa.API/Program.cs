@@ -47,7 +47,12 @@ builder.Services.AddCors(options =>
 builder.Services.AddScoped<ProductCategoryService>();
 builder.Services.AddSingleton<AppConfig>();
 builder.Services.AddScoped<AccessValidationFilter>();
-builder.Services.AddScoped<IProductCategoryService, CategoryService>();
+builder.Services.AddScoped<IProductCategoryService, ProductCategoryService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ISaleService, SaleService>();
+builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<ICompanyService, CompanyService>();
+
 
 var app = builder.Build();
 
