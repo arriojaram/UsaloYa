@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using UsaloYa.API.Config;
 using UsaloYa.API.Security;
+using UsaloYa.Library.Config;
 using UsaloYa.Services;
 using UsaloYa.Services.interfaces;
 
@@ -43,15 +43,15 @@ builder.Services.AddCors(options =>
                     .AllowAnyMethod();
         });
 });
-
-builder.Services.AddScoped<ProductCategoryService>();
 builder.Services.AddSingleton<AppConfig>();
+builder.Services.AddScoped<ProductCategoryService>();
 builder.Services.AddScoped<AccessValidationFilter>();
 builder.Services.AddScoped<IProductCategoryService, ProductCategoryService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ISaleService, SaleService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<ICompanyService, CompanyService>();
+builder.Services.AddScoped<IProductService, ProductService>();
 
 
 var app = builder.Build();

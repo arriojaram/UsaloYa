@@ -344,6 +344,12 @@ public partial class DBContext : DbContext
             entity.Property(e => e.UserName)
                 .HasMaxLength(50)
                 .IsUnicode(false);
+            entity.Property(e => e.CodeVerification)
+                .HasMaxLength(10);
+            entity.Property(e => e.IsVerifiedCode)
+                .HasDefaultValueSql("(CONVERT([bit],(0)))");
+            entity.Property(e => e.Email)
+                .HasMaxLength(100);
 
             entity.HasOne(d => d.Company).WithMany(p => p.Users)
                 .HasForeignKey(d => d.CompanyId)

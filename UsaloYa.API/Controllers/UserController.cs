@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using UsaloYa.API.Config;
+using UsaloYa.Library.Config;
 using UsaloYa.API.Security;
 using UsaloYa.Dto.Enums;
 using UsaloYa.Dto;
@@ -87,7 +87,7 @@ namespace UsaloYa.API.Controllers
                 bool isLogin = i.Equals("login");
                 var user = await _userService.GetUser(userId, isLogin);
 
-                if (user == null) return NotFound();
+                if (user.Equals(default(UserResponseDto))) return NotFound();
 
                 if (!isLogin)
                 {
@@ -156,60 +156,8 @@ namespace UsaloYa.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Validate.ApiError");
-                return StatusCode(500, new { message = "No se puede procesar la solicitud, error de servidor." });
+                return StatusCode(500, new { message = "No se puede procesar la solicitud, error de servidor." + ex });
             }
-        }
-
-        //////////////////////////
-        [NonAction]
-        public async Task<CompanyDto> GetCompanyStatus(int companyId)
-        {
-            CompanyStatus status = CompanyStatus.Inactive;
-            int numUsers = 1;
-            CompanyDto companyInfo = null;
-            try
-            {
-                var company = await _dBContext
-                    .Companies
-                    .Include(c => c.Plan)
-                    .FirstOrDefaultAsync(c => c.CompanyId == companyId);
-
-                if (company != null)
-                {
-                    status = EConverter.GetEnumFromValue<CompanyStatus>(company.StatusId);
-                    var expirationDate = company.ExpirationDate ?? Utils.GetMxDateTime();
-                    numUsers = company.Plan.NumUsers;
-                    if (status != CompanyStatus.Inactive && Utils.GetMxDateTime().Date > expirationDate.Date)
-                    {
-                        
-                        if (expirationDate.AddDays(_settings.MaxPendingPaymentDaysAllowAccess) >= Utils.GetMxDateTime())
-                        {
-                            status = CompanyStatus.PendingPayment;
-                        }
-                        else 
-                        {
-                            status = CompanyStatus.Free; // Compañia marcada con acceso free
-                            company.PlanId = 1;
-                            numUsers = 1;
-                        }
-
-                        company.StatusId = (int)status;
-                        _dBContext.Entry(company).State = EntityState.Modified;
-                        await _dBContext.SaveChangesAsync();
-
-                    }
-                    companyInfo = new CompanyDto();
-                    companyInfo.CompanyId = companyId;
-                    companyInfo.StatusId = company.StatusId;
-                    companyInfo.PlanNumUsers = numUsers;
-                    
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "IsCompanyExpired.ApiFunctionError");
-            }
-            return companyInfo;
         }
 
 
@@ -221,6 +169,37 @@ namespace UsaloYa.API.Controllers
             {
                 var userId = await _userService.Logout(token.UserName);
                 return userId.HasValue ? Ok(userId.Value) : Unauthorized("Usuario inválido");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Logout.ApiError");
+                return StatusCode(500, new { message = "No se puede procesar la solicitud, error de servidor." });
+            }
+        }
+
+
+        [HttpPut("RegisterNewUser")]
+        public async Task<IActionResult> RegisterNewUser([FromBody] RegisterUserAndCompanyDto request)
+        {
+            try
+            {
+                var user = await _userService.RegisterNewUserAndCompany(request);
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Logout.ApiError");
+                return StatusCode(500, new { message = "No se puede procesar la solicitud, error de servidor." });
+            }
+        }
+
+        [HttpPost("IsUsernameUnique")]
+        public async Task<IActionResult> IsUsernameUnique([FromBody] string name)
+        {
+            try
+            {
+                var result = await _userService.IsUsernameUnique(name);
+                return Ok(result);
             }
             catch (Exception ex)
             {

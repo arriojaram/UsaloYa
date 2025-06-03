@@ -7,22 +7,35 @@ using System.Threading.Tasks;
 using UsaloYa.Dto.Utils;
 using UsaloYa.Dto;
 using UsaloYa.Library.Models;
+using UsaloYa.Library.Config;
 using UsaloYa.Services.interfaces;
 using UsaloYa.Dto.Enums;
+using System.Runtime;
+using Microsoft.Extensions.Configuration;
+using System.Security.Cryptography;
+using Azure.Core;
+
 
 namespace UsaloYa.Services
 {
     public class UserService : IUserService
     {
         private readonly DBContext _dBContext;
+        private readonly AppConfig _settings;
+        private readonly ICompanyService _CompanyService;
+        private readonly IConfiguration _configuration;
 
-        public UserService(DBContext dBContext)
+        public UserService(DBContext dBContext, AppConfig settings, ICompanyService companyService, IConfiguration configuration)
         {
             _dBContext = dBContext;
+            _settings = settings;
+            _CompanyService = companyService;
+            _configuration = configuration;
         }
 
         public async Task<UserDto> SaveUser(UserDto userDto)
         {
+            var encryptedPassword = Utils.EncryptPassword(userDto.Token);
             User userToSave;
 
             if (userDto.UserId == 0)
@@ -33,7 +46,7 @@ namespace UsaloYa.Services
                 userToSave = new User
                 {
                     UserName = userDto.UserName.Trim(),
-                    Token = Guid.NewGuid().ToString(),
+                    Token = encryptedPassword,
                     FirstName = userDto.FirstName.Trim(),
                     LastName = userDto.LastName.Trim(),
                     CompanyId = userDto.CompanyId,
@@ -45,8 +58,14 @@ namespace UsaloYa.Services
                     StatusId = (int)UserStatus.Desconocido,
                     CreationDate = Utils.GetMxDateTime(),
                     RoleId = userDto.RoleId
-                };
-                _dBContext.Users.Add(userToSave);
+                }; 
+
+                if (userDto.LastUpdatedBy == 0 || userDto.CreatedBy == 0)
+                {
+                    userToSave.CreatedBy =  _configuration.GetValue<int>("SelfRegister:CreatedBy");
+                    userToSave.LastUpdateBy =  _configuration.GetValue<int>("SelfRegister:LastUpdateBy");
+                }
+                    _dBContext.Users.Add(userToSave);
             }
             else
             {
@@ -79,94 +98,96 @@ namespace UsaloYa.Services
             return true;
         }
 
-        public async Task<UserResponseDto?> GetUser(int userId, bool isLogin)
-    {
-        User? user = isLogin
-            ? await _dBContext.Users
-                .Include(c => c.CreatedByNavigation)
-                .Include(c => c.LastUpdateByNavigation)
-                .Include(c => c.Company)
-                .FirstOrDefaultAsync(u => u.UserId == userId)
-            : await _dBContext.Users
-                .Include(c => c.Company)
-                .FirstOrDefaultAsync(u => u.UserId == userId);
-
-        return user == null ? null : new UserResponseDto
+        public async Task<UserResponseDto> GetUser(int userId, bool isLogin)
         {
-            UserId = user.UserId,
-            IsEnabled = user.IsEnabled ?? false,
-            UserName = user.UserName,
-            FirstName = user.FirstName,
-            LastName = user.LastName,
-            CompanyId = user.CompanyId,
-            GroupId = user.GroupId,
-            LastAccess = user.LastAccess,
-            StatusId = user.StatusId,
-            CreationDate = user.CreationDate,
-            RoleId = user.RoleId ?? 0,
-            CreatedByUserName = user.CreatedByNavigation?.UserName ?? "",
-            LastUpdatedByUserName = user.LastUpdateByNavigation?.UserName ?? "",
-            CompanyName = user.Company.Name,
-            CompanyStatusId = user.Company.StatusId
-        };
-    }
+            User? user = isLogin
+                ? await _dBContext.Users
+                    .Include(c => c.CreatedByNavigation)
+                    .Include(c => c.LastUpdateByNavigation)
+                    .Include(c => c.Company)
+                    .FirstOrDefaultAsync(u => u.UserId == userId)
+                : await _dBContext.Users
+                    .Include(c => c.Company)
+                    .FirstOrDefaultAsync(u => u.UserId == userId);
 
-    public async Task<IEnumerable<GroupDto>> GetGroups()
-    {
-        var groups = await _dBContext.Groups.ToListAsync();
-        return groups.Select(g => new GroupDto
-        {
-            GroupId = g.GroupId,
-            Name = g.Name,
-            Description = g.Description
-        });
-    }
-
-    public async Task<IEnumerable<UserResponseDto>> GetAllUsers(int companyId, string name, Role requestorRole, int requestorId)
-    {
-        List<User> users;
-
-        if (string.IsNullOrEmpty(name) || name.Equals("-1", StringComparison.OrdinalIgnoreCase))
-        {
-            users = await _dBContext.Users
-                .Where(c => c.CompanyId == companyId || companyId == 0)
-                .OrderByDescending(u => u.UserId)
-                .Take(50)
-                .ToListAsync();
-        }
-        else
-        {
-            users = await _dBContext.Users
-                .Include(em => em.Company)
-                .Where(u => (u.FirstName.Contains(name) || u.LastName.Contains(name) || name.Contains(u.Company.Name))
-                            && (u.CompanyId == companyId || companyId == 0))
-                .Take(50)
-                .ToListAsync();
+            return new UserResponseDto
+            {
+                UserId = user.UserId,
+                IsEnabled = user.IsEnabled ?? false,
+                UserName = user.UserName,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                CompanyId = user.CompanyId,
+                GroupId = user.GroupId,
+                LastAccess = user.LastAccess,
+                StatusId = user.StatusId,
+                CreationDate = user.CreationDate,
+                RoleId = user.RoleId ?? 0,
+                CreatedByUserName = user.CreatedByNavigation?.UserName ?? "",
+                LastUpdatedByUserName = user.LastUpdateByNavigation?.UserName ?? "",
+                CompanyName = user.Company.Name,
+                CompanyStatusId = user.Company.StatusId
+            };
         }
 
-        if (requestorRole > Role.Admin)
+        public async Task<IEnumerable<GroupDto>> GetGroups()
         {
-            var salesmanUsers = await _dBContext.Users
-                .Include(c => c.Company)
-                .Where(u => u.CreatedBy == requestorId)
-                .ToListAsync();
-
-            users.AddRange(salesmanUsers);
+            var groups = await _dBContext.Groups.ToListAsync();
+            return groups.Select(g => new GroupDto
+            {
+                GroupId = g.GroupId,
+                Name = g.Name,
+                Description = g.Description
+            });
         }
 
-        return users.Select(u => new UserResponseDto
+        public async Task<IEnumerable<UserResponseDto>> GetAllUsers(int companyId, string name, Role requestorRole, int requestorId)
         {
-            UserId = u.UserId,
-            IsEnabled = u.IsEnabled ?? false,
-            UserName = u.UserName,
-            FirstName = u.FirstName,
-           LastName = u.LastName
-        }).OrderBy(u => u.FirstName).ThenBy(u => u.LastName).ToList();
-        
-    }
+            List<User> users;
 
-    public async Task<(bool isValid, string message, int userId)> Validate(string deviceId, UserTokenDto request)
-    {
+            if (string.IsNullOrEmpty(name) || name.Equals("-1", StringComparison.OrdinalIgnoreCase))
+            {
+                users = await _dBContext.Users
+                    .Where(c => c.CompanyId == companyId || companyId == 0)
+                    .OrderByDescending(u => u.UserId)
+                    .Take(50)
+                    .ToListAsync();
+            }
+            else
+            {
+                users = await _dBContext.Users
+                    .Include(em => em.Company)
+                    .Where(u => (u.FirstName.Contains(name) || u.LastName.Contains(name) || name.Contains(u.Company.Name))
+                                && (u.CompanyId == companyId || companyId == 0))
+                    .Take(50)
+                    .ToListAsync();
+            }
+
+            if (requestorRole > Role.Admin)
+            {
+                var salesmanUsers = await _dBContext.Users
+                    .Include(c => c.Company)
+                    .Where(u => u.CreatedBy == requestorId)
+                    .ToListAsync();
+
+                users.AddRange(salesmanUsers);
+            }
+
+            return users.Select(u => new UserResponseDto
+            {
+                UserId = u.UserId,
+                IsEnabled = u.IsEnabled ?? false,
+                UserName = u.UserName,
+                FirstName = u.FirstName,
+                LastName = u.LastName
+            }).OrderBy(u => u.FirstName).ThenBy(u => u.LastName).ToList();
+
+        }
+
+
+        ////////////////////////////////////
+        public async Task<(bool isValid, string message, int userId)> Validate(string deviceId, UserTokenDto request)
+        {
             var encryptedPassword = Utils.EncryptPassword(request.Token);
             var user = await _dBContext.Users
                 .FirstOrDefaultAsync(u => u.UserName == request.UserName && u.Token == encryptedPassword);
@@ -194,6 +215,7 @@ namespace UsaloYa.Services
                 user.StatusId = (int)UserStatus.Conectado;
                 user.DeviceId = deviceId;
                 user.SessionToken = Guid.NewGuid();
+
 
                 _dBContext.Entry(user).State = EntityState.Modified;
                 await _dBContext.SaveChangesAsync();
@@ -227,6 +249,50 @@ namespace UsaloYa.Services
             }
         }
 
+
+        public async Task<CompanyDto> GetCompanyStatus(int companyId)
+        {
+            CompanyStatus status = CompanyStatus.Inactive;
+            int numUsers = 1;
+            CompanyDto companyInfo = null;
+
+            var company = await _dBContext
+                .Companies
+                .Include(c => c.Plan)
+                .FirstOrDefaultAsync(c => c.CompanyId == companyId);
+
+            if (company != null)
+            {
+                status = EConverter.GetEnumFromValue<CompanyStatus>(company.StatusId);
+                var expirationDate = company.ExpirationDate ?? Utils.GetMxDateTime();
+                numUsers = company.Plan.NumUsers;
+                if (status != CompanyStatus.Inactive && Utils.GetMxDateTime().Date > expirationDate.Date)
+                {
+
+                    if (expirationDate.AddDays(_settings.MaxPendingPaymentDaysAllowAccess) >= Utils.GetMxDateTime())
+                    {
+                        status = CompanyStatus.PendingPayment;
+                    }
+                    else
+                    {
+                        status = CompanyStatus.Free; // Compañia marcada con acceso free
+                        company.PlanId = 1;
+                        numUsers = 1;
+                    }
+
+                    company.StatusId = (int)status;
+                    _dBContext.Entry(company).State = EntityState.Modified;
+                    await _dBContext.SaveChangesAsync();
+
+                }
+                companyInfo = new CompanyDto();
+                companyInfo.CompanyId = companyId;
+                companyInfo.StatusId = company.StatusId;
+                companyInfo.PlanNumUsers = numUsers;
+
+            }
+            return companyInfo;
+        }
         public async Task<int?> Logout(string userName)
         {
             var user = await _dBContext.Users.FirstOrDefaultAsync(u => u.UserName == userName);
@@ -244,5 +310,50 @@ namespace UsaloYa.Services
             return user.UserId;
         }
 
+        public async Task<UserDto> RegisterNewUserAndCompany(RegisterUserAndCompanyDto request)
+        {
+            var company = await _CompanyService.SaveCompany(request.CompanyDto);
+            if (company.CompanyId == 0)
+                throw new InvalidOperationException("$_Compania no creada");
+
+            UserDto userDto = new UserDto
+            {
+                UserName = request.RequestRegisterNewUserDto.UserName.Trim(),
+                FirstName = request.RequestRegisterNewUserDto.FirstName.Trim(),
+                LastName = request.RequestRegisterNewUserDto.LastName.Trim(),
+                Token = request.RequestRegisterNewUserDto.Token,
+                CompanyId = company.CompanyId,
+                GroupId = 1,
+                CodeVerification = Utils.GenerateCode(),
+                CreatedBy = 0,
+                LastUpdatedBy = 0, // Assuming 0 is the system user
+                RoleId = (int)Role.Admin,
+                IsEnabled = true,
+
+            };
+            var user = await this.SaveUser(userDto);
+            return user;
+
+        }
+
+        public async Task<bool> IsUsernameUnique(string userName)
+        {
+            var existsUser = await _dBContext.Users.AnyAsync(u => u.UserName == userName);
+            if (existsUser)
+            return false;
+
+            return true;
+        }
+
+
+
+        public async Task<bool> VerifyCodeRegister(RequestVerificationCodeDto data)
+        {
+            var user = await _dBContext.Users
+                .FirstOrDefaultAsync(u => u.CodeVerification == data.Code && u.Email == data.Email);
+            if (user == null) return false;
+
+            return false;
+        }
     }
 }

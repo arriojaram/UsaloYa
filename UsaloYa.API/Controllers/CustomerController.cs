@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using UsaloYa.API.Config;
+using UsaloYa.Library.Config;
 using UsaloYa.API.Security;
 using UsaloYa.Dto;
 using UsaloYa.Dto.Enums;

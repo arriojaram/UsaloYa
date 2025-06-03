@@ -10,16 +10,19 @@ using UsaloYa.Dto.Utils;
 using UsaloYa.Dto;
 using UsaloYa.Library.Models;
 using UsaloYa.Services.interfaces;
+using Microsoft.Extensions.Configuration;
 
 namespace UsaloYa.Services
 {
     public class CompanyService : ICompanyService
     {
         private readonly DBContext _dBContext;
+        private readonly IConfiguration _configuration;
 
-        public CompanyService(DBContext dBContext)
+        public CompanyService(DBContext dBContext, IConfiguration configuration)
         {
             _dBContext = dBContext;
+            _configuration = configuration;
         }
 
         public async Task<IEnumerable<GenericObjectDto>> GetAll4List(string name)
@@ -91,6 +94,12 @@ namespace UsaloYa.Services
                     OwnerInfo = companyDto.OwnerInfo,
                     PlanId = 1
                 };
+                if (companyDto.LastUpdateBy == 0 || companyDto.CreatedBy == 0)
+                {
+                    company.CreatedBy = _configuration.GetValue<int>("SelfRegister:CreatedBy");
+                    company.LastUpdateBy = _configuration.GetValue<int>("SelfRegister:LastUpdateBy");
+                }
+
                 _dBContext.Companies.Add(company);
             }
             else
@@ -114,6 +123,7 @@ namespace UsaloYa.Services
             }
 
             await _dBContext.SaveChangesAsync();
+            companyDto.CompanyId = company.CompanyId;
             return companyDto;
         }
 
@@ -260,6 +270,16 @@ namespace UsaloYa.Services
 
             rentHistory.ForEach(r => r.StatusIdUI = EConverter.GetEnumNameFromValue<RentTypeId>(r.StatusId));
             return rentHistory;
+        }
+
+
+        public async Task<bool> IsCompanyUnique(string companyName)
+        {
+            var existCompany = await _dBContext.Companies.AnyAsync(u => u.Name == companyName);
+            if (existCompany)
+                return false;
+
+            return true;
         }
 
     }

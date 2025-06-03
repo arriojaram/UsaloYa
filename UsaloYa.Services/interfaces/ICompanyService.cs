@@ -22,6 +22,7 @@ namespace UsaloYa.Services.interfaces
         Task<int?> AddRent(RentDto rentDto);
         Task<List<RentDto>> GetPaymentHistory(int companyId);
         Task<DateTime> CalculateExpirationDate(Company company, decimal rentAmount, RentTypeId typeId);
+        Task<bool> IsCompanyUnique(string companyName);
 
 
     }

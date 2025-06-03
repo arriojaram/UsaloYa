@@ -38,6 +38,9 @@ public partial class User
     public Guid? SessionToken { get; set; }
 
     public virtual Company Company { get; set; } = null!;
+    public string? CodeVerification { get; set; }   
+    public bool? IsVerifiedCode { get; set; }
+    public string? Email { get; set; }
 
     public virtual ICollection<Company> CompanyCreatedByNavigations { get; set; } = new List<Company>();
 

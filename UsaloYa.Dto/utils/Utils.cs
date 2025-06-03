@@ -11,6 +11,15 @@ namespace UsaloYa.Dto.Utils
 {
     public class Utils
     {
+        private const string Alphanumeric = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        private static readonly Random _random = new();
+
+        public static string GenerateCode(int length = 8)
+        {
+            return new string(Enumerable.Repeat(Alphanumeric, length)
+                .Select(s => s[_random.Next(s.Length)]).ToArray());
+        }
+
         public static string EncryptPassword(string password)
         {
             using (var sha256 = SHA256.Create())

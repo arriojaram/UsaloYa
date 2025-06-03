@@ -8,13 +8,16 @@ namespace UsaloYa.Dto
 {
     public class RequestRegisterNewUserDto
     {
-        public string Name { get; set; } = null!;
+        public string UserName { get; set; } = null!;
+        public string Token { get; set; } = null!;
+        public string FirstName { get; set; } = null!;
+        public string LastName { get; set; } = null!;
 
         public string Phone { get; set; } = null!;
         public string Email { get; set; } = null!;
         public string? Address { get; set; }
-        public string Username { get; set; } = null!;
-        public string Password { get; set; } = null!;
+       
+        
 
     }
 }

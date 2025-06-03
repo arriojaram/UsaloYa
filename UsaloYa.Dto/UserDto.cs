@@ -15,7 +15,9 @@
         public DateTime? LastAccess { get; set; }
         public DateTime? CreationDate { get; set; }
         public int CompanyStatusId { get; set; }
-
         public int? RoleId { get; set; }
+        public string? CodeVerification { get; set; }
+        public bool? IsVerifiedCode { get; set; }
+        public string? Email { get; set; }
     }
 }

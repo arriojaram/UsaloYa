@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using UsaloYa.API.Config;
+using UsaloYa.Library.Config;
 using UsaloYa.API.Security;
 using UsaloYa.Dto;
 using UsaloYa.Dto.Enums;
@@ -238,6 +238,22 @@ namespace UsaloYa.API.Controllers
             {
                 _logger.LogError(ex, "GetPaymentHistory.ApiError");
                 return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
+            }
+        }
+
+
+        [HttpPost("IsCompanyUnique")]
+        public async Task<IActionResult> IsCompanyUnique([FromBody] string name)
+        {
+            try
+            {
+                var result = await _companyService.IsCompanyUnique(name);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Logout.ApiError");
+                return StatusCode(500, new { message = "No se puede procesar la solicitud, error de servidor." });
             }
         }
 

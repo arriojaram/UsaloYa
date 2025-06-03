@@ -18,6 +18,16 @@ namespace UsaloYa.API.Security
 
         public async Task InvokeAsync(HttpContext context)
         {
+            // Rutas que no requieren validación de token
+            if (context.Request.Path.StartsWithSegments("/api/User/RegisterNewUser", StringComparison.OrdinalIgnoreCase) ||
+                context.Request.Path.StartsWithSegments("/api/User/Validate", StringComparison.OrdinalIgnoreCase) ||
+                context.Request.Path.StartsWithSegments("/api/User/IsUsernameUnique", StringComparison.OrdinalIgnoreCase) ||
+                context.Request.Path.StartsWithSegments("/api/Company/IsCompanyUnique", StringComparison.OrdinalIgnoreCase))
+            {
+                await _next(context); // Saltar validación de token
+                return;
+            }
+
             if (!context.Request.Headers.TryGetValue("Authorization", out var extractedToken))
             {
                 context.Response.StatusCode = 401;
@@ -25,41 +35,34 @@ namespace UsaloYa.API.Security
                 return;
             }
 
-            var path = context.Request.Path;
-            if (path.HasValue && path.Value == "/api/User/Validate")
+            context.Request.Headers.TryGetValue("RequestorId", out var requestorIdStr);
+            if (!int.TryParse(requestorIdStr, out _))
             {
-
+                context.Response.StatusCode = 401;
+                await context.Response.WriteAsync("Usuario no reconocido.");
+                return;
             }
-            else
+
+            context.Request.Headers.TryGetValue("DeviceId", out var deviceId);
+            if (string.IsNullOrEmpty(deviceId))
             {
-                context.Request.Headers.TryGetValue("RequestorId", out var requestorIdStr);
-                if (!int.TryParse(requestorIdStr, out _))
-                {
-                    context.Response.StatusCode = 401;
-                    await context.Response.WriteAsync("Usuario no reconocido.");
-                    return;
-                }
-
-                context.Request.Headers.TryGetValue("DeviceId", out var deviceId);
-                if (string.IsNullOrEmpty(deviceId))
-                {
-                    context.Response.StatusCode = 401;
-                    await context.Response.WriteAsync("Dispositivo no reconocido.");
-                    return;
-                }
-                
-
-                var appToken = _configuration.GetValue<string>("ApiKey") ?? "";
-
-                if (!appToken.Equals(extractedToken))
-                {
-                    context.Response.StatusCode = 401;
-                    await context.Response.WriteAsync("Acceso no autorizado.");
-                    return;
-                }
+                context.Response.StatusCode = 401;
+                await context.Response.WriteAsync("Dispositivo no reconocido.");
+                return;
             }
+
+            var appToken = _configuration.GetValue<string>("ApiKey") ?? "";
+
+            if (!appToken.Equals(extractedToken))
+            {
+                context.Response.StatusCode = 401;
+                await context.Response.WriteAsync("Acceso no autorizado.");
+                return;
+            }
+
             await _next(context);
         }
+
     }
 
 }

@@ -10,6 +10,8 @@
         public int CompanyId { get; set; }
         public string CompanyName{ get; set; }
         public int CompanyStatusId { get; set; }
+        public string? Email { get; set; }
+        public bool? IsVerifiedCode { get; set; }
 
         public int GroupId { get; set; }
         public int StatusId { get; set; }

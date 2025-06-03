@@ -18,6 +18,17 @@ namespace UsaloYa.API.Security
 
         public void OnActionExecuting(ActionExecutingContext context)
         {
+            var path = context.HttpContext.Request.Path.Value?.ToLowerInvariant();
+
+            bool skipValidation = path != null && (
+                
+                path.Contains("/api/company/iscompanyunique")
+            );
+
+            if (skipValidation)
+                return;
+
+
             if (!context.HttpContext.Request.Headers.TryGetValue("DeviceId", out var deviceId) || string.IsNullOrEmpty(deviceId))
             {
                 context.Result = new UnauthorizedObjectResult("*Dispositivo no reconocido."); 

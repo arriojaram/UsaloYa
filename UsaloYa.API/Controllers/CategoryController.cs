@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.Eventing.Reader;
-using UsaloYa.API.Config;
+using UsaloYa.Library.Config;
 using UsaloYa.Dto;
 using UsaloYa.Dto.Enums;
 using UsaloYa.Library.Models;
