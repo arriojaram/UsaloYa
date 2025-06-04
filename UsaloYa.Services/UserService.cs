@@ -334,6 +334,7 @@ namespace UsaloYa.Services
                 LastName = request.RequestRegisterNewUserDto.LastName.Trim(),
                 Token = request.RequestRegisterNewUserDto.Token,
                 CompanyId = company.CompanyId,
+                Email = request.RequestRegisterNewUserDto.Email,
                 GroupId = 1,
                 CodeVerification = Utils.GenerateCode(),
                 CreatedBy = 0,
