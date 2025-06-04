@@ -310,7 +310,7 @@ namespace UsaloYa.Services
             return user.UserId;
         }
 
-        public async Task<UserDto> RegisterNewUserAndCompany(RegisterUserAndCompanyDto request)
+        public async Task<bool> RegisterNewUserAndCompany(RegisterUserAndCompanyDto request)
         {
             var company = await _CompanyService.SaveCompany(request.CompanyDto);
             if (company.CompanyId == 0)
@@ -332,7 +332,7 @@ namespace UsaloYa.Services
 
             };
             var user = await this.SaveUser(userDto);
-            return user;
+            return true;
 
         }
 
@@ -346,14 +346,30 @@ namespace UsaloYa.Services
         }
 
 
-
-        public async Task<bool> VerifyCodeRegister(RequestVerificationCodeDto data)
+        public async Task<User> VerificationCodeEmail(RequestVerificationCodeDto data)
         {
             var user = await _dBContext.Users
                 .FirstOrDefaultAsync(u => u.CodeVerification == data.Code && u.Email == data.Email);
-            if (user == null) return false;
+            if (user == null) throw new InvalidOperationException("$_Datos incorrectos");
 
+            return user;
+        }
+
+        public async Task<bool> RequestVerificationCodeEmail(RequestVerificationCodeDto data, string deviceId)
+        {
+            var user = await VerificationCodeEmail(data);
+            if(user != null)
+            {
+                UserTokenDto userRequest = new UserTokenDto
+                {
+                    UserName = user.UserName,
+                    Token = user.Token,
+                    
+                };
+                await Validate(deviceId, userRequest);
+            }
             return false;
+
         }
     }
 }

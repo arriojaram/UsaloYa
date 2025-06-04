@@ -183,8 +183,12 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var user = await _userService.RegisterNewUserAndCompany(request);
-                return Ok(user);
+                var result = await _userService.RegisterNewUserAndCompany(request);
+                if (result == true)
+                {
+                    return Ok();
+                }
+                return BadRequest("No se pudieron registrar los datos"); ;
             }
             catch (Exception ex)
             {
@@ -200,6 +204,28 @@ namespace UsaloYa.API.Controllers
             {
                 var result = await _userService.IsUsernameUnique(name);
                 return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Logout.ApiError");
+                return StatusCode(500, new { message = "No se puede procesar la solicitud, error de servidor." });
+            }
+        }
+
+
+        [HttpPut("RequestVerificationCodeEmail")]
+        public async Task<IActionResult> RequestVerificationCodeEmail([FromBody] RequestVerificationCodeDto request,string deviceId)
+        {
+            try
+            {
+                var result = await _userService.RequestVerificationCodeEmail(request, deviceId);
+                if (result == true)
+                {
+
+                    return Ok();
+
+                }
+                return BadRequest("No se pudieron registrar los datos"); ;
             }
             catch (Exception ex)
             {
