@@ -57,7 +57,8 @@ namespace UsaloYa.Services
                     IsEnabled = true,
                     StatusId = (int)UserStatus.Desconocido,
                     CreationDate = Utils.GetMxDateTime(),
-                    RoleId = userDto.RoleId
+                    RoleId = userDto.RoleId,
+                    CodeVerification = userDto.CodeVerification
                 }; 
 
                 if (userDto.LastUpdatedBy == 0 || userDto.CreatedBy == 0)
@@ -188,7 +189,17 @@ namespace UsaloYa.Services
         ////////////////////////////////////
         public async Task<(bool isValid, string message, int userId)> Validate(string deviceId, UserTokenDto request)
         {
-            var encryptedPassword = Utils.EncryptPassword(request.Token);
+            string encryptedPassword;
+
+            if (Utils.IsSha256Hash(request.Token))
+            {
+                encryptedPassword = request.Token;
+            }
+            else
+            {
+                encryptedPassword = Utils.EncryptPassword(request.Token);
+            }
+            
             var user = await _dBContext.Users
                 .FirstOrDefaultAsync(u => u.UserName == request.UserName && u.Token == encryptedPassword);
 
@@ -353,28 +364,27 @@ namespace UsaloYa.Services
             if (user == null) throw new InvalidOperationException("$_Datos incorrectos");
 
             user.IsVerifiedCode = true;
-            _dBContext.Users.Add(user);
+            user = await _dBContext.Users.FindAsync(user.UserId);
             await _dBContext.SaveChangesAsync();
 
             return user;
         }
 
-        public async Task<bool> RequestVerificationCodeEmail(RequestVerificationCodeDto data, string deviceId)
+        public async Task<(bool isValid, string message, int userId)> RequestVerificationCodeEmail(RequestVerificationCodeDto data, string deviceId)
         {
             var user = await VerificationCodeEmail(data);
             if(user != null)
             {
-                UserTokenDto userRequest = new UserTokenDto
+                UserTokenDto request = new UserTokenDto
                 {
                     UserName = user.UserName,
                     Token = user.Token,
                     
                 };
-                return true;
-                await Validate(deviceId, userRequest);
-                
+                var a = await Validate(deviceId, request);
+                return (a.isValid, a.message, a.userId);
             }
-            return false;
+            return (false, "No se pudo procesar su peticion.", 0);
 
         }
     }

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UsaloYa.Dto;
 using UsaloYa.Dto.Enums;
+using UsaloYa.Library.Models;
 
 namespace UsaloYa.Services.interfaces
 {
@@ -21,7 +22,7 @@ namespace UsaloYa.Services.interfaces
         Task<bool> RegisterNewUserAndCompany(RegisterUserAndCompanyDto request);
         Task<bool> IsUsernameUnique(string companyName);
 
-        Task<bool> RequestVerificationCodeEmail(RequestVerificationCodeDto data, string deviceId);
+        Task<(bool isValid, string message, int userId)> RequestVerificationCodeEmail(RequestVerificationCodeDto data, string deviceId);
 
     }
 }

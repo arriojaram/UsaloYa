@@ -14,8 +14,9 @@ namespace UsaloYa.Dto.Utils
         private const string Alphanumeric = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         private static readonly Random _random = new();
 
-        public static string GenerateCode(int length = 8)
+        public static string GenerateCode()
         {
+            int length = 8;
             return new string(Enumerable.Repeat(Alphanumeric, length)
                 .Select(s => s[_random.Next(s.Length)]).ToArray());
         }
@@ -32,6 +33,18 @@ namespace UsaloYa.Dto.Utils
                 }
                 return builder.ToString();
             }
+        }
+
+        public static bool IsSha256Hash(string input)
+        {
+            if (string.IsNullOrEmpty(input) || input.Length != 64)
+                return false;
+
+            // Validar que todos los caracteres sean hexadecimales (0-9, a-f, A-F)
+            return input.All(c =>
+                (c >= '0' && c <= '9') ||
+                (c >= 'a' && c <= 'f') ||
+                (c >= 'A' && c <= 'F'));
         }
 
         public static DateTime GetMxDateTime()

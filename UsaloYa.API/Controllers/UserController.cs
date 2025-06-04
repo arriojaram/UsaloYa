@@ -219,14 +219,14 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var result = await _userService.RequestVerificationCodeEmail(request, deviceId);
-                if (result == true)
+                var (isValid, message, userId) = await _userService.RequestVerificationCodeEmail(request, deviceId);
+                if (isValid == true)
                 {
 
-                    return Ok(result);
+                    return Ok(new { Id = userId, Msg = message });
 
                 }
-                return BadRequest("No se pudieron registrar los datos"); ;
+                return BadRequest("No se pudieron registrar los datos");
             }
             catch (Exception ex)
             {
