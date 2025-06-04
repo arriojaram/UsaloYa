@@ -352,6 +352,10 @@ namespace UsaloYa.Services
                 .FirstOrDefaultAsync(u => u.CodeVerification == data.Code && u.Email == data.Email);
             if (user == null) throw new InvalidOperationException("$_Datos incorrectos");
 
+            user.IsVerifiedCode = true;
+            _dBContext.Users.Add(user);
+            await _dBContext.SaveChangesAsync();
+
             return user;
         }
 
@@ -366,7 +370,9 @@ namespace UsaloYa.Services
                     Token = user.Token,
                     
                 };
+                return true;
                 await Validate(deviceId, userRequest);
+                
             }
             return false;
 

@@ -22,6 +22,7 @@ namespace UsaloYa.API.Security
             if (context.Request.Path.StartsWithSegments("/api/User/RegisterNewUser", StringComparison.OrdinalIgnoreCase) ||
                 context.Request.Path.StartsWithSegments("/api/User/Validate", StringComparison.OrdinalIgnoreCase) ||
                 context.Request.Path.StartsWithSegments("/api/User/IsUsernameUnique", StringComparison.OrdinalIgnoreCase) ||
+                context.Request.Path.StartsWithSegments("/api/User/RequestVerificationCodeEmail", StringComparison.OrdinalIgnoreCase) ||
                 context.Request.Path.StartsWithSegments("/api/Company/IsCompanyUnique", StringComparison.OrdinalIgnoreCase))
             {
                 await _next(context); // Saltar validación de token

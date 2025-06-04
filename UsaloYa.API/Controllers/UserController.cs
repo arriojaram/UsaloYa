@@ -7,6 +7,7 @@ using UsaloYa.Dto;
 using UsaloYa.Library.Models;
 using UsaloYa.Services.interfaces;
 using UsaloYa.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace UsaloYa.API.Controllers
 {
@@ -78,7 +79,6 @@ namespace UsaloYa.API.Controllers
             }
         }
 
-        /////////////////////
         [HttpGet("GetUser")]
         public async Task<IActionResult> GetUser([FromHeader] string RequestorId, int userId, string i = "")
         {
@@ -178,7 +178,7 @@ namespace UsaloYa.API.Controllers
         }
 
 
-        [HttpPut("RegisterNewUser")]
+        [HttpPost("RegisterNewUser")]
         public async Task<IActionResult> RegisterNewUser([FromBody] RegisterUserAndCompanyDto request)
         {
             try
@@ -213,8 +213,9 @@ namespace UsaloYa.API.Controllers
         }
 
 
-        [HttpPut("RequestVerificationCodeEmail")]
-        public async Task<IActionResult> RequestVerificationCodeEmail([FromBody] RequestVerificationCodeDto request,string deviceId)
+        [HttpPost("RequestVerificationCodeEmail")]
+        [AllowAnonymous]
+        public async Task<IActionResult> RequestVerificationCodeEmail([FromHeader] string deviceId, [FromBody] RequestVerificationCodeDto request)
         {
             try
             {
@@ -222,7 +223,7 @@ namespace UsaloYa.API.Controllers
                 if (result == true)
                 {
 
-                    return Ok();
+                    return Ok(result);
 
                 }
                 return BadRequest("No se pudieron registrar los datos"); ;
@@ -230,7 +231,7 @@ namespace UsaloYa.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Logout.ApiError");
-                return StatusCode(500, new { message = "No se puede procesar la solicitud, error de servidor." });
+                return StatusCode(500, new { message = "No se puede procesar la solicitud, error de servidor." + ex.Message });
             }
         }
 
