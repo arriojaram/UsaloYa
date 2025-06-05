@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using UsaloYa.Services.interfaces;
+using UsaloYa.Dto;
 
 namespace UsaloYa.API.Controllers
 {
@@ -18,19 +19,19 @@ namespace UsaloYa.API.Controllers
 
 
         [HttpPost("EnviarCorreo")]
-        public async Task<IActionResult> Enviar([FromBody]string destinatario)
+        public async Task<IActionResult> Enviar([FromBody] SendVerificationCodeDto request)
         {
             var templatePath = Path.Combine(_env.ContentRootPath, "Templates", "Notificacion.html");
 
             var variables = new Dictionary<string, string>
         {
-            { "Nombre", "Juan" },
-            { "Mensaje", "Tu correo ha  enviado correctamente usando Gmail SMTP y MailKit." }
+            { "Nombre", request.FirstName },
+            { "Mensaje", "Tu correo ha"+ request.CodeVerification+"  enviado correctamente usando Gmail SMTP y MailKit." }
         };
 
             await _emailService.SendEmailFromTemplateAsync(
-                toEmail: destinatario,
-                subject: "Notificación desde servicio",
+                toEmail: request.Email,
+                subject: "Verificación de correo electrónico.",
                 templatePath: templatePath,
                 variables: variables
             );

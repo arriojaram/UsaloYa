@@ -27,8 +27,8 @@ namespace UsaloYa.Services
 
             var html = await File.ReadAllTextAsync(templatePath);
 
-            // Reemplazar {{Variable}}
-            foreach (var kv in variables)
+            // Reemplazar {{Variable}}3
+             foreach (var kv in variables)
             {
                 html = html.Replace($"{{{{{kv.Key}}}}}", kv.Value);
             }

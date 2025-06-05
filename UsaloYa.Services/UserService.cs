@@ -321,7 +321,7 @@ namespace UsaloYa.Services
             return user.UserId;
         }
 
-        public async Task<bool> RegisterNewUserAndCompany(RegisterUserAndCompanyDto request)
+        public async Task<UserResponseDto> RegisterNewUserAndCompany(RegisterUserAndCompanyDto request)
         {
             var company = await _CompanyService.SaveCompany(request.CompanyDto);
             if (company.CompanyId == 0)
@@ -344,7 +344,14 @@ namespace UsaloYa.Services
 
             };
             var user = await this.SaveUser(userDto);
-            return true;
+ 
+            UserResponseDto response = new UserResponseDto
+            {
+                FirstName = user.FirstName,
+                Email = user.Email,
+                CodeVerification = user.CodeVerification
+            };
+            return response;
 
         }
 

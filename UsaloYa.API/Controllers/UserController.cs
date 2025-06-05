@@ -17,15 +17,19 @@ namespace UsaloYa.API.Controllers
     {
         private readonly ILogger<UserController> _logger;
         private readonly IUserService _userService;
+        private readonly IEmailService _emailService;
         private readonly DBContext _dBContext;
         private readonly AppConfig _settings;
+        private readonly IWebHostEnvironment _env;
 
-        public UserController(DBContext dBContext, IUserService userService, ILogger<UserController> logger, AppConfig settings)
+        public UserController(DBContext dBContext, IUserService userService, ILogger<UserController> logger, AppConfig settings, IEmailService emailService, IWebHostEnvironment env)
         {
             _logger = logger;
             _userService = userService;
             _dBContext = dBContext;
             _settings = settings;
+            _emailService = emailService;
+            _env = env;
         }
 
         [HttpGet("HelloWorld")]
@@ -184,8 +188,27 @@ namespace UsaloYa.API.Controllers
             try
             {
                 var result = await _userService.RegisterNewUserAndCompany(request);
-                if (result == true)
+                if (result.IsVerifiedCode != null)
                 {
+                    try
+                    {
+                        await _emailService.SendEmailFromTemplateAsync(
+                           toEmail: result.Email,
+                           subject: "Verificación de correo electrónico.",
+                           templatePath: Path.Combine(_env.ContentRootPath, "Templates", "Notificacion.html"),
+                           variables: new Dictionary<string, string>
+                           {
+                            { "Nombre", result.FirstName },
+                            { "Mensaje", "Hola:\r\n\r\nCuidar tu seguridad y asegurar tu información son prioridades para nuestro equipo. Por eso, necesitamos que confirmes tu correo.\r\n\r\n" +
+                                "Tu codigo de verificacion es  "+ result.CodeVerification+", por verifique su cuenta en la siguiente pagina\r\n\r\n" +
+                                "href='www.google.com'"}
+                           });
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "RegisterNewUser.EmailError");
+                        return StatusCode(500, new { message = "No se pudo enviar el correo de verificación." });
+                    }
                     return Ok();
                 }
                 return BadRequest("No se pudieron registrar los datos"); ;
