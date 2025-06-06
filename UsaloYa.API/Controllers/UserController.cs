@@ -8,6 +8,7 @@ using UsaloYa.Library.Models;
 using UsaloYa.Services.interfaces;
 using UsaloYa.Services;
 using Microsoft.AspNetCore.Authorization;
+using System.ComponentModel.DataAnnotations;
 
 namespace UsaloYa.API.Controllers
 {
@@ -145,7 +146,7 @@ namespace UsaloYa.API.Controllers
         }
 
 
-      
+
         [HttpPost("Validate")]
         public async Task<IActionResult> Validate([FromHeader] string DeviceId, [FromBody] UserTokenDto request)
         {
@@ -187,38 +188,55 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var result = await _userService.RegisterNewUserAndCompany(request);
-                if (result.IsVerifiedCode != null)
+                var user = await _userService.RegisterNewUserAndCompany(request);
+
+                if (user.CodeVerification != null)
                 {
                     try
                     {
+                        string templatePath = Path.Combine(_env.ContentRootPath, "Templates", "Notificacion.html");
+                        var variables = new Dictionary<string, string>
+                {
+                    { "Nombre", user.FirstName },
+                    { "Mensaje", $"Hola:<br/><br/>Cuidar tu seguridad y asegurar tu información son prioridades para nuestro equipo. Por eso, necesitamos que confirmes tu correo.<br/><br/>" +
+                                $"Tu código de verificación es <strong>{user.CodeVerification}</strong>, por favor verifique su cuenta en la siguiente página:<br/><a href='www.google.com'>www.google.com</a>" }
+                };
+
                         await _emailService.SendEmailFromTemplateAsync(
-                           toEmail: result.Email,
-                           subject: "Verificación de correo electrónico.",
-                           templatePath: Path.Combine(_env.ContentRootPath, "Templates", "Notificacion.html"),
-                           variables: new Dictionary<string, string>
-                           {
-                            { "Nombre", result.FirstName },
-                            { "Mensaje", "Hola:\r\n\r\nCuidar tu seguridad y asegurar tu información son prioridades para nuestro equipo. Por eso, necesitamos que confirmes tu correo.\r\n\r\n" +
-                                "Tu codigo de verificacion es  "+ result.CodeVerification+", por verifique su cuenta en la siguiente pagina\r\n\r\n" +
-                                "href='www.google.com'"}
-                           });
+                            toEmail: user.Email,
+                            subject: "Verificación de correo electrónico.",
+                            templatePath: templatePath,
+                            variables: variables
+                        );
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, "RegisterNewUser.EmailError");
+                        _logger.LogError(ex, "Error al enviar correo de verificación para el usuario {Email}", user.Email);
                         return StatusCode(500, new { message = "No se pudo enviar el correo de verificación." });
                     }
-                    return Ok();
+
+                    return Ok(new { message = "Usuario registrado y correo de verificación enviado." });
                 }
-                return BadRequest("No se pudieron registrar los datos"); ;
+
+                return BadRequest(new { message = "No se pudieron registrar los datos." });
+            }
+            catch (InvalidOperationException ex) when (ex.Message.Contains("Company already exists"))
+            {
+                _logger.LogWarning("Registro fallido: empresa existente - {Company}", request.CompanyDto.Name);
+                return Conflict(new { message = "La empresa ya se encuentra registrada." });
+            }
+            catch (ValidationException ex)
+            {
+                _logger.LogWarning(ex, "Error de validación al registrar usuario.");
+                return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Logout.ApiError");
-                return StatusCode(500, new { message = "No se puede procesar la solicitud, error de servidor." });
+                _logger.LogError(ex, "Error inesperado en RegisterNewUser.");
+                return StatusCode(500, new { message = "No se puede procesar la solicitud. Error interno del servidor.", ex });
             }
         }
+
 
         [HttpPost("IsUsernameUnique")]
         public async Task<IActionResult> IsUsernameUnique([FromBody] string name)
@@ -235,28 +253,27 @@ namespace UsaloYa.API.Controllers
             }
         }
 
-
         [HttpPost("RequestVerificationCodeEmail")]
         [AllowAnonymous]
-        public async Task<IActionResult> RequestVerificationCodeEmail([FromHeader] string deviceId, [FromBody] RequestVerificationCodeDto request)
+        public async Task<IActionResult> RequestVerificationCodeEmail([FromBody] RequestVerificationCodeDto request)
         {
+            _logger.LogInformation("Recibido email: {Email}, code: {Code}, deviceId: {DeviceId}", request.Email, request.Code, request.DeviceId);
+
             try
             {
-                var (isValid, message, userId) = await _userService.RequestVerificationCodeEmail(request, deviceId);
-                if (isValid == true)
+                var result = await _userService.RequestVerificationCodeEmail(request, request.DeviceId);
+                return Ok(new
                 {
-
-                    return Ok(new { Id = userId, Msg = message });
-
-                }
-                return BadRequest("No se pudieron registrar los datos");
+                    isValid = result.isValid,
+                    message = result.message,
+                    userId = result.userId
+                });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Logout.ApiError");
-                return StatusCode(500, new { message = "No se puede procesar la solicitud, error de servidor." + ex.Message });
+                _logger.LogError("Error verificando código: {Message}", ex.Message);
+                return StatusCode(500, new { message = ex.Message });
             }
         }
-
     }
-}
+    }

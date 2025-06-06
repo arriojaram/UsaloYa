@@ -9,6 +9,8 @@
 
     }
 
+
+
     public enum SaleStatus
     {
         Completada = 0,

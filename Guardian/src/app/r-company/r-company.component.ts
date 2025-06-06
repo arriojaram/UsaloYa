@@ -1,0 +1,105 @@
+import { Component, OnInit } from '@angular/core';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
+import { NgIf } from '@angular/common';
+import { UserService } from '../services/user.service';
+import { NavigationService } from '../services/navigation.service';
+import { AlertLevel } from '../Enums/enums';
+import { companyDto } from '../dto/companyDto';
+import { RequestRegisterNewUserDto } from '../dto/RequestRegisterNewUserDto ';
+import { RegisterUserAndCompanyDto } from '../dto/RegisterUserAndCompanyDto ';
+import { RegisterDataService } from '../services/register-data.service';
+
+@Component({
+  selector: 'app-r-company',
+  standalone: true,
+  imports: [ReactiveFormsModule, HttpClientModule, NgIf],
+  templateUrl: './r-company.component.html',
+  styleUrls: ['./r-company.component.css'],
+})
+export class Rcompany implements OnInit {
+  companyForm: FormGroup;
+  userData: RequestRegisterNewUserDto | null = null;
+  loading = false;
+
+  constructor(
+    private fb: FormBuilder,
+    private userService: UserService,
+    private navigationService: NavigationService,
+    private registerDataService: RegisterDataService
+  ) {
+    this.companyForm = this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(3)]],
+      address: [''],
+      phoneNumber: [''],
+      cellphoneNumber: [''],
+      email: ['', [Validators.email]],
+      ownerInfo: [''],
+      planId: [1, [Validators.min(1)]],
+    });
+  }
+
+  ngOnInit(): void {
+    this.userData = this.registerDataService.getUserData();
+
+    if (!this.userData) {
+      this.navigationService.showUIMessage(
+        'Por favor registra primero los datos del usuario.',
+        AlertLevel.Warning
+      );
+      // Opcional: aquí podrías redirigir a /register
+    }
+  }
+
+  onSubmit(): void {
+    if (this.companyForm.invalid) {
+      this.companyForm.markAllAsTouched();
+      this.navigationService.showUIMessage('Formulario inválido', AlertLevel.Warning);
+      return;
+    }
+
+    if (!this.userData) {
+      this.navigationService.showUIMessage('Faltan los datos del usuario. Por favor regístrate primero.', AlertLevel.Error);
+      return;
+    }
+
+    this.loading = true;
+
+    const company: companyDto = {
+      companyId: 0,
+      name: this.companyForm.value.name,
+      address: this.companyForm.value.address,
+      phoneNumber: this.companyForm.value.phoneNumber,
+      cellphoneNumber: this.companyForm.value.cellphoneNumber,
+      email: this.companyForm.value.email,
+      ownerInfo: this.companyForm.value.ownerInfo,
+      planId: this.companyForm.value.planId,
+      statusId: 1, // Activo
+    };
+
+const payload: RegisterUserAndCompanyDto = {
+  requestRegisterNewUserDto: this.userData,
+  companyDto: company,
+  groupDto: {
+    groupId: 0,
+    name: '',
+    description: '',
+    permissions: '',
+    companyId: 0
+  }
+};
+
+    this.userService.registerNewUser(payload).subscribe({
+      next: () => {
+        this.navigationService.showUIMessage('Usuario y compañía registrados exitosamente', AlertLevel.Sucess);
+        this.companyForm.reset({ planId: 1 });
+        this.registerDataService.setUserData(null); // Limpiar datos guardados
+        this.loading = false;
+      },
+      error: (err) => {
+        this.navigationService.showUIMessage('Error al registrar usuario y compañía: ' + err.message, AlertLevel.Error);
+        this.loading = false;
+      },
+    });
+  }
+}

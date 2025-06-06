@@ -1,0 +1,33 @@
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-body">
+          <h3 class="card-title text-center">Código de Verificación</h3>
+          <form [formGroup]="verificationForm" (ngSubmit)="onSubmit()">
+            <div class="mb-3">
+              <label for="Code" class="form-label">Código</label>
+              <input type="text" id="Code" class="form-control"
+                     formControlName="Code"
+                     placeholder="Ingresa el código">
+            </div>
+
+            <div class="mb-3">
+              <label for="Email" class="form-label">E-mail</label>
+              <input type="Email" id="Email" class="form-control"
+                     formControlName="Email"
+                     placeholder="Confirma tu e-mail">
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100"
+                    [disabled]="verificationForm.invalid">
+              Verificar
+            </button>
+          </form>
+
+       
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

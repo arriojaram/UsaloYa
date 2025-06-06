@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace UsaloYa.Library.Models;
+﻿using UsaloYa.Library.Models;
 
 public partial class Group
 {
@@ -11,9 +8,10 @@ public partial class Group
 
     public string? Description { get; set; }
 
-    public string Permissions { get; set; } = null!;
+    public string Permissions { get; set; } = null!;  
 
-    public int CompanyId { get; set; }
+    public int CompanyId { get; set; }   
+         
 
     public virtual Company Company { get; set; } = null!;
 

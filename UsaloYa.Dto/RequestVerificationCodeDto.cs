@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace UsaloYa.Dto
+public class RequestVerificationCodeDto
 {
-    public class RequestVerificationCodeDto
-    {
-        public string Code { get; set; } = null!;
-        public string Email { get; set; } = null!;
-    }
+    [Required]
+    public string Code { get; set; }
+
+    [Required]
+    public string Email { get; set; }
+
+    [Required]
+    public string DeviceId { get; set; }
 }

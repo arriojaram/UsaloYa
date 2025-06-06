@@ -1,0 +1,83 @@
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title text-center">Crea una cuenta</h3>
+
+                    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Nombre</label>
+                            <input type="text" class="form-control" formControlName="name" placeholder="Nombre"
+                                id="name" aria-describedby="nameError" />
+                            <div *ngIf="registerForm.get('name')?.invalid && registerForm.get('name')?.touched"
+                                class="text-danger" id="nameError">
+                                El nombre es requerido y debe tener al menos 3 caracteres
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Teléfono</label>
+                            <input type="text" class="form-control" formControlName="phone" placeholder="Teléfono"
+                                id="phone" aria-describedby="phoneError" />
+                            <div *ngIf="registerForm.get('phone')?.invalid && registerForm.get('phone')?.touched"
+                                class="text-danger" id="phoneError">
+                                El número telefónico es requerido
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">E-mail</label>
+                            <input type="email" class="form-control" formControlName="email" placeholder="E-mail"
+                                id="email" aria-describedby="emailError" />
+                            <div *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
+                                class="text-danger" id="emailError">
+                                El e-mail es requerido y debe ser válido
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Dirección</label>
+                            <input type="text" class="form-control" formControlName="address" placeholder="Dirección"
+                                id="address" aria-describedby="addressError" />
+                            <div *ngIf="registerForm.get('address')?.invalid && registerForm.get('address')?.touched"
+                                class="text-danger" id="addressError">
+                                La dirección es requerida
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Usuario</label>
+                            <input type="text" class="form-control" formControlName="username"
+                                placeholder="Nombre de Usuario" id="username" aria-describedby="usernameError" />
+                            <div *ngIf="registerForm.get('username')?.invalid && registerForm.get('username')?.touched"
+                                class="text-danger" id="usernameError">
+                                El nombre de usuario es requerido
+                            </div>
+                        </div>
+
+
+                        <div class="mb-3">
+                            <label for="token" class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" formControlName="token" placeholder="Contraseña"
+                                id="token" aria-describedby="tokenError" />
+                            <div *ngIf="registerForm.get('token')?.invalid && registerForm.get('token')?.touched"
+                                class="text-danger" id="tokenError">
+                                La contraseña es requerida
+                            </div>
+                        </div>
+
+
+
+                        <button type="submit" class="btn btn-primary w-100" [disabled]="registerForm.invalid">
+                            Regístrate
+                        </button>
+                    </form>
+
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

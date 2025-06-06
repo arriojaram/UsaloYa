@@ -12,10 +12,16 @@ import { PolicyComponent } from './resources/policy.component';
 import { AgreementsComponent } from './resources/agreements.component';
 import { InventarioReportComponent } from './admin/inventario-report/inventario-report.component';
 import { PcategoriesComponent } from './admin/pcategories/pcategories.component';
+import { Rcompany } from './r-company/r-company.component';
+import { RegisterComponent } from './register/register.component';
+import { VerifyCodeComponent } from './verification/verification.component';
 
 export const routes: Routes = [
     {path: '', redirectTo: 'login', pathMatch: 'full' },
     {path: 'login', component: LoginComponent },
+   {path: 'rcompany', component: Rcompany },
+   {path: 'register', component: RegisterComponent },
+   {path: 'verification', component: VerifyCodeComponent },
     { path: 'reporteinventario', component: InventarioReportComponent, canActivate: [AuthGuard] },
     { path: 'reporteventas', component: SalesReportComponent, canActivate: [AuthGuard] },
     { path: 'importar', component: ImportProductsComponent, canActivate: [AuthGuard] },  

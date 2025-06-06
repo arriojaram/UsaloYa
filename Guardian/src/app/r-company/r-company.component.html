@@ -1,0 +1,65 @@
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-body">
+          <h3 class="card-title text-center">Registrar Compañía</h3>
+          <form [formGroup]="companyForm" (ngSubmit)="onSubmit()" novalidate>
+            <div class="mb-3">
+              <label for="name" class="form-label">Nombre de la Compañía</label>
+              <input type="text" id="name" class="form-control" formControlName="name" placeholder="Nombre"
+                aria-describedby="nameError" />
+              <div *ngIf="companyForm.get('name')?.invalid && companyForm.get('name')?.touched" class="text-danger"
+                id="nameError" aria-live="polite">
+                El nombre es requerido y debe tener al menos 3 caracteres
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="address" class="form-label">Dirección</label>
+              <input type="text" id="address" class="form-control" formControlName="address" placeholder="Dirección" />
+            </div>
+
+            <div class="mb-3">
+              <label for="phoneNumber" class="form-label">Teléfono</label>
+              <input type="tel" id="phoneNumber" class="form-control" formControlName="phoneNumber"
+                placeholder="Teléfono" />
+            </div>
+
+            <div class="mb-3">
+              <label for="cellphoneNumber" class="form-label">Celular</label>
+              <input type="tel" id="cellphoneNumber" class="form-control" formControlName="cellphoneNumber"
+                placeholder="Celular" />
+            </div>
+
+            <div class="mb-3">
+              <label for="email" class="form-label">Correo Electrónico</label>
+              <input type="email" id="email" class="form-control" formControlName="email" placeholder="Correo"
+                aria-describedby="emailError" />
+              <div *ngIf="companyForm.get('email')?.invalid && companyForm.get('email')?.touched" class="text-danger"
+                id="emailError" aria-live="polite">
+                El correo debe ser válido
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="ownerInfo" class="form-label">Información del Dueño</label>
+              <input type="text" id="ownerInfo" class="form-control" formControlName="ownerInfo"
+                placeholder="Nombre del dueño o representante" />
+            </div>
+
+            <div class="mb-3">
+              <label for="planId" class="form-label">ID del Plan</label>
+              <input type="number" id="planId" class="form-control" formControlName="planId" placeholder="Ej. 1"
+                min="1" />
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100" [disabled]="companyForm.invalid || loading">
+              Registrar
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

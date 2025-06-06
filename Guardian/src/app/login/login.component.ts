@@ -102,5 +102,14 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.navigation.showUIMessage('Formulario inválido');
     }
   }
+  iraRegisterComponent() {
+  this.router.navigate(['/register']).then(success => {
+    if (success) {
+      console.log('Redirección exitosa a /register');
+    } else {
+      console.error('Error al redirigir a /register');
+    }
+  });
+}
   
 }
