@@ -42,6 +42,7 @@ namespace UsaloYa.Services
 
                 if (userDto.UserId == 0)
                 {
+
                     var existsUser = await _dBContext.Users.AnyAsync(u => u.UserName == userDto.UserName);
                     if (existsUser)
                         throw new InvalidOperationException("El nombre de usuario ya está en uso.");
@@ -456,6 +457,22 @@ namespace UsaloYa.Services
 
         }
     }
+/*
+    public async Task<UserDto?> GetByEmailAsync(string email)
+        {
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Email == email);
 
+            if (user == null) return null;
 
-}
+            return new UserDto
+            {
+                UserId = user.UserId,
+                Name = user.Name,
+                Email = user.Email,
+                
+            };
+        }
+*/
+
+    }

@@ -19,5 +19,6 @@
         public string? CodeVerification { get; set; }
         public bool? IsVerifiedCode { get; set; }
         public string? Email { get; set; }
+        public object Name { get; set; }
     }
 }

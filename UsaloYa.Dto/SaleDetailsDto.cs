@@ -9,5 +9,6 @@
         public decimal TotalPrice { get; set; }
 
         public int PriceLevel { get; set; }
+        public string Folio { get; set; }
     }
 }

@@ -8,6 +8,4 @@ public class RequestVerificationCodeDto
     [Required]
     public string Email { get; set; }
 
-    [Required]
-    public string DeviceId { get; set; }
 }

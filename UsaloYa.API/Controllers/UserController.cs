@@ -188,22 +188,27 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var user = await _userService.RegisterNewUserAndCompany(request);
 
-                if (user.CodeVerification != null)
+
+
+                var result = await _userService.RegisterNewUserAndCompany(request);
+
+                if (result.CodeVerification != null)
+
                 {
                     try
                     {
                         string templatePath = Path.Combine(_env.ContentRootPath, "Templates", "Notificacion.html");
                         var variables = new Dictionary<string, string>
                 {
-                    { "Nombre", user.FirstName },
+
+                    { "Nombre", result.FirstName },
                     { "Mensaje", $"Hola:<br/><br/>Cuidar tu seguridad y asegurar tu información son prioridades para nuestro equipo. Por eso, necesitamos que confirmes tu correo.<br/><br/>" +
-                                $"Tu código de verificación es <strong>{user.CodeVerification}</strong>, por favor verifique su cuenta en la siguiente página:<br/><a href='www.google.com'>www.google.com</a>" }
+                                 $"Tu código de verificación es <strong>{result.CodeVerification}</strong>, por favor verifique su cuenta en la siguiente página:<br/><a href='www.google.com'>www.google.com</a>" }
                 };
 
                         await _emailService.SendEmailFromTemplateAsync(
-                            toEmail: user.Email,
+                            toEmail: result.Email,
                             subject: "Verificación de correo electrónico.",
                             templatePath: templatePath,
                             variables: variables
@@ -211,7 +216,8 @@ namespace UsaloYa.API.Controllers
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, "Error al enviar correo de verificación para el usuario {Email}", user.Email);
+                        _logger.LogError(ex, "Error al enviar correo de verificación para el usuario {Email}", result.Email);
+
                         return StatusCode(500, new { message = "No se pudo enviar el correo de verificación." });
                     }
 
@@ -222,7 +228,9 @@ namespace UsaloYa.API.Controllers
             }
             catch (InvalidOperationException ex) when (ex.Message.Contains("Company already exists"))
             {
+
                 _logger.LogWarning("Registro fallido: empresa existente - {Company}", request.CompanyDto.Name);
+
                 return Conflict(new { message = "La empresa ya se encuentra registrada." });
             }
             catch (ValidationException ex)
@@ -255,19 +263,18 @@ namespace UsaloYa.API.Controllers
 
         [HttpPost("RequestVerificationCodeEmail")]
         [AllowAnonymous]
-        public async Task<IActionResult> RequestVerificationCodeEmail([FromBody] RequestVerificationCodeDto request)
+        public async Task<IActionResult> RequestVerificationCodeEmail([FromHeader] string DeviceId, [FromBody] RequestVerificationCodeDto request)
         {
-            _logger.LogInformation("Recibido email: {Email}, code: {Code}, deviceId: {DeviceId}", request.Email, request.Code, request.DeviceId);
+            _logger.LogInformation("Recibido email: {Email}, code: {Code}, deviceId: {DeviceId}", request.Email, request.Code, DeviceId);
 
             try
             {
-                var result = await _userService.RequestVerificationCodeEmail(request, request.DeviceId);
-                return Ok(new
+                var (isValid, message, userId) = await _userService.RequestVerificationCodeEmail(request, DeviceId);
+                if (isValid == true)
                 {
-                    isValid = result.isValid,
-                    message = result.message,
-                    userId = result.userId
-                });
+                    return Ok(new { isValid = isValid, userId = userId, message = message });
+                }
+                return BadRequest("No se logró verificar");
             }
             catch (Exception ex)
             {
@@ -276,4 +283,17 @@ namespace UsaloYa.API.Controllers
             }
         }
     }
-    }
+/*
+   [HttpGet("byEmail/{email}")]
+        public async Task<ActionResult<UserDto>> GetUserByEmail(string email)
+        {
+            var user = await _userService.GetByEmailAsync(email);
+            if (user == null)
+                return NotFound();
+
+            return Ok(user);
+        }
+*/
+
+
+    } 

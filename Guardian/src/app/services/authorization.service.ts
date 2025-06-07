@@ -75,4 +75,7 @@ export class AuthorizationService {
     localStorage.removeItem('isAuthenticated');  
     localStorage.removeItem('userState');
   }
+
+
+
 }

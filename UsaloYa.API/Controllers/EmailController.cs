@@ -6,7 +6,7 @@ namespace UsaloYa.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class EmailController : Controller
+    public class EmailController : ControllerBase
     {
         private readonly IEmailService _emailService;
         private readonly IWebHostEnvironment _env;
@@ -17,7 +17,6 @@ namespace UsaloYa.API.Controllers
             _env = env;
         }
 
-
         [HttpPost("EnviarCorreo")]
         public async Task<IActionResult> Enviar([FromBody] SendVerificationCodeDto request)
         {
@@ -26,18 +25,18 @@ namespace UsaloYa.API.Controllers
             var variables = new Dictionary<string, string>
         {
             { "Nombre", request.FirstName },
-            { "Mensaje", "Tu correo ha"+ request.CodeVerification+"  enviado correctamente usando Gmail SMTP y MailKit." }
+            { "Mensaje", $"Tu código de verificación es: {request.CodeVerification}" }
         };
 
             await _emailService.SendEmailFromTemplateAsync(
-                toEmail: request.Email,
-                subject: "Verificación de correo electrónico.",
-                templatePath: templatePath,
-                variables: variables
+                request.Email,
+                "Verificación de correo electrónico.",
+                templatePath,
+                variables
             );
 
             return Ok("Correo enviado.");
         }
-    }
 
+    }
 }

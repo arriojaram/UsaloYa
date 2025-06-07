@@ -30,6 +30,7 @@ namespace UsaloYa.Services
                     && s.SaleDate >= fromDate.Date && s.SaleDate <= toDate.Date)
                 .Select(r => new
                 {
+                     
                     SaleID = r.SaleId,
                     SaleDate = r.SaleDate,
                     UserId = r.UserId,

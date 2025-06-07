@@ -24,6 +24,7 @@ public partial class Sale
     public int UserId { get; set; }
 
     public int CompanyId { get; set; }
+    public string? Folio { get; set; }
 
     public virtual Company Company { get; set; } = null!;
 

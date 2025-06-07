@@ -7,6 +7,8 @@ import { TokenDto } from '../dto/authenticateDto';
 import { adminGroupDto } from '../dto/adminGroupDto';
 import { NavigationService } from './navigation.service';
 import { RegisterUserAndCompanyDto } from '../dto/RegisterUserAndCompanyDto ';
+import { HttpHeaders } from '@angular/common/http';
+import { VerificationResponseDto } from '../dto/VerificationResponseDto';
 
 export interface RequestVerificationCodeDto {
   Email: string;
@@ -100,10 +102,14 @@ export class UserService {
     );
   }
 
-requestVerificationCodeEmail(request: RequestVerificationCodeDto): Observable<VerificationResponse> {
+ requestVerificationCodeEmail(request: { Code: string; Email: string }, deviceId: string): Observable<VerificationResponseDto> {
   const apiUrl = `${this.baseUrl}/RequestVerificationCodeEmail`;
 
-  return this.http.post<VerificationResponse>(apiUrl, request).pipe(
+  const headers = new HttpHeaders({
+    'DeviceId': deviceId
+  });
+
+  return this.http.post<VerificationResponseDto>(apiUrl, request, { headers }).pipe(
     catchError(error => {
       console.error('requestVerificationCodeEmail() | ', error);
       throw error;
@@ -113,3 +119,4 @@ requestVerificationCodeEmail(request: RequestVerificationCodeDto): Observable<Ve
 
 
 }
+

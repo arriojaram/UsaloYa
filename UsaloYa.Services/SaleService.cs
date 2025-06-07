@@ -33,6 +33,7 @@ namespace UsaloYa.Services
                 Status = "Abierta",
                 Tax = sale.Tax,
                 UserId = sale.UserId,
+                Folio = sale.Folio,
                 TotalSale = 0
             };
 
