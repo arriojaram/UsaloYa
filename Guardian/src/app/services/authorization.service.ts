@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient , HttpHeaders} from '@angular/common/http';
 import { Observable, catchError, map } from 'rxjs';
 import { NavigationService } from './navigation.service';
 import { TokenDto } from '../dto/authenticateDto';
@@ -75,6 +75,43 @@ export class AuthorizationService {
     localStorage.removeItem('isAuthenticated');  
     localStorage.removeItem('userState');
   }
+
+
+validate(data: TokenDto): Observable<loginResponseDto> {
+  const url = this.navigation.apiBaseUrl + '/api/User/Validate';
+
+  const deviceId = this.navigation.getItemWithExpiry('deviceId') || '';
+
+  const headers = new HttpHeaders({
+    'DeviceId': deviceId
+  });
+
+return this.http.post<loginResponseDto>(url, data, { headers }).pipe(
+  map(response => {
+    const isValid = response.id && response.id > 0;
+    if (isValid) {
+      this.navigation.setItemWithExpiry('isAuthenticated', 'true');
+    } else {
+      this.navigation.setItemWithExpiry('isAuthenticated', 'false');
+    }
+    // Cambiar el tipo explícitamente para evitar error
+    return { ...response, isValidate: isValid } as loginResponseDto & { isValidate: boolean };
+  }),
+  catchError(error => {
+    this.clearStorageVariables();
+    console.error('validate() | ', error);
+    throw error;
+  })
+);
+
+    catchError(error => {
+      this.clearStorageVariables();
+      console.error('validate() | ', error);
+      throw error;
+    })
+
+  }
+
 
 
 

@@ -31,11 +31,11 @@ export class Rcompany implements OnInit {
     this.companyForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
       address: [''],
-      phoneNumber: [''],
-      cellphoneNumber: [''],
+      phoneNumber: ['' , [Validators.required, Validators.minLength(10), Validators.maxLength(15)]],
+      cellphoneNumber: ['' , [Validators.required, Validators.minLength(10), Validators.maxLength(15)]],
       email: ['', [Validators.email]],
       ownerInfo: [''],
-      planId: [1, [Validators.min(1)]],
+      
     });
   }
 
@@ -73,7 +73,7 @@ export class Rcompany implements OnInit {
       cellphoneNumber: this.companyForm.value.cellphoneNumber,
       email: this.companyForm.value.email,
       ownerInfo: this.companyForm.value.ownerInfo,
-      planId: this.companyForm.value.planId,
+      planId: 1,
       statusId: 1, // Activo
     };
 

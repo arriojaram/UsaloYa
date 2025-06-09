@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { catchError, Observable } from 'rxjs';
+import { catchError,  map, Observable } from 'rxjs';
 import { userDto } from '../dto/userDto';
 import { environment } from '../environments/enviroment';
 import { TokenDto } from '../dto/authenticateDto';
@@ -21,6 +21,13 @@ export interface VerificationResponse {
   userId: number;
 }
 
+export interface LoginResponseDto {
+  isValid: boolean;
+  message: string;
+  userId: number;
+}
+
+
 @Injectable({
   providedIn: 'root'
 })
@@ -30,7 +37,8 @@ export class UserService {
 
   constructor(
     private http: HttpClient,
-    private navigationService: NavigationService
+    private navigationService: NavigationService,
+    
   ) { }
 
   saveUser(user: userDto): Observable<userDto> {
