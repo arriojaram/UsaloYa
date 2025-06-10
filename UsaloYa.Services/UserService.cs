@@ -150,46 +150,66 @@ namespace UsaloYa.Services
 
         public async Task<IEnumerable<UserResponseDto>> GetAllUsers(int companyId, string name, Role requestorRole, int requestorId)
         {
-            List<User> users;
+            name = name?.Trim();
 
-            if (string.IsNullOrEmpty(name) || name.Equals("-1", StringComparison.OrdinalIgnoreCase))
+            var query = _dBContext.Users.AsQueryable();
+
+            if (!string.IsNullOrEmpty(name) && !name.Equals("-1", StringComparison.OrdinalIgnoreCase))
             {
-                users = await _dBContext.Users
-                    .Where(c => c.CompanyId == companyId || companyId == 0)
-                    .OrderByDescending(u => u.UserId)
-                    .Take(50)
-                    .ToListAsync();
+                name = name.ToLower();
+                query = query
+                    .Include(u => u.Company)
+                    .Where(u =>
+                        (u.FirstName.ToLower().Contains(name) || u.LastName.ToLower().Contains(name) ||
+                         u.Company != null && u.Company.Name.ToLower().Contains(name))
+                        && (u.CompanyId == companyId || companyId == 0));
             }
             else
             {
-                users = await _dBContext.Users
-                    .Include(em => em.Company)
-                    .Where(u => (u.FirstName.Contains(name) || u.LastName.Contains(name) || name.Contains(u.Company.Name))
-                                && (u.CompanyId == companyId || companyId == 0))
-                    .Take(50)
-                    .ToListAsync();
+                query = query
+                    .Where(u => u.CompanyId == companyId || companyId == 0)
+                    .OrderByDescending(u => u.UserId);
             }
+
+            var mainUsers = await query
+                .Take(50)
+                .Select(u => new UserResponseDto
+                {
+                    UserId = u.UserId,
+                    IsEnabled = u.IsEnabled ?? false,
+                    UserName = u.UserName,
+                    FirstName = u.FirstName,
+                    LastName = u.LastName
+                })
+                .ToListAsync();
+
+            List<UserResponseDto> salesmanUsers = new();
 
             if (requestorRole > Role.Admin)
             {
-                var salesmanUsers = await _dBContext.Users
-                    .Include(c => c.Company)
+                salesmanUsers = await _dBContext.Users
                     .Where(u => u.CreatedBy == requestorId)
+                    .Select(u => new UserResponseDto
+                    {
+                        UserId = u.UserId,
+                        IsEnabled = u.IsEnabled ?? false,
+                        UserName = u.UserName,
+                        FirstName = u.FirstName,
+                        LastName = u.LastName
+                    })
                     .ToListAsync();
-
-                users.AddRange(salesmanUsers);
             }
 
-            return users.Select(u => new UserResponseDto
-            {
-                UserId = u.UserId,
-                IsEnabled = u.IsEnabled ?? false,
-                UserName = u.UserName,
-                FirstName = u.FirstName,
-                LastName = u.LastName
-            }).OrderBy(u => u.FirstName).ThenBy(u => u.LastName).ToList();
+            // Unir y eliminar duplicados si existen (por UserId)
+            var allUsers = mainUsers
+                .UnionBy(salesmanUsers, u => u.UserId)
+                .OrderBy(u => u.FirstName)
+                .ThenBy(u => u.LastName)
+                .ToList();
 
+            return allUsers;
         }
+
 
 
         ////////////////////////////////////
