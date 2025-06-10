@@ -1,7 +1,8 @@
-﻿using System.Net;
-using System.Net.Mail;
-using UsaloYa.Services.interfaces;
+﻿using MailKit.Net.Smtp;
+using MailKit.Security;
 using Microsoft.Extensions.Configuration;
+using MimeKit;
+using UsaloYa.Services.interfaces;
 namespace UsaloYa.Services
 {
 
@@ -21,35 +22,45 @@ namespace UsaloYa.Services
 
             var html = await File.ReadAllTextAsync(templatePath);
 
-            // Reemplazar {{Variable}}
             foreach (var kv in variables)
             {
                 html = html.Replace($"{{{{{kv.Key}}}}}", kv.Value);
             }
 
-            var fromEmail = _configuration["EmailSettings:SenderEmail"];
-            var fromName = _configuration["EmailSettings:SenderName"];
-            var password = _configuration["EmailSettings:Password"];
-            var smtpHost = _configuration["EmailSettings:SmtpServer"];
-            var smtpPort = int.Parse(_configuration["EmailSettings:SmtpPort"]);
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress(_configuration["EmailSettings:SenderName"], _configuration["EmailSettings:SenderEmail"]));
+            message.To.Add(MailboxAddress.Parse(toEmail));
+            message.Subject = subject;
+            message.Body = new TextPart("html") { Text = html };
 
-            var message = new MailMessage
-            {
-                From = new MailAddress(fromEmail, fromName),
-                Subject = subject,
-                Body = html,
-                IsBodyHtml = true
-            };
-            message.To.Add(toEmail);
+            var option = _configuration["EmailSettings:SecureSocketOption"];
 
-            using var smtpClient = new SmtpClient(smtpHost, smtpPort)
+            var secureOption = option switch
             {
-                Credentials = new NetworkCredential(fromEmail, password),
-                DeliveryMethod = SmtpDeliveryMethod.Network,
-                EnableSsl = true
+                "SslOnConnect" => SecureSocketOptions.SslOnConnect,
+                "StartTls" => SecureSocketOptions.StartTls,
+                "None" => SecureSocketOptions.None,
+                _ => SecureSocketOptions.Auto
             };
 
-            await smtpClient.SendMailAsync(message);
+            using var client = new SmtpClient();
+            try
+            {
+                await client.ConnectAsync(
+                _configuration["EmailSettings:SmtpServer"],
+                int.Parse(_configuration["EmailSettings:SmtpPort"]),
+                secureOption
+                );
+
+                await client.AuthenticateAsync(_configuration["EmailSettings:SenderEmail"], _configuration["EmailSettings:Password"]);
+                await client.SendAsync(message);
+                await client.DisconnectAsync(true);
+
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Error al enviar el correo: " + ex.Message, ex);
+            }
         }
     }
 }
