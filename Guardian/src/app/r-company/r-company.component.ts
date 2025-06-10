@@ -80,13 +80,6 @@ export class Rcompany implements OnInit {
 const payload: RegisterUserAndCompanyDto = {
   requestRegisterNewUserDto: this.userData,
   companyDto: company,
-  groupDto: {
-    groupId: 0,
-    name: '',
-    description: '',
-    permissions: '',
-    companyId: 0
-  }
 };
 
     this.userService.registerNewUser(payload).subscribe({

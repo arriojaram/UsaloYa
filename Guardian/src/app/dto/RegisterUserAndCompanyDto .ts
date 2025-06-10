@@ -5,5 +5,5 @@ import { GroupDto } from "./groupDto";
 export interface RegisterUserAndCompanyDto {
   requestRegisterNewUserDto: RequestRegisterNewUserDto;
   companyDto: companyDto;
-  groupDto: GroupDto;
+  
 }

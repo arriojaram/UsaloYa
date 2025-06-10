@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+Ôªøusing Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UsaloYa.Library.Config;
 using UsaloYa.API.Security;
@@ -173,7 +173,7 @@ namespace UsaloYa.API.Controllers
             try
             {
                 var userId = await _userService.Logout(token.UserName);
-                return userId.HasValue ? Ok(userId.Value) : Unauthorized("Usuario inv·lido");
+                return userId.HasValue ? Ok(userId.Value) : Unauthorized("Usuario inv√°lido");
             }
             catch (Exception ex)
             {
@@ -188,62 +188,61 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-
-
-
                 var result = await _userService.RegisterNewUserAndCompany(request);
 
                 if (result.CodeVerification != null)
-
                 {
                     try
                     {
+
                         string templatePath = Path.Combine(_env.ContentRootPath, "Templates", "Notificacion.html");
                         var variables = new Dictionary<string, string>
                 {
-
                     { "Nombre", result.FirstName },
-                    { "Mensaje", $"Hola:<br/><br/>Cuidar tu seguridad y asegurar tu informaciÛn son prioridades para nuestro equipo. Por eso, necesitamos que confirmes tu correo.<br/><br/>" +
-                                 $"Tu cÛdigo de verificaciÛn es <strong>{result.CodeVerification}</strong>, por favor verifique su cuenta en la siguiente p·gina:<br/><a href='www.google.com'>www.google.com</a>" }
+                    { "Mensaje", $"Hola:<br/><br/>Cuidar tu seguridad y asegurar tu informaci√≥n son prioridades para nuestro equipo. Por eso, necesitamos que confirmes tu correo.<br/><br/>" +
+                                 $"Tu c√≥digo de verificaci√≥n es <strong>{result.CodeVerification}</strong>, por favor verifique su cuenta en la siguiente p√°gina:<br/><a href='www.google.com'>www.google.com</a>" }
                 };
 
                         await _emailService.SendEmailFromTemplateAsync(
                             toEmail: result.Email,
-                            subject: "VerificaciÛn de correo electrÛnico.",
+                            subject: "Verificaci√≥n de correo electr√≥nico.",
                             templatePath: templatePath,
                             variables: variables
                         );
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, "Error al enviar correo de verificaciÛn para el usuario {Email}", result.Email);
+                        _logger.LogError(ex, "Error al enviar correo de verificaci√≥n para el usuario {Email}", result.Email);
 
-                        return StatusCode(500, new { message = "No se pudo enviar el correo de verificaciÛn." });
+                        return StatusCode(500, new { message = "No se pudo enviar el correo de verificaci√≥n." });
                     }
 
-                    return Ok(new { message = "Usuario registrado y correo de verificaciÛn enviado." });
+                    return Ok(new { message = "Usuario registrado y correo de verificaci√≥n enviado." });
                 }
 
                 return BadRequest(new { message = "No se pudieron registrar los datos." });
             }
             catch (InvalidOperationException ex) when (ex.Message.Contains("Company already exists"))
             {
-
                 _logger.LogWarning("Registro fallido: empresa existente - {Company}", request.CompanyDto.Name);
-
                 return Conflict(new { message = "La empresa ya se encuentra registrada." });
             }
             catch (ValidationException ex)
             {
-                _logger.LogWarning(ex, "Error de validaciÛn al registrar usuario.");
+                _logger.LogWarning(ex, "Error de validaci√≥n al registrar usuario.");
                 return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error inesperado en RegisterNewUser.");
-                return StatusCode(500, new { message = "No se puede procesar la solicitud. Error interno del servidor.", ex });
+                return StatusCode(500, new
+                {
+                    message = "No se puede procesar la solicitud. Error interno del servidor.",
+                    detail = ex.Message // üîê Solo el mensaje, no el objeto completo
+                });
             }
         }
+
 
 
         [HttpPost("IsUsernameUnique")]
@@ -274,11 +273,11 @@ namespace UsaloYa.API.Controllers
                 {
                     return Ok(new { isValid = isValid, userId = userId, message = message });
                 }
-                return BadRequest("No se logrÛ verificar");
+                return BadRequest("No se logr√≥ verificar");
             }
             catch (Exception ex)
             {
-                _logger.LogError("Error verificando cÛdigo: {Message}", ex.Message);
+                _logger.LogError("Error verificando c√≥digo: {Message}", ex.Message);
                 return StatusCode(500, new { message = ex.Message });
             }
         }

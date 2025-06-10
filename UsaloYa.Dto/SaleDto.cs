@@ -10,7 +10,7 @@
         public string Notes { get; set; }
         public int UserId { get; set; }
         public int CompanyId { get; set; }
-        public string Folio { get; set; }
+        public string? Folio { get; set; }
 
         public List<SaleDetailsDto> SaleDetailsList { get; set; }
     }

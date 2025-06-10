@@ -10,7 +10,5 @@ namespace UsaloYa.Dto
         [Required]
         public CompanyDto CompanyDto { get; set; }
 
-        [Required]
-        public GroupDto GroupDto { get; set; }
     }
 }

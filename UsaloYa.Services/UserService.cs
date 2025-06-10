@@ -35,14 +35,12 @@ namespace UsaloYa.Services
 
         public async Task<UserDto> SaveUser(UserDto userDto)
         {
-            try
-            {
+           
                 var encryptedPassword = Utils.EncryptPassword(userDto.Token);
                 User userToSave;
 
                 if (userDto.UserId == 0)
                 {
-
                     var existsUser = await _dBContext.Users.AnyAsync(u => u.UserName == userDto.UserName);
                     if (existsUser)
                         throw new InvalidOperationException("El nombre de usuario ya está en uso.");
@@ -53,8 +51,7 @@ namespace UsaloYa.Services
                         Token = encryptedPassword,
                         FirstName = userDto.FirstName.Trim(),
                         LastName = userDto.LastName.Trim(),
-                        CompanyId = userDto.CompanyId,
-                        GroupId = userDto.GroupId,
+                        CompanyId = userDto.CompanyId,  
                         Email = userDto.Email?.Trim(),
                         LastAccess = null,
                         IsEnabled = true,
@@ -64,42 +61,14 @@ namespace UsaloYa.Services
                         CodeVerification = userDto.CodeVerification
                     };
 
-                    // Validar CreatedBy y LastUpdateBy
-                    // Si vienen con valores, validar que existan en DB, si no, poner null
-                    if (userDto.CreatedBy > 0)
+                    if (userDto.LastUpdatedBy == 0 || userDto.CreatedBy == 0 || userDto.GroupId == 0)
                     {
-                        var createdByExists = await _dBContext.Users.AnyAsync(u => u.UserId == userDto.CreatedBy);
-                        userToSave.CreatedBy = createdByExists ? userDto.CreatedBy : (int?)null;
+                        userToSave.CreatedBy = _configuration.GetValue<int>("SelfRegister:CreatedBy");
+                        userToSave.LastUpdateBy = _configuration.GetValue<int>("SelfRegister:LastUpdateBy");
+                    userToSave.GroupId = _configuration.GetValue<int>("SelfRegister:GroupId");
                     }
-                    else
-                    {
-                        userToSave.CreatedBy = null;
-                    }
-
-                    if (userDto.LastUpdatedBy > 0)
-                    {
-                        var lastUpdatedByExists = await _dBContext.Users.AnyAsync(u => u.UserId == userDto.LastUpdatedBy);
-                        userToSave.LastUpdateBy = lastUpdatedByExists ? userDto.LastUpdatedBy : (int?)null;
-                    }
-                    else
-                    {
-                        userToSave.LastUpdateBy = null;
-                    }
-
-                    _dBContext.Users.Add(userToSave);
-                    await _dBContext.SaveChangesAsync();
-
-                   
-                    // Actualiza el campo CreatedBy después de crear el usuario 
-                    if (userToSave.CreatedBy == null && userDto.CreatedBy == userDto.UserId)
-                    {
-                        userToSave.CreatedBy = userToSave.UserId;
-                        _dBContext.Entry(userToSave).State = EntityState.Modified;
-                        await _dBContext.SaveChangesAsync();
-                    }
-
-                    // Reflejar el UserId generado
-                    userDto.UserId = userToSave.UserId;
+                _dBContext.Users.Add(userToSave);
+        
                 }
                 else
                 {
@@ -117,22 +86,14 @@ namespace UsaloYa.Services
                     userToSave.RoleId = userDto.RoleId;
 
                     _dBContext.Entry(userToSave).State = EntityState.Modified;
-                    await _dBContext.SaveChangesAsync();
+                    
                 }
-
+                await _dBContext.SaveChangesAsync();
+               
+                userDto.UserId = userToSave.UserId;
                 return userDto;
             }
-            catch (InvalidOperationException ex)
-            {
-                // Error controlado: devolver mensaje sin excepción completa
-                throw new ApplicationException($"Error: {ex.Message}");
-            }
-            catch (Exception)
-            {
-                // Error genérico
-                throw new ApplicationException("Ha ocurrido un error al guardar el usuario.");
-            }
-        }
+       
 
         public async Task<bool> SetToken(string userName, string token)
         {
@@ -252,7 +213,7 @@ namespace UsaloYa.Services
 
             if (!(user.IsEnabled ?? false)) return (false, "Usuario no válido", 0);
 
-            if (!(user.IsEnabled ?? false)) return (false, "Verifique su correo", 0);
+            if (!(user.IsVerifiedCode ?? false)) return (false, "Verifique su correo", 0);
 
             var userRol = EConverter.GetEnumFromValue<Role>(user.RoleId ?? 0);
             var companyInfo = await GetCompanyStatus(user.CompanyId);
@@ -375,18 +336,6 @@ namespace UsaloYa.Services
             if (company.CompanyId == 0)
                 throw new InvalidOperationException("La compañía no fue creada correctamente.");
 
-            // 2. Crear el grupo vinculado a la compañía
-            var group = new Group
-            {
-                Name = request.GroupDto?.Name?.Trim() ?? "Grupo por defecto",
-                Description = request.GroupDto?.Description?.Trim() ?? string.Empty,
-                Permissions = request.GroupDto?.Permissions?.Trim() ?? string.Empty,
-                CompanyId = company.CompanyId,
-               
-            };
-
-            _dBContext.Groups.Add(group);
-            await _dBContext.SaveChangesAsync();
 
             // 3. Crear el usuario vinculado al grupo y compañía
             var userDto = new UserDto
@@ -397,15 +346,15 @@ namespace UsaloYa.Services
                 Token = request.RequestRegisterNewUserDto.Token,
                 CompanyId = company.CompanyId,
                 Email = request.RequestRegisterNewUserDto.Email?.Trim(),
-                GroupId = group.GroupId,
                 CodeVerification = Utils.GenerateCode(),
                 CreatedBy = 0,
                 LastUpdatedBy = 0,
+                GroupId = 0,
                 RoleId = (int)Role.Admin,
                 IsEnabled = true
             };
 
-            var user = await SaveUser(userDto); 
+            var user = await this.SaveUser(userDto); 
 
             // 4. Preparar y retornar la respuesta
             return new UserResponseDto
