@@ -260,7 +260,7 @@ namespace UsaloYa.API.Controllers
             }
         }
 
-        [HttpPost("IsUsernameUnique")]
+        [HttpPost("IsEmailUnique")]
         public async Task<IActionResult> IsEmailUnique([FromBody] string email)
         {
             try
