@@ -109,6 +109,48 @@ export class UserService {
       })
     );
   }
+checkUsernameUnique(username: string): Observable<boolean> {
+  const apiUrl = `${this.baseUrl}/IsUsernameUnique`;
+  return this.http.post<boolean>(apiUrl, JSON.stringify(username), {
+    headers: { 'Content-Type': 'application/json' }
+  }).pipe(
+    catchError(error => {
+      console.error('checkUsernameUnique() | ', error);
+      throw error;
+    })
+  );
+}
+
+checkEmailUnique(email: string): Observable<boolean> {
+  const apiUrl = `${this.baseUrl}/IsEmailUnique`;
+  return this.http.post<boolean>(apiUrl, JSON.stringify(email), {
+    headers: { 'Content-Type': 'application/json' }
+  }).pipe(
+    catchError(error => {
+      console.error('checkEmailUnique() | ', error);
+      throw error;
+    })
+  );
+}
+
+
+
+  
+
+  requestVerificationCode(request: RequestVerificationCodeDto, deviceId: string): Observable<VerificationResponseDto> {
+    const apiUrl = `${this.baseUrl}/RequestVerificationCode`;
+
+    const headers = new HttpHeaders({
+      'DeviceId': deviceId
+    });
+
+    return this.http.post<VerificationResponseDto>(apiUrl, request, { headers }).pipe(
+      catchError(error => {
+        console.error('requestVerificationCode() | ', error);
+        throw error;
+      })
+    );
+  }
 
  requestVerificationCodeEmail(request: { Code: string; Email: string }, deviceId: string): Observable<VerificationResponseDto> {
   const apiUrl = `${this.baseUrl}/RequestVerificationCodeEmail`;

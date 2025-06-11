@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators,AbstractControl,AsyncValidatorFn } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { NgIf } from '@angular/common';
 import { UserService } from '../services/user.service';
@@ -9,6 +9,8 @@ import { companyDto } from '../dto/companyDto';
 import { RequestRegisterNewUserDto } from '../dto/RequestRegisterNewUserDto ';
 import { RegisterUserAndCompanyDto } from '../dto/RegisterUserAndCompanyDto ';
 import { RegisterDataService } from '../services/register-data.service';
+import { map, catchError, of } from 'rxjs';
+import { CompanyService } from '../services/company.service';
 
 @Component({
   selector: 'app-r-company',
@@ -26,10 +28,12 @@ export class Rcompany implements OnInit {
     private fb: FormBuilder,
     private userService: UserService,
     private navigationService: NavigationService,
-    private registerDataService: RegisterDataService
+    private registerDataService: RegisterDataService,
+    private companyService: CompanyService,
+  
   ) {
     this.companyForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(3)]],
+      name: ['', [Validators.required, Validators.minLength(3)],[this.nameValidator()]],
       address: [''],
       phoneNumber: ['' , [Validators.required, Validators.minLength(10), Validators.maxLength(15)]],
       cellphoneNumber: ['' , [Validators.required, Validators.minLength(10), Validators.maxLength(15)]],
@@ -94,5 +98,14 @@ const payload: RegisterUserAndCompanyDto = {
         this.loading = false;
       },
     });
+  }
+  private nameValidator(): AsyncValidatorFn {
+    return (control: AbstractControl) => {
+      if (!control.value) return of(null);
+      return this.companyService.checkCompanyUnique(control.value).pipe(
+        map(isUnique => (isUnique ? null : { nameTaken: true })),
+        catchError(() => of(null))
+      );
+    };
   }
 }

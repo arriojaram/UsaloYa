@@ -1,11 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, AsyncValidatorFn } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { NgIf } from '@angular/common';
 import { Router } from '@angular/router';
 import { NavigationService } from '../services/navigation.service';
 import { AlertLevel } from '../Enums/enums';
 import { RegisterDataService } from '../services/register-data.service';
+import { UserService } from '../services/user.service';
+import { catchError, map } from 'rxjs/operators';
+import { of } from 'rxjs';
 
 @Component({
   selector: 'app-register',
@@ -22,17 +25,18 @@ export class RegisterComponent implements OnInit {
     private fb: FormBuilder,
     private navigationService: NavigationService,
     private router: Router,
-    private registerDataService: RegisterDataService
-  ) {}
+    private registerDataService: RegisterDataService,
+    private userService: UserService
+  ) { }
 
   ngOnInit(): void {
     this.registerForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
       phone: ['', [Validators.required, Validators.pattern(/^\d{10,15}$/)]],
-      email: ['', [Validators.required, Validators.email]],
+      email: ['', [Validators.required, Validators.email], [this.emailValidator()]],
       address: [''],
-      username: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9._-]{4,20}$/)]],
-      token: ['', Validators.required, Validators.minLength(4)],
+      username: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9._-]{4,20}$/)], [this.usernameValidator()]],
+      token: ['', [Validators.required, Validators.minLength(4)]],
     });
   }
 
@@ -67,6 +71,36 @@ export class RegisterComponent implements OnInit {
     this.loading = false;
     this.registerForm.reset();
 
-    this.router.navigate(['/rcompany']); // REDIRIGE al formulario compañía
+    this.router.navigate(['/rcompany']);// REDIRIGE al formulario compañía
+
+
+}
+
+usernameValidator(): AsyncValidatorFn {
+  return (control: AbstractControl) => {
+    if (!control.value) return of(null);
+
+    return this.userService.checkUsernameUnique(control.value).pipe(
+      map((isUnique: boolean) => {
+        return isUnique ? null : { usernameTaken: true };
+      }),
+      catchError(error => {
+        console.error('Error al validar username único:', error);
+        return of(null); // no bloquees el formulario por un error del servidor
+      })
+    );
+  };
+}
+
+
+  private emailValidator(): AsyncValidatorFn {
+    return (control: AbstractControl) => {
+      if (!control.value) return of(null);
+      return this.userService.checkEmailUnique(control.value).pipe(
+        map(isUnique => (isUnique ? null : { emailTaken: true })),
+        catchError(() => of(null))
+      );
+    };
   }
 }
+

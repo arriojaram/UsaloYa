@@ -121,6 +121,16 @@ export class CompanyService {
       );
     }
   
- 
+ checkCompanyUnique(name: string): Observable<boolean> {
+  const apiUrl = `${this.baseUrl}/IsCompanyUnique`;
+  return this.http.post<boolean>(apiUrl, JSON.stringify(name), {
+    headers: { 'Content-Type': 'application/json' }
+  }).pipe(
+    catchError(error => {
+      console.error('checkCompanyUnique() | ', error);
+      throw error;
+    })
+  );
+}
 
 }

@@ -5,15 +5,27 @@
         <div class="card-body">
           <h3 class="card-title text-center">Registrar Compañía</h3>
           <form [formGroup]="companyForm" (ngSubmit)="onSubmit()" novalidate>
+
+            
             <div class="mb-3">
               <label for="name" class="form-label">Nombre de la Compañía</label>
               <input type="text" id="name" class="form-control" formControlName="name" placeholder="Nombre"
                 aria-describedby="nameError" />
-              <div *ngIf="companyForm.get('name')?.invalid && companyForm.get('name')?.touched" class="text-danger"
-                id="nameError" aria-live="polite">
+
+              <!-- Error por requerido o longitud mínima -->
+              <div *ngIf="companyForm.get('name')?.touched 
+           && companyForm.get('name')?.errors 
+           && !companyForm.get('name')?.errors?.['nameTaken']" class="text-danger" id="nameError" aria-live="polite">
                 El nombre es requerido y debe tener al menos 3 caracteres
               </div>
+
+              <!-- Error por nombre ya registrado -->
+              <div *ngIf="companyForm.get('name')?.errors?.['nameTaken'] 
+           && companyForm.get('name')?.touched" class="text-danger" id="nameError">
+                Este nombre de compañía ya está en uso.
+              </div>
             </div>
+
 
             <div class="mb-3">
               <label for="address" class="form-label">Dirección</label>
