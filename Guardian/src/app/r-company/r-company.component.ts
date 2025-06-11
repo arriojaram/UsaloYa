@@ -11,6 +11,7 @@ import { RegisterUserAndCompanyDto } from '../dto/RegisterUserAndCompanyDto ';
 import { RegisterDataService } from '../services/register-data.service';
 import { map, catchError, of } from 'rxjs';
 import { CompanyService } from '../services/company.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-r-company',
@@ -29,6 +30,7 @@ export class Rcompany implements OnInit {
     private userService: UserService,
     private navigationService: NavigationService,
     private registerDataService: RegisterDataService,
+    private router: Router,
     private companyService: CompanyService,
   
   ) {
@@ -88,10 +90,11 @@ const payload: RegisterUserAndCompanyDto = {
 
     this.userService.registerNewUser(payload).subscribe({
       next: () => {
-        this.navigationService.showUIMessage('Usuario y compañía registrados exitosamente', AlertLevel.Sucess);
+        this.navigationService.showUIMessage('Usuario y compañía registrados exitosamente,Se envio un email con el link de verificación', AlertLevel.Sucess);
         this.companyForm.reset({ planId: 1 });
         this.registerDataService.setUserData(null); // Limpiar datos guardados
         this.loading = false;
+        this.router.navigate(['/login']);
       },
       error: (err) => {
         this.navigationService.showUIMessage('Error al registrar usuario y compañía: ' + err.message, AlertLevel.Error);
