@@ -38,7 +38,7 @@ namespace UsaloYa.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "AddSale.ApiError");
-                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" + ex.Message } );
             }
         }
 

@@ -21,6 +21,7 @@ namespace UsaloYa.Services.interfaces
         Task<int?> Logout(string userName);
         Task<UserResponseDto> RegisterNewUserAndCompany(RegisterUserAndCompanyDto request);
         Task<bool> IsUsernameUnique(string companyName);
+        Task<bool> IsEmailUnique(string email);
 
         Task<(bool isValid, string message, int userId)> RequestVerificationCodeEmail(RequestVerificationCodeDto data, string deviceId);
 

@@ -260,6 +260,21 @@ namespace UsaloYa.API.Controllers
             }
         }
 
+        [HttpPost("IsUsernameUnique")]
+        public async Task<IActionResult> IsEmailUnique([FromBody] string email)
+        {
+            try
+            {
+                var result = await _userService.IsEmailUnique(email);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Logout.ApiError");
+                return StatusCode(500, new { message = "No se puede procesar la solicitud, error de servidor." });
+            }
+        }
+
         [HttpPost("RequestVerificationCodeEmail")]
         [AllowAnonymous]
         public async Task<IActionResult> RequestVerificationCodeEmail([FromHeader] string DeviceId, [FromBody] RequestVerificationCodeDto request)

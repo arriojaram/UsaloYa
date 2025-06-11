@@ -394,6 +394,15 @@ namespace UsaloYa.Services
             return true;
         }
 
+        public async Task<bool> IsEmailUnique(string email)
+        {
+            var existsUser = await _dBContext.Users.AnyAsync(u => u.Email == email);
+            if (existsUser)
+                return false;
+
+            return true;
+        }
+
 
         public async Task<User> VerificationCodeEmail(RequestVerificationCodeDto data)
         {
@@ -402,6 +411,7 @@ namespace UsaloYa.Services
             if (user == null) throw new InvalidOperationException("$_Datos incorrectos");
 
             user.IsVerifiedCode = true;
+            user.CodeVerification = null;
             user = await _dBContext.Users.FindAsync(user.UserId);
             await _dBContext.SaveChangesAsync();
 
