@@ -1,21 +1,22 @@
 import { Component } from '@angular/core';
 import { UserService } from '../../services/user.service';
 import { ActivatedRoute } from '@angular/router';
-import { FormBuilder, FormGroup,  ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup,  ReactiveFormsModule, Validators } from '@angular/forms';
 import { userDto } from '../../dto/userDto';
 import { NavigationService } from '../../services/navigation.service';
 import { UserStateService } from '../../services/user-state.service';
-import { NgFor, NgIf } from '@angular/common';
+import { NgClass, NgFor, NgIf } from '@angular/common';
 import { format } from 'date-fns';
 import { first } from 'rxjs';
 import { adminGroupDto } from '../../dto/adminGroupDto';
 import { AdminCompanyDto } from '../../dto/adminCompanyDto';
-import { AlertLevel, getUserStatusEnumName, Roles } from '../../Enums/enums';
+import { AlertLevel, CompanyStatus, getUserStatusEnumName, Roles } from '../../Enums/enums';
 import { CompanyService } from '../../services/company.service';
+import { environment } from '../../environments/enviroment';
 
 @Component({
     selector: 'app-user-management',
-    imports: [ReactiveFormsModule, NgFor, NgIf],
+    imports: [ReactiveFormsModule, NgFor, NgIf, NgClass],
     templateUrl: './user-management.component.html',
     styleUrl: './user-management.component.css'
 })
@@ -25,13 +26,16 @@ export class UserManagementComponent {
   selectedUser: userDto | null = null;
   userList: userDto[] = [];
   userState: userDto;
-  passwordErrorMsg: string;
+  
   groups: adminGroupDto [] = [];
   availableRoles: any;
   showRoles: boolean = false;
   companies: AdminCompanyDto [] = [];
   rol = Roles;
+  cStatus = CompanyStatus;
   isAutorized: boolean = false;
+
+  passwordVisible: boolean = false;
 
   constructor(
     private fb: FormBuilder,
@@ -49,12 +53,10 @@ export class UserManagementComponent {
       this.userForm.get('roleId')?.disable();
     
     this.passwordForm = this.initPasswordForm();
-    this.passwordErrorMsg = '';
+    
   }
 
   ngOnInit(): void {
-   
-
     this.userState = this.userStateService.getUserStateLocalStorage();
     this.userForm.get('lastAccess')?.disable();
     this.userForm.get('statusId')?.disable();
@@ -105,12 +107,19 @@ export class UserManagementComponent {
       });
 
     this.initRoles();
+    this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId?? 0);
   }
 
   private initRoles()
   {
     if(this.userState.roleId !== 0)
     {
+      if(this.userState.companyStatusId == CompanyStatus.Free)
+      {
+        this.availableRoles = [];
+        return;
+      }
+
       this.showRoles = true;
       this.availableRoles = Object.values(Roles)
       .filter(value => typeof value === 'number')
@@ -121,17 +130,17 @@ export class UserManagementComponent {
       // Delete this role by security purposes and on purpose, this rol must be assigned directly on the DB
       this.availableRoles = this.availableRoles.filter((role: { id: any; }) => role.id !== Roles.Root);
 
-      
-       if(this.userState.roleId <= Roles.Admin)
+      if(this.userState.roleId <= Roles.Admin)
       {
+        
         this.availableRoles = this.availableRoles.filter((role: { id: any; }) => role.id !== Roles.Ventas);
         this.availableRoles = this.availableRoles.filter((role: { id: any; }) => role.id !== Roles.SysAdmin);  
       }
       else if(this.userState.roleId <= Roles.Ventas)
-        {
-          this.availableRoles = this.availableRoles.filter((role: { id: any; }) => role.id !== Roles.SysAdmin);    
-        }
-        
+      {
+        this.availableRoles = this.availableRoles.filter((role: { id: any; }) => role.id !== Roles.SysAdmin);    
+      }
+      
       const groupIdControl = this.userForm.get('groupId');
       const roleIdControl = this.userForm.get('roleId');
       this.userState.roleId > 1 ? groupIdControl?.enable() : groupIdControl?.disable();   
@@ -157,10 +166,29 @@ export class UserManagementComponent {
     });
   }
 
+  togglePasswordVisibility(): void {
+    this.passwordVisible = !this.passwordVisible;
+  }
+
   private initPasswordForm() : FormGroup {
-    return this.fb.group({
-      password: ['', [Validators.required, Validators.minLength(8)]]
-    });
+    let passForm = this.fb.group({
+      password: ['', [Validators.required, Validators.minLength(8)]],
+      passwordConfirmation:['', [Validators.required, Validators.minLength(8)]],
+    },);
+
+    passForm.addValidators(this.passwordMatchValidator);
+
+    return passForm;
+  }
+
+  passwordMatchValidator(formGroup: AbstractControl): { [key: string]: boolean } | null {
+    const password = formGroup.get('password')?.value;
+    const confirmPassword = formGroup.get('passwordConfirmation')?.value;
+    return password === confirmPassword ? null : { mismatch: true };
+  }
+
+  private resetPasswordForm() {
+    this.passwordForm.reset();
   }
 
   newUser(): void {
@@ -170,6 +198,7 @@ export class UserManagementComponent {
   }
 
   selectUser(userId: number): void {
+    this.resetPasswordForm();
     this.userService.getUser(userId).pipe(first())
     .subscribe(user => {
         user.lastAccess4UI = undefined;
@@ -221,7 +250,9 @@ export class UserManagementComponent {
       this.userService.saveUser(user).pipe(first())
         .subscribe({
           next: (result) => {
-            this.searchUsersInternal("-1");
+            if(user.userId == 0)
+              this.userList.unshift(result);
+            
             this.selectUser(result.userId);
             this.navigationService.showUIMessage("Usuario guardado (" + result.userName + ")", AlertLevel.Sucess);
           },
@@ -237,18 +268,7 @@ export class UserManagementComponent {
   }
 
   setPassword(): void {
-    if(this.selectedUser == null){
-      this.passwordForm.markAllAsTouched(); 
-      this.passwordErrorMsg = 'Selecciona un usuario';
-      return;
-    }
-
-    if (this.passwordForm.invalid) {
-      this.passwordForm.markAllAsTouched(); 
-      this.passwordErrorMsg = 'La contraseña debe tener una longitud mínima de 8 caracteres.';
-      return;
-    }
-    
+     
     if(this.selectedUser != null){
       const username = this.selectedUser.userName;
 
@@ -274,6 +294,10 @@ export class UserManagementComponent {
     .subscribe({
       next: (users) => {
         this.userList = users.sort((a,b) => (a.firstName?? '').localeCompare((b.firstName?? '')));
+        if(users.length > 0)
+        {
+          this.selectUser(users[0].userId);
+        }
       },
       error: (e) => {
         this.navigationService.showUIMessage(e.error);

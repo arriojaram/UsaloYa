@@ -2,9 +2,7 @@
   <div class="row">
       <div class="col-12 d-flex justify-content-start align-items-center">
           <div class="hamburger-menu" (click)="navigationService.toggleSearchPanel()">
-              <div></div>
-              <div></div>
-              <div></div>
+            <i class="{{navigationService.toogleClass}} fs-4" ></i>
           </div>
           <h5 class="ms-2 mt-3">Gestión de Clientes</h5>
       </div>
@@ -20,7 +18,9 @@
                
                 </div>
                 <ul class="list-group mt-3">
-                <li *ngFor="let c of customerList" class="list-group-item list-group-item-action" (click)="selectUser(c.customerId)">
+                <li *ngFor="let c of customerList" class="list-group-item list-group-item-action" 
+                      [ngClass]="{'text-primary': this.selectedCustomer?.customerId == c.customerId}"
+                      (click)="selectUser(c.customerId)">
                     {{ c.firstName + ' ' + c.lastName1 + ' ' + c.lastName2 }}
                 </li>
                 </ul>
@@ -65,11 +65,9 @@
 
                             <div class="form-group mb-2">
                               <label for="workPhoneNumber">Tel. Casa/Trabajo</label>
-                              <input id="workPhoneNumber" formControlName="workPhoneNumber" type="text" class="form-control required-input"
-                                   minlength="10" maxlength="15" pattern="^[0-9]{10,15}$" required placeholder="Ingresa tu número de teléfono de casa"/>
-                              <div *ngIf="customerForm.get('workPhoneNumber')?.invalid && customerForm.get('workPhoneNumber')?.touched" class="invalid-feedback">
-                                  Teléfono de casa/trabajo es inválido.
-                                </div>
+                              <input id="workPhoneNumber" formControlName="workPhoneNumber" type="text" class="form-control"
+                                   minlength="10" maxlength="15" pattern="^[0-9]{10,15}$" placeholder="Ingresa tu número de teléfono de casa"/>
+                             
                           </div>
                           
                             <div class="form-group mb-2">

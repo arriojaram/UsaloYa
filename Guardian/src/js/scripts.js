@@ -8,14 +8,15 @@
 // 
 
 window.addEventListener('DOMContentLoaded', event => {
-
+   
     const sidebarToggle = document.body.querySelector('#sidebarToggle');
     if (sidebarToggle) {
         // Esta función verifica si la pantalla es de un tamaño pequeño
         const isMobile = checkIfMobile();
-    
+        
         // Si es móvil, esconde la barra lateral al cargar la página
         if (isMobile) {
+            
             document.body.classList.remove('sb-sidenav-toggled');
         } 
     

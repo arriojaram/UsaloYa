@@ -3,7 +3,7 @@ import { environment } from '../environments/enviroment';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { userDto } from '../dto/userDto';
 import { BehaviorSubject, timeout } from 'rxjs';
-import { AlertLevel, CompanyStatus } from '../Enums/enums';
+import { AlertLevel, CompanyStatus, Roles } from '../Enums/enums';
 import { DefaultGlobalConfig, ToastrService } from 'ngx-toastr';
 
 @Injectable({
@@ -18,6 +18,7 @@ export class NavigationService {
   isSearchPanelHidden: boolean = false;
   searchItem: string = '';
   companyStatus: CompanyStatus  = CompanyStatus.Inactive;
+  toogleClass = "bi bi-box-arrow-in-left";
 
   constructor(
     private toastr: ToastrService
@@ -33,12 +34,17 @@ export class NavigationService {
   checkScreenSize() {
     if (window.innerWidth < 768) {
       this.isSearchPanelHidden = true;  // Ocultar búsqueda en pantallas pequeñas por defecto
+      this.toogleClass = 'bi bi-view-list';
       this.searchItem = '';
     }
   }
 
   toggleSearchPanel(): void {
     this.isSearchPanelHidden = !this.isSearchPanelHidden;
+    if(this.isSearchPanelHidden)
+      this.toogleClass = "bi bi-view-list";
+    else
+      this.toogleClass = "bi bi-box-arrow-in-left";
   }
 
   setItemWithExpiry(key: string, value: string): void {
@@ -91,5 +97,18 @@ export class NavigationService {
       this.toastr.warning(message);
     else
       this.toastr.error(message);
+  }
+
+  isMobile(): boolean {
+    const userAgent = window.navigator.userAgent;
+    // Regex que busca patrones comunes de agentes de usuario móviles
+    const mobileRegex = /iPhone|iPad|iPod|Android/i;
+    return mobileRegex.test(userAgent);
+  }
+
+  showFreeLicenseMsg(CompanyStatusId: number)
+  {
+    if(CompanyStatusId == CompanyStatus.Free)
+      this.showUIMessage(environment.freeLicenseMessage, AlertLevel.Warning);
   }
 }

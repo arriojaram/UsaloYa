@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NavigationService } from '../../services/navigation.service';
 import { UserStateService } from '../../services/user-state.service';
@@ -8,26 +8,36 @@ import { userDto } from '../../dto/userDto';
 import { companyDto } from '../../dto/companyDto';
 import { CompanyService } from '../../services/company.service';
 import { first } from 'rxjs';
-import { AlertLevel, getCompanyStatusEnumName, RentTypeId, Roles } from '../../Enums/enums';
+import { AlertLevel, CompanyStatus, getCompanyStatusEnumName, RentTypeId, Roles } from '../../Enums/enums';
 import { rentRequestDto } from '../../dto/rentRequestDto';
+import { SettingsComponent } from "./settings.component";
+import { environment } from '../../environments/enviroment';
+import { setStatusDto } from '../../dto/setStatusDto';
+import { licenseDto } from '../../dto/licenseDto';
+import { GeneralService } from '../../services/general.service';
+import { setValueDto } from '../../dto/setValueDto';
 
 @Component({
     selector: 'app-company-management',
-    imports: [CommonModule, FormsModule, ReactiveFormsModule, NgFor, NgIf],
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, NgFor, NgIf, SettingsComponent],
     templateUrl: './company-management.component.html',
     styleUrl: './company-management.component.css'
 })
 export class CompanyManagementComponent implements OnInit {
+  @ViewChild('settingsComponent') settingsCompont: SettingsComponent | undefined;
 
   companyForm: FormGroup;
   selectedCompany: companyDto | null = null;
   companyList: companyDto[] = [];
   userState: userDto;
   rol = Roles;
+  cStatus = CompanyStatus;
   activeTab: string = 'tab1';
   isSearchPanelHidden: boolean;
   isAutorized: boolean = false;
-  
+  whatsUrl = environment.whatsNumber;
+  selectedLicenceInfo: licenseDto = {id:0, numUsers:1, price:0};
+
   tipoPagoList = Object.keys(RentTypeId).filter(key => !isNaN(Number(key)))
                   .map(key => ({
                       name: RentTypeId[key as any],
@@ -35,16 +45,20 @@ export class CompanyManagementComponent implements OnInit {
                   }));
 
   showAddPaymentSection: boolean = false;
+  showUpgradeSection: boolean = false;
   mostrarConfirmacion: boolean = false;
   paymentHistory: rentRequestDto[] = [];
   rentAmmount: number = 0;
-  paymentTypeId: any;
+  paymentTypeId: number = 1;
+  licenseId: number = 0;
+  licenseList: licenseDto [] = [];
   notas: string = "";
 
   constructor(
     private fb: FormBuilder,
     private companyService: CompanyService,
     private userStateService: UserStateService,
+    private generalService: GeneralService,
     public navigationService: NavigationService
   ) 
   {
@@ -57,26 +71,28 @@ export class CompanyManagementComponent implements OnInit {
   ngOnInit(): void {
     this.userState = this.userStateService.getUserStateLocalStorage();
     if(this.userState.roleId < Roles.Admin)
-      {
-        this.navigationService.showUIMessage("Petición incorrecta.");
-        return;
-      }
-      else
-      {
-        this.isAutorized = true;
-      }
+    {
+      this.navigationService.showUIMessage("Petición incorrecta.");
+      return;
+    }
+    else
+    {
+      this.isAutorized = true;
+    }
 
-      if(this.userState.roleId <= Roles.Admin)
-      {
-        this.selectCompany(this.userState.companyId, true);
-        this.navigationService.toggleSearchPanel();
-      }
-      else
-      {
-        this.searchCompaniesInternal('-1');      
-      }
-    this.navigationService.checkScreenSize();
+    this.getLicenses();
+
+    if(this.userState.roleId <= Roles.Admin)
+    {
+      this.selectCompany(this.userState.companyId, true);
+      this.navigationService.toggleSearchPanel();
+    }
+    else
+    {
+      this.searchCompaniesInternal('-1');    
+    }
     
+    this.navigationService.checkScreenSize();
   }
 
   private initCompanyForm(): FormGroup {
@@ -102,6 +118,15 @@ export class CompanyManagementComponent implements OnInit {
     });
   }
 
+  ValidateEnteredAmount() {
+    if(this.rentAmmount > 0)
+    {
+      this.mostrarConfirmacion = true;
+    } 
+    else
+      this.navigationService.showUIMessage('Ingresa un monto mayor a cero.', AlertLevel.Warning);
+  }
+
   newCompany(): void {
     this.selectedCompany = null;
     this.companyForm.reset();
@@ -113,7 +138,9 @@ export class CompanyManagementComponent implements OnInit {
     .subscribe(c => {
         c.expirationDateUI = undefined;
         c.creationDateUI = undefined;
-        
+        this.showAddPaymentSection = false;
+        this.showUpgradeSection = false;
+
         if(c.expirationDate != null)
         {
           c.expirationDateUI = format(c.expirationDate, 'dd-MMM-yyyy hh:mm a');
@@ -124,12 +151,15 @@ export class CompanyManagementComponent implements OnInit {
         }
         c.statusDesc = getCompanyStatusEnumName(c.statusId);
         
-      this.selectedCompany = c;
-      this.companyForm.patchValue(c);
-      this.navigationService.checkScreenSize();
-      
-      if(selectDetails)
-        this.activeTab = "tabDetalles";
+        this.companyService.selectedCompanyId = c.companyId;
+        this.selectedCompany = c;
+        this.getLicenseInfo(c.planId?? 0);
+        this.licenseId = 0;
+        this.companyForm.patchValue(c);
+        this.navigationService.checkScreenSize();
+        
+        if(selectDetails)
+          this.activeTab = "tabDetalles";
      
 
     });
@@ -148,8 +178,9 @@ export class CompanyManagementComponent implements OnInit {
         this.cancelAddPayment();
       
         break;
-      case 'tab3':
-        return;
+      case 'tabSettings':
+        this.activeTab = "tabSettings";
+        this.settingsCompont?.loadSettings(this.selectedCompany?.companyId?? 0);
         break;
     }
     this.activeTab = tab;
@@ -174,7 +205,9 @@ export class CompanyManagementComponent implements OnInit {
       this.companyService.saveCompany(c).pipe(first())
         .subscribe({
           next: (result) => {
-            this.searchCompaniesInternal("-1");
+            if(c.companyId == 0)
+              this.companyList.unshift(result);
+            
             this.selectCompany(result.companyId, true);
             this.navigationService.showUIMessage("Información guardada (" + result.name + ")", AlertLevel.Sucess);
           },
@@ -202,6 +235,29 @@ export class CompanyManagementComponent implements OnInit {
     .subscribe({
       next: (c) => {
         this.companyList = c.sort((a,b) => (a.name?? '').localeCompare((b.name?? '')));
+        if(c.length > 0)
+        {
+          this.selectCompany(c[0].companyId, true);
+        }
+      },
+      error: (e) =>{
+        this.navigationService.showUIMessage(e.error);
+      }
+    });
+  }
+
+  setDisabled()
+  {
+    let status = CompanyStatus.Inactive;
+    if(this.selectedCompany?.statusId == CompanyStatus.Inactive)
+      status = CompanyStatus.Active;
+
+    let companyId = (this.selectedCompany?.companyId) ?? 0;
+    let companyStatus: setStatusDto = {objectId: companyId, statusId: status};
+    this.companyService.setCompanyStatus(companyStatus).pipe(first())
+    .subscribe({
+      next: (c) => {
+        this.selectCompany(c, true);
       },
       error: (e) =>{
         this.navigationService.showUIMessage(e.error);
@@ -210,6 +266,51 @@ export class CompanyManagementComponent implements OnInit {
   }
 
   /***** Pagos TAB - Start *******/
+  upgradeLicense()
+  {
+    if(this.licenseId>1)
+    {
+      let companyId = (this.selectedCompany?.companyId) ?? 0;
+      let licenseDto: setValueDto = {objectId: companyId, valueId: this.licenseId };
+      this.companyService.setCompanyLicense(licenseDto).pipe(first())
+      .subscribe({
+        next: (c) => {
+          this.navigationService.showUIMessage('Actualizado a Premium', AlertLevel.Sucess);
+          this.selectCompany(companyId, false);
+        },
+        error: (e) =>{
+          this.navigationService.showUIMessage(e.error);
+        }
+      });
+    }
+    else
+    {
+      this.navigationService.showUIMessage('Selecciona una licencia premium válida', AlertLevel.Warning);
+    }
+  }
+
+  showUpgradeLicense()
+  {
+    if(this.userState.companyStatusId == this.cStatus.Free)
+    {
+      this.navigationService.showUIMessage('Contactanos via WhatsApp para actualizar tu plan Gratuito a Premium ó escribemos a soporte@usaloya.xyz', AlertLevel.Info);
+    }
+    else
+    {
+      this.showUpgradeSection = true;
+    }
+  }
+
+  cancelUpgrade()
+  {
+    this.showUpgradeSection = false;
+  }
+
+  showPaymentPanel()
+  {
+    this.showAddPaymentSection = !this.showAddPaymentSection;
+  }
+
   getPaymentHistory() {
     let companyId = 0;
     if(this.selectedCompany != null)
@@ -227,7 +328,7 @@ export class CompanyManagementComponent implements OnInit {
         else
           this.navigationService.showUIMessage(err.error);
       },
-  });
+    });
   }
 
   addConfirmedPayment(): void {
@@ -257,7 +358,7 @@ export class CompanyManagementComponent implements OnInit {
         this.selectCompany(renta.companyId, false); // Recarga la información de la compañia
       },
       error:(err) => {
-        this.navigationService.showUIMessage('Error al agregar el pago');
+        //this.navigationService.showUIMessage('Error al agregar el pago');
         const m1 = err.error.message;
         if(m1)
           this.navigationService.showUIMessage(m1);
@@ -278,11 +379,35 @@ export class CompanyManagementComponent implements OnInit {
   cancelAddPayment() {
     this.showAddPaymentSection = false; 
     this.rentAmmount=0; 
-    this.paymentTypeId=0;
+    this.paymentTypeId=1;
   }
 
   /*** End TAB - Pagos *****/
 
+  getLicenseInfo(licenseId: number)
+  {
+    if(licenseId>0)
+    {
+      let licIndex = this.licenseList.findIndex(l => l.id == licenseId);
+      this.selectedLicenceInfo = this.licenseList[licIndex];
+    }
+  }
+
+  getLicenses() {
+    this.generalService.getLicenses().pipe(first())
+    .subscribe({
+      next: (result) => {
+        this.licenseList = result;
+      },
+      error:(err) => {
+        const m1 = err.error.message;
+        if(m1)
+          this.navigationService.showUIMessage(m1);
+        else
+          this.navigationService.showUIMessage(err.error);
+      },
+    });
+  }
 }
 
 

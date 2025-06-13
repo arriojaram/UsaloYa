@@ -10,13 +10,16 @@ export class ImportCvsProductService {
 
   constructor() { }
 
-  parseCsv(file: File): Observable<Producto[]> {
+  parseCsv(file: File, isFreeRole: boolean): Observable<Producto[]> {
     return from(new Promise<Producto[]>((resolve, reject) => {
       Papa.parse(file, {
         header: true,
         skipEmptyLines: true,
         complete: (results) => {
-          const productos: Producto[] = results.data.map((row: any) => this.toProducto(row));
+          let productos: Producto[] = results.data.map((row: any) => this.toProducto(row));
+          if(isFreeRole && productos.length > 10)
+            productos = productos.slice(0, 10);
+
           resolve(productos);
         },
         error: (error) => reject(error),
@@ -28,7 +31,8 @@ export class ImportCvsProductService {
     return {
       productId: 0, 
       name: row.Nombre.trim() || '',
-      description: row.Descripcion.trim() || '',
+      description: row.Descripcion ? row.Descripcion.trim() : '',
+      categoria: row.Categoria ? row.Categoria.trim() : '',
       buyPrice: parseFloat(row.PrecioCompra) || 0,
       unitPrice: parseFloat(row.PrecioUnitario) || 0,
       unitPrice1: parseFloat(row.Precio1) || 0,
@@ -40,16 +44,9 @@ export class ImportCvsProductService {
       barcode: row.CodigoBarras.trim() || '',
       companyId: 0,
       categoryId:0,
-      supplierId:0,
-      imgUrl:'',
-      brand:'',
-      color:'',
-      size:'',
       count:0,
       total:0,
-      dateAdded: new Date(),
-      dateModified: new Date()
-
+      lowInventoryStart: parseInt(row.AlertaExistencias) || 0,
     };
   }
 }

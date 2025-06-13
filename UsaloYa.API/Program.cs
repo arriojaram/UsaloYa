@@ -1,7 +1,10 @@
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using UsaloYa.API.Config;
 using UsaloYa.API.Security;
+using UsaloYa.Library.Config;
+using UsaloYa.Services;
+using UsaloYa.Services.interfaces;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,13 +17,17 @@ var loggerSettings = new LoggerConfiguration()
 //Add logging settings
 builder.Logging.AddSerilog(loggerSettings);
 
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
 
-builder.Services.AddControllers();
+});
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<UsaloYa.API.Models.DBContext>(
+builder.Services.AddDbContext<UsaloYa.Library.Models.DBContext>(
     options =>
     {
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
@@ -41,12 +48,23 @@ builder.Services.AddCors(options =>
                     .AllowAnyMethod();
         });
 });
-
 builder.Services.AddSingleton<AppConfig>();
+builder.Services.AddScoped<ProductCategoryService>();
 builder.Services.AddScoped<AccessValidationFilter>();
+builder.Services.AddScoped<IProductCategoryService, ProductCategoryService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ISaleService, SaleService>();
+builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<ICompanyService, CompanyService>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IGeneralService, GeneralService>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+
+
 
 var app = builder.Build();
-app.UseCors("AllowSpecificOrigin");
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -56,11 +74,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors("AllowSpecificOrigin");
 
 app.UseAuthorization();
-
 app.MapControllers();
-
 
 app.UseMiddleware<TokenValidationMiddleware>();
 

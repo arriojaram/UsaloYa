@@ -1,0 +1,101 @@
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-body">
+          <h3 class="card-title text-center">Crea una cuenta</h3>
+
+          <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
+            <!-- Nombre -->
+            <div class="mb-3">
+              <label for="name" class="form-label">Nombre</label>
+              <input type="text" class="form-control" formControlName="name" placeholder="Nombre" id="name" />
+              <div *ngIf="registerForm.get('name')?.invalid && registerForm.get('name')?.touched" class="text-danger"
+                id="nameError">
+                El nombre es requerido y debe tener al menos 3 caracteres
+              </div>
+            </div>
+
+            <!-- Teléfono -->
+            <div class="mb-3">
+              <label for="phone" class="form-label">Teléfono</label>
+              <input type="text" class="form-control" formControlName="phone" placeholder="Teléfono" id="phone" />
+              <div *ngIf="registerForm.get('phone')?.invalid && registerForm.get('phone')?.touched" class="text-danger"
+                id="phoneError">
+                El número telefónico es requerido y debe tener entre 10 y 15 dígitos numéricos
+              </div>
+            </div>
+
+            <!-- Email -->
+            <div class="mb-3">
+              <label for="email" class="form-label">E-mail</label>
+              <input type="email" class="form-control" formControlName="email" placeholder="E-mail" id="email" />
+
+              <!-- Error por email requerido o formato inválido -->
+              <div
+                *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.errors && !registerForm.get('email')?.errors?.['emailTaken']"
+                class="text-danger" id="emailError">
+                El e-mail es requerido y debe ser válido
+              </div>
+
+              <!-- Error por email ya registrado -->
+              <div *ngIf="registerForm.get('email')?.errors?.['emailTaken'] && registerForm.get('email')?.touched"
+                class="text-danger" id="emailError">
+                Este correo electrónico ya está en uso.
+              </div>
+            </div>
+
+
+            <!-- Dirección -->
+            <div class="mb-3">
+              <label for="address" class="form-label">Dirección</label>
+              <input type="text" class="form-control" formControlName="address" placeholder="Dirección" id="address" />
+            </div>
+
+            <!-- Usuario -->
+            <div class="mb-3">
+              <label for="username" class="form-label">Usuario</label>
+              <input type="text" class="form-control" formControlName="username" placeholder="Nombre de Usuario"
+                id="username" />
+
+              <!-- Error por requerido o formato inválido -->
+              <div *ngIf="registerForm.get('username')?.touched 
+           && registerForm.get('username')?.errors 
+           && !registerForm.get('username')?.errors?.['usernameTaken']" class="text-danger" id="usernameError">
+                El nombre de usuario es requerido y debe tener mínimo 4 caracteres alfanuméricos
+              </div>
+
+              <!-- Error por nombre de usuario ya registrado -->
+              <div *ngIf="registerForm.get('username')?.errors?.['usernameTaken'] 
+           && registerForm.get('username')?.touched" class="text-danger">
+                Este nombre de usuario ya está en uso.
+              </div>
+            </div>
+
+
+            <!-- Contraseña -->
+            <div class="mb-3">
+              <label for="token" class="form-label">Contraseña</label>
+              <input type="password" class="form-control" formControlName="token" placeholder="Contraseña" id="token" />
+              <div *ngIf="registerForm.get('token')?.invalid && registerForm.get('token')?.touched" class="text-danger"
+                id="tokenError">
+                La contraseña es requerida, mínimo 8 caracteres con al menos una letra y un número
+              </div>
+
+            </div>
+
+
+
+
+            <button type="submit" class="btn btn-primary w-100" [disabled]="registerForm.invalid">
+              Regístrate
+            </button>
+          </form>
+
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

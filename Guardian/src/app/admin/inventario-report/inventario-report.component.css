@@ -1,0 +1,84 @@
+.highlight {
+    background-color: hsl(58, 100%, 51%);
+    transition: background-color 1s ease-out;
+  }
+
+.a1 {
+  background-color: hsla(14, 100%, 65%, 0.627);
+  transition: background-color 1s ease-out;
+}
+
+.a2 {
+  background-color: hsl(58, 100%, 83%);
+  transition: background-color 1s ease-out;
+}
+
+.fs-smaller {
+    font-size: 0.675rem; /* Tamaño menor que el fs-6 estándar de Bootstrap */
+}
+
+.tbl-col-sm{
+  max-width: 20px; 
+  overflow-wrap: break-word;
+ 
+}
+
+@media (min-width: 992px) {
+  .tbl-col-sm {
+    min-width: 100px;
+    overflow-wrap: normal;
+  }
+}
+
+.table-lg {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (min-width: 992px) {
+  .table-lg {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Gradiente Primary */
+.bgc-primary {
+  background: linear-gradient(45deg, rgba(13,110,253,0.8), rgba(13,110,253,0.9));
+  color: #fff; /* Texto blanco, igual que btn-primary */
+  transition: background 0.3s ease;
+}
+.bgc-primary:hover {
+  background: linear-gradient(45deg, rgba(11,94,215,0.8), rgba(11,94,215,0.9));
+}
+
+/* Gradiente Success */
+.bgc-success {
+  background: linear-gradient(45deg, rgba(25,135,84,0.8), rgba(25,135,84,0.9));
+  color: #fff; /* Texto blanco, igual que btn-success */
+  transition: background 0.3s ease;
+}
+.bgc-success:hover {
+  background: linear-gradient(45deg, rgba(21,115,71,0.8), rgba(21,115,71,0.9));
+}
+
+/* Gradiente Danger */
+.bgc-danger {
+  background: linear-gradient(45deg, rgba(220,53,69,0.8), rgba(220,53,69,0.9));
+  color: #fff; /* Texto blanco, igual que btn-danger */
+  transition: background 0.3s ease;
+}
+.bgc-danger:hover {
+  background: linear-gradient(45deg, rgba(187,45,59,0.8), rgba(187,45,59,0.9));
+}
+
+/* Gradiente Warning */
+.bgc-warning {
+  background: linear-gradient(45deg, rgba(255,193,7,0.8), rgba(255,193,7,0.9));
+  color: #212529; /* Texto oscuro, igual que btn-warning */
+  transition: background 0.3s ease;
+}
+.bgc-warning:hover {
+  background: linear-gradient(45deg, rgba(255,201,0,0.8), rgba(255,201,0,0.9));
+}
+

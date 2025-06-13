@@ -1,0 +1,35 @@
+<form [formGroup]="settingsForm" (ngSubmit)="onSave()" class="container">
+    <!-- Fila para "Activar Impresion Web" -->
+    <div class="form-group form-check">
+      <input type="checkbox" class="form-check-input" id="activarImpresionWeb" formControlName="activarImpresionWeb" />
+      <label class="form-check-label" for="activarImpresionWeb">
+        Activar Impresion Web
+      </label>
+    </div>
+  
+    <!-- Fila para "Impresora web" -->
+    <div class="form-group">
+      
+      <div class="input-group-append mb-2">
+        <label for="impresoraWeb">Impresora web</label>
+        <button class="btn btn-outline-secondary ms-3" type="button" *ngIf="!this.navigationService.isMobile()" (click)="buscarImpresoras()">
+          Buscar Impresoras
+        </button>
+      </div>
+      <div class="input-group">
+        <select *ngIf="isSearchingPrinters" id="printerList" formControlName="selectSelectedPrinter" class="form-select" (change)="setPrinter($event)">
+            <option *ngFor="let option of printerList">
+                {{ option }}
+            </option>
+        </select>
+        <input type="text" class="form-control" id="impresoraWeb" formControlName="impresoraWeb" placeholder="Nombre de la impresora" />
+       
+      </div>
+    </div>
+  
+    <!-- Botón de guardar -->
+    <div class="form-group align-items-start mt-2">
+      <button type="submit" class="btn btn-primary">Guardar</button>
+    </div>
+  </form>
+  

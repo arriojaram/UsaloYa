@@ -6,6 +6,8 @@ import { companyDto } from '../dto/companyDto';
 import { rentRequestDto } from '../dto/rentRequestDto';
 import { setStatusDto } from '../dto/setStatusDto';
 import { AdminCompanyDto } from '../dto/adminCompanyDto';
+import { companySettingsDto, pairSettingsDto } from '../dto/companySettingsDto';
+import { setValueDto } from '../dto/setValueDto';
 
 @Injectable({
   providedIn: 'root'
@@ -13,14 +15,12 @@ import { AdminCompanyDto } from '../dto/adminCompanyDto';
 export class CompanyService {
 
   private baseUrl = environment.apiUrlBase + '/api/Company';
- 
+  selectedCompanyId: number = 0;
+  
   constructor(
     private http: HttpClient
   ) 
-  {
-    
-  }
-
+  { }
 
   addCompanyRent(c: rentRequestDto): Observable<number> {
     const apiUrl = `${this.baseUrl}/AddRent`;
@@ -33,12 +33,45 @@ export class CompanyService {
     );
   }
 
+  setCompanySettings(s: companySettingsDto): Observable<number> {
+    const apiUrl = `${this.baseUrl}/SetSettings`;
+
+    return this.http.post<number>(apiUrl, s).pipe(
+      catchError(error => {
+        console.error('setCompanyStatus() | ', error);
+        throw error;
+      })
+    );
+  }
+  
+  getCompanySettings(companyId: number): Observable<pairSettingsDto[]> {
+    const apiUrl = `${this.baseUrl}/GetSettings?companyId=${companyId}`;
+
+    return this.http.get<pairSettingsDto[]>(apiUrl).pipe(
+      catchError(error => {
+        console.error('getCompanySettins() | ', error);
+        throw error;
+      })
+    );
+  }
+
   setCompanyStatus(c: setStatusDto): Observable<number> {
     const apiUrl = `${this.baseUrl}/SetCompanyStatus`;
 
     return this.http.post<number>(apiUrl, c).pipe(
       catchError(error => {
         console.error('setCompanyStatus() | ', error);
+        throw error;
+      })
+    );
+  }
+
+  setCompanyLicense(c: setValueDto): Observable<number> {
+    const apiUrl = `${this.baseUrl}/SetCompanyLicense`;
+
+    return this.http.post<number>(apiUrl, c).pipe(
+      catchError(error => {
+        console.error('setCompanyLicense() | ', error);
         throw error;
       })
     );
@@ -88,5 +121,16 @@ export class CompanyService {
       );
     }
   
+ checkCompanyUnique(name: string): Observable<boolean> {
+  const apiUrl = `${this.baseUrl}/IsCompanyUnique`;
+  return this.http.post<boolean>(apiUrl, JSON.stringify(name), {
+    headers: { 'Content-Type': 'application/json' }
+  }).pipe(
+    catchError(error => {
+      console.error('checkCompanyUnique() | ', error);
+      throw error;
+    })
+  );
+}
 
 }

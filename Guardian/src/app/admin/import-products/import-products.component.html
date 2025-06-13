@@ -2,9 +2,14 @@
 <div class="container mt-5">
     <div class="row justify-content-center">
       <div class="col-md-8" *ngIf="isAutorized">
-        <h6 class="mb-5 card-title">
-          Selecciona el archivo con extensión ".csv" utilizando el botón seleccionar archivo y después utiliza el botón "Importar Productos" para iniciar el proceso de carga de productos al sistema. 
-        </h6>
+        <div class="mb-4 card-title">
+          En este modulo puedes realizar una carga masiva de productos a partir de una base de datos creada en un archivo .csv
+          <div class="my-2 download-container">
+            <a href="assets/templates/plantilla_carga.csv" download>Descargar Archivo Plantilla CSV</a>
+          </div>
+          
+          Una vez editado tu archivo, seleccionalo utilizando el botón seleccionar archivo y después utiliza el botón "Importar Productos" para iniciar el proceso de carga de productos al sistema. 
+        </div>
         <div *ngIf="isRunning" [ngClass]="alertClass" role="alert">
           {{ user_message }}
         </div>
@@ -12,9 +17,66 @@
           <input type="file"  #fileInput  class="form-control" (change)="onFileSelected($event)" accept=".csv">
           <button class="btn btn-primary" (click)="importProducts()" [disabled]="!selectedFile">Importar Productos</button>
         </div>
-        <p class="d-flex flex-column">Productos Procesados: {{ productsProcessed }}</p>
+        <div class="input-group">
+          <label>
+            <input type="checkbox" [(ngModel)]="updateExistingProducts" [disabled]="this.userState.companyStatusId == cStatus.Free" name="updateExistingProds" />
+            Actualizar Productos existentes
+          </label>
+        </div>
+        <div class="d-flex flex-wrap mt-2" *ngIf="updateExistingProducts">
+          <div class="form-check form-check-inline">
+            <label>
+              <input type="checkbox" [(ngModel)]="checkboxes.updateNombre" name="nombre" />
+              Actualizar Nombre
+            </label>
+          </div>
+          <div class="form-check form-check-inline">
+            <label>
+              <input type="checkbox" [(ngModel)]="checkboxes.updateCategoria" name="categoria" />
+              Actualizar Categoria
+            </label>
+          </div>
+          <div class="form-check form-check-inline">
+            <label>
+              <input type="checkbox" [(ngModel)]="checkboxes.updatePrecioUnitario" name="precioUnitario" />
+              Actualizar Precio Unitario
+            </label>
+          </div>
+          <div class="form-check form-check-inline">
+            <label>
+              <input type="checkbox" [(ngModel)]="checkboxes.updatePrecio1" name="precio1" />
+              Actualizar Precio-1
+            </label>
+          </div>
+          <div class="form-check form-check-inline">
+            <label>
+              <input type="checkbox" [(ngModel)]="checkboxes.updatePrecio2" name="precio2" />
+              Actualizar Precio-2
+            </label>
+          </div>
+          <div class="form-check form-check-inline">
+            <label>
+              <input type="checkbox" [(ngModel)]="checkboxes.updatePrecio3" name="precio3" />
+              Actualizar Precio-3
+            </label>
+          </div>
+          <div class="form-check form-check-inline">
+            <label>
+              <input type="checkbox" [(ngModel)]="checkboxes.updateStock" name="stock" />
+              Actualizar Existencias
+            </label>
+          </div>
+          <div class="form-check form-check-inline">
+            <label>
+              <input type="checkbox" [(ngModel)]="checkboxes.updateAlertaExistencias" name="stock" />
+              Actualizar Alerta Existencias
+            </label>
+          </div>
+        </div>
+        <hr>
+        <p class="mt-3 d-flex flex-column">Productos Procesados: {{ productsProcessed }}</p>
         <p class="d-flex flex-column">Productos Fallidos: {{ productsFailed }}</p>
-        <div class="console mt-5">
+        <div class="console mt-3">
           <div *ngFor="let message of messages">
             {{ message }}
           </div>

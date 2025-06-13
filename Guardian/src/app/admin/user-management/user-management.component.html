@@ -2,9 +2,7 @@
     <div class="row">
         <div class="col-12 d-flex justify-content-start align-items-center">
             <div class="hamburger-menu" (click)="navigationService.toggleSearchPanel()">
-                <div></div>
-                <div></div>
-                <div></div>
+                <i class="{{navigationService.toogleClass}} fs-4" ></i>
             </div>
             <h5 class="ms-2 mt-3">Gestión de Usuarios</h5>
         </div>
@@ -20,9 +18,9 @@
                 
                 </div>
                 <ul class="list-group mt-3">
-                <li *ngFor="let user of userList" class="list-group-item list-group-item-action" (click)="selectUser(user.userId)">
-                    {{ user.firstName + ' ' + user.lastName + ' (' + user.userName + ')' }}
-                </li>
+                    <li *ngFor="let user of userList" class="list-group-item list-group-item-action" [ngClass]="{'text-primary': this.selectedUser?.userId == user.userId}" (click)="selectUser(user.userId)">
+                        {{ user.firstName + ' ' + user.lastName + ' (' + user.userName + ')' }}
+                    </li>
                 </ul>
             </div>
             </div>
@@ -43,7 +41,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-4 d-flex align-items-end pl-2 mx-2 mb-3">
-                                    <input class="form-check-input form-check-input-lg" formControlName="isEnabled" type="checkbox"> Habilitado
+                                    <input class="form-check-input form-check-input-lg me-1" formControlName="isEnabled" type="checkbox"> Habilitado
                                    
                                 </div>
                             </div>
@@ -117,19 +115,46 @@
                                 </span>
                             </div>
                             <div class="d-flex justify-content-end my-3">
-                                <button type="button" *ngIf="this.userState.roleId > rol.Admin" class="btn btn-primary mx-2 btn-floating-secondary" (click)="newUser()">Nuevo</button>
+                                <button type="button" *ngIf="this.userState.roleId > rol.Admin && this.userState.companyStatusId != cStatus.Free" 
+                                    class="btn btn-primary mx-2 btn-floating-secondary" (click)="newUser()">Nuevo</button>
                                 <button type="submit" [disabled]="this.userForm.get('roleId')?.value  === rol.Root"  *ngIf="this.userState.roleId > rol.User" class="btn btn-success btn-floating">Guardar Usuario</button>
                             </div>    
                         </form>
 
                         <form [formGroup]="passwordForm" (ngSubmit)="setPassword()" *ngIf="this.userState.roleId > rol.User">
-                            <div class="form-group mb-2">
-                                <input formControlName="password" type="password" class="form-control mb-2 w-50" placeholder="Password">
-                                <div *ngIf="passwordForm.get('password')?.invalid && passwordForm.get('password')?.touched" class="invalid-feedback">
-                                    {{this.passwordErrorMsg}}
+                            <div class="form-group mb-2 col-12 col-md-6">
+                                <div class="input-group mb-2">
+                                    <input formControlName="password" [type]="passwordVisible ? 'text' : 'password'" class="form-control" placeholder="Password">
+                                    <button class="btn btn-outline-secondary" type="button" (click)="togglePasswordVisibility()">
+                                        <i class="bi bi-eye-slash" [ngClass]="{'bi bi-eye': passwordVisible}" ></i>
+                                    </button>
+                                    <div *ngIf="passwordForm.get('password')?.invalid && passwordForm.get('password')?.touched" class="invalid-feedback">
+                                        <div *ngIf="passwordForm.get('password')?.errors?.['required']">La contraseña es obligatoria.</div>
+                                        <div *ngIf="passwordForm.get('password')?.errors?.['minlength']">
+                                            La contraseña debe tener al menos {{ passwordForm.get('password')?.errors?.['minlength'].requiredLength }} caracteres.
+                                        </div>
+                                    </div>
+                                    
+                                    <div *ngIf="passwordForm.get('password')?.touched && passwordForm.get('password')?.invalid" class="text-danger">
+                                        
+                                    </div>
                                 </div>
-                                <button type="submit">Actualiza Password</button>
-                            </div>    
+                                <div class="input-group mb-2">
+                                    <input formControlName="passwordConfirmation" [type]="passwordVisible ? 'text' : 'password'" class="form-control"  placeholder="Confirmación de password">
+                                    <button class="btn btn-outline-secondary" type="button" (click)="togglePasswordVisibility()">
+                                        <i class="bi bi-eye-slash" [ngClass]="{'bi bi-eye': passwordVisible}" ></i>
+                                    </button>
+                                    <div *ngIf="passwordForm.get('passwordConfirmation')?.invalid && passwordForm.get('passwordConfirmation')?.touched" class="invalid-feedback">
+                                        <div *ngIf="passwordForm.get('passwordConfirmation')?.touched && passwordForm.get('passwordConfirmation')?.invalid" class="text-danger">
+                                            <div *ngIf="passwordForm.get('passwordConfirmation')?.errors?.['required']">La confirmación de la contraseña es obligatoria.</div>
+                                          </div>
+                                    </div>
+                                </div>
+                                <div *ngIf="passwordForm.errors?.['mismatch'] && (passwordForm.get('passwordConfirmation')?.dirty || passwordForm.get('passwordConfirmation')?.touched)" class="text-danger">
+                                    Las contraseñas no coinciden.
+                                  </div>
+                                <button class="btn btn-outline-primary" type="submit" [disabled]="passwordForm.invalid">Actualiza Password</button>
+                            </div>                                  
                         </form>
                     </div>
                 </div>

@@ -27,6 +27,7 @@
               "src/manifest.webmanifest"
             ],
             "styles": [
+              "@angular/material/prebuilt-themes/azure-blue.css",
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "src/css/styles.css",
               "src/styles.css",
@@ -38,6 +39,28 @@
             ]
           },
           "configurations": {
+            "qa": {
+              "fileReplacements": [
+                {
+                  "replace": "src/app/environments/enviroment.ts",
+                  "with": "src/app/environments/enviroment.qa.ts"
+                }
+              ],
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "3mb",
+                  "maximumError": "5mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
+                }
+              ],
+              "outputHashing": "all",
+              "serviceWorker": "ngsw-config.json"
+            },
             "production": {
               "fileReplacements": [
                 {
@@ -100,6 +123,7 @@
               "src/manifest.webmanifest"
             ],
             "styles": [
+              "@angular/material/prebuilt-themes/azure-blue.css",
               "src/css/styles.css",
               "src/styles.css",
               "node_modules/ngx-toastr/toastr.css"
@@ -114,5 +138,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": false
   }
 }

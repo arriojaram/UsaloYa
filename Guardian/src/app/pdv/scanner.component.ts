@@ -24,7 +24,7 @@ export class PuntoDeVentaComponent implements OnInit {
     isHidden?: boolean;
     label_productoAdded?: string;
     messageClass: string = "alert  alert-success mt-2";
-    scanningAllowed: boolean | undefined;
+    
     isSearchingProduct: boolean = false;
     
     productName: string = '';  // Almacena el texto ingresado
@@ -46,10 +46,16 @@ export class PuntoDeVentaComponent implements OnInit {
         this.isHidden = true;
         const companyId = this.userState.getUserStateLocalStorage().companyId;
         this.ventasService.cacheProductCatalog(companyId);
-        this.scanningAllowed = true;
+        this.navigationService.showFreeLicenseMsg(this.userState.getUserStateLocalStorage().companyStatusId ?? 0);
     }    
 
+    cleanSearchProdPanel() {
+        this.productName = '';
+        this.filteredProduct = []
+    }
+    
     searchProduct() {
+       this.navigationService.showFreeLicenseMsg(this.userState.getUserStateLocalStorage().companyStatusId?? 0);
        this.filteredProduct = [];
        let searchItem = this.productName.trim().toLowerCase();
        if(searchItem != '')
@@ -93,18 +99,8 @@ export class PuntoDeVentaComponent implements OnInit {
 
       
     onCodeResult(resultString: string) {
-        if (this.scanningAllowed) {
-            this.scanningAllowed = false; // Deshabilitar escaneo temporalmente
-        
-            this.codigo.setValue(resultString);
-            this.addProductToSaleList();
-        
-            
-            // Establecer el delay antes de permitir otro escaneo
-            setTimeout(() => {
-                this.scanningAllowed = true;
-            }, 3000); 
-        }       
+        this.codigo.setValue(resultString);
+        this.addProductToSaleList();     
     }
 
     get codigo(){

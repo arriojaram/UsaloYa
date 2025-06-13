@@ -1,6 +1,6 @@
 export enum RentTypeId
 { 
-    Desconocido = 0,
+   
     Mensualidad = 1,
     Condonacion = 2,
     Extension = 3,
@@ -14,11 +14,21 @@ export enum PriceLevel
     UnitPrice3 = 3,
 }
 
+export enum InventoryView
+{ 
+    Critical = 1,
+    Warning = 2,
+    Other = 3,
+    ByCategory = 4,
+    WithDiscrepancia = 5,
+    ItemsUpdated = 6
+}
 
 export enum Roles {
     Unknown = 0,
     User = 1,
     Admin = 2,
+    
     Ventas = 3,
     SysAdmin = 13,
     Root = 14
@@ -29,7 +39,8 @@ export enum CompanyStatus
     Inactive = 0,
     PendingPayment = 1,
     Expired = 2,
-    Active = 3
+    Active = 3,
+    Free = 4
 }
 
 export enum AlertLevel

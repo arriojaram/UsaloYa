@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { CustomerService } from '../../services/customer.service';
@@ -7,16 +7,17 @@ import { UserStateService } from '../../services/user-state.service';
 import { customerDto } from '../../dto/customerDto';
 import { first } from 'rxjs';
 import { NavigationService } from '../../services/navigation.service';
-import { NgFor, NgIf } from '@angular/common';
-import { AlertLevel } from '../../Enums/enums';
+import { NgClass, NgFor, NgIf } from '@angular/common';
+import { AlertLevel, Roles } from '../../Enums/enums';
+import { environment } from '../../environments/enviroment';
 
 @Component({
     selector: 'app-customer-management',
-    imports: [ReactiveFormsModule, FormsModule, NgFor, NgIf],
+    imports: [ReactiveFormsModule, FormsModule, NgFor, NgIf, NgClass],
     templateUrl: './customer-management.component.html',
     styleUrl: './customer-management.component.css'
 })
-export class CustomerManagementComponent {
+export class CustomerManagementComponent implements OnInit{
   customerForm: FormGroup;
   customerId!: number;
   userState: userDto | undefined;
@@ -43,6 +44,8 @@ export class CustomerManagementComponent {
     if (this.customerId > 0) {
       this.loadCustomerData(this.customerId);
     }
+
+    this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId?? 0);
   }
 
   // Inicializa el formulario
@@ -71,7 +74,7 @@ export class CustomerManagementComponent {
   newCustomer(): void {
     this.selectedCustomer = null;
     this.customerForm?.reset();
-    this.customerForm?.patchValue({customerId:0, lastName1:'', lastName2:'', firstName:'', cellPhoneNumber:'', workPhoneNumber:'', email:''});
+    this.customerForm?.patchValue({companyId:this.userState?.companyId, customerId:0, lastName1:'', lastName2:'', firstName:'', cellPhoneNumber:'', workPhoneNumber:'', email:''});
     window.scrollTo(0, 0);
   }
 
@@ -81,13 +84,14 @@ export class CustomerManagementComponent {
       return;
     }
     if (this.customerForm?.valid) {
-      
-      this.customerService.saveCustomer(this.customerForm.value).subscribe({
+      let customerDto : customerDto = this.customerForm.value;
+      this.customerService.saveCustomer(customerDto).subscribe({
         next: (savedCustomer) => {
-          this.searchCustomersInternal('-1');
+          if(customerDto.customerId == 0)
+            this.customerList.unshift(savedCustomer);
+          
           this.selectUser(savedCustomer.customerId);
           this.navigationService.showUIMessage("Cliente guardado (" + savedCustomer.customerId + ")", AlertLevel.Sucess);
-          //window.scrollTo(0, 0);
         },
         error: (e) => 
         {
@@ -120,10 +124,19 @@ export class CustomerManagementComponent {
   private searchCustomersInternal(nameOrPhoneOrEmail: string): void {
     if(this.userState != null)
     {
-     console.log(JSON.stringify(this.userState));
+     
       this.customerService.getAllCustomer(this.userState.companyId, nameOrPhoneOrEmail).pipe(first())
-      .subscribe(users => {
-        this.customerList = users.sort((a,b) => (a.firstName?? '').localeCompare((b.firstName?? '')));
+      .subscribe({
+        next:(users) => {
+          this.customerList = users.sort((a,b) => (a.firstName?? '').localeCompare((b.firstName?? '')));
+          if(users.length > 0)
+          {
+            this.selectUser(users[0].customerId);
+          }
+        },
+        error:(err) => {
+          this.navigationService.showUIMessage("Ocurrio un error al cargar la información de los clientes", AlertLevel.Error);
+        },
       });
     }
     else

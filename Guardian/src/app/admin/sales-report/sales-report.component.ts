@@ -3,16 +3,18 @@ import { ProductSaleDetailReport, SaleDetailReport } from '../../dto/sale-detail
 import { ReportsService } from '../../services/reports.service';
 import { NavigationService } from '../../services/navigation.service';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UserStateService } from '../../services/user-state.service';
 import { userDto } from '../../dto/userDto';
 import { first, Subject, takeUntil } from 'rxjs';
 import { SaleService } from '../../services/sale.service';
-import { PriceLevel, Roles, StatusVentaEnum } from '../../Enums/enums';
+import { AlertLevel, CompanyStatus, PriceLevel, Roles, StatusVentaEnum } from '../../Enums/enums';
+import { UserService } from '../../services/user.service';
+import { environment } from '../../environments/enviroment';
 
 @Component({
     selector: 'app-sales-report',
-    imports: [CommonModule, ReactiveFormsModule],
+    imports: [CommonModule, ReactiveFormsModule, FormsModule],
     templateUrl: './sales-report.component.html',
     styleUrl: './sales-report.component.css'
 })
@@ -25,44 +27,55 @@ export class SalesReportComponent implements OnInit, OnDestroy {
   saleProducts: ProductSaleDetailReport[] = [];
   filteredProducts: ProductSaleDetailReport[] = [];
   showMainReport: boolean;
-  totalVentas: number | undefined;
+  totalFinal: number | undefined;
+  totalCompletadas: number = 0;
+  totalCanceladas: number = 0;
+
   isAutorized: boolean = false;
   selectedSaleTotal: number = 0;
   selectedSaleId: number = 0;
   showColumns = false;
-
+  companyUsers: userDto[] | undefined;
+  selectedUserName: string | undefined;
+  rol = Roles;
+  cStatus = CompanyStatus;
+  
   private unsubscribe$: Subject<void> = new Subject();
   
   constructor(private fb: FormBuilder,
     private salesService: SaleService,
     private reportService: ReportsService,
     private navigationService: NavigationService,
-    private userService: UserStateService,
+    private userStateService: UserStateService,
+    private userService: UserService
   ) 
   {
-    this.reportForm = this.initForm();
-    this.userState = userService.getUserStateLocalStorage();
+    this.userState = userStateService.getUserStateLocalStorage();
     this.showMainReport = true;
+    this.reportForm = this.initForm();
   }
 
   ngOnInit(): void {
-     if(this.userState.roleId < Roles.Admin)
-          this.navigationService.showUIMessage("Petición incorrecta.");
-        else
-          this.isAutorized = true;
-        
+    if(this.userState.roleId < Roles.User)
+      this.navigationService.showUIMessage("Petición incorrecta.");
+    else
+      this.isAutorized = true;
+    
+    this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId?? 0);
+
     this.reportForm.get('dateFrom')?.valueChanges.pipe(takeUntil(this.unsubscribe$)
     ).subscribe(newDate => {
       // Establecer 'dateTo' igual a 'dateFrom'
       this.reportForm.get('dateTo')?.setValue(newDate);
     });
+
+    this.loadCompanyUsers();
   }
 
   ngOnDestroy(): void {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
   }
-
 
   // Función para alternar la visibilidad de las columnas
   toggleColumns() {
@@ -77,9 +90,22 @@ export class SalesReportComponent implements OnInit, OnDestroy {
 
     return this.fb.group({
       dateFrom: [today, [Validators.required]],
-      dateTo: [tomorrow, [Validators.required]]
-      
-      ,filterText:['']
+      dateTo: [tomorrow, [Validators.required]],
+      filterText:[''],
+      userId:[this.userState.userId]
+    });
+  }
+
+  loadCompanyUsers()
+  {
+    this.userService.getAllUser(this.userState.companyId, '-1').pipe(first())
+    .subscribe({
+      next: (users) => {
+        this.companyUsers = users.sort((a,b) => (a.firstName?? '').localeCompare((b.firstName?? '')));
+      },
+      error: (e) => {
+        this.navigationService.showUIMessage(e.error);
+      }
     });
   }
   
@@ -106,15 +132,17 @@ export class SalesReportComponent implements OnInit, OnDestroy {
   updateSaleStatus(saleId: number, status: string)
   {
     const newStatus = this.resolveSaleStatus(status);
-    console.log(status + ' > ' + newStatus );
-    this.salesService.updateSaleStatus(saleId, newStatus).pipe(
+    if( newStatus == StatusVentaEnum[StatusVentaEnum.Cancelada])
+    {
+      if (!confirm('La venta será marcada como cancelada ¿Estás seguro de que quieres continuar con esta acción?')) 
+        return;
+    }
+
+    this.salesService.updateSaleStatus(saleId, newStatus, this.userState.companyId).pipe(
       first()
     ).subscribe({
       complete:() => {
-        const sale = this.sales.find(s => s.saleID === saleId);
-        if (sale) {
-            sale.status = newStatus;
-        }
+        this.getSales();
       },
       error: (err) => {
         console.error(err);
@@ -188,14 +216,38 @@ export class SalesReportComponent implements OnInit, OnDestroy {
       
       return;
     }
+
+   
     this.sales = [];
     this.filteredSales = [];
-    this.totalVentas = 0;
+    this.setTotalsToZero();
     this.filteredProducts = [];
+    
 
-    const fromDate = this.reportForm.get('dateFrom')?.value ?? new Date();
+    let fromDate = this.reportForm.get('dateFrom')?.value ?? new Date();
+    const fromDateInput = this.reportForm.get('dateFrom')?.value;
+    const fromDate2 = fromDateInput ? new Date(fromDateInput) : new Date();
     const toDate = this.reportForm.get('dateTo')?.value ?? new Date();
-    const userId = 0;
+    let userId = this.reportForm.get('userId')?.value ?? 0;
+    if(this.userState.roleId == this.rol.User)
+      userId = this.userState.userId;
+
+    if(this.userState.companyStatusId == CompanyStatus.Free)
+    {
+      this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId?? 0);
+      const currentDate = new Date();
+            
+      const diffTime = currentDate.getTime() - fromDate2.getTime();
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays >= 7) {
+        const adjustedDate = new Date(currentDate);
+        adjustedDate.setDate(currentDate.getDate() - 7);
+        fromDate = adjustedDate.toISOString().substring(0, 10); // 'yyyy-MM-dd'
+        this.reportForm.get('dateFrom')?.setValue(fromDate);
+      }
+    }
+
     this.reportService.getSales(fromDate, toDate, this.userState.companyId, userId).pipe(first())
     .subscribe({
       next:(data: SaleDetailReport[]) => {
@@ -203,21 +255,38 @@ export class SalesReportComponent implements OnInit, OnDestroy {
         {
           this.sales = data;
           this.filteredSales = data;
-          this.totalVentas = data.reduce((acumulado, newItem) => acumulado + newItem.totalSale, 0);
+          this.totalCompletadas = data.reduce((acumulado, newItem) => acumulado + newItem.totalSale, 0);
+
+          for (let index = 0; index < data.length; index++) {
+            const saleItem = data[index];
+            
+            if(saleItem.status == StatusVentaEnum[StatusVentaEnum.Cancelada])
+            {
+              this.totalCanceladas += saleItem.totalSale;
+            }
+          }
+          this.totalFinal = this.totalCompletadas - this.totalCanceladas;
         }
         else
         {
-          this.totalVentas = 0;
+          this.setTotalsToZero();
           this.navigationService.showUIMessage('No hay registro de ventas entre las fechas ' + fromDate.toString() + ' - ' + toDate.toString() );  
         }
       },
       error:(err) => {
-        this.totalVentas = 0;
+        this.setTotalsToZero();
         this.navigationService.showUIMessage(err.message);
       },
     });
   }
   
+  setTotalsToZero()
+  {
+    this.totalCanceladas = 0;
+    this.totalCompletadas = 0;
+    this.totalFinal = 0;
+  }
+
   filterSales(event: Event): void {
     const inputElement = event.target as HTMLInputElement; 
     const value = inputElement.value; 
@@ -235,4 +304,6 @@ export class SalesReportComponent implements OnInit, OnDestroy {
       );
     }
   }
+
+ 
 }

@@ -1,9 +1,12 @@
+import { UpdateProdSettings } from "./updateProdSettings";
+
 export interface Producto {
   productId: number;
   name: string;
-  description: string;
-  categoryId: number;
-  supplierId: number;
+  description?: string;
+  categoryId?: number;
+  categoria: string; //Usada para la importacion de datos
+  
   buyPrice: number;
   unitPrice: number;
   unitPrice1: number,
@@ -11,19 +14,17 @@ export interface Producto {
   unitPrice3: number,
   unitsInStock: number;
   discontinued: boolean;
-  imgUrl: string;
-  dateAdded: Date;
-  dateModified: Date;
-  weight?: number;
   sku: string;
   barcode: string;
-  brand: string;
-  color: string;
-  size: string;
   companyId: number;
+  lowInventoryStart?: number;
+  isInVentarioUpdated?: boolean;
 
   count: number;
   total: number;
   editing?: boolean;
   priceLevel?: number;
+
+  updateProduct?:boolean;
+  updateSettings?:UpdateProdSettings;
 }

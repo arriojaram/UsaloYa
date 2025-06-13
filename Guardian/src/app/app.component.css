@@ -20,3 +20,22 @@
   right: 0; /* Positions the button at the right edge */
   transform: translateY(-50%); /* Adjusts the button to be perfectly centered */
 }
+
+.btn-outline-whatsapp {
+  color: #25D366;
+  border: 1px solid #fff;
+  background-color: transparent;
+  border-radius: 0.25rem;
+  padding: 0.1rem 0.7rem;
+  transition: background-color 0.3s, color 0.3s;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+.btn-outline-whatsapp:hover,
+.btn-outline-whatsapp:focus,
+.btn-outline-whatsapp:active {
+  background-color: #25D366;
+  color: #fff;
+  text-decoration: none;
+}

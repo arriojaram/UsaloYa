@@ -1,4 +1,4 @@
-<nav class="sb-topnav navbar navbar-expand-md navbar-dark bg-primary">
+<nav class="sb-topnav navbar navbar-expand-md navbar-dark" [ngClass]="environmentClass">
     <!-- Navbar content flex container -->
     <div class="d-flex w-100">
         <!-- Sidebar Toggle-->
@@ -21,8 +21,12 @@
         
         <div class="navbar-nav nav-link px-4" *ngIf="this.userStateUI?.statusId === uStatus.Conectado">
             <span class="d-flex align-items-center justify-content-center">
-                <span class="d-none d-md-inline">{{ this.userStateUI?.userName }} -</span>
-                <a class="nav-link px-2" id="navbarDropdown" href="#" (click)="logoutApp($event)" role="button">
+                <i class="bi bi-stars me-1" *ngIf="this.userStateUI?.companyStatusId != cStatus.Free"></i>
+                <span class="d-none d-md-inline">{{ this.userStateUI?.userName }}
+                    <span>-</span>
+                </span>
+                
+                <a class="nav-link" id="navbarDropdown" href="#" (click)="logoutApp($event)" role="button">
                     Salir
                 </a>
             </span>
@@ -49,10 +53,23 @@
                       Punto de Venta
                     </a>
                   
-                    <a class="nav-link" href="productos" *ngIf="(this.userStateUI?.roleId?? 0) > rol.Unknown">
-                      <div class="sb-nav-link-icon"><i class="bi bi-box-seam fs-6"></i></div>
-                      Productos
+                    <!-- Submenu for Productos -->
+                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#submenuProd" aria-expanded="false" aria-controls="submenuProd">
+                        <div class="sb-nav-link-icon"><i class="bi bi-bar-chart fs-6"></i></div>
+                        Productos
                     </a>
+                    <div class="collapse" id="submenuProd" data-bs-parent="#sidenavAccordion">
+                        <nav class="sb-sidenav-menu-nested nav">
+                            <a class="nav-link" href="productos" *ngIf="(this.userStateUI?.roleId?? 0) > rol.Unknown">
+                                <div class="sb-nav-link-icon"><i class="bi bi-box-seam fs-6"></i></div>
+                                Gestión
+                            </a>
+                            <a class="nav-link" href="categorias" *ngIf="(this.userStateUI?.roleId?? 0) > rol.User">
+                                <div class="sb-nav-link-icon"><i class="bi bi-tags fs-6"></i></div>
+                                Categorias
+                            </a>
+                        </nav>
+                    </div>
 
                     <a class="nav-link" href="usuarios" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Admin">
                         <div class="sb-nav-link-icon"><i class="bi bi-people fs-6"></i></div>
@@ -64,17 +81,32 @@
                         Clientes
                     </a>
                     
-                    <a class="nav-link" href="reporteventas" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Admin">
-                        <div class="sb-nav-link-icon"><i class="bi bi-graph-up fs-6"></i></div>
-                        Reporte Ventas
+                    <!-- Submenu for Reports -->
+                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"
+                        data-bs-target="#submenuReports" aria-expanded="false" aria-controls="submenuReports">
+                        <div class="sb-nav-link-icon"><i class="bi bi-bar-chart fs-6"></i></div>
+                        Reportes
+                    </a>
+                    <div class="collapse" id="submenuReports" data-bs-parent="#sidenavAccordion">
+                        <nav class="sb-sidenav-menu-nested nav">
+                            <a class="nav-link" href="reporteventas" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Admin">
+                                <div class="sb-nav-link-icon"><i class="bi bi-graph-up fs-6"></i></div>
+                                Reporte Ventas
+                            </a>
+                            <a class="nav-link" href="reporteinventario" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.User">
+                                <div class="sb-nav-link-icon"><i class="bi bi-box-seam fs-6"></i></div>
+                                Inventario
+                            </a>
+                        </nav>
+                    </div>
+                    
+                    <a class="nav-link" href="companies" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Admin">
+                        <div class="sb-nav-link-icon"><i class="bi bi-briefcase-fill fs-6"></i></div>
+                        Empresa
                     </a>
                     <a class="nav-link" href="importar" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Admin">
                         <div class="sb-nav-link-icon"><i class="bi bi-file-earmark-arrow-up fs-6"></i></div>
                         Importar Productos
-                    </a>
-                    <a class="nav-link" href="companies" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Admin">
-                        <div class="sb-nav-link-icon"><i class="bi bi-briefcase-fill fs-6"></i></div>
-                        Empresas
                     </a>
                   </div>
             </div>
@@ -89,7 +121,7 @@
     <div id="layoutSidenav_content">
         <main>
             <div class="container-fluid px-4">
-                <h1 class="mt-4">{{ this.currentPath }}</h1>
+                <h1 class="mt-1">{{ this.currentPath }}</h1>
                 
                 <div class="card-body">
                     <mat-spinner *ngIf="loading_i$ | async" class="loading-spinner"></mat-spinner>
@@ -97,7 +129,7 @@
                 </div>    
             </div>
         </main>
-        <footer class="py-4 bg-light mt-auto">
+        <footer class="py-2 bg-light mt-auto">
             <div class="container-fluid px-4">
                 <div class="d-flex align-items-center justify-content-between small">
                     <div class="text-muted">Copyright &copy; UsaloYa 2024</div>
@@ -106,6 +138,14 @@
                         &middot;
                         <a href="agreements" target="_blank" rel="noopener noreferrer">Terminos &amp; Condiciones</a>
                     </div>
+                    <div *ngIf="(userStateUI?.userId ?? 0) > 0" class="d-flex justify-content-center justify-content-md-start">
+                        <a [href]="whatsAppUrl" target="_blank" class="btn-outline-whatsapp">
+                          <i class="bi bi-whatsapp fs-5 mx-1"></i>
+                          WhatsApp
+                        </a>
+                    </div>
+                      
+                      
                 </div>
             </div>
         </footer>

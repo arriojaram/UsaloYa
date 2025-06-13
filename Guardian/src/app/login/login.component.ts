@@ -52,55 +52,73 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.unsubscribe$.complete();
   }
 
-  onSubmit(): void {
-    if (this.loginForm.valid) {
-      this.loading = true;
-      const loginData: TokenDto = this.loginForm.value;
-     
-      this.authService.login(loginData).pipe(first(),
-        switchMap((loginResults: loginResponseDto) => {
-          
-          if(loginResults.msg)
-            this.navigation.showUIMessage(loginResults.msg, AlertLevel.Info);
+onSubmit(): void {
+  if (this.loginForm.valid) {
+    this.loading = true;
+    const loginData: TokenDto = this.loginForm.value;
 
-          return this.userStateService.getLoggedUser(loginResults.id);
-        }),
-        catchError((e) => {
-          if (e.status === 0) {
-            // Error de conexión o servidor no disponible
-            this.navigation.showUIMessage('Error de conexión: El servidor no está disponible.');
-          } else if (e.status >= 500) {
-            // Error del servidor (5xx)
-            this.navigation.showUIMessage('Error del servidor: ' + e.error.message);
-          }
-          else
-          {
-            let errMessage = e.error;
-            if(e.error == '$_Expired_License')
-              errMessage = environment.paymentExpiredMsg;
-            this.navigation.showUIMessage(errMessage);
-          }
-          this.loading = false;
-          console.error(e);
-          return of(null); // Retornamos un observable nulo para continuar el flujo
-        })
-      ).subscribe({
-        next: (userResults: userDto | null) => {
-          if (userResults) {
-            this.userStateService.setUserStateLocalStorage(userResults);
-            this.navigation.setUserState(userResults);
-            this.router.navigate(['/main']); 
-          }
-        },
-        error: (e) => {
-          this.loading = false;
-          this.navigation.showUIMessage(e.error);
-          console.error(e);
+    this.authService.validate(loginData).pipe(
+      switchMap((loginResults: loginResponseDto) => {
+        // Mostrar el mensaje si hay
+        if (loginResults.msg) {
+          this.navigation.showUIMessage(loginResults.msg, AlertLevel.Info);
         }
-      });
-    } else {
-      this.navigation.showUIMessage('Formulario inválido');
-    }
+
+        // Validar si el usuario es válido (id > 0)
+        if (loginResults.id && loginResults.id > 0) {
+          // Continuar para obtener los datos del usuario
+          return this.userStateService.getLoggedUser(loginResults.id);
+        } else {
+          // Usuario no válido
+          this.navigation.showUIMessage('Usuario no validado.', AlertLevel.Warning);
+          this.loading = false;
+          return of(null); // Detiene el flujo
+        }
+      }),
+      catchError((e) => {
+        if (e.status === 0) {
+          this.navigation.showUIMessage('Error de conexión: El servidor no está disponible.');
+        } else if (e.status >= 500) {
+          this.navigation.showUIMessage('Error del servidor: ' + e.error.message);
+        } else {
+          let errMessage = e.error;
+          if (e.error == '$_Expired_License')
+            errMessage = environment.paymentExpiredMsg;
+          this.navigation.showUIMessage(errMessage);
+        }
+        this.loading = false;
+        console.error(e);
+        return of(null);
+      })
+    ).subscribe({
+      next: (userResults: userDto | null) => {
+        if (userResults) {
+          this.userStateService.setUserStateLocalStorage(userResults);
+          this.navigation.setUserState(userResults);
+          this.router.navigate(['/main']);
+        }
+        this.loading = false;
+      },
+      error: (e) => {
+        this.loading = false;
+        this.navigation.showUIMessage(e.error);
+        console.error(e);
+      }
+    });
+  } else {
+    this.navigation.showUIMessage('Formulario inválido');
   }
+}
+
+
+  iraRegisterComponent() {
+  this.router.navigate(['/register']).then(success => {
+    if (success) {
+      console.log('Redirección exitosa a /register');
+    } else {
+      console.error('Error al redirigir a /register');
+    }
+  });
+}
   
 }

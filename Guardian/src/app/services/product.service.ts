@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, catchError, of, timeInterval } from 'rxjs';
 import { Producto } from '../dto/producto';
 import { environment } from '../environments/enviroment';
+import { UpdateProdSettings } from '../dto/updateProdSettings';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +16,21 @@ export class ProductService {
   ) 
   {
 
+  }
+
+  filterProducts(pageNumber: number, companyId: number, categoryId: number): Observable<Producto[]> {
+    const apiUrl =`${this.baseUrl}/FilterProducts?pageNumber=${pageNumber}&companyId=${companyId}&categoryId=${categoryId}`;
+    
+    return this.http.get<Producto[]>(apiUrl).pipe(
+      catchError(error => {
+        
+        if (error.status === 404) {
+          return of([]);  // Retorna null si el error es 404 Not Found
+        } else {
+          throw error;  // Lanza la excepción para otros tipos de errores
+        }
+      })
+    );
   }
 
   searchProducts4List(pageNumber: number, companyId: number, keyword: string): Observable<Producto[]> {
@@ -54,8 +70,22 @@ export class ProductService {
     );
   }
 
+  importProduct(companyId: number, product: Producto, updateProduct:boolean, updateSettings:UpdateProdSettings): Observable<void> {
+    const apiUrl = `${this.baseUrl}/ImportProduct?companyId=${companyId}`;
+    product.updateProduct = updateProduct;
+    product.updateSettings = updateSettings;
+
+    return this.http.post<void>(apiUrl, product).pipe(
+      catchError(error => {
+        console.error('importProduct() | ', error);
+        throw error;
+      })
+    );
+  }
+
   saveProduct(companyId: number, product: Producto): Observable<Producto> {
     const apiUrl = `${this.baseUrl}/AddProduct?companyId=${companyId}`;
+    
     return this.http.post<Producto>(apiUrl, product).pipe(
       catchError(error => {
         console.error('saveProduct() | ', error);

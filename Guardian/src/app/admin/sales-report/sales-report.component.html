@@ -14,20 +14,31 @@
                 </div>
             </div>
             <div class="col-12 col-md mt-2 mt-md-0">
+                <select formControlName="userId" id="userId" class="form-select me-1" >
+                    <option *ngIf="(this.userState?.roleId?? 0) > rol.User && (this.userState?.companyStatusId?? 0) != cStatus.Free" 
+                        value="0" selected>Todo los Usuarios</option>
+                    <option *ngFor="let option of companyUsers" [value]="option.userId">
+                        {{ option.userName }}
+                    </option>
+                </select>
+            </div>
+            <div class="col-12 col-md mt-2 mt-md-0">
                 <button class="btn btn-primary btn-block" (click)="getSales()">
                     <i class="bi bi-file-bar-graph"></i> Generar Reporte
                 </button>
             </div>
         </div>
         <div class="row justify-content-start align-items-stretch">
-            <div class="col-6">
+            <div class="mt-2">Escribe una palabra para filtrar las ventas por: Ticket de Venta (ID), Nombre de Usuario, Nombre del Cliente ó Total de la venta</div>
+            <div class="col-6">               
                 <div class="input-group">
                     <div class="input-group-prepend">
                         <span class="input-group-text">
-                            <i class="bi bi-search"></i> <!-- Icono de búsqueda de Bootstrap Icons -->
+                            <i class="bi bi-funnel"></i> <!-- Icono de búsqueda de Bootstrap Icons -->
                         </span>
                     </div>
-                    <input type="text" [value]="filterText" (keyup)="filterSales($event)" class="form-control" placeholder="Filtrar ventas...">
+                    <input type="text" [value]="filterText" (keyup)="filterSales($event)"
+                        [disabled]="this.userState.companyStatusId == cStatus.Free" class="form-control" placeholder="Filtrar ventas...">
                 </div>
             </div>
           
@@ -74,13 +85,22 @@
                 <td>{{ sale.totalSale | currency:'MXN' }}</td>
                 <td class="d-none d-md-table-cell" [ngClass]="{'d-none d-md-table-cell': !showColumns}">{{ sale.fullName }} ({{sale.userName}})</td>
                 <td>
-                    <button class="btn btn-sm btn-primary" (click)="redirectToDetails(sale.saleID)">Ver Detalle</button>
+                    <button class="btn btn-sm btn-primary" 
+                        [disabled]="this.userState.companyStatusId == cStatus.Free"
+                        (click)="redirectToDetails(sale.saleID)">Ver Detalle</button>
                 </td>
             </tr>
         </tbody>
     </table>
+   
     <div id="d1" class="col-6 d-flex align-items-center fs-4" style="font-weight: bold;">
-        Total de la Venta: {{ this.totalVentas | currency:'MXN' }}
+        Total Completadas: {{ this.totalCompletadas | currency:'MXN' }}
+    </div>
+    <div id="d1" class="col-6 d-flex align-items-center fs-4" style="font-weight: bold;">
+        Total Canceladas: {{ this.totalCanceladas | currency:'MXN' }}
+    </div>
+    <div id="d1" class="col-6 d-flex align-items-center fs-4" style="font-weight: bold;">
+        Gran Total: {{ this.totalFinal | currency:'MXN' }}
     </div>
 </div>
 

@@ -342,8 +342,8 @@ export class SaleService extends Dexie implements OnInit{
     );
   }
 
-  updateSaleStatus(saleId: number, status: string): Observable<void> {
-    const saleStatus: UpdateSaleStatus = {SaleId: saleId, Status: status};
+  updateSaleStatus(saleId: number, status: string, companyId: number): Observable<void> {
+    const saleStatus: UpdateSaleStatus = {SaleId: saleId, Status: status, CompanyId:companyId };
     const apiUrl = `${this.baseUrl}/UpdateSaleStatus`;
     
     return this.httpClient.post<void>(apiUrl, saleStatus).pipe(
@@ -374,6 +374,7 @@ export class SaleService extends Dexie implements OnInit{
     this.getAllOfflineTableProducts().pipe(first()).subscribe(
       {
         next: (products: Producto[]) => {
+          let companyProds = products; //.filter(p => p.companyId = this.use);
           this.productCatalog = products;
           console.log("Productos cargados de la memoria");
         },
