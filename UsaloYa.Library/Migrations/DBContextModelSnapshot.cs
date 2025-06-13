@@ -22,6 +22,39 @@ namespace UsaloYa.Library.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Group", b =>
+                {
+                    b.Property<int>("GroupId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("GroupId"));
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(250)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(250)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Permissions")
+                        .IsRequired()
+                        .HasColumnType("xml");
+
+                    b.HasKey("GroupId");
+
+                    b.HasIndex(new[] { "CompanyId" }, "IX_Groups_CompanyId");
+
+                    b.ToTable("Groups");
+                });
+
             modelBuilder.Entity("UsaloYa.Library.Models.Company", b =>
                 {
                     b.Property<int>("CompanyId")
@@ -167,39 +200,6 @@ namespace UsaloYa.Library.Migrations
                     b.ToTable("Customers");
                 });
 
-            modelBuilder.Entity("UsaloYa.Library.Models.Group", b =>
-                {
-                    b.Property<int>("GroupId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("GroupId"));
-
-                    b.Property<int>("CompanyId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(250)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(250)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<string>("Permissions")
-                        .IsRequired()
-                        .HasColumnType("xml");
-
-                    b.HasKey("GroupId");
-
-                    b.HasIndex(new[] { "CompanyId" }, "IX_Groups_CompanyId");
-
-                    b.ToTable("Groups");
-                });
-
             modelBuilder.Entity("UsaloYa.Library.Models.PlanRenta", b =>
                 {
                     b.Property<int>("Id")
@@ -232,6 +232,32 @@ namespace UsaloYa.Library.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("PlanRentas");
+                });
+
+            modelBuilder.Entity("UsaloYa.Library.Models.Pregunta", b =>
+                {
+                    b.Property<int>("PreguntaId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PreguntaId"));
+
+                    b.Property<bool>("Answer")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("IdUser")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Question")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.HasKey("PreguntaId");
+
+                    b.HasIndex("IdUser");
+
+                    b.ToTable("Preguntas");
                 });
 
             modelBuilder.Entity("UsaloYa.Library.Models.Product", b =>
@@ -440,6 +466,11 @@ namespace UsaloYa.Library.Migrations
                     b.Property<int?>("CustomerId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Folio")
+                        .HasMaxLength(11)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(11)");
+
                     b.Property<string>("Notes")
                         .HasMaxLength(500)
                         .IsUnicode(false)
@@ -613,6 +644,17 @@ namespace UsaloYa.Library.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("Group", b =>
+                {
+                    b.HasOne("UsaloYa.Library.Models.Company", "Company")
+                        .WithMany("Groups")
+                        .HasForeignKey("CompanyId")
+                        .IsRequired()
+                        .HasConstraintName("FK_Groups_Company");
+
+                    b.Navigation("Company");
+                });
+
             modelBuilder.Entity("UsaloYa.Library.Models.Company", b =>
                 {
                     b.HasOne("UsaloYa.Library.Models.User", "CreatedByNavigation")
@@ -646,15 +688,14 @@ namespace UsaloYa.Library.Migrations
                     b.Navigation("Company");
                 });
 
-            modelBuilder.Entity("UsaloYa.Library.Models.Group", b =>
+            modelBuilder.Entity("UsaloYa.Library.Models.Pregunta", b =>
                 {
-                    b.HasOne("UsaloYa.Library.Models.Company", "Company")
-                        .WithMany("Groups")
-                        .HasForeignKey("CompanyId")
-                        .IsRequired()
-                        .HasConstraintName("FK_Groups_Company");
+                    b.HasOne("UsaloYa.Library.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("IdUser")
+                        .OnDelete(DeleteBehavior.SetNull);
 
-                    b.Navigation("Company");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("UsaloYa.Library.Models.Product", b =>
@@ -763,7 +804,7 @@ namespace UsaloYa.Library.Migrations
                         .WithMany("InverseCreatedByNavigation")
                         .HasForeignKey("CreatedBy");
 
-                    b.HasOne("UsaloYa.Library.Models.Group", "Group")
+                    b.HasOne("Group", "Group")
                         .WithMany("Users")
                         .HasForeignKey("GroupId")
                         .IsRequired()
@@ -780,6 +821,11 @@ namespace UsaloYa.Library.Migrations
                     b.Navigation("Group");
 
                     b.Navigation("LastUpdateByNavigation");
+                });
+
+            modelBuilder.Entity("Group", b =>
+                {
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("UsaloYa.Library.Models.Company", b =>
@@ -802,11 +848,6 @@ namespace UsaloYa.Library.Migrations
             modelBuilder.Entity("UsaloYa.Library.Models.Customer", b =>
                 {
                     b.Navigation("Sales");
-                });
-
-            modelBuilder.Entity("UsaloYa.Library.Models.Group", b =>
-                {
-                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("UsaloYa.Library.Models.PlanRenta", b =>

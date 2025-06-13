@@ -223,6 +223,27 @@ namespace UsaloYa.Library.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Preguntas",
+                columns: table => new
+                {
+                    PreguntaId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Question = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
+                    Answer = table.Column<bool>(type: "bit", nullable: false),
+                    IdUser = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Preguntas", x => x.PreguntaId);
+                    table.ForeignKey(
+                        name: "FK_Preguntas_Users_IdUser",
+                        column: x => x.IdUser,
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.SetNull);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Rentas",
                 columns: table => new
                 {
@@ -266,7 +287,8 @@ namespace UsaloYa.Library.Migrations
                     TotalSale = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
                     Notes = table.Column<string>(type: "varchar(500)", unicode: false, maxLength: 500, nullable: true),
                     UserId = table.Column<int>(type: "int", nullable: false),
-                    CompanyId = table.Column<int>(type: "int", nullable: false)
+                    CompanyId = table.Column<int>(type: "int", nullable: false),
+                    Folio = table.Column<string>(type: "varchar(11)", unicode: false, maxLength: 11, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -355,6 +377,11 @@ namespace UsaloYa.Library.Migrations
                 name: "IX_Groups_CompanyId",
                 table: "Groups",
                 column: "CompanyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Preguntas_IdUser",
+                table: "Preguntas",
+                column: "IdUser");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProductCategory_CompanyId",
@@ -468,6 +495,9 @@ namespace UsaloYa.Library.Migrations
             migrationBuilder.DropForeignKey(
                 name: "FK_Company_Users_LastUpdateBy",
                 table: "Company");
+
+            migrationBuilder.DropTable(
+                name: "Preguntas");
 
             migrationBuilder.DropTable(
                 name: "Rentas");
