@@ -1,0 +1,79 @@
+<div class="form-container" *ngIf="registerForm">
+  <h2 class="title">Crea una cuenta</h2>
+  <p class="message">Completa tus datos para registrarte</p>
+
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate class="form">
+
+    <!-- Nombre -->
+    <div class="form-group">
+      <label for="name" class="form-label fw-bold">Nombre</label>
+      <input type="text" id="name" class="input fw-bold" formControlName="name" aria-describedby="nameHelp nameError"  />
+      <small id="nameHelp" class="text-muted">Ejemplo: Juan Pérez</small>
+      <div *ngIf="registerForm.get('name')?.touched && registerForm.get('name')?.errors && !registerForm.get('name')?.errors?.['nameTaken']" class="error-msg" id="nameError">
+        El nombre es requerido y debe tener al menos 3 caracteres
+      </div>
+      <div *ngIf="registerForm.get('name')?.errors?.['nameTaken'] && registerForm.get('name')?.touched" class="error-msg">
+        Este nombre ya está en uso.
+      </div>
+    </div>
+
+    <!-- Teléfono -->
+    <div class="form-group">
+      <label for="phone" class="form-label fw-bold">Teléfono</label>
+      <input type="text" id="phone" class="input fw-bold" formControlName="phone" aria-describedby="phoneHelp phoneError"  />
+      <small id="phoneHelp" class="text-muted">Ejemplo: 5555123456</small>
+      <div *ngIf="registerForm.get('phone')?.invalid && registerForm.get('phone')?.touched" class="error-msg" id="phoneError">
+        El número telefónico es requerido y debe tener entre 10 y 15 dígitos numéricos
+      </div>
+    </div>
+
+    <!-- E-mail -->
+    <div class="form-group">
+      <label for="email" class="form-label fw-bold">E-mail</label>
+      <input type="email" id="email" class="input fw-bold" formControlName="email" aria-describedby="emailHelp emailError"  />
+      <small id="emailHelp" class="text-muted">Ejemplo: correo&#64;ejemplo.com</small>
+
+      <div *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.errors && !registerForm.get('email')?.errors?.['emailTaken']" class="error-msg" id="emailError">
+        El e-mail es requerido y debe ser válido
+      </div>
+      <div *ngIf="registerForm.get('email')?.errors?.['emailTaken'] && registerForm.get('email')?.touched" class="error-msg">
+        Este correo electrónico ya está en uso.
+      </div>
+    </div>
+
+    <!-- Dirección -->
+    <div class="form-group">
+      <label for="address" class="form-label fw-bold">Dirección</label>
+      <input type="text" id="address" class="input fw-bold" formControlName="address" aria-describedby="addressHelp" />
+      <small id="addressHelp" class="text-muted">Ejemplo: Calle Falsa 123</small>
+    </div>
+
+    <!-- Usuario -->
+    <div class="form-group">
+      <label for="username" class="form-label fw-bold">Usuario</label>
+      <input type="text" id="username" class="input fw-bold" formControlName="username" aria-describedby="usernameHelp usernameError" />
+      <small id="usernameHelp" class="text-muted">Ejemplo: usuario123</small>
+
+      <div *ngIf="registerForm.get('username')?.touched && registerForm.get('username')?.errors && !registerForm.get('username')?.errors?.['usernameTaken']" class="error-msg" id="usernameError">
+        El nombre de usuario es requerido y debe tener mínimo 4 caracteres alfanuméricos
+      </div>
+      <div *ngIf="registerForm.get('username')?.errors?.['usernameTaken'] && registerForm.get('username')?.touched" class="error-msg">
+        Este nombre de usuario ya está en uso.
+      </div>
+    </div>
+
+    <!-- Contraseña -->
+    <div class="form-group">
+      <label for="token" class="form-label fw-bold">Contraseña</label>
+      <input type="password" id="token" class="input fw-bold" formControlName="token" aria-describedby="tokenError"  />
+      <small id="tokenHelp" class="text-muted">Mínimo 8 caracteres con al menos una letra y un número</small>
+      <div *ngIf="registerForm.get('token')?.invalid && registerForm.get('token')?.touched" class="error-msg" id="tokenError">
+        La contraseña es requerida, mínimo 8 caracteres con al menos una letra y un número
+      </div>
+    </div>
+
+    <button type="submit" class="submit" [disabled]="registerForm.invalid">
+      Regístrate
+    </button>
+  </form>
+</div>
