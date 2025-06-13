@@ -1,12 +1,14 @@
-using Microsoft.AspNetCore.Mvc;
+Ôªøusing Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using UsaloYa.API.Config;
-using UsaloYa.API.DTO;
-using UsaloYa.API.Enums;
-using UsaloYa.API.Migrations;
-using UsaloYa.API.Models;
+using UsaloYa.Library.Config;
 using UsaloYa.API.Security;
-using UsaloYa.API.Utils;
+using UsaloYa.Dto.Enums;
+using UsaloYa.Dto;
+using UsaloYa.Library.Models;
+using UsaloYa.Services.interfaces;
+using UsaloYa.Services;
+using Microsoft.AspNetCore.Authorization;
+using System.ComponentModel.DataAnnotations;
 
 namespace UsaloYa.API.Controllers
 {
@@ -14,109 +16,49 @@ namespace UsaloYa.API.Controllers
     [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
-
         private readonly ILogger<UserController> _logger;
+        private readonly IUserService _userService;
+        private readonly IEmailService _emailService;
         private readonly DBContext _dBContext;
         private readonly AppConfig _settings;
+        private readonly IWebHostEnvironment _env;
 
-        public UserController(DBContext dBContext, ILogger<UserController> logger, AppConfig settings)
+        public UserController(DBContext dBContext, IUserService userService, ILogger<UserController> logger, AppConfig settings, IEmailService emailService, IWebHostEnvironment env)
         {
             _logger = logger;
+            _userService = userService;
             _dBContext = dBContext;
             _settings = settings;
+            _emailService = emailService;
+            _env = env;
         }
 
         [HttpGet("HelloWorld")]
-        public async Task<ActionResult> HelloWorld()
-        {
-            return Ok("Api is up and running!");
-        }
+        public IActionResult HelloWorld() => Ok("Api is up and running!");
 
         [HttpPost("SaveUser")]
         public async Task<ActionResult> SaveUser([FromHeader] string RequestorId, [FromBody] UserDto userDto)
         {
-            User userToSave = null;
-            var roleId = Enums.EConverter.GetEnumFromValue<Enums.Role>(userDto.RoleId ?? 0);
-            if (roleId == default)
-                return BadRequest("$_Rol_Invalido");
-
-            if (roleId == Enums.Role.Root)
-                return BadRequest("$_Rol_No_Asignable");
-
             try
             {
-                var user = await Util.ValidateRequestor(RequestorId, Role.Admin, _dBContext);
-                if (user.UserId <= 0)
-                    return Unauthorized(AppConfig.NO_AUTORIZADO);
+                var user = await HeaderValidatorService.ValidateRequestor(RequestorId, Role.Admin, _dBContext);
+                if (user.UserId <= 0) return Unauthorized(AppConfig.NO_AUTORIZADO);
 
-                if (userDto.UserId == 0)
-                {
-                    var existsUser = await _dBContext.Users.AnyAsync(u => u.UserName == userDto.UserName);
-                    if (existsUser)
-                        return Conflict(new { message = "$_Nombre_De_Usuario_Duplicado" });
-
-
-                    //TODO: Agregar validaciÛn de n˙mero de usuarios permitidos por la licencia
-
-                    userToSave = new User
-                    {
-                        UserName = userDto.UserName.Trim(),
-                        Token = Guid.NewGuid().ToString(),
-                        FirstName = userDto.FirstName.Trim(),
-                        LastName = userDto.LastName.Trim(),
-                        CompanyId = userDto.CompanyId,
-                        GroupId = userDto.GroupId,
-                        LastUpdateBy = userDto.LastUpdatedBy,
-                        CreatedBy = userDto.CreatedBy,
-                        LastAccess = null,
-                        IsEnabled = true,
-                        StatusId = (int)Enumerations.UserStatus.Desconocido,
-                        CreationDate = Util.GetMxDateTime()
-
-                        , RoleId = userDto.RoleId
-                    };
-                    _dBContext.Users.Add(userToSave);
-                }
-                else
-                {
-                    userToSave = await _dBContext.Users.FindAsync(userDto.UserId);
-                    if (userToSave == null)
-                        return NotFound();
-
-                    userToSave.IsEnabled = userDto.IsEnabled;
-                    userToSave.FirstName = userDto.FirstName.Trim();
-                    userToSave.LastName = userDto.LastName.Trim();
-                    userToSave.CompanyId = userDto.CompanyId;
-                    userToSave.GroupId = userDto.GroupId;
-                    userToSave.LastAccess = userDto.LastAccess;
-                    userToSave.LastUpdateBy = userDto.LastUpdatedBy;
-                    userToSave.RoleId = userDto.RoleId;
-
-                    _dBContext.Entry(userToSave).State = EntityState.Modified;
-
-                }
-
-                await _dBContext.SaveChangesAsync();
-                return Ok(new UserDto() {
-                    CompanyId = userToSave.CompanyId,
-                    CreatedBy = userToSave.CreatedBy ?? 0,
-                    UserId = userToSave.UserId,
-                    CreationDate = userToSave.CreationDate,
-                    FirstName = userToSave.FirstName,
-                    GroupId = userToSave.GroupId,
-                    IsEnabled = userToSave.IsEnabled ?? false,
-                    LastAccess = userToSave.LastAccess,
-                    LastName = userToSave.LastName,
-                    LastUpdatedBy = userToSave.LastUpdateBy ?? 0,
-                    RoleId = userToSave.RoleId,
-                    UserName = userToSave.UserName,
-                });
+                var savedUser = await _userService.SaveUser(userDto);
+                return Ok(savedUser);
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "SaveUser.ValidationError");
+                return Conflict(new { message = ex.Message });
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "SaveUser.ApiError");
-
-                // Return a 500 Internal Server Error with a custom message
                 return StatusCode(500, new { message = "No se puede procesar la solicitud, error en el servidor." });
             }
         }
@@ -127,115 +69,57 @@ namespace UsaloYa.API.Controllers
             try
             {
                 var user = await _dBContext.Users.FirstOrDefaultAsync(u => u.UserName == token.UserName);
-                if (user == null)
-                    return NotFound();
+                if (user == null) return NotFound();
 
+                var requestor = await HeaderValidatorService.ValidateRequestorSameCompanyOrTopRol(RequestorId, user.CompanyId, Role.Ventas, _dBContext);
+                if (requestor.UserId <= 0) return Unauthorized(AppConfig.NO_AUTORIZADO);
 
-                var requestor = await Util.ValidateRequestorSameCompanyOrTopRol(RequestorId, user.CompanyId, Role.Ventas, _dBContext);
-                if (requestor.UserId <= 0)
-                {
-                    return Unauthorized(AppConfig.NO_AUTORIZADO);
-                }
-
-                user.Token = Utils.Util.EncryptPassword(token.Token);
-
-                await _dBContext.SaveChangesAsync();
-                return Ok();
+                var updated = await _userService.SetToken(token.UserName, token.Token);
+                return updated ? Ok() : NotFound();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "SetToken.ApiError");
-
-                // Return a 500 Internal Server Error with a custom message
                 return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
             }
         }
 
         [HttpGet("GetUser")]
-        [ServiceFilter(typeof(AccessValidationFilter))]
-        public async Task<IActionResult> GetUser([FromHeader] string RequestorId, int userId, string i = "") //parameter i (invoked) is used only on the login component
+        public async Task<IActionResult> GetUser([FromHeader] string RequestorId, int userId, string i = "")
         {
-            User? u;
             try
             {
-                if (!i.Equals("login"))
+                bool isLogin = i.Equals("login");
+                var user = await _userService.GetUser(userId, isLogin);
+
+                if (user.Equals(default(UserResponseDto))) return NotFound();
+
+                if (!isLogin)
                 {
-                    u = await _dBContext.Users
-                   .Include(c => c.Company)
-                   .FirstOrDefaultAsync(u => u.UserId == userId);
-                }
-                else
-                {
-                    u = await _dBContext.Users
-                    .Include(c => c.CreatedByNavigation)
-                    .Include(c => c.LastUpdateByNavigation)
-                    .Include(c => c.Company)
-                    .FirstOrDefaultAsync(u => u.UserId == userId);
+                    var requestor = await HeaderValidatorService.ValidateRequestorSameCompanyOrTopRol(RequestorId, user.CompanyId, Role.Ventas, _dBContext);
+                    if (requestor.UserId <= 0) return Unauthorized(AppConfig.NO_AUTORIZADO);
                 }
 
-                if (u == null)
-                    return NotFound();
-
-                if (!i.Equals("login"))
-                {
-                    var requestor = await Util.ValidateRequestorSameCompanyOrTopRol(RequestorId, u.CompanyId, Role.Ventas, _dBContext);
-                    if (requestor.UserId <= 0)
-                    {
-                        return Unauthorized(AppConfig.NO_AUTORIZADO);
-                    }
-                   
-                }
-
-                var userResponseDto = new UserResponseDto()
-                {
-                    UserId = u.UserId,
-                    IsEnabled = u.IsEnabled ?? false,
-                    UserName = u.UserName,
-                    FirstName = u.FirstName,
-                    LastName = u.LastName,
-                    CompanyId = u.CompanyId,
-                    GroupId = u.GroupId,
-                    LastAccess = u.LastAccess,
-                    StatusId = u.StatusId,
-                    CreationDate = u.CreationDate,
-                    RoleId = u.RoleId ?? 0,
-                    CreatedByUserName = u.CreatedByNavigation == null ? "" : u.CreatedByNavigation.UserName,
-                    LastUpdatedByUserName = u.LastUpdateByNavigation == null ? "" : u.LastUpdateByNavigation.UserName,
-                    CompanyName = u.Company.Name,
-                    CompanyStatusId = u.Company.StatusId
-                };
-
-                return Ok(userResponseDto);
+                return Ok(user);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "GetUser.ApiError");
-
-                // Return a 500 Internal Server Error with a custom message
                 return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
             }
         }
 
-        //TODO: Move this controller to a System Controller
         [HttpGet("GetGroups")]
         public async Task<IActionResult> GetGroups()
         {
             try
             {
-                var g = await _dBContext.Groups.ToListAsync();
-                var groupDtos = g.Select(u => new GroupDto
-                {
-                    GroupId = u.GroupId,
-                    Name = u.Name,
-                    Description = u.Description
-                });
-                return Ok(groupDtos);
+                var groups = await _userService.GetGroups();
+                return Ok(groups);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "GetGroups.ApiError");
-
-                // Return a 500 Internal Server Error with a custom message
                 return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
             }
         }
@@ -245,260 +129,185 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var requestor = await Util.ValidateRequestorSameCompanyOrTopRol(RequestorId, companyId, Role.User, _dBContext);
+                var requestor = await HeaderValidatorService.ValidateRequestorSameCompanyOrTopRol(RequestorId, companyId, Role.User, _dBContext);
+                if (requestor.UserId <= 0) return Unauthorized(AppConfig.NO_AUTORIZADO);
 
-                if (requestor.UserId <= 0)
-                {
+                if (companyId == 0 && requestor.RoleId < (int)Role.SysAdmin)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
-                }
 
-                if (companyId == 0)
-                {
-                    if (requestor.RoleId < (int)Role.SysAdmin)
-                        return Unauthorized(AppConfig.NO_AUTORIZADO);
-                }
-                else if (requestor.RoleId == (int)Role.User)
-                {
-                    var userQuery = await _dBContext.Users
-                     .Include(em => em.Company)
-                     .Where(u => u.CompanyId == companyId && u.UserId == requestor.UserId)
-                     .ToListAsync();
-                    var userDtos1 = userQuery.Select(u => new UserResponseDto
-                    {
-                        UserId = u.UserId,
-                        IsEnabled = u.IsEnabled ?? false,
-                        UserName = u.UserName,
-                        FirstName = u.FirstName,
-                        LastName = u.LastName,
-
-                    });
-                    return Ok(userDtos1);
-                }
-
-                var companyQuery = (string.IsNullOrEmpty(name) || string.Equals(name, "-1", StringComparison.OrdinalIgnoreCase))
-                    ? 
-                    await _dBContext.Users.Where(c => (c.CompanyId == companyId || companyId == 0)).OrderByDescending(u => u.UserId).Take(50).ToListAsync()
-                    : 
-                    await _dBContext.Users
-                        .Include(em => em.Company)
-                        .Where(u => (
-                                   u.FirstName.Contains(name) || u.LastName.Contains(name)
-                                || name.Contains(u.FirstName) || name.Contains(u.LastName)
-                                || u.Company.Name.Contains(name) 
-                                ) 
-                                && (u.CompanyId == companyId || companyId == 0)
-                        )
-                        .Take(50)
-                        .ToListAsync();
-
-                var salesmanQuery = await _dBContext.Users.Include(c => c.Company)
-                    .Where(u => (requestor.RoleId > (int)Role.Admin && u.CreatedBy == requestor.UserId))
-                    .ToListAsync();
-
-                var salesmanUsers = salesmanQuery.Select(u => new UserResponseDto
-                {
-                    UserId = u.UserId,
-                    IsEnabled = u.IsEnabled ?? false,
-                    UserName = u.UserName,
-                    FirstName = u.FirstName,
-                    LastName = u.LastName,
-
-                });
-
-                var userDtos = companyQuery.Select(u => new UserResponseDto
-                {
-                    UserId = u.UserId,
-                    IsEnabled = u.IsEnabled?? false,
-                    UserName = u.UserName,
-                    FirstName = u.FirstName,
-                    LastName = u.LastName,
-                   
-                });
-
-                var result = userDtos.Union(salesmanUsers)
-                    .OrderBy(u => u.FirstName)
-                    .ThenBy(u => u.LastName)
-                    .ToList<UserResponseDto>();
-
-                return Ok(result);
+                var users = await _userService.GetAllUsers(companyId, name, (Role)requestor.RoleId, requestor.UserId);
+                return Ok(users);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "GetAll.ApiError");
-
-                // Return a 500 Internal Server Error with a custom message
                 return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
             }
         }
 
+
+
         [HttpPost("Validate")]
         public async Task<IActionResult> Validate([FromHeader] string DeviceId, [FromBody] UserTokenDto request)
         {
-            var msg = string.Empty;
             try
             {
-                var encryptedPassword = Util.EncryptPassword(request.Token);
-                var user = await _dBContext.Users
-                    .FirstOrDefaultAsync(u => u.UserName == request.UserName
-                        && u.Token == encryptedPassword);
+                var (isValid, message, userId) = await _userService.Validate(DeviceId, request);
 
-                if (user == null)
-                    return Unauthorized("Usuario o contraseÒa inv·lidos");
+                if (!isValid) return Unauthorized(message);
 
-                var isUserEnabled = user.IsEnabled ?? false;
-                if (!isUserEnabled)
-                    return Unauthorized("Usuario no valido");
-
-
-                var userRol = EConverter.GetEnumFromValue<Role>(user.RoleId ?? 0);
-                // Check company expiration
-                var companyInfo = await GetCompanyStatus(user.CompanyId);
-                if(companyInfo == null)
-                {
-                    return Unauthorized("Hay un error con la informaciÛn del negocio.");
-                }
-
-                if (userRol < Role.SysAdmin && companyInfo.StatusId == (int)CompanyStatus.Expired)
-                    return Unauthorized("$_Expired_License");
-                if (userRol < Role.SysAdmin && companyInfo.StatusId == (int)CompanyStatus.Inactive)
-                    return Unauthorized("Empresa desactivada");
-
-                if (!string.IsNullOrEmpty(user.DeviceId) && user.DeviceId != DeviceId.Trim())
-                {
-                    msg = "Este usuario esta activo en otro dispositivo. La sesiÛn en ese otro dispositivo ser· terminada.";
-                }
-
-                if (userRol == Role.Root || 
-                    (companyInfo.StatusId == (int)CompanyStatus.Active 
-                        || companyInfo.StatusId == (int)CompanyStatus.PendingPayment
-                        || companyInfo.StatusId == (int)CompanyStatus.Free
-                    )
-                )
-                {
-                    user.LastAccess = DateTime.Now;
-                    user.StatusId = (int)Enumerations.UserStatus.Conectado;
-                    user.DeviceId = DeviceId;
-                    user.SessionToken = Guid.NewGuid();
-
-                    _dBContext.Entry(user).State = EntityState.Modified;
-
-                    await _dBContext.SaveChangesAsync();
-                }
-                else
-                    return Unauthorized("La compaÒia se encuentra en un estado inactivo, contacta a tu vendedor.");
-
-                await ManageNumConnectedUsers(user.CompanyId, companyInfo.PlanNumUsers?? 1);
-
-                if (!string.IsNullOrEmpty(user.DeviceId) && user.DeviceId != DeviceId)
-                {
-                    return Ok(new { Id = user.UserId, Msg = "El usuario estaba usando otro dispositivo. La sesiÛn en ese dispositivo ser· cerrada." });
-                }
-
-                return Ok(new { Id = user.UserId, Msg = msg });
-
+                return Ok(new { Id = userId, Msg = message });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Validate.ApiError");
-
-                // Return a 500 Internal Server Error with a custom message
-                return StatusCode(500, new { message = "No se puede procesar la solicitud, error de servidor." });
+                return StatusCode(500, new { message = "No se puede procesar la solicitud, error de servidor." + ex });
             }
         }
 
-        private async Task ManageNumConnectedUsers(int companyId, int licenseNumUsers)
-        {
-            var companyActiveUsers = await _dBContext.Users
-                    .Where(u => u.CompanyId == companyId)
-                    .OrderBy(u => u.LastAccess)
-                    .ToListAsync();
-
-            if (companyActiveUsers.Count > licenseNumUsers)
-            {
-                var firstLoggedInUser = companyActiveUsers[0];
-                firstLoggedInUser.SessionToken = null;
-                firstLoggedInUser.DeviceId = null;
-                firstLoggedInUser.StatusId = (int)Enumerations.UserStatus.Desconectado;
-                _dBContext.Entry(firstLoggedInUser).State = EntityState.Modified;
-                await _dBContext.SaveChangesAsync();
-            }
-        }
-
-        [NonAction]
-        public async Task<CompanyDto> GetCompanyStatus(int companyId)
-        {
-            CompanyStatus status = CompanyStatus.Inactive;
-            int numUsers = 1;
-            CompanyDto companyInfo = null;
-            try
-            {
-                var company = await _dBContext
-                    .Companies
-                    .Include(c => c.Plan)
-                    .FirstOrDefaultAsync(c => c.CompanyId == companyId);
-
-                if (company != null)
-                {
-                    status = EConverter.GetEnumFromValue<CompanyStatus>(company.StatusId);
-                    var expirationDate = company.ExpirationDate ?? Util.GetMxDateTime();
-                    numUsers = company.Plan.NumUsers;
-                    if (status != CompanyStatus.Inactive && Util.GetMxDateTime().Date > expirationDate.Date)
-                    {
-                        
-                        if (expirationDate.AddDays(_settings.MaxPendingPaymentDaysAllowAccess) >= Util.GetMxDateTime())
-                        {
-                            status = CompanyStatus.PendingPayment;
-                        }
-                        else 
-                        {
-                            status = CompanyStatus.Free; // CompaÒia marcada con acceso free
-                            company.PlanId = 1;
-                            numUsers = 1;
-                        }
-
-                        company.StatusId = (int)status;
-                        _dBContext.Entry(company).State = EntityState.Modified;
-                        await _dBContext.SaveChangesAsync();
-
-                    }
-                    companyInfo = new CompanyDto();
-                    companyInfo.CompanyId = companyId;
-                    companyInfo.StatusId = company.StatusId;
-                    companyInfo.PlanNumUsers = numUsers;
-                    
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "IsCompanyExpired.ApiFunctionError");
-            }
-            return companyInfo;
-        }
-        
 
         [HttpPost("LogOut")]
         [ServiceFilter(typeof(AccessValidationFilter))]
         public async Task<IActionResult> Logout([FromBody] UserTokenDto token)
         {
-            var user = await _dBContext.Users
-                .FirstOrDefaultAsync(u => u.UserName == token.UserName);
-
-            if (user == null)
+            try
             {
-                return Unauthorized("Usuario inv·lido");
+                var userId = await _userService.Logout(token.UserName);
+                return userId.HasValue ? Ok(userId.Value) : Unauthorized("Usuario inv√°lido");
             }
-            else
+            catch (Exception ex)
             {
-                user.LastAccess = DateTime.Now;
-                user.StatusId = (int)Enumerations.UserStatus.Desconectado;
-                user.DeviceId = null;
-                user.SessionToken = null;
-
-                await _dBContext.SaveChangesAsync();
+                _logger.LogError(ex, "Logout.ApiError");
+                return StatusCode(500, new { message = "No se puede procesar la solicitud, error de servidor." });
             }
-
-            return Ok(user.UserId);
         }
 
+
+        [HttpPost("RegisterNewUser")]
+        public async Task<IActionResult> RegisterNewUser([FromBody] RegisterUserAndCompanyDto request)
+        {
+            try
+            {
+                var result = await _userService.RegisterNewUserAndCompany(request);
+
+                if (result.CodeVerification != null)
+                {
+                    try
+                    {
+
+                        string templatePath = Path.Combine(_env.ContentRootPath, "Templates", "Notificacion.html");
+                        var variables = new Dictionary<string, string>
+                {
+                    { "Nombre", result.FirstName },
+                    { "Mensaje", $"Hola:<br/><br/>Cuidar tu seguridad y asegurar tu informaci√≥n son prioridades para nuestro equipo. Por eso, necesitamos que confirmes tu correo.<br/><br/>" +
+                                 $"Tu c√≥digo de verificaci√≥n es <strong>{result.CodeVerification}</strong>, por favor verifique su cuenta en la siguiente p√°gina:<br/><a href='www.google.com'>www.google.com</a>" }
+                };
+
+                        await _emailService.SendEmailFromTemplateAsync(
+                            toEmail: result.Email,
+                            subject: "Verificaci√≥n de correo electr√≥nico.",
+                            templatePath: templatePath,
+                            variables: variables
+                        );
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error al enviar correo de verificaci√≥n para el usuario {Email}", result.Email);
+
+                        return StatusCode(500, new { message = "No se pudo enviar el correo de verificaci√≥n." });
+                    }
+
+                    return Ok(new { message = "Usuario registrado y correo de verificaci√≥n enviado." });
+                }
+
+                return BadRequest(new { message = "No se pudieron registrar los datos." });
+            }
+            catch (InvalidOperationException ex) when (ex.Message.Contains("Company already exists"))
+            {
+                _logger.LogWarning("Registro fallido: empresa existente - {Company}", request.CompanyDto.Name);
+                return Conflict(new { message = "La empresa ya se encuentra registrada." });
+            }
+            catch (ValidationException ex)
+            {
+                _logger.LogWarning(ex, "Error de validaci√≥n al registrar usuario.");
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error inesperado en RegisterNewUser.");
+                return StatusCode(500, new
+                {
+                    message = "No se puede procesar la solicitud. Error interno del servidor.",
+                    detail = ex.Message // üîê Solo el mensaje, no el objeto completo
+                });
+            }
+        }
+
+
+
+        [HttpPost("IsUsernameUnique")]
+        public async Task<IActionResult> IsUsernameUnique([FromBody] string name)
+        {
+            try
+            {
+                var result = await _userService.IsUsernameUnique(name);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Logout.ApiError");
+                return StatusCode(500, new { message = "No se puede procesar la solicitud, error de servidor." });
+            }
+        }
+
+        [HttpPost("IsEmailUnique")]
+        public async Task<IActionResult> IsEmailUnique([FromBody] string email)
+        {
+            try
+            {
+                var result = await _userService.IsEmailUnique(email);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Logout.ApiError");
+                return StatusCode(500, new { message = "No se puede procesar la solicitud, error de servidor." });
+            }
+        }
+
+        [HttpPost("RequestVerificationCodeEmail")]
+        [AllowAnonymous]
+        public async Task<IActionResult> RequestVerificationCodeEmail([FromHeader] string DeviceId, [FromBody] RequestVerificationCodeDto request)
+        {
+            _logger.LogInformation("Recibido email: {Email}, code: {Code}, deviceId: {DeviceId}", request.Email, request.Code, DeviceId);
+
+            try
+            {
+                var (isValid, message, userId) = await _userService.RequestVerificationCodeEmail(request, DeviceId);
+                if (isValid == true)
+                {
+                    return Ok(new { isValid = isValid, userId = userId, message = message });
+                }
+                return BadRequest("No se logr√≥ verificar");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error verificando c√≥digo: {Message}", ex.Message);
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
     }
-}
+/*
+   [HttpGet("byEmail/{email}")]
+        public async Task<ActionResult<UserDto>> GetUserByEmail(string email)
+        {
+            var user = await _userService.GetByEmailAsync(email);
+            if (user == null)
+                return NotFound();
+
+            return Ok(user);
+        }
+*/
+
+
+    } 
