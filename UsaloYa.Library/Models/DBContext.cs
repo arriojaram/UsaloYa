@@ -34,9 +34,28 @@ public partial class DBContext : DbContext
     public virtual DbSet<SaleDetail> SaleDetails { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
+    public DbSet<Question> Questions { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Question>(entity =>
+        {
+            entity.HasKey(e => e.QuestionId);
+
+            entity.Property(e => e.QuestionName)
+                  .HasMaxLength(300)
+                  .IsRequired();
+
+            entity.Property(e => e.Reply)
+                  .IsRequired();
+
+            entity.HasOne(e => e.User)
+                  .WithMany() // o .WithMany(u => u.Preguntas) si tenés colección en Usuario
+                  .HasForeignKey(e => e.IdUser)
+                  .OnDelete(DeleteBehavior.SetNull); // para que no se borren preguntas si se borra el usuario
+        });
+
         modelBuilder.Entity<Company>(entity =>
         {
             entity.ToTable("Company");

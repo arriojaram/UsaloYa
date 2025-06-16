@@ -12,7 +12,7 @@ using UsaloYa.Library.Models;
 namespace UsaloYa.Library.Migrations
 {
     [DbContext(typeof(DBContext))]
-    [Migration("20250604173402_InitialCreate")]
+    [Migration("20250616193435_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -24,6 +24,39 @@ namespace UsaloYa.Library.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Group", b =>
+                {
+                    b.Property<int>("GroupId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("GroupId"));
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(250)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(250)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Permissions")
+                        .IsRequired()
+                        .HasColumnType("xml");
+
+                    b.HasKey("GroupId");
+
+                    b.HasIndex(new[] { "CompanyId" }, "IX_Groups_CompanyId");
+
+                    b.ToTable("Groups");
+                });
 
             modelBuilder.Entity("UsaloYa.Library.Models.Company", b =>
                 {
@@ -168,39 +201,6 @@ namespace UsaloYa.Library.Migrations
                     b.HasIndex(new[] { "CellPhoneNumber", "WorkPhoneNumber" }, "IX_Customer_Phone");
 
                     b.ToTable("Customers");
-                });
-
-            modelBuilder.Entity("UsaloYa.Library.Models.Group", b =>
-                {
-                    b.Property<int>("GroupId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("GroupId"));
-
-                    b.Property<int>("CompanyId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(250)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(250)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<string>("Permissions")
-                        .IsRequired()
-                        .HasColumnType("xml");
-
-                    b.HasKey("GroupId");
-
-                    b.HasIndex(new[] { "CompanyId" }, "IX_Groups_CompanyId");
-
-                    b.ToTable("Groups");
                 });
 
             modelBuilder.Entity("UsaloYa.Library.Models.PlanRenta", b =>
@@ -384,6 +384,32 @@ namespace UsaloYa.Library.Migrations
                     b.ToTable("ProductCategory", (string)null);
                 });
 
+            modelBuilder.Entity("UsaloYa.Library.Models.Question", b =>
+                {
+                    b.Property<int>("QuestionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("QuestionId"));
+
+                    b.Property<int?>("IdUser")
+                        .HasColumnType("int");
+
+                    b.Property<string>("QuestionName")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<bool>("Reply")
+                        .HasColumnType("bit");
+
+                    b.HasKey("QuestionId");
+
+                    b.HasIndex("IdUser");
+
+                    b.ToTable("Questions");
+                });
+
             modelBuilder.Entity("UsaloYa.Library.Models.Renta", b =>
                 {
                     b.Property<int>("Id")
@@ -442,6 +468,11 @@ namespace UsaloYa.Library.Migrations
 
                     b.Property<int?>("CustomerId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Folio")
+                        .HasMaxLength(11)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(11)");
 
                     b.Property<string>("Notes")
                         .HasMaxLength(500)
@@ -616,6 +647,17 @@ namespace UsaloYa.Library.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("Group", b =>
+                {
+                    b.HasOne("UsaloYa.Library.Models.Company", "Company")
+                        .WithMany("Groups")
+                        .HasForeignKey("CompanyId")
+                        .IsRequired()
+                        .HasConstraintName("FK_Groups_Company");
+
+                    b.Navigation("Company");
+                });
+
             modelBuilder.Entity("UsaloYa.Library.Models.Company", b =>
                 {
                     b.HasOne("UsaloYa.Library.Models.User", "CreatedByNavigation")
@@ -649,17 +691,6 @@ namespace UsaloYa.Library.Migrations
                     b.Navigation("Company");
                 });
 
-            modelBuilder.Entity("UsaloYa.Library.Models.Group", b =>
-                {
-                    b.HasOne("UsaloYa.Library.Models.Company", "Company")
-                        .WithMany("Groups")
-                        .HasForeignKey("CompanyId")
-                        .IsRequired()
-                        .HasConstraintName("FK_Groups_Company");
-
-                    b.Navigation("Company");
-                });
-
             modelBuilder.Entity("UsaloYa.Library.Models.Product", b =>
                 {
                     b.HasOne("UsaloYa.Library.Models.ProductCategory", "Category")
@@ -687,6 +718,16 @@ namespace UsaloYa.Library.Migrations
                         .HasConstraintName("FK_ProductCategory_Company");
 
                     b.Navigation("Company");
+                });
+
+            modelBuilder.Entity("UsaloYa.Library.Models.Question", b =>
+                {
+                    b.HasOne("UsaloYa.Library.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("IdUser")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("UsaloYa.Library.Models.Renta", b =>
@@ -766,7 +807,7 @@ namespace UsaloYa.Library.Migrations
                         .WithMany("InverseCreatedByNavigation")
                         .HasForeignKey("CreatedBy");
 
-                    b.HasOne("UsaloYa.Library.Models.Group", "Group")
+                    b.HasOne("Group", "Group")
                         .WithMany("Users")
                         .HasForeignKey("GroupId")
                         .IsRequired()
@@ -783,6 +824,11 @@ namespace UsaloYa.Library.Migrations
                     b.Navigation("Group");
 
                     b.Navigation("LastUpdateByNavigation");
+                });
+
+            modelBuilder.Entity("Group", b =>
+                {
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("UsaloYa.Library.Models.Company", b =>
@@ -805,11 +851,6 @@ namespace UsaloYa.Library.Migrations
             modelBuilder.Entity("UsaloYa.Library.Models.Customer", b =>
                 {
                     b.Navigation("Sales");
-                });
-
-            modelBuilder.Entity("UsaloYa.Library.Models.Group", b =>
-                {
-                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("UsaloYa.Library.Models.PlanRenta", b =>
