@@ -34,20 +34,20 @@ public partial class DBContext : DbContext
     public virtual DbSet<SaleDetail> SaleDetails { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
-    public DbSet<Pregunta> Preguntas { get; set; }
+    public DbSet<Question> Questions { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Pregunta>(entity =>
+        modelBuilder.Entity<Question>(entity =>
         {
-            entity.HasKey(e => e.PreguntaId);
+            entity.HasKey(e => e.QuestionId);
 
-            entity.Property(e => e.Question)
+            entity.Property(e => e.QuestionName)
                   .HasMaxLength(300)
                   .IsRequired();
 
-            entity.Property(e => e.Answer)
+            entity.Property(e => e.Reply)
                   .IsRequired();
 
             entity.HasOne(e => e.User)

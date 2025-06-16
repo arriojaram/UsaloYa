@@ -223,20 +223,20 @@ namespace UsaloYa.Library.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Preguntas",
+                name: "Questions",
                 columns: table => new
                 {
-                    PreguntaId = table.Column<int>(type: "int", nullable: false)
+                    QuestionId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Question = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
-                    Answer = table.Column<bool>(type: "bit", nullable: false),
+                    QuestionName = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
+                    Reply = table.Column<bool>(type: "bit", nullable: false),
                     IdUser = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Preguntas", x => x.PreguntaId);
+                    table.PrimaryKey("PK_Questions", x => x.QuestionId);
                     table.ForeignKey(
-                        name: "FK_Preguntas_Users_IdUser",
+                        name: "FK_Questions_Users_IdUser",
                         column: x => x.IdUser,
                         principalTable: "Users",
                         principalColumn: "UserId",
@@ -379,11 +379,6 @@ namespace UsaloYa.Library.Migrations
                 column: "CompanyId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Preguntas_IdUser",
-                table: "Preguntas",
-                column: "IdUser");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_ProductCategory_CompanyId",
                 table: "ProductCategory",
                 column: "CompanyId");
@@ -409,6 +404,11 @@ namespace UsaloYa.Library.Migrations
                 name: "IX_Products_CompanyId",
                 table: "Products",
                 column: "CompanyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Questions_IdUser",
+                table: "Questions",
+                column: "IdUser");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Rentas_AddedByUserId",
@@ -497,7 +497,7 @@ namespace UsaloYa.Library.Migrations
                 table: "Company");
 
             migrationBuilder.DropTable(
-                name: "Preguntas");
+                name: "Questions");
 
             migrationBuilder.DropTable(
                 name: "Rentas");

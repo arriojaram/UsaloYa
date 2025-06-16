@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Rebex.Mail;
 using UsaloYa.Dto;
 using UsaloYa.Library.Models;
 using UsaloYa.Services.interfaces;
@@ -14,33 +15,51 @@ namespace UsaloYa.Services
             _dBContext = dBContext;
         }
 
-        public async Task<List<Pregunta>> GetAllQuestionnaires()
+        public async Task<List<QuestionDto>> GetAllQuestionnaires()
         {
             
-                return await _dBContext.Preguntas.
-                    OrderBy(u => u.IdUser).ToListAsync();
+                return await _dBContext.Questions.
+                    OrderBy(u => u.IdUser).Select(r => new QuestionDto
+                    {
+
+                        QuestionId = r.QuestionId,
+                        QuestionName = r.QuestionName,
+                        Reply = r.Reply,
+                        IdUser = r.IdUser
+
+                    })
+                    .ToListAsync();
                
 
         }
 
-        public async Task<List<Pregunta>> GetQuestionnaireByUser(int userId)
+        public async Task<List<QuestionDto>> GetQuestionnaireByUser(int userId)
         {
-            return await _dBContext.Preguntas
+            return await _dBContext.Questions
                 .Where(p => p.IdUser == userId)
-                .ToListAsync();
+                .Select(r => new QuestionDto
+                {
+
+                    QuestionId = r.QuestionId,
+                    QuestionName = r.QuestionName,
+                    Reply = r.Reply,
+                    IdUser = r.IdUser
+
+                })
+                    .ToListAsync();
         }
 
         public async Task<bool> SaveQuestionnaire(List<RequestSaveQuestionnaire> preguntas)
         {
             try
             {
-                var pregunta = preguntas.Select(p => new Pregunta
+                var pregunta = preguntas.Select(p => new Question
                 {
-                    Question = p.Question,
-                    Answer = p.Answer,
+                    QuestionName = p.QuestionName,
+                    Reply = p.Reply,
                     IdUser = p.IdUser
                 }).ToList();
-                await _dBContext.Preguntas.AddRangeAsync(pregunta);
+                await _dBContext.Questions.AddRangeAsync(pregunta);
                 await _dBContext.SaveChangesAsync();
                 return true;
             }

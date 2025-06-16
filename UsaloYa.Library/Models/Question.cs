@@ -6,11 +6,12 @@ using System.Threading.Tasks;
 
 namespace UsaloYa.Library.Models
 {
-    public partial class Pregunta
+    public partial class Question
+
     {
-        public int PreguntaId { get; set; }
-        public string Question { get; set; }
-        public bool Answer { get; set; }
+        public int QuestionId { get; set; }
+        public string QuestionName { get; set; }
+        public bool Reply { get; set; }
         public int? IdUser { get; set; }
 
 

@@ -5,8 +5,8 @@ namespace UsaloYa.Services.interfaces
 {
     public interface IQuestionnaireService
     {
-        Task<List<Pregunta>> GetAllQuestionnaires();
-        Task<List<Pregunta>> GetQuestionnaireByUser(int userId);
+        Task<List<QuestionDto>> GetAllQuestionnaires();
+        Task<List<QuestionDto>> GetQuestionnaireByUser(int userId);
         Task<bool> SaveQuestionnaire(List<RequestSaveQuestionnaire> Preguntas);
     }
 }

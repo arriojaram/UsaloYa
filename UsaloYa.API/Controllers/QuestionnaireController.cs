@@ -17,13 +17,13 @@ namespace UsaloYa.API.Controllers
     public class QuestionnaireController : ControllerBase
     {   
             private readonly ILogger<QuestionnaireController> _logger;
-            private readonly IQuestionnaireService _preguntaService;
+            private readonly IQuestionnaireService _questionnaireService;
             private readonly IConfiguration _configuration;
 
-            public QuestionnaireController(IQuestionnaireService preguntaService, ILogger<QuestionnaireController> logger, IConfiguration configuration)
+            public QuestionnaireController(IQuestionnaireService questionnaireService, ILogger<QuestionnaireController> logger, IConfiguration configuration)
             {
                 _logger = logger;
-                _preguntaService = preguntaService;
+            _questionnaireService = questionnaireService;
                 _configuration = configuration;
 
             }
@@ -34,7 +34,7 @@ namespace UsaloYa.API.Controllers
             try
             {
 
-                var result = await _preguntaService.SaveQuestionnaire(preguntas);
+                var result = await _questionnaireService.SaveQuestionnaire(preguntas);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -49,8 +49,8 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var preguntas = _configuration.GetSection("QuestionnaireRegister").Get<List<string>>();
-                return Ok(preguntas);
+                var questionnaire = _configuration.GetSection("QuestionnaireRegister").Get<List<string>>();
+                return Ok(questionnaire);
             }
             catch (Exception ex)
             {
@@ -64,8 +64,8 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var preguntas = await _preguntaService.GetQuestionnaireByUser(idUser);
-                return Ok(preguntas);
+                var questionnaire = await _questionnaireService.GetQuestionnaireByUser(idUser);
+                return Ok(questionnaire);
             }
             catch (Exception ex)
             {

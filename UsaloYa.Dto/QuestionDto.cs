@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace UsaloYa.Dto
 {
-    public class RequestSaveQuestionnaire
+    public class QuestionDto
     {
+        public int? QuestionId { get; set; }
         public string QuestionName { get; set; }
         public bool Reply { get; set; }
         public int? IdUser { get; set; }

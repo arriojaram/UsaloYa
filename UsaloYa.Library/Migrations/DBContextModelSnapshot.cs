@@ -234,32 +234,6 @@ namespace UsaloYa.Library.Migrations
                     b.ToTable("PlanRentas");
                 });
 
-            modelBuilder.Entity("UsaloYa.Library.Models.Pregunta", b =>
-                {
-                    b.Property<int>("PreguntaId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PreguntaId"));
-
-                    b.Property<bool>("Answer")
-                        .HasColumnType("bit");
-
-                    b.Property<int?>("IdUser")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Question")
-                        .IsRequired()
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
-
-                    b.HasKey("PreguntaId");
-
-                    b.HasIndex("IdUser");
-
-                    b.ToTable("Preguntas");
-                });
-
             modelBuilder.Entity("UsaloYa.Library.Models.Product", b =>
                 {
                     b.Property<int>("ProductId")
@@ -405,6 +379,32 @@ namespace UsaloYa.Library.Migrations
                     b.HasIndex("CompanyId");
 
                     b.ToTable("ProductCategory", (string)null);
+                });
+
+            modelBuilder.Entity("UsaloYa.Library.Models.Question", b =>
+                {
+                    b.Property<int>("QuestionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("QuestionId"));
+
+                    b.Property<int?>("IdUser")
+                        .HasColumnType("int");
+
+                    b.Property<string>("QuestionName")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<bool>("Reply")
+                        .HasColumnType("bit");
+
+                    b.HasKey("QuestionId");
+
+                    b.HasIndex("IdUser");
+
+                    b.ToTable("Questions");
                 });
 
             modelBuilder.Entity("UsaloYa.Library.Models.Renta", b =>
@@ -688,16 +688,6 @@ namespace UsaloYa.Library.Migrations
                     b.Navigation("Company");
                 });
 
-            modelBuilder.Entity("UsaloYa.Library.Models.Pregunta", b =>
-                {
-                    b.HasOne("UsaloYa.Library.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("IdUser")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("UsaloYa.Library.Models.Product", b =>
                 {
                     b.HasOne("UsaloYa.Library.Models.ProductCategory", "Category")
@@ -725,6 +715,16 @@ namespace UsaloYa.Library.Migrations
                         .HasConstraintName("FK_ProductCategory_Company");
 
                     b.Navigation("Company");
+                });
+
+            modelBuilder.Entity("UsaloYa.Library.Models.Question", b =>
+                {
+                    b.HasOne("UsaloYa.Library.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("IdUser")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("UsaloYa.Library.Models.Renta", b =>
