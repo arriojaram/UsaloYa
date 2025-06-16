@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, AsyncValidatorFn } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { NgIf } from '@angular/common';
@@ -9,7 +9,7 @@ import { companyDto } from '../dto/companyDto';
 import { RequestRegisterNewUserDto } from '../dto/RequestRegisterNewUserDto ';
 import { RegisterUserAndCompanyDto } from '../dto/RegisterUserAndCompanyDto ';
 import { RegisterDataService } from '../services/register-data.service';
-import { map, catchError, of } from 'rxjs';
+import { map, catchError, of, takeUntil, Subject } from 'rxjs';
 import { CompanyService } from '../services/company.service';
 import { Router } from '@angular/router';
 import { SharedDataService } from '../services/shared-data.service';
@@ -19,12 +19,13 @@ import { SharedDataService } from '../services/shared-data.service';
   standalone: true,
   imports: [ReactiveFormsModule, HttpClientModule, NgIf],
   templateUrl: './r-company.component.html',
-  styleUrls: ['./r-company.component.css', '../../css/styles.css'],
+  styleUrls: ['./r-company.component.css'],
 })
-export class Rcompany implements OnInit {
+export class Rcompany implements OnInit, OnDestroy {
   companyForm: FormGroup;
   userData: RequestRegisterNewUserDto | null = null;
   loading = false;
+  private destroy$ = new Subject<void>();
 
   constructor(
     private fb: FormBuilder,
@@ -40,7 +41,7 @@ export class Rcompany implements OnInit {
       address: [''],
       phoneNumber: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(15)]],
       cellphoneNumber: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(15)]],
-      email: ['', [Validators.email]],
+      email: [{ value: '', disabled: true }, [Validators.email]],
       ownerInfo: [''],
     });
   }
@@ -56,21 +57,15 @@ export class Rcompany implements OnInit {
       return;
     }
 
-    
-    const phone = this.sharedDataService.getPhone();
-    const address = this.sharedDataService.getAddress();
-    const email = this.sharedDataService.getEmail();
+    const email = this.userData.email || this.sharedDataService.getEmail();
+    if (email) {
+      this.companyForm.patchValue({ email: email });
+    }
+  }
 
-    
-    this.companyForm.patchValue({
-      phoneNumber: phone,
-      address: address,
-      email: email
-    });
-
-    
-    this.companyForm.get('phoneNumber')?.disable();
-    this.companyForm.get('email')?.disable();
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   onSubmit(): void {
@@ -91,7 +86,7 @@ export class Rcompany implements OnInit {
       companyId: 0,
       name: this.companyForm.value.name,
       address: this.companyForm.value.address,
-      phoneNumber: this.companyForm.getRawValue().phoneNumber,
+      phoneNumber: this.companyForm.value.phoneNumber,
       cellphoneNumber: this.companyForm.value.cellphoneNumber,
       email: this.companyForm.getRawValue().email,
       ownerInfo: this.companyForm.value.ownerInfo,
@@ -104,32 +99,35 @@ export class Rcompany implements OnInit {
       companyDto: company,
     };
 
-    this.userService.registerNewUser(payload).subscribe({
-      next: () => {
-        this.navigationService.showUIMessage(
-          'Usuario y compañía registrados exitosamente. Se envió un email con el link de verificación',
-          AlertLevel.Sucess
-        );
-        this.companyForm.reset({ planId: 1 });
-        this.registerDataService.setUserData(null);
-        this.sharedDataService.clear(); 
-        this.loading = false;
-        this.router.navigate(['/']);
-      },
-      error: (err) => {
-        this.navigationService.showUIMessage(
-          'Error al registrar usuario y compañía: ' + err.message,
-          AlertLevel.Error
-        );
-        this.loading = false;
-      },
-    });
+    this.userService.registerNewUser(payload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.navigationService.showUIMessage(
+            'Usuario y compañía registrados exitosamente. Se envió un email con el link de verificación',
+            AlertLevel.Sucess
+          );
+          this.companyForm.reset({ planId: 1 });
+          this.registerDataService.setUserData(null);
+          this.sharedDataService.clear();
+          this.loading = false;
+          this.router.navigate(['/forms-navigator/register']);
+        },
+        error: (err) => {
+          this.navigationService.showUIMessage(
+            'Error al registrar usuario y compañía: ' + err.message,
+            AlertLevel.Error
+          );
+          this.loading = false;
+        },
+      });
   }
 
   private nameValidator(): AsyncValidatorFn {
     return (control: AbstractControl) => {
       if (!control.value) return of(null);
       return this.companyService.checkCompanyUnique(control.value).pipe(
+        takeUntil(this.destroy$),
         map(isUnique => (isUnique ? null : { nameTaken: true })),
         catchError(() => of(null))
       );

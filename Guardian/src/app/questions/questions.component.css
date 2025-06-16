@@ -1,0 +1,10 @@
+
+/* Separar cada pregunta entre sí */
+.question-group {
+  margin-bottom: 25px;
+}
+
+
+.form > .submit {
+  margin-top: 10px; 
+}

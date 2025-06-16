@@ -26,14 +26,11 @@
       <small id="addressHelp" class="text-muted">Ejemplo: Av. Reforma 123, Col. Centro, CDMX</small>
     </div>
 
-    <!-- Teléfono (fijo y deshabilitado) -->
+    <!-- Teléfono -->
     <div class="form-group">
-      <label for="phoneNumber" class="form-label fw-bold">Teléfono (fijo)</label>
-      <input type="tel" id="phoneNumber" class="input fw-bold"
-             [value]="companyForm.get('phoneNumber')?.value"
-             disabled
-             aria-describedby="phoneHelp" />
-      <small id="phoneHelp" class="text-muted">(este campo no es editable)</small>
+      <label for="phoneNumber" class="form-label fw-bold">Teléfono </label>
+      <input type="tel" id="phoneNumber" class="input fw-bold" formControlName="phoneNumber" aria-describedby="phoneHelp" />
+      <small id="phoneHelp" class="text-muted">Ejemplo: 5588776655</small>
     </div>
 
     <!-- Celular -->
