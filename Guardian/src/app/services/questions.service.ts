@@ -11,7 +11,7 @@ export class QuestionService {
 
   constructor(private http: HttpClient) {}
 
-  getPreguntas(): Observable<string[]> {
+  getQuestions(): Observable<string[]> {
     return this.http.get<string[]>(`${this.apiUrl}/GetPreguntas`);
   }
 }

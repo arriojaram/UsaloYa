@@ -1,18 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { RouterModule } from '@angular/router';
 import { NgFor, NgClass } from '@angular/common';
-import { filter } from 'rxjs/operators';
+import { filter, Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-fromNavigator',
   standalone: true,
-  imports: [NgFor, NgClass,RouterModule],
+  imports: [NgFor, NgClass, RouterModule],
   templateUrl: './forms-navigator.component.html',
   styleUrls: ['./forms-navigator.component.css']
 })
-export class FormNavigatorComponent implements OnInit {
+export class FormNavigatorComponent implements OnInit, OnDestroy {
   currentStep = 0;
+  private destroy$ = new Subject<void>();
 
   steps = [
     { label: 'Usuario', route: 'register', completed: false },
@@ -23,14 +24,15 @@ export class FormNavigatorComponent implements OnInit {
   constructor(private router: Router) {}
 
   ngOnInit() {
-    
     if (this.router.url === '/forms-navigator') {
       this.router.navigate(['forms-navigator', this.steps[0].route]);
     }
 
-    
     this.router.events
-      .pipe(filter(event => event instanceof NavigationEnd))
+      .pipe(
+        filter(event => event instanceof NavigationEnd),
+        takeUntil(this.destroy$)
+      )
       .subscribe((event: NavigationEnd) => {
         const url = event.urlAfterRedirects || event.url;
         const foundIndex = this.steps.findIndex(step => url.includes(step.route));
@@ -42,6 +44,11 @@ export class FormNavigatorComponent implements OnInit {
           this.currentStep = foundIndex;
         }
       });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   goNext() {
@@ -67,7 +74,6 @@ export class FormNavigatorComponent implements OnInit {
       return;
     }
 
-  
     this.router.navigate(['forms-navigator', step.route]);
   }
 

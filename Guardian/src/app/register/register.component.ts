@@ -16,7 +16,7 @@ import { of, Subject } from 'rxjs';
   standalone: true,
   imports: [ReactiveFormsModule, HttpClientModule, NgIf],
   templateUrl: './register.component.html',
-  styleUrls: ['./register.component.css', '../../css/styles.css'],
+  styleUrls: ['./register.component.css'],
 })
 export class RegisterComponent implements OnInit, OnDestroy {
   registerForm!: FormGroup;
@@ -31,7 +31,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
     private registerDataService: RegisterDataService,
     private userService: UserService,
     private sharedDataService: SharedDataService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     const savedData = this.registerDataService.getUserData();
@@ -81,12 +81,9 @@ export class RegisterComponent implements OnInit, OnDestroy {
       if (!control.value) return of(null);
 
       return this.userService.checkUsernameUnique(control.value).pipe(
-        takeUntil(this.destroy$), 
+        takeUntil(this.destroy$),
         map((isUnique: boolean) => (isUnique ? null : { usernameTaken: true })),
-        catchError(error => {
-          console.error('Error al validar username único:', error);
-          return of(null);
-        })
+        catchError(() => of(null))
       );
     };
   }
@@ -96,7 +93,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
       if (!control.value) return of(null);
 
       return this.userService.checkEmailUnique(control.value).pipe(
-        takeUntil(this.destroy$), 
+        takeUntil(this.destroy$),
         map(isUnique => (isUnique ? null : { emailTaken: true })),
         catchError(() => of(null))
       );

@@ -11,11 +11,11 @@
 
   <form *ngIf="!loading && !error" class="form">
     <div
-      *ngFor="let pregunta of preguntas; let i = index"
+      *ngFor="let question of questions; let i = index"
       class="question-group"
     >
       <label class="question-label">
-        {{ i + 1 }}. {{ pregunta }}
+        {{ i + 1 }}. {{ question }}
       </label>
 
       <div class="radio-group">

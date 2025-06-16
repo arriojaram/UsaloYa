@@ -1,40 +1,53 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { QuestionService } from '../services/questions.service';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NgIf, NgFor } from '@angular/common';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-questions',
   standalone: true,
   imports: [ReactiveFormsModule, NgIf, NgFor],
   templateUrl: './questions.component.html',
-    styleUrls: ['./questions.component.css', '../../css/styles.css']
+  styleUrls: ['./questions.component.css']
 })
-export class QuestionsComponent implements OnInit {
-  preguntas: string[] = [];
+export class QuestionsComponent implements OnInit, OnDestroy {
+  questions: string[] = [];
   loading: boolean = false;
   error: string | null = null;
 
-  constructor(private questionService: QuestionService) {}
+  private destroy$ = new Subject<void>();
+
+  constructor(private questionService: QuestionService) { }
 
   ngOnInit(): void {
-    this.loadPreguntas();
+    this.loadQuestions();
   }
 
-  loadPreguntas(): void {
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  loadQuestions(): void {
     this.loading = true;
     this.error = null;
 
-    this.questionService.getPreguntas().subscribe({
-      next: (data) => {
-        this.preguntas = data;
-        this.loading = false;
-      },
-      error: (err) => {
-        this.error = 'Error al cargar las preguntas';
-        console.error(err);
-        this.loading = false;
-      }
-    });
+    this.questionService.getQuestions()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.questions = data;
+          this.loading = false;
+        },
+        error: (err) => {
+          // Este mensaje se muestra en la vista mediante *ngIf="error"
+          this.error = 'Error al cargar las preguntas';
+
+          // Mostramos el error técnico en la consola del navegador para depuración.
+          console.error(err);
+          this.loading = false;
+        }
+      });
   }
 }
