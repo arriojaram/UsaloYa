@@ -15,18 +15,20 @@ import { PcategoriesComponent } from './admin/pcategories/pcategories.component'
 import { Rcompany } from './r-company/r-company.component';
 import { RegisterComponent } from './register/register.component';
 import { VerifyCodeComponent } from './verification/verification.component';
-import { StepperComponent } from './stepper/stepper.component';
+import { QuestionsComponent } from './questions/questions.component';
+import { FormNavigatorComponent } from './forms-navigator/forms-navigator.component';
 
 
 export const routes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },
     { path: 'login', component: LoginComponent },
     { path: 'verification', component: VerifyCodeComponent },
-    {path: 'stepper',component: StepperComponent,
+    
+    {path: 'forms-navigator',component: FormNavigatorComponent,
         children: [
             { path: 'register', component: RegisterComponent },
             { path: 'rcompany', component: Rcompany },
-            { path: '', redirectTo: 'user', pathMatch: 'full' } 
+            {path: 'questions', component: QuestionsComponent}
         ]
     },
     { path: 'reporteinventario', component: InventarioReportComponent, canActivate: [AuthGuard] },

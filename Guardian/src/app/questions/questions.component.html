@@ -1,1 +1,47 @@
-<p>questions works!</p>
+<div class="form-container">
+  <h2 class="title">Responde las siguientes preguntas</h2>
+
+  <div *ngIf="loading" class="message">
+    <span class="form-label">Cargando preguntas...</span>
+  </div>
+
+  <div *ngIf="error" class="error-msg">
+    {{ error }}
+  </div>
+
+  <form *ngIf="!loading && !error" class="form">
+    <div
+      *ngFor="let pregunta of preguntas; let i = index"
+      class="question-group"
+    >
+      <label class="question-label">
+        {{ i + 1 }}. {{ pregunta }}
+      </label>
+
+      <div class="radio-group">
+        <label class="radio-option yes">
+          <input
+            type="radio"
+            name="respuesta{{ i }}"
+            value="si"
+            required
+          />
+          <span class="custom-radio"></span>
+          Sí
+        </label>
+
+        <label class="radio-option no">
+          <input
+            type="radio"
+            name="respuesta{{ i }}"
+            value="no"
+          />
+          <span class="custom-radio"></span>
+          No
+        </label>
+      </div>
+    </div>
+
+    <button type="submit" class="submit">Enviar respuestas</button>
+  </form>
+</div>

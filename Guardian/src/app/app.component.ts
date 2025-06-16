@@ -91,7 +91,8 @@ export class AppComponent implements OnInit, OnDestroy {
         case "register":
           case"verification":
           case"rcompany":
-          case"stepper":
+          case"questions":
+          case"forms-navigator":
           this.currentPath = "";
           break;
         default:

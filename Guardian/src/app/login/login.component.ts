@@ -59,12 +59,10 @@ onSubmit(): void {
 
     this.authService.validate(loginData).pipe(
       switchMap((loginResults: loginResponseDto) => {
-        // Mostrar el mensaje si hay
         if (loginResults.msg) {
           this.navigation.showUIMessage(loginResults.msg, AlertLevel.Info);
         }
 
-        // Validar si el usuario es válido (id > 0)
         if (loginResults.id && loginResults.id > 0) {
           // Continuar para obtener los datos del usuario
           return this.userStateService.getLoggedUser(loginResults.id);
@@ -112,13 +110,8 @@ onSubmit(): void {
 
 
   iraRegisterComponent() {
-  this.router.navigate(['/stepper/register']).then((success) => {
-    if (success) {
-      console.log('Redirección exitosa a /register');
-    } else {
-      console.error('Error al redirigir a /register');
-    }
-  });
+  this.router.navigate(['/forms-navigator/register']);
+
 }
   
 }

@@ -17,16 +17,6 @@
       </div>
     </div>
 
-    <!-- Teléfono -->
-    <div class="form-group">
-      <label for="phone" class="form-label fw-bold">Teléfono</label>
-      <input type="text" id="phone" class="input fw-bold" formControlName="phone" aria-describedby="phoneHelp phoneError"  />
-      <small id="phoneHelp" class="text-muted">Ejemplo: 5555123456</small>
-      <div *ngIf="registerForm.get('phone')?.invalid && registerForm.get('phone')?.touched" class="error-msg" id="phoneError">
-        El número telefónico es requerido y debe tener entre 10 y 15 dígitos numéricos
-      </div>
-    </div>
-
     <!-- E-mail -->
     <div class="form-group">
       <label for="email" class="form-label fw-bold">E-mail</label>
@@ -39,13 +29,6 @@
       <div *ngIf="registerForm.get('email')?.errors?.['emailTaken'] && registerForm.get('email')?.touched" class="error-msg">
         Este correo electrónico ya está en uso.
       </div>
-    </div>
-
-    <!-- Dirección -->
-    <div class="form-group">
-      <label for="address" class="form-label fw-bold">Dirección</label>
-      <input type="text" id="address" class="input fw-bold" formControlName="address" aria-describedby="addressHelp" />
-      <small id="addressHelp" class="text-muted">Ejemplo: Calle Falsa 123</small>
     </div>
 
     <!-- Usuario -->

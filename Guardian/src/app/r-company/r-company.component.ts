@@ -9,7 +9,7 @@ import { companyDto } from '../dto/companyDto';
 import { RequestRegisterNewUserDto } from '../dto/RequestRegisterNewUserDto ';
 import { RegisterUserAndCompanyDto } from '../dto/RegisterUserAndCompanyDto ';
 import { RegisterDataService } from '../services/register-data.service';
-import { map, catchError, of } from 'rxjs';
+import { map, catchError, of, take } from 'rxjs';
 import { CompanyService } from '../services/company.service';
 import { Router } from '@angular/router';
 import { SharedDataService } from '../services/shared-data.service';
@@ -40,7 +40,7 @@ export class Rcompany implements OnInit {
       address: [''],
       phoneNumber: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(15)]],
       cellphoneNumber: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(15)]],
-      email: ['', [Validators.email]],
+      email: [{ value: '', disabled: true }, [Validators.email]],  // Campo deshabilitado
       ownerInfo: [''],
     });
   }
@@ -56,21 +56,11 @@ export class Rcompany implements OnInit {
       return;
     }
 
-    
-    const phone = this.sharedDataService.getPhone();
-    const address = this.sharedDataService.getAddress();
-    const email = this.sharedDataService.getEmail();
+    const email = this.userData.email || this.sharedDataService.getEmail();
 
-    
-    this.companyForm.patchValue({
-      phoneNumber: phone,
-      address: address,
-      email: email
-    });
-
-    
-    this.companyForm.get('phoneNumber')?.disable();
-    this.companyForm.get('email')?.disable();
+    if (email) {
+      this.companyForm.patchValue({ email: email });
+    }
   }
 
   onSubmit(): void {
@@ -91,7 +81,7 @@ export class Rcompany implements OnInit {
       companyId: 0,
       name: this.companyForm.value.name,
       address: this.companyForm.value.address,
-      phoneNumber: this.companyForm.getRawValue().phoneNumber,
+      phoneNumber: this.companyForm.value.phoneNumber,
       cellphoneNumber: this.companyForm.value.cellphoneNumber,
       email: this.companyForm.getRawValue().email,
       ownerInfo: this.companyForm.value.ownerInfo,
@@ -104,26 +94,28 @@ export class Rcompany implements OnInit {
       companyDto: company,
     };
 
-    this.userService.registerNewUser(payload).subscribe({
-      next: () => {
-        this.navigationService.showUIMessage(
-          'Usuario y compañía registrados exitosamente. Se envió un email con el link de verificación',
-          AlertLevel.Sucess
-        );
-        this.companyForm.reset({ planId: 1 });
-        this.registerDataService.setUserData(null);
-        this.sharedDataService.clear(); 
-        this.loading = false;
-        this.router.navigate(['/']);
-      },
-      error: (err) => {
-        this.navigationService.showUIMessage(
-          'Error al registrar usuario y compañía: ' + err.message,
-          AlertLevel.Error
-        );
-        this.loading = false;
-      },
-    });
+    this.userService.registerNewUser(payload)
+      .pipe(take(1)) 
+      .subscribe({
+        next: () => {
+          this.navigationService.showUIMessage(
+            'Usuario y compañía registrados exitosamente. Se envió un email con el link de verificación',
+            AlertLevel.Sucess
+          );
+          this.companyForm.reset({ planId: 1 });
+          this.registerDataService.setUserData(null);
+          this.sharedDataService.clear();
+          this.loading = false;
+          this.router.navigate(['/forms-navigator/register']);
+        },
+        error: (err) => {
+          this.navigationService.showUIMessage(
+            'Error al registrar usuario y compañía: ' + err.message,
+            AlertLevel.Error
+          );
+          this.loading = false;
+        },
+      });
   }
 
   private nameValidator(): AsyncValidatorFn {
