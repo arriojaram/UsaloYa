@@ -63,9 +63,9 @@ namespace UsaloYa.Services
 
                     if (userDto.LastUpdatedBy == 0 || userDto.CreatedBy == 0 || userDto.GroupId == 0)
                     {
-                        userToSave.CreatedBy = _configuration.GetValue<int>("SelfRegister:CreatedBy");
-                        userToSave.LastUpdateBy = _configuration.GetValue<int>("SelfRegister:LastUpdateBy");
-                    userToSave.GroupId = _configuration.GetValue<int>("SelfRegister:GroupId");
+                        userToSave.CreatedBy = _configuration.GetValue<int>("SelfRegisterDefaults:CreatedBy");
+                        userToSave.LastUpdateBy = _configuration.GetValue<int>("SelfRegisterDefaults:LastUpdateBy");
+                    userToSave.GroupId = _configuration.GetValue<int>("SelfRegisterDefaults:GroupId");
                     }
                 _dBContext.Users.Add(userToSave);
         
