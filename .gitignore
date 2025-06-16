@@ -396,3 +396,22 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# Angular cache
+.angular/cache/
+
+# Vite cache
+.vite/
+
+# Node modules
+node_modules/
+
+# Dist output
+dist/
+build/
+
+# Otros archivos temporales comunes en proyectos frontend
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
