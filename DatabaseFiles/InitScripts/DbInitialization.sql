@@ -33,8 +33,8 @@ GO
 IF NOT EXISTS(SELECT [UserId] FROM [Users] WHERE [UserName] = 'johnwick') BEGIN
 	
 	INSERT [Users] (
-		[UserName], [Token], [FirstName], [LastName], [CompanyId], [GroupId], [LastAccess], [IsEnabled], [StatusId], [CreatedBy], [LastUpdateBy], [CreationDate], [RoleId]) 
-	VALUES (N'johnwick', N'03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4', N'John', N'Wick', 1, 1, NULL, 1, 0, NULL, NULL, GETDATE(), 14)
+		[UserName], [Token], [FirstName], [LastName], [CompanyId], [GroupId], [LastAccess], [IsEnabled], [StatusId], [CreatedBy], [LastUpdateBy], [CreationDate], [RoleId], [IsVerifiedCode]) 
+	VALUES (N'johnwick', N'03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4', N'John', N'Wick', 1, 1, NULL, 1, 0, NULL, NULL, GETDATE(), 14, 1)
 
 END
 
@@ -67,3 +67,6 @@ IF NOT EXISTS(SELECT * FROM [PlanRentas]) BEGIN
 	UPDATE [PlanRentas] SET Price = 0, NumUsers = 2 WHERE Id = 1
 
 END
+
+UPDATE [Users]
+   SET [IsVerifiedCode] = 1;
