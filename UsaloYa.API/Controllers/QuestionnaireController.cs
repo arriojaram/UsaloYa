@@ -29,7 +29,7 @@ namespace UsaloYa.API.Controllers
             }
 
         [HttpPost("SaveQuestionnaire")]
-        public async Task<IActionResult> SaveQuestionnaire([FromBody] List<RequestSaveQuestionnaire> preguntas)
+        public async Task<IActionResult> SaveQuestionnaire([FromBody] List<RequestSaveQuestionnaireDto> preguntas)
         {
             try
             {

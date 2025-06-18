@@ -7,6 +7,6 @@ namespace UsaloYa.Services.interfaces
     {
         Task<List<QuestionDto>> GetAllQuestionnaires();
         Task<List<QuestionDto>> GetQuestionnaireByUser(int userId);
-        Task<bool> SaveQuestionnaire(List<RequestSaveQuestionnaire> Preguntas);
+        Task<bool> SaveQuestionnaire(List<RequestSaveQuestionnaireDto> Preguntas);
     }
 }

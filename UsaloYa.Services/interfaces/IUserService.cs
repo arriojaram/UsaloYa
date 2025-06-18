@@ -19,7 +19,7 @@ namespace UsaloYa.Services.interfaces
         Task<(bool isValid, string message, int userId)> Validate(string deviceId, UserTokenDto request);
         Task ManageNumConnectedUsers(int companyId, int licenseNumUsers);
         Task<int?> Logout(string userName);
-        Task<UserResponseDto> RegisterNewUserAndCompany(RegisterUserAndCompanyDto request);
+        Task<UserResponseDto> RegisterNewUserAndCompany(RegisterUserQuestionnaireAndCompanyDto request);
         Task<bool> IsUsernameUnique(string companyName);
         Task<bool> IsEmailUnique(string email);
 

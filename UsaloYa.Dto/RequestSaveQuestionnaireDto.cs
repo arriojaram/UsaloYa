@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace UsaloYa.Dto
 {
-    public class RequestSaveQuestionnaire
+    public class RequestSaveQuestionnaireDto
     {
         public string QuestionName { get; set; }
         public bool Reply { get; set; }
