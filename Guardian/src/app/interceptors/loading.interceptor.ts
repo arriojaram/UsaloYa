@@ -105,7 +105,8 @@ export class LoadingInterceptor implements HttpInterceptor {
       'api/User/IsEmailUnique',
       'api/Company/IsCompanyUnique',
       'api/User/Register',
-      'api/Questions/GetQuestions',
+      'api/Questionnaire/GetQuestionnaireToAsk',
+      'api/Questionnaire/SaveQuestionnaire',
       'ping.json',
       'i=login',
       

@@ -100,15 +100,16 @@ export class UserService {
     );
   }
 
-  registerNewUser(data: RegisterUserAndCompanyDto): Observable<any> {
-    const apiUrl = `${this.baseUrl}/RegisterNewUser`;
-    return this.http.post(apiUrl, data).pipe(
-      catchError(error => {
-        console.error('registerNewUser() | ', error);
-        throw error;
-      })
-    );
-  }
+registerNewUser(data: RegisterUserAndCompanyDto): Observable<{ userId: number, message: string }> {
+  const apiUrl = `${this.baseUrl}/RegisterNewUser`;
+  return this.http.post<{ userId: number, message: string }>(apiUrl, data).pipe(
+    catchError(error => {
+      console.error('registerNewUser() | ', error);
+      throw error;
+    })
+  );
+}
+
 checkUsernameUnique(username: string): Observable<boolean> {
   const apiUrl = `${this.baseUrl}/IsUsernameUnique`;
   return this.http.post<boolean>(apiUrl, JSON.stringify(username), {

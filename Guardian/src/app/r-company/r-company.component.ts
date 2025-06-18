@@ -102,16 +102,27 @@ export class Rcompany implements OnInit, OnDestroy {
     this.userService.registerNewUser(payload)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: () => {
-          this.navigationService.showUIMessage(
-            'Usuario y compañía registrados exitosamente. Se envió un email con el link de verificación',
-            AlertLevel.Sucess
-          );
-          this.companyForm.reset({ planId: 1 });
-          this.registerDataService.setUserData(null);
-          this.sharedDataService.clear();
-          this.loading = false;
-          this.router.navigate(['/forms-navigator/register']);
+        next: (response) => {
+          const userId = response?.userId;
+
+          if (userId) {
+            this.sharedDataService.setUserId(userId);
+            this.navigationService.showUIMessage(
+              'Usuario y compañía registrados exitosamente. Se envió un email con el link de verificación',
+              AlertLevel.Sucess
+            );
+            this.companyForm.reset({ planId: 1 });
+            this.registerDataService.setUserData(null);
+            this.sharedDataService.clearEmail();
+            this.loading = false;
+            this.router.navigate(['/forms-navigator/questions']);
+          } else {
+            this.navigationService.showUIMessage(
+              'No se recibió el ID del usuario. Registro incompleto.',
+              AlertLevel.Error
+            );
+            this.loading = false;
+          }
         },
         error: (err) => {
           this.navigationService.showUIMessage(
