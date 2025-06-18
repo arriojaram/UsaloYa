@@ -69,43 +69,76 @@ IF NOT EXISTS(SELECT * FROM [PlanRentas]) BEGIN
 END
 
 
-/****** Object:  Table [dbo].[Questions]   ******/
-CREATE TABLE [dbo].[Questions](
-	[QuestionId] [int] IDENTITY(1,1) NOT NULL,
-	[QuestionName] [nvarchar](300) NOT NULL,
-	[Reply] [bit] NOT NULL,
-	[IdUser] [int] NULL,
- CONSTRAINT [PK_Questions] PRIMARY KEY CLUSTERED 
-(
-	[QuestionId] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
-) ON [PRIMARY]
+
+IF NOT EXISTS (
+    SELECT * FROM sysobjects 
+    WHERE name = 'Questions' AND xtype = 'U'
+)
+BEGIN
+    CREATE TABLE [dbo].[Questions](
+        [QuestionId] [int] IDENTITY(1,1) NOT NULL,
+        [QuestionName] [nvarchar](300) NOT NULL,
+        [Reply] [bit] NOT NULL,
+        [IdUser] [int] NULL,
+     CONSTRAINT [PK_Questions] PRIMARY KEY CLUSTERED 
+    (
+        [QuestionId] ASC
+    )WITH (
+        PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, 
+        IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, 
+        ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF
+    ) ON [PRIMARY]
+    ) ON [PRIMARY]
+END
 GO
 
 
-ALTER TABLE [dbo].[Users]
-ADD [CodeVerification] NVARCHAR(10) NULL;
+IF COL_LENGTH('Users', 'CodeVerification') IS NULL
+BEGIN
+    ALTER TABLE [dbo].[Users]
+    ADD [CodeVerification] NVARCHAR(10) NULL;
+END
 
-ALTER TABLE [dbo].[Users]
-ADD [IsVerifiedCode] BIT NULL;
+IF COL_LENGTH('Users', 'IsVerifiedCode') IS NULL
+BEGIN
+    ALTER TABLE [dbo].[Users]
+    ADD [IsVerifiedCode] BIT NULL;
 
-ALTER TABLE [dbo].[Users]
-ADD [Email] NVARCHAR(100) NULL;
+    ALTER TABLE [dbo].[Users] ADD DEFAULT (CONVERT([bit],(0))) FOR [IsVerifiedCode];
+END
 
-
-ALTER TABLE [dbo].[Users] ADD  DEFAULT (CONVERT([bit],(0))) FOR [IsVerifiedCode]
+IF COL_LENGTH('Users', 'Email') IS NULL
+BEGIN
+    ALTER TABLE [dbo].[Users]
+    ADD [Email] NVARCHAR(100) NULL;
+END
 GO
 
 
-ALTER TABLE [dbo].[Questions]  WITH CHECK ADD  CONSTRAINT [FK_Questions_Users_IdUser] FOREIGN KEY([IdUser])
-REFERENCES [dbo].[Users] ([UserId])
-ON DELETE CASCADE
-GO
-ALTER TABLE [dbo].[Questions] CHECK CONSTRAINT [FK_Questions_Users_IdUser]
+IF NOT EXISTS (
+    SELECT * 
+    FROM sys.foreign_keys 
+    WHERE name = 'FK_Questions_Users_IdUser'
+)
+BEGIN
+    ALTER TABLE [dbo].[Questions]  WITH CHECK 
+    ADD CONSTRAINT [FK_Questions_Users_IdUser] 
+    FOREIGN KEY([IdUser])
+    REFERENCES [dbo].[Users] ([UserId])
+    ON DELETE CASCADE;
+
+    ALTER TABLE [dbo].[Questions] CHECK CONSTRAINT [FK_Questions_Users_IdUser];
+END
 GO
 
-UPDATE [Users]
-   SET [IsVerifiedCode] = 1;
+
+IF COL_LENGTH('Users', 'IsVerifiedCode') IS NOT NULL
+BEGIN
+    UPDATE [Users]
+    SET [IsVerifiedCode] = 1;
+END
+GO
+
 
 
 
