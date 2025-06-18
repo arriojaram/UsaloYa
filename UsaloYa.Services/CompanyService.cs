@@ -96,8 +96,8 @@ namespace UsaloYa.Services
                 };
                 if (companyDto.LastUpdateBy == 0 || companyDto.CreatedBy == 0)
                 {
-                    company.CreatedBy = _configuration.GetValue<int>("SelfRegister:CreatedBy");
-                    company.LastUpdateBy = _configuration.GetValue<int>("SelfRegister:LastUpdateBy");
+                    company.CreatedBy = _configuration.GetValue<int>("SelfRegisterDefaults:CreatedBy");
+                    company.LastUpdateBy = _configuration.GetValue<int>("SelfRegisterDefaults:LastUpdateBy");
                 }
 
                 _dBContext.Companies.Add(company);

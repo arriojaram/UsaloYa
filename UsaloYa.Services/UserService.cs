@@ -381,7 +381,8 @@ namespace UsaloYa.Services
             {
                 FirstName = user.FirstName,
                 Email = user.Email,
-                CodeVerification = user.CodeVerification
+                CodeVerification = user.CodeVerification,
+                UserId = user.UserId
             };
         }
 

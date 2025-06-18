@@ -217,7 +217,11 @@ namespace UsaloYa.API.Controllers
                         return StatusCode(500, new { message = "No se pudo enviar el correo de verificación." });
                     }
 
-                    return Ok(new { message = "Usuario registrado y correo de verificación enviado." });
+                    return Ok(new
+                    {
+                        userId = result.UserId,
+                        message = "Usuario registrado y correo de verificación enviado."
+                    });
                 }
 
                 return BadRequest(new { message = "No se pudieron registrar los datos." });
