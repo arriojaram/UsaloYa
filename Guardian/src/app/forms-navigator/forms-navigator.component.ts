@@ -17,7 +17,7 @@ export class FormNavigatorComponent implements OnInit, OnDestroy {
 
   steps = [
     { label: 'Usuario', route: 'register', completed: false },
-    { label: 'Compañía', route: 'rcompany', completed: false },
+    { label: 'Compañía', route: 'register-company', completed: false },
     { label: 'Preguntas', route: 'questions', completed: false }
   ];
 

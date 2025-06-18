@@ -3,7 +3,7 @@ import { QuestionService } from '../services/questions.service';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { NgIf, NgFor } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
-import { SaveQuestionDto } from '../dto/saveQuestionDto';
+import { SaveQuestionDto } from '../dto/SaveQuestionDto';
 import { SharedDataService } from '../services/shared-data.service';
 import { NavigationService } from '../services/navigation.service';
 import { AlertLevel } from '../Enums/enums';
@@ -89,7 +89,9 @@ export class QuestionsComponent implements OnInit, OnDestroy {
       };
     });
 
-    this.questionService.saveQuestions(payload).subscribe({
+    this.questionService.saveQuestions(payload)
+     .pipe(takeUntil(this.destroy$))
+    .subscribe({
       next: () => {
         this.navigationService.showUIMessage(
           'Tus respuestas se guardaron correctamente.',

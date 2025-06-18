@@ -73,7 +73,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
 
     this.loading = false;
 
-    this.router.navigate(['/forms-navigator/rcompany']);
+    this.router.navigate(['/forms-navigator/register-company']);
   }
 
   usernameValidator(): AsyncValidatorFn {

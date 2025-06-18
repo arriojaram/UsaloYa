@@ -13,16 +13,15 @@ import { map, catchError, of, takeUntil, Subject } from 'rxjs';
 import { CompanyService } from '../services/company.service';
 import { Router } from '@angular/router';
 import { SharedDataService } from '../services/shared-data.service';
-
 @Component({
-  selector: 'app-r-company',
-  standalone: true,
+  selector: 'app-register-company',
   imports: [ReactiveFormsModule, HttpClientModule, NgIf],
-  templateUrl: './r-company.component.html',
-  styleUrls: ['./r-company.component.css'],
+  templateUrl: './register-company.component.html',
+  styleUrl: './register-company.component.css'
 })
-export class Rcompany implements OnInit, OnDestroy {
-  companyForm: FormGroup;
+export class RegisterCompanyComponent implements OnInit, OnDestroy { 
+
+ companyForm: FormGroup;
   userData: RequestRegisterNewUserDto | null = null;
   loading = false;
   private destroy$ = new Subject<void>();

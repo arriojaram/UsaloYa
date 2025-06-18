@@ -90,7 +90,7 @@ export class AppComponent implements OnInit, OnDestroy {
         case "agreements":
         case "register":
           case"verification":
-          case"rcompany":
+          case"register-company":
           case"questions":
           case"forms-navigator":
           this.currentPath = "";

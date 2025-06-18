@@ -12,7 +12,7 @@ import { PolicyComponent } from './resources/policy.component';
 import { AgreementsComponent } from './resources/agreements.component';
 import { InventarioReportComponent } from './admin/inventario-report/inventario-report.component';
 import { PcategoriesComponent } from './admin/pcategories/pcategories.component';
-import { Rcompany } from './r-company/r-company.component';
+import { RegisterCompanyComponent } from './register-company/register-company.component';
 import { RegisterComponent } from './register/register.component';
 import { VerifyCodeComponent } from './verification/verification.component';
 import { QuestionsComponent } from './questions/questions.component';
@@ -27,7 +27,7 @@ export const routes: Routes = [
     {path: 'forms-navigator',component: FormNavigatorComponent,
         children: [
             { path: 'register', component: RegisterComponent },
-            { path: 'rcompany', component: Rcompany },
+            { path: 'register-company',component:RegisterCompanyComponent },
             {path: 'questions', component: QuestionsComponent}
         ]
     },
