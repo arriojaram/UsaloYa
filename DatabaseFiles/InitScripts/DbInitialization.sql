@@ -67,3 +67,45 @@ IF NOT EXISTS(SELECT * FROM [PlanRentas]) BEGIN
 	UPDATE [PlanRentas] SET Price = 0, NumUsers = 2 WHERE Id = 1
 
 END
+
+
+/****** Object:  Table [dbo].[Questions]   ******/
+CREATE TABLE [dbo].[Questions](
+	[QuestionId] [int] IDENTITY(1,1) NOT NULL,
+	[QuestionName] [nvarchar](300) NOT NULL,
+	[Reply] [bit] NOT NULL,
+	[IdUser] [int] NULL,
+ CONSTRAINT [PK_Questions] PRIMARY KEY CLUSTERED 
+(
+	[QuestionId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+ALTER TABLE [dbo].[Users]
+ADD [CodeVerification] NVARCHAR(10) NULL;
+
+ALTER TABLE [dbo].[Users]
+ADD [IsVerifiedCode] BIT NULL;
+
+ALTER TABLE [dbo].[Users]
+ADD [Email] NVARCHAR(100) NULL;
+
+
+ALTER TABLE [dbo].[Users] ADD  DEFAULT (CONVERT([bit],(0))) FOR [IsVerifiedCode]
+GO
+
+
+ALTER TABLE [dbo].[Questions]  WITH CHECK ADD  CONSTRAINT [FK_Questions_Users_IdUser] FOREIGN KEY([IdUser])
+REFERENCES [dbo].[Users] ([UserId])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[Questions] CHECK CONSTRAINT [FK_Questions_Users_IdUser]
+GO
+
+UPDATE [Users]
+   SET [IsVerifiedCode] = 1;
+
+
+
