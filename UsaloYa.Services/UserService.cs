@@ -24,13 +24,15 @@ namespace UsaloYa.Services
         private readonly AppConfig _settings;
         private readonly ICompanyService _CompanyService;
         private readonly IConfiguration _configuration;
+        private readonly IQuestionnaireService _questionnaireService;
 
-        public UserService(DBContext dBContext, AppConfig settings, ICompanyService companyService, IConfiguration configuration)
+        public UserService(DBContext dBContext, AppConfig settings, ICompanyService companyService, IConfiguration configuration, IQuestionnaireService questionnaireService)
         {
             _dBContext = dBContext;
             _settings = settings;
             _CompanyService = companyService;
             _configuration = configuration;
+            _questionnaireService = questionnaireService;
         }
 
         public async Task<UserDto> SaveUser(UserDto userDto)
@@ -349,7 +351,7 @@ namespace UsaloYa.Services
             return user.UserId;
         }
 
-        public async Task<UserResponseDto> RegisterNewUserAndCompany(RegisterUserAndCompanyDto request)
+        public async Task<UserResponseDto> RegisterNewUserAndCompany(RegisterUserQuestionnaireAndCompanyDto request)
         {
             // 1. Crear la compañía
             var company = await _CompanyService.SaveCompany(request.CompanyDto);
@@ -374,15 +376,19 @@ namespace UsaloYa.Services
                 IsEnabled = true
             };
 
-            var user = await this.SaveUser(userDto); 
+            var user = await this.SaveUser(userDto);
+            request.RequestSaveQuestionnaireDto.ForEach(dto => dto.IdUser = user.UserId);
 
-            // 4. Preparar y retornar la respuesta
+            var a = await _questionnaireService.SaveQuestionnaire(request.RequestSaveQuestionnaireDto);
+            if (!a)
+                throw new InvalidOperationException("Preguntas y respuestas no registradas");
+
+
             return new UserResponseDto
             {
                 FirstName = user.FirstName,
                 Email = user.Email,
-                CodeVerification = user.CodeVerification,
-                UserId = user.UserId
+                CodeVerification = user.CodeVerification
             };
         }
 

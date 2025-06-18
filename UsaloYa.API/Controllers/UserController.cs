@@ -184,7 +184,7 @@ namespace UsaloYa.API.Controllers
 
 
         [HttpPost("RegisterNewUser")]
-        public async Task<IActionResult> RegisterNewUser([FromBody] RegisterUserAndCompanyDto request)
+        public async Task<IActionResult> RegisterNewUser([FromBody] RegisterUserQuestionnaireAndCompanyDto request)
         {
             try
             {
@@ -219,7 +219,6 @@ namespace UsaloYa.API.Controllers
 
                     return Ok(new
                     {
-                        userId = result.UserId,
                         message = "Usuario registrado y correo de verificación enviado."
                     });
                 }

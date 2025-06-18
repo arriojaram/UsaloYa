@@ -49,7 +49,7 @@ namespace UsaloYa.Services
                     .ToListAsync();
         }
 
-        public async Task<bool> SaveQuestionnaire(List<RequestSaveQuestionnaire> preguntas)
+        public async Task<bool> SaveQuestionnaire(List<RequestSaveQuestionnaireDto> preguntas)
         {
             try
             {
