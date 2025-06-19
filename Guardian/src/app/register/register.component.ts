@@ -10,6 +10,7 @@ import { UserService } from '../services/user.service';
 import { SharedDataService } from '../services/shared-data.service';
 import { catchError, map, takeUntil } from 'rxjs/operators';
 import { of, Subject } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-register',
@@ -30,7 +31,8 @@ export class RegisterComponent implements OnInit, OnDestroy {
     private router: Router,
     private registerDataService: RegisterDataService,
     private userService: UserService,
-    private sharedDataService: SharedDataService
+    private sharedDataService: SharedDataService,
+    private translate: TranslateService
   ) { }
 
   ngOnInit(): void {
@@ -46,7 +48,10 @@ export class RegisterComponent implements OnInit, OnDestroy {
   onSubmit(): void {
     if (this.registerForm.invalid) {
       this.registerForm.markAllAsTouched();
-      this.navigationService.showUIMessage('Por favor corrige los errores del formulario', AlertLevel.Warning);
+      this.navigationService.showUIMessage(
+        this.translate.instant('register_form.invalid_form'),
+        AlertLevel.Warning
+      );
       return;
     }
 
@@ -67,7 +72,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
     this.sharedDataService.setEmail(formValue.email);
 
     this.navigationService.showUIMessage(
-      'Datos de usuario capturados correctamente. Continúa con los datos de la compañía.',
+      this.translate.instant('register_form.user_saved'),
       AlertLevel.Sucess
     );
 

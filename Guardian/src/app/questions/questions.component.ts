@@ -8,6 +8,10 @@ import { SharedDataService } from '../services/shared-data.service';
 import { NavigationService } from '../services/navigation.service';
 import { AlertLevel } from '../Enums/enums';
 import { Router } from '@angular/router';
+import { RegisterDataService } from '../services/register-data.service';
+import { RegisterUserQuestionnaireAndCompanyDto } from '../dto/RegisterUserQuestionnaireAndCompanyDto';
+import { UserService } from '../services/user.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-questions',
@@ -20,15 +24,17 @@ export class QuestionsComponent implements OnInit, OnDestroy {
   questions: string[] = [];
   loading: boolean = false;
   form!: FormGroup;
-
   private destroy$ = new Subject<void>();
 
   constructor(
     private questionService: QuestionService,
     private sharedDataService: SharedDataService,
+    private registerDataService: RegisterDataService,
+    private userService: UserService,
     private router: Router,
     private fb: FormBuilder,
-    private navigationService: NavigationService
+    private navigationService: NavigationService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit(): void {
@@ -42,7 +48,6 @@ export class QuestionsComponent implements OnInit, OnDestroy {
 
   loadQuestions(): void {
     this.loading = true;
-
     this.questionService.getQuestions()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -53,7 +58,7 @@ export class QuestionsComponent implements OnInit, OnDestroy {
         },
         error: () => {
           this.navigationService.showUIMessage(
-            'Error al cargar las preguntas. Intenta más tarde.',
+            this.translate.instant('questions.load_error'),
             AlertLevel.Error
           );
           this.loading = false;
@@ -70,42 +75,52 @@ export class QuestionsComponent implements OnInit, OnDestroy {
   }
 
   submitAnswers(): void {
-    const userId = this.sharedDataService.getUserId();
+    const userData = this.registerDataService.getUserData();
+    const companyData = this.registerDataService.getCompanyData();
 
-    if (userId === null || userId === undefined) {
+    if (!userData || !companyData) {
       this.navigationService.showUIMessage(
-        'No se recibió el ID del usuario. Registro incompleto.',
+        this.translate.instant('questions.missing_data'),
         AlertLevel.Error
       );
       return;
     }
 
-    const payload: SaveQuestionDto[] = this.questions.map((question, index) => {
+    const answers: SaveQuestionDto[] = this.questions.map((question, index) => {
       const respuesta = this.form.get(`respuesta${index}`)?.value;
       return {
-        QuestionName: question,
-        Reply: respuesta === 'si',
-        IdUser: userId
+        questionName: question,
+        reply: respuesta === 'si',
+        idUser: 0
       };
     });
 
-    this.questionService.saveQuestions(payload)
-     .pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: () => {
-        this.navigationService.showUIMessage(
-          'Tus respuestas se guardaron correctamente.',
-          AlertLevel.Sucess
-        );
+    const payload: RegisterUserQuestionnaireAndCompanyDto = {
+      requestRegisterNewUserDto: userData,
+      companyDto: companyData,
+      requestSaveQuestionnaireDto: answers
+    };
 
-         this.router.navigate(['/login']);
-      },
-      error: () => {
-        this.navigationService.showUIMessage(
-          'Ocurrió un error al guardar las respuestas. Intenta nuevamente.',
-          AlertLevel.Error
-        );
-      }
-    });
+    this.loading = true;
+
+    this.userService.registerNewUser(payload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (_) => {
+          this.navigationService.showUIMessage(
+            this.translate.instant('questions.sucess'),
+            AlertLevel.Sucess
+          );
+          this.loading = false;
+          this.router.navigate(['/login']);
+        },
+        error: (err) => {
+          this.navigationService.showUIMessage(
+            this.translate.instant('questions.register_error') + err.message,
+            AlertLevel.Error
+          );
+          this.loading = false;
+        }
+      });
   }
 }

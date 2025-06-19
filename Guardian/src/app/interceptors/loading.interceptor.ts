@@ -100,19 +100,12 @@ export class LoadingInterceptor implements HttpInterceptor {
   }
 
   private shouldSkip(request: HttpRequest<any>): boolean {
-    const skipUrls = [
-      'api/User/IsUsernameUnique',
-      'api/User/IsEmailUnique',
-      'api/Company/IsCompanyUnique',
-      'api/User/Register',
-      'api/Questionnaire/GetQuestionnaireToAsk',
-      'api/Questionnaire/SaveQuestionnaire',
-      'ping.json',
-      'i=login',
-      
-    ];
+    let shouldSkip = false;
+    if(request.url.includes('i=login'))
+      shouldSkip = true;
+    else if(request.url.includes('ping.json'))
+      shouldSkip = true;
 
-
-    return skipUrls.some((urlFragment) => request.url.includes(urlFragment));
+    return shouldSkip;
   }
 }

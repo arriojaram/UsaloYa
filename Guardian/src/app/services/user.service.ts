@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient,HttpBackend } from '@angular/common/http';
 import { catchError,  map, Observable } from 'rxjs';
 import { userDto } from '../dto/userDto';
 import { environment } from '../environments/enviroment';
 import { TokenDto } from '../dto/authenticateDto';
 import { adminGroupDto } from '../dto/adminGroupDto';
 import { NavigationService } from './navigation.service';
-import { RegisterUserAndCompanyDto } from '../dto/RegisterUserAndCompanyDto ';
+import { RegisterUserQuestionnaireAndCompanyDto } from '../dto/RegisterUserQuestionnaireAndCompanyDto';
 import { HttpHeaders } from '@angular/common/http';
 import { VerificationResponseDto } from '../dto/VerificationResponseDto';
 
@@ -33,13 +33,18 @@ export interface LoginResponseDto {
 })
 export class UserService {
 
+  private rawHttp: HttpClient;
+
   private baseUrl = environment.apiUrlBase + '/api/User';
 
   constructor(
     private http: HttpClient,
     private navigationService: NavigationService,
-    
-  ) { }
+     private httpBackend: HttpBackend        // sin interceptores
+   
+  ) { 
+    this.rawHttp = new HttpClient(httpBackend);
+  }
 
   saveUser(user: userDto): Observable<userDto> {
     const apiUrl = `${this.baseUrl}/SaveUser`;
@@ -100,9 +105,9 @@ export class UserService {
     );
   }
 
-registerNewUser(data: RegisterUserAndCompanyDto): Observable<{ userId: number, message: string }> {
+registerNewUser(data: RegisterUserQuestionnaireAndCompanyDto): Observable<{ userId: number, message: string }> {
   const apiUrl = `${this.baseUrl}/RegisterNewUser`;
-  return this.http.post<{ userId: number, message: string }>(apiUrl, data).pipe(
+  return this.rawHttp.post<{ userId: number, message: string }>(apiUrl, data).pipe(
     catchError(error => {
       console.error('registerNewUser() | ', error);
       throw error;
@@ -110,21 +115,23 @@ registerNewUser(data: RegisterUserAndCompanyDto): Observable<{ userId: number, m
   );
 }
 
-checkUsernameUnique(username: string): Observable<boolean> {
-  const apiUrl = `${this.baseUrl}/IsUsernameUnique`;
-  return this.http.post<boolean>(apiUrl, JSON.stringify(username), {
-    headers: { 'Content-Type': 'application/json' }
-  }).pipe(
-    catchError(error => {
-      console.error('checkUsernameUnique() | ', error);
-      throw error;
-    })
-  );
-}
+
+  checkUsernameUnique(username: string): Observable<boolean> {
+    const apiUrl = `${this.baseUrl}/IsUsernameUnique`;
+    return this.rawHttp.post<boolean>(apiUrl, JSON.stringify(username), {
+      headers: { 'Content-Type': 'application/json' }
+    }).pipe(
+      catchError(error => {
+        console.error('checkUsernameUnique() | ', error);
+        throw error;
+      })
+    );
+  }
+
 
 checkEmailUnique(email: string): Observable<boolean> {
   const apiUrl = `${this.baseUrl}/IsEmailUnique`;
-  return this.http.post<boolean>(apiUrl, JSON.stringify(email), {
+  return this.rawHttp.post<boolean>(apiUrl, JSON.stringify(email), {
     headers: { 'Content-Type': 'application/json' }
   }).pipe(
     catchError(error => {

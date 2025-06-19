@@ -1,0 +1,25 @@
+{
+
+
+  "register_form": {
+    "invalid_form": "Por favor corrige los errores del formulario",
+    "user_saved": "Datos de usuario capturados correctamente. Continúa con los datos de la compañía."
+  },
+
+
+  "register_company": {
+    "missing_user_data": "Por favor registra primero los datos del usuario.",
+    "invalid_form": "Formulario inválido",
+    "incomplete_user_data": "Faltan los datos del usuario. Por favor regístrate primero.",
+    "company_saved": "Datos de la compañía guardados correctamente. Continúa con las preguntas."
+  },
+
+  
+  "questions": {
+    "load_error": "Error al cargar las preguntas. Intenta más tarde.",
+    "missing_data": "Faltan datos del usuario o de la empresa.",
+    "sucess": "Registro completo. Se ha enviado un email de verificación.",
+    "register_error": "Error al registrar: "
+  }
+
+}
