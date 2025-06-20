@@ -13,6 +13,7 @@ import { setValueDto } from '../dto/setValueDto';
   providedIn: 'root'
 })
 export class CompanyService {
+  
   private rawHttp: HttpClient;
 
   private baseUrl = environment.apiUrlBase + '/api/Company';

@@ -10,6 +10,7 @@ import { environment } from '../environments/enviroment';
 export class QuestionService {
 
   private rawHttp: HttpClient;
+  
   private baseUrl = environment.apiUrlBase + '/api/Questionnaire';
 
   constructor(

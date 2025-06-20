@@ -100,6 +100,7 @@ export class LoadingInterceptor implements HttpInterceptor {
   }
 
   private shouldSkip(request: HttpRequest<any>): boolean {
+    
     let shouldSkip = false;
     if(request.url.includes('i=login'))
       shouldSkip = true;

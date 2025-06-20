@@ -40,7 +40,7 @@ export class UserService {
   constructor(
     private http: HttpClient,
     private navigationService: NavigationService,
-     private httpBackend: HttpBackend        // sin interceptores
+     private httpBackend: HttpBackend        
    
   ) { 
     this.rawHttp = new HttpClient(httpBackend);
