@@ -5,43 +5,24 @@
     <span class="form-label">Cargando preguntas...</span>
   </div>
 
-  <div *ngIf="error" class="error-msg">
-    {{ error }}
-  </div>
 
-  <form *ngIf="!loading && !error" class="form">
-    <div
-      *ngFor="let question of questions; let i = index"
-      class="question-group"
-    >
-      <label class="question-label">
-        {{ i + 1 }}. {{ question }}
-      </label>
 
+  <form [formGroup]="form" (ngSubmit)="submitAnswers()" class="form">
+    <div *ngFor="let q of questions; index as i" class="form-group">
+      <label class="form-label">{{ q }}</label>
       <div class="radio-group">
         <label class="radio-option yes">
-          <input
-            type="radio"
-            name="respuesta{{ i }}"
-            value="si"
-            required
-          />
+          <input type="radio" [formControlName]="'respuesta' + i" value="si" />
           <span class="custom-radio"></span>
           Sí
         </label>
-
         <label class="radio-option no">
-          <input
-            type="radio"
-            name="respuesta{{ i }}"
-            value="no"
-          />
+          <input type="radio" [formControlName]="'respuesta' + i" value="no" />
           <span class="custom-radio"></span>
           No
         </label>
       </div>
     </div>
-
-    <button type="submit" class="submit">Enviar respuestas</button>
+    <button type="submit" class="submit">Enviar</button>
   </form>
 </div>

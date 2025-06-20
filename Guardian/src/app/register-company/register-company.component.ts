@@ -2,26 +2,26 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, AsyncValidatorFn } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { NgIf } from '@angular/common';
-import { UserService } from '../services/user.service';
 import { NavigationService } from '../services/navigation.service';
 import { AlertLevel } from '../Enums/enums';
 import { companyDto } from '../dto/companyDto';
 import { RequestRegisterNewUserDto } from '../dto/RequestRegisterNewUserDto ';
-import { RegisterUserAndCompanyDto } from '../dto/RegisterUserAndCompanyDto ';
 import { RegisterDataService } from '../services/register-data.service';
 import { map, catchError, of, takeUntil, Subject } from 'rxjs';
 import { CompanyService } from '../services/company.service';
 import { Router } from '@angular/router';
 import { SharedDataService } from '../services/shared-data.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
-  selector: 'app-r-company',
+  selector: 'app-register-company',
   standalone: true,
   imports: [ReactiveFormsModule, HttpClientModule, NgIf],
-  templateUrl: './r-company.component.html',
-  styleUrls: ['./r-company.component.css'],
+  templateUrl: './register-company.component.html',
+  styleUrl: './register-company.component.css'
 })
-export class Rcompany implements OnInit, OnDestroy {
+export class RegisterCompanyComponent implements OnInit, OnDestroy {
+
   companyForm: FormGroup;
   userData: RequestRegisterNewUserDto | null = null;
   loading = false;
@@ -29,12 +29,12 @@ export class Rcompany implements OnInit, OnDestroy {
 
   constructor(
     private fb: FormBuilder,
-    private userService: UserService,
     private navigationService: NavigationService,
     private registerDataService: RegisterDataService,
     private router: Router,
     private companyService: CompanyService,
-    private sharedDataService: SharedDataService
+    private sharedDataService: SharedDataService,
+    private translate: TranslateService
   ) {
     this.companyForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)], [this.nameValidator()]],
@@ -51,7 +51,7 @@ export class Rcompany implements OnInit, OnDestroy {
 
     if (!this.userData) {
       this.navigationService.showUIMessage(
-        'Por favor registra primero los datos del usuario.',
+        this.translate.instant('register_company.missing_user_data'),
         AlertLevel.Warning
       );
       return;
@@ -71,16 +71,20 @@ export class Rcompany implements OnInit, OnDestroy {
   onSubmit(): void {
     if (this.companyForm.invalid) {
       this.companyForm.markAllAsTouched();
-      this.navigationService.showUIMessage('Formulario inválido', AlertLevel.Warning);
+      this.navigationService.showUIMessage(
+        this.translate.instant('register_company.invalid_form'),
+        AlertLevel.Warning
+      );
       return;
     }
 
     if (!this.userData) {
-      this.navigationService.showUIMessage('Faltan los datos del usuario. Por favor regístrate primero.', AlertLevel.Error);
+      this.navigationService.showUIMessage(
+        this.translate.instant('register_company.incomplete_user_data'),
+        AlertLevel.Error
+      );
       return;
     }
-
-    this.loading = true;
 
     const company: companyDto = {
       companyId: 0,
@@ -94,33 +98,14 @@ export class Rcompany implements OnInit, OnDestroy {
       statusId: 1,
     };
 
-    const payload: RegisterUserAndCompanyDto = {
-      requestRegisterNewUserDto: this.userData,
-      companyDto: company,
-    };
+    this.registerDataService.setCompanyData(company);
 
-    this.userService.registerNewUser(payload)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: () => {
-          this.navigationService.showUIMessage(
-            'Usuario y compañía registrados exitosamente. Se envió un email con el link de verificación',
-            AlertLevel.Sucess
-          );
-          this.companyForm.reset({ planId: 1 });
-          this.registerDataService.setUserData(null);
-          this.sharedDataService.clear();
-          this.loading = false;
-          this.router.navigate(['/forms-navigator/register']);
-        },
-        error: (err) => {
-          this.navigationService.showUIMessage(
-            'Error al registrar usuario y compañía: ' + err.message,
-            AlertLevel.Error
-          );
-          this.loading = false;
-        },
-      });
+    this.navigationService.showUIMessage(
+      this.translate.instant('register_company.company_saved'),
+      AlertLevel.Sucess
+    );
+
+    this.router.navigate(['/forms-navigator/questions']);
   }
 
   private nameValidator(): AsyncValidatorFn {

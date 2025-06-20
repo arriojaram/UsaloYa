@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders ,HttpBackend} from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../environments/enviroment';
 import { Observable, catchError } from 'rxjs';
@@ -13,14 +13,19 @@ import { setValueDto } from '../dto/setValueDto';
   providedIn: 'root'
 })
 export class CompanyService {
+  
+  private rawHttp: HttpClient;
 
   private baseUrl = environment.apiUrlBase + '/api/Company';
   selectedCompanyId: number = 0;
   
   constructor(
-    private http: HttpClient
+    private http: HttpClient,
+    private httpBackend: HttpBackend
   ) 
-  { }
+  { 
+    this.rawHttp = new HttpClient(httpBackend);
+  }
 
   addCompanyRent(c: rentRequestDto): Observable<number> {
     const apiUrl = `${this.baseUrl}/AddRent`;
@@ -123,7 +128,7 @@ export class CompanyService {
   
  checkCompanyUnique(name: string): Observable<boolean> {
   const apiUrl = `${this.baseUrl}/IsCompanyUnique`;
-  return this.http.post<boolean>(apiUrl, JSON.stringify(name), {
+  return this.rawHttp.post<boolean>(apiUrl, JSON.stringify(name), {
     headers: { 'Content-Type': 'application/json' }
   }).pipe(
     catchError(error => {
@@ -132,5 +137,6 @@ export class CompanyService {
     })
   );
 }
+
 
 }

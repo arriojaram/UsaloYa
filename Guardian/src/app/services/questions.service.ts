@@ -1,17 +1,32 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpBackend } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { SaveQuestionDto } from '../dto/SaveQuestionDto';
+import { environment } from '../environments/enviroment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class QuestionService {
-  
-  private readonly apiUrl = 'https://localhost:7290/api/Pregunta';
 
-  constructor(private http: HttpClient) {}
+  private rawHttp: HttpClient;
+  
+  private baseUrl = environment.apiUrlBase + '/api/Questionnaire';
+
+  constructor(
+    private http: HttpClient,
+    private httpBackend: HttpBackend
+  ) {
+    this.rawHttp = new HttpClient(httpBackend);
+  }
 
   getQuestions(): Observable<string[]> {
-    return this.http.get<string[]>(`${this.apiUrl}/GetPreguntas`);
+    const apiUrl = `${this.baseUrl}/GetQuestionnaireToAsk`;
+    return this.rawHttp.get<string[]>(apiUrl);
+  }
+
+  saveQuestions(payload: SaveQuestionDto[]): Observable<boolean> {
+    const apiUrl = `${this.baseUrl}/SaveQuestionnaire`;
+    return this.rawHttp.post<boolean>(apiUrl, payload);
   }
 }

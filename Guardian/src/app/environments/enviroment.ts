@@ -1,4 +1,4 @@
-export const environment = 
+export const environment =
 {
     production: false,
     apiUrlBase: 'https://localhost:7290',
@@ -13,5 +13,5 @@ export const environment =
     PAIRSETT_ACTIVAR_IMPRESORA: "activarImpresionWeb",
     PAIRSETT_NOMBRE_IMPRESORA: "impresoraWeb",
     freeLicenseMessage: 'La versión gratuita está limitada en funciones. Actualiza a Premium para desbloquear y potenciar tu experiencia.',
-    whatsNumber: 'https://api.whatsapp.com/send?phone=2481569632'
+    whatsNumber: 'https://api.whatsapp.com/send?phone=2481569632',
 }
