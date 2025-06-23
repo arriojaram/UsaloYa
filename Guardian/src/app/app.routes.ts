@@ -26,7 +26,7 @@ export const routes: Routes = [
     
     {path: 'forms-navigator',component: FormNavigatorComponent,
         children: [
-            { path: 'register', component: RegisterComponent },
+            { path: 'register', component: RegisterComponent ,runGuardsAndResolvers: 'always', },
             { path: 'register-company',component:RegisterCompanyComponent },
             {path: 'questions', component: QuestionsComponent}
         ]

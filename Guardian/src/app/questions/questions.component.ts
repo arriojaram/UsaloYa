@@ -12,18 +12,23 @@ import { RegisterDataService } from '../services/register-data.service';
 import { RegisterUserQuestionnaireAndCompanyDto } from '../dto/RegisterUserQuestionnaireAndCompanyDto';
 import { UserService } from '../services/user.service';
 import { TranslateService } from '@ngx-translate/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { LoadingService } from '../services/loading.service';
 
 @Component({
   selector: 'app-questions',
   standalone: true,
-  imports: [ReactiveFormsModule, NgIf, NgFor],
+  imports: [ReactiveFormsModule, NgFor, MatProgressSpinnerModule],
   templateUrl: './questions.component.html',
   styleUrls: ['./questions.component.css']
 })
 export class QuestionsComponent implements OnInit, OnDestroy {
   questions: string[] = [];
-  loading: boolean = false;
   form!: FormGroup;
+  loading_i$ = this.loadingService.loading$;
+
+
+
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -34,7 +39,8 @@ export class QuestionsComponent implements OnInit, OnDestroy {
     private router: Router,
     private fb: FormBuilder,
     private navigationService: NavigationService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private loadingService: LoadingService
   ) {}
 
   ngOnInit(): void {
@@ -47,21 +53,21 @@ export class QuestionsComponent implements OnInit, OnDestroy {
   }
 
   loadQuestions(): void {
-    this.loading = true;
+    this.loadingService.show();
     this.questionService.getQuestions()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
           this.questions = data;
           this.createForm(data.length);
-          this.loading = false;
+          this.loadingService.hide();
         },
         error: () => {
           this.navigationService.showUIMessage(
             this.translate.instant('questions.load_error'),
             AlertLevel.Error
           );
-          this.loading = false;
+          
         }
       });
   }
@@ -75,52 +81,55 @@ export class QuestionsComponent implements OnInit, OnDestroy {
   }
 
   submitAnswers(): void {
-    const userData = this.registerDataService.getUserData();
-    const companyData = this.registerDataService.getCompanyData();
+ 
 
-    if (!userData || !companyData) {
-      this.navigationService.showUIMessage(
-        this.translate.instant('questions.missing_data'),
-        AlertLevel.Error
-      );
-      return;
-    }
+  const userData = this.registerDataService.getUserData();
+  const companyData = this.registerDataService.getCompanyData();
 
-    const answers: SaveQuestionDto[] = this.questions.map((question, index) => {
-      const respuesta = this.form.get(`respuesta${index}`)?.value;
-      return {
-        questionName: question,
-        reply: respuesta === 'si',
-        idUser: 0
-      };
-    });
-
-    const payload: RegisterUserQuestionnaireAndCompanyDto = {
-      requestRegisterNewUserDto: userData,
-      companyDto: companyData,
-      requestSaveQuestionnaireDto: answers
-    };
-
-    this.loading = true;
-
-    this.userService.registerNewUser(payload)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (_) => {
-          this.navigationService.showUIMessage(
-            this.translate.instant('questions.sucess'),
-            AlertLevel.Sucess
-          );
-          this.loading = false;
-          this.router.navigate(['/login']);
-        },
-        error: (err) => {
-          this.navigationService.showUIMessage(
-            this.translate.instant('questions.register_error') + err.message,
-            AlertLevel.Error
-          );
-          this.loading = false;
-        }
-      });
+  if (!userData || !companyData) {
+    this.navigationService.showUIMessage(
+      this.translate.instant('questions.missing_data'),
+      AlertLevel.Error
+    );
+    return;
   }
+
+  const answers: SaveQuestionDto[] = this.questions.map((question, index) => {
+    const respuesta = this.form.get(`respuesta${index}`)?.value;
+    return {
+      questionName: question,
+      reply: respuesta === 'si',
+      idUser: 0
+    };
+  });
+
+  const payload: RegisterUserQuestionnaireAndCompanyDto = {
+    requestRegisterNewUserDto: userData,
+    companyDto: companyData,
+    requestSaveQuestionnaireDto: answers
+  };
+
+  this.loadingService.show();
+
+  this.userService.registerNewUser(payload)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (_) => {
+        this.navigationService.showUIMessage(
+          this.translate.instant('questions.sucess'),
+          AlertLevel.Sucess
+        );
+        this.loadingService.hide();
+
+        this.router.navigate(['/login']);
+      },
+      error: (err) => {
+        this.navigationService.showUIMessage(
+          this.translate.instant('questions.register_error') + err.message,
+          AlertLevel.Error
+        );
+        this.loadingService.hide();
+      }
+    });
+}
 }

@@ -5,7 +5,7 @@ import { NgFor, NgClass } from '@angular/common';
 import { filter, Subject, takeUntil } from 'rxjs';
 
 @Component({
-  selector: 'app-fromNavigator',
+  selector: 'app-form-navigator',
   standalone: true,
   imports: [NgFor, NgClass, RouterModule],
   templateUrl: './forms-navigator.component.html',
@@ -24,10 +24,11 @@ export class FormNavigatorComponent implements OnInit, OnDestroy {
   constructor(private router: Router) {}
 
   ngOnInit() {
-    if (this.router.url === '/forms-navigator') {
-      this.router.navigate(['forms-navigator', this.steps[0].route]);
-    }
+    const basePath = '/forms-navigator';
 
+    if (this.router.url === basePath) {
+      this.router.navigate([basePath, this.steps[0].route]);
+    }
     this.router.events
       .pipe(
         filter(event => event instanceof NavigationEnd),
@@ -38,9 +39,10 @@ export class FormNavigatorComponent implements OnInit, OnDestroy {
         const foundIndex = this.steps.findIndex(step => url.includes(step.route));
 
         if (foundIndex !== -1) {
-          if (foundIndex > this.currentStep) {
-            this.steps[this.currentStep].completed = true;
+          for (let i = 0; i < foundIndex; i++) {
+            this.steps[i].completed = true;
           }
+
           this.currentStep = foundIndex;
         }
       });
@@ -55,26 +57,28 @@ export class FormNavigatorComponent implements OnInit, OnDestroy {
     if (this.currentStep < this.steps.length - 1) {
       this.steps[this.currentStep].completed = true;
       this.currentStep++;
-      this.router.navigate(['forms-navigator', this.steps[this.currentStep].route]);
+      this.router.navigate(['/forms-navigator', this.steps[this.currentStep].route]);
     }
   }
 
   goBack() {
     if (this.currentStep > 0) {
       this.currentStep--;
-      this.router.navigate(['forms-navigator', this.steps[this.currentStep].route]);
+      this.router.navigate(['/forms-navigator', this.steps[this.currentStep].route]);
     }
   }
 
   navigateToStep(index: number): void {
-    const step = this.steps[index];
+    if (index < 0 || index >= this.steps.length) return;
 
-    if (!step || !step.route) {
-      console.error(`Paso inválido en el índice ${index}`, step);
-      return;
+    if (index > this.currentStep) {
+      for (let i = this.currentStep; i < index; i++) {
+        this.steps[i].completed = true;
+      }
     }
 
-    this.router.navigate(['forms-navigator', step.route]);
+    this.currentStep = index;
+    this.router.navigate(['/forms-navigator', this.steps[index].route]);
   }
 
   markStepAsCompleted(index: number) {

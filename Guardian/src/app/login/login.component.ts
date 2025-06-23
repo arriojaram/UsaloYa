@@ -53,7 +53,9 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
 onSubmit(): void {
+ 
   if (this.loginForm.valid) {
+     
     this.loading = true;
     const loginData: TokenDto = this.loginForm.value;
 
@@ -109,9 +111,12 @@ onSubmit(): void {
 }
 
 
-  iraRegisterComponent() {
-  this.router.navigate(['/forms-navigator/register']);
-
+iraRegisterComponent() {
+  this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+    this.router.navigate(['/forms-navigator/register']);
+  });
 }
+
+
   
 }

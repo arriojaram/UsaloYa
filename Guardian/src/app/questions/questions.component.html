@@ -1,13 +1,6 @@
 <div class="form-container">
   <h2 class="title">Responde las siguientes preguntas</h2>
-
-  <div *ngIf="loading" class="message">
-    <span class="form-label">Cargando preguntas...</span>
-  </div>
-
-
-
-  <form [formGroup]="form" (ngSubmit)="submitAnswers()" class="form">
+  <form  [formGroup]="form" (ngSubmit)="submitAnswers()" class="form">
     <div *ngFor="let q of questions; index as i" class="form-group">
       <label class="form-label">{{ q }}</label>
       <div class="radio-group">
