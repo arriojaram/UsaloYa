@@ -1,32 +1,41 @@
-<div class="stepper-wrapper">
-  <div class="steps-horizontal">
+<div class="stepper-wrapper container py-4">
+  <!-- BARRA DE PASOS -->
+  <div class="steps-horizontal d-flex justify-content-between mb-4 flex-wrap">
     <div
-      class="step-horizontal"
+      class="step-horizontal text-center flex-fill mx-2"
       *ngFor="let step of steps; let i = index"
       [ngClass]="{
         'active': currentStep === i,
         'complete': step.completed && currentStep !== i
       }"
       (click)="navigateToStep(i)"
+      style="cursor: pointer;"
     >
-      <div class="step-icon">{{ i + 1 }}</div>
-      <div class="step-title">{{ step.label }}</div>
-      <div class="step-description">Paso {{ i + 1 }}</div>
+      <div class="step-icon rounded-circle mx-auto mb-2">{{ i + 1 }}</div>
+      <div class="step-title fw-bold">{{ step.label }}</div>
+      <div class="step-description text-muted">Paso {{ i + 1 }}</div>
     </div>
   </div>
 
-  <!-- FORMULARIO ACTUAL -->
-  <div class="form-wrapper mt-4">
-
+  <!-- FORMULARIO -->
+  <div class="form-wrapper mb-4">
     <router-outlet></router-outlet>
   </div>
 
   <!-- BOTONES DE NAVEGACIÓN -->
-  <div class="stepper-buttons mt-4 d-flex justify-content-between">
-    <button class="btn btn-secondary" (click)="goBack()" [disabled]="currentStep === 0">
+  <div class="stepper-buttons d-flex justify-content-between">
+    <button
+      class="btn btn-secondary"
+      (click)="goBack()"
+      [disabled]="currentStep === 0"
+    >
       ← Regresar
     </button>
-    <button class="btn btn-primary" (click)="goNext()" [disabled]="currentStep === steps.length - 1">
+    <button
+      class="btn btn-primary"
+      (click)="goNext()"
+      [disabled]="currentStep === steps.length - 1"
+    >
       Siguiente →
     </button>
   </div>

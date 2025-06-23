@@ -11515,3 +11515,8 @@ input:disabled {
 .radio-option.no input[type="radio"]:checked + .custom-radio::after {
   background-color: #ea4335;
 }
+
+.input-error {
+  border-color: #d93025 !important;
+  box-shadow: 0 0 6px rgba(217, 48, 37, 0.4);
+}

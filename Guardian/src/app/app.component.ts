@@ -93,6 +93,7 @@ export class AppComponent implements OnInit, OnDestroy {
           case"register-company":
           case"questions":
           case"forms-navigator":
+          case"forms-navigator/register ":
           this.currentPath = "";
           break;
         default:
@@ -146,31 +147,37 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
 
-  setUserDetailsUI() {
-    try {
+setUserDetailsUI() {
+  try {
+    const storedUserInfo = this.userStateService.getUserStateLocalStorage();
 
-      var storedUserInfo = this.userStateService.getUserStateLocalStorage();
-      this.userStateUI = storedUserInfo;
-      this.showPaymentAlert = false;
-
-      if (this.userStateUI.companyStatusId == this.cStatus.Expired) {
-        this.paymentMsg = environment.paymentExpiredMsg;
-        this.showPaymentAlert = true;
+  
+    if (!storedUserInfo || storedUserInfo.userId === 0) {
+   
+      if (!['/register'].includes(this.router.url)) {
+        this.router.navigate(['/login']);
       }
-      else if (this.userStateUI.companyStatusId == this.cStatus.PendingPayment) {
-        this.paymentMsg = environment.paymentPendingMsg;
-        this.showPaymentAlert = true;
-      }
+      return;
+    }
 
-      this.userRol = Roles[this.userStateUI.roleId];
+    this.userStateUI = storedUserInfo;
+    this.showPaymentAlert = false;
+
+    if (this.userStateUI.companyStatusId == this.cStatus.Expired) {
+      this.paymentMsg = environment.paymentExpiredMsg;
+      this.showPaymentAlert = true;
     }
-    catch (e) {
-      if ((e as Error).message === '$Invalid_User')
-        console.log('/SigIn');
-      else
-        console.error('setUserDetailsUI()', e);
+    else if (this.userStateUI.companyStatusId == this.cStatus.PendingPayment) {
+      this.paymentMsg = environment.paymentPendingMsg;
+      this.showPaymentAlert = true;
     }
+
+    this.userRol = Roles[this.userStateUI.roleId];
+  } catch (e) {
+    console.error('setUserDetailsUI() error:', e);
   }
+}
+
 
   closeAlert() {
     this.showPaymentAlert = false; // Función para cerrar la alerta

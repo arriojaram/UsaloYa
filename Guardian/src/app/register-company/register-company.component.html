@@ -1,5 +1,3 @@
-
-
 <div class="form-container" *ngIf="companyForm">
   <h2 class="title">Registrar Compañía</h2>
   <p class="message">Completa los datos de la empresa</p>
@@ -8,10 +6,13 @@
 
     <!-- Nombre de la Compañía -->
     <div class="form-group">
-      <label for="name" class="form-label fw-bold">Nombre de la Compañía</label>
-      <input type="text" id="name" class="input fw-bold" formControlName="name" aria-describedby="nameHelp nameError" />
+      <label for="name" class="form-label">Nombre de la Compañía</label>
+      <input type="text" id="name" class="input" formControlName="name" aria-describedby="nameHelp nameError"
+        [class.input-error]="companyForm.get('name')?.invalid && companyForm.get('name')?.touched" />
       <small id="nameHelp" class="text-muted">Ejemplo: Grupo Alimentos S.A. de C.V.</small>
-      <div *ngIf="companyForm.get('name')?.touched && companyForm.get('name')?.errors && !companyForm.get('name')?.errors?.['nameTaken']" class="error-msg" id="nameError">
+      <div
+        *ngIf="companyForm.get('name')?.touched && companyForm.get('name')?.errors && !companyForm.get('name')?.errors?.['nameTaken']"
+        class="error-msg" id="nameError">
         El nombre es requerido y debe tener al menos 3 caracteres
       </div>
       <div *ngIf="companyForm.get('name')?.errors?.['nameTaken'] && companyForm.get('name')?.touched" class="error-msg">
@@ -21,44 +22,64 @@
 
     <!-- Dirección -->
     <div class="form-group">
-      <label for="address" class="form-label fw-bold">Dirección</label>
-      <input type="text" id="address" class="input fw-bold" formControlName="address" aria-describedby="addressHelp" />
+      <label for="address" class="form-label">Dirección</label>
+      <input type="text" id="address" class="input" formControlName="address" aria-describedby="addressHelp"
+        [class.input-error]="companyForm.get('address')?.invalid && companyForm.get('address')?.touched" />
       <small id="addressHelp" class="text-muted">Ejemplo: Av. Reforma 123, Col. Centro, CDMX</small>
     </div>
 
-    <!-- Teléfono -->
-    <div class="form-group">
-      <label for="phoneNumber" class="form-label fw-bold">Teléfono </label>
-      <input type="tel" id="phoneNumber" class="input fw-bold" formControlName="phoneNumber" aria-describedby="phoneHelp" />
-      <small id="phoneHelp" class="text-muted">Ejemplo: 5588776655</small>
-    </div>
-
-    <!-- Celular -->
-    <div class="form-group">
-      <label for="cellphoneNumber" class="form-label fw-bold">Celular</label>
-      <input type="tel" id="cellphoneNumber" class="input fw-bold" formControlName="cellphoneNumber" aria-describedby="cellHelp" />
-      <small id="cellHelp" class="text-muted">Ejemplo: 5588776655</small>
-    </div>
-
-  
-   <!-- Correo Electrónico -->
+<!-- Teléfono -->
 <div class="form-group">
-  <label for="email" class="form-label fw-bold">Correo Electrónico (fijo)</label>
-  <input type="email" id="email" class="input fw-bold"
-         [value]="companyForm.get('email')?.value"
-         disabled
-         aria-describedby="emailHelp emailError" />
-  <small id="emailHelp" class="text-muted">(este campo no es editable)</small>
-  <div *ngIf="companyForm.get('email')?.invalid && companyForm.get('email')?.touched" class="error-msg" id="emailError">
-    El correo debe ser válido
+  <label for="phoneNumber" class="form-label">Teléfono</label>
+  <input
+    type="tel"
+    id="phoneNumber"
+    class="input"
+    formControlName="phoneNumber"
+    aria-describedby="phoneHelp phoneError"
+    [class.input-error]="companyForm.get('phoneNumber')?.invalid && companyForm.get('phoneNumber')?.touched"
+  />
+  <small id="phoneHelp" class="text-muted">Ejemplo: 5588776655</small>
+  <div *ngIf="companyForm.get('phoneNumber')?.invalid && companyForm.get('phoneNumber')?.touched" class="error-msg" id="phoneError">
+    Ingresa un número de teléfono válido (10 dígitos)
+  </div>
+</div>
+
+<!-- Celular -->
+<div class="form-group">
+  <label for="cellphoneNumber" class="form-label">Celular</label>
+  <input
+    type="tel"
+    id="cellphoneNumber"
+    class="input"
+    formControlName="cellphoneNumber"
+    aria-describedby="cellHelp cellError"
+    [class.input-error]="companyForm.get('cellphoneNumber')?.invalid && companyForm.get('cellphoneNumber')?.touched"
+  />
+  <small id="cellHelp" class="text-muted">Ejemplo: 5588776655</small>
+  <div *ngIf="companyForm.get('cellphoneNumber')?.invalid && companyForm.get('cellphoneNumber')?.touched" class="error-msg" id="cellError">
+    Ingresa un número de celular válido (10 dígitos)
   </div>
 </div>
 
 
+    <!-- Correo Electrónico -->
+    <div class="form-group">
+      <label for="email" class="form-label">Correo Electrónico (fijo)</label>
+      <input type="email" id="email" class="input" [value]="companyForm.get('email')?.value" disabled
+        aria-describedby="emailHelp emailError" />
+      <small id="emailHelp" class="text-muted">(este campo no es editable)</small>
+      <div *ngIf="companyForm.get('email')?.invalid && companyForm.get('email')?.touched" class="error-msg"
+        id="emailError">
+        El correo debe ser válido
+      </div>
+    </div>
+
     <!-- Información del Dueño -->
     <div class="form-group">
-      <label for="ownerInfo" class="form-label fw-bold">Información del Dueño</label>
-      <input type="text" id="ownerInfo" class="input fw-bold" formControlName="ownerInfo" aria-describedby="ownerHelp" />
+      <label for="ownerInfo" class="form-label">Información del Dueño</label>
+      <input type="text" id="ownerInfo" class="input" formControlName="ownerInfo" aria-describedby="ownerHelp"
+        [class.input-error]="companyForm.get('ownerInfo')?.invalid && companyForm.get('ownerInfo')?.touched" />
       <small id="ownerHelp" class="text-muted">Ejemplo: María López, CEO</small>
     </div>
 
