@@ -64,6 +64,7 @@ namespace UsaloYa.Services
                     ProductPrice3 = r.Product.UnitPrice3,
                     TotalPrice = r.TotalPrice,
                     SaleID = r.SaleId,
+                    Folio = r.Folio,
                     SaleDate = r.Sale.SaleDate,
                     TotalSale = r.Sale.TotalSale,
                     UserId = r.Sale.UserId,

@@ -18,6 +18,7 @@ public partial class SaleDetail
     public decimal BuyPrice { get; set; }
 
     public int? PriceLevel { get; set; }
+    public int? Folio { get; set; }
 
     public virtual Product Product { get; set; } = null!;
 

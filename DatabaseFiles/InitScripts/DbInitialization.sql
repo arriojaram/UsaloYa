@@ -139,6 +139,13 @@ BEGIN
 END
 GO
 
+IF COL_LENGTH('Sales', 'Folio') IS NULL
+BEGIN
+    ALTER TABLE [dbo].[Sales]
+    ADD [Folio] INT NULL;
+END
+GO
+
 
 
 

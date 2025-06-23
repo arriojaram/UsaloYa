@@ -282,7 +282,6 @@ public partial class DBContext : DbContext
                 .HasMaxLength(500)
                 .IsUnicode(false);
             entity.Property(e => e.Folio)
-                .HasMaxLength(11)
                 .IsUnicode(false);
             entity.Property(e => e.PaymentMethod)
                 .HasMaxLength(50)
