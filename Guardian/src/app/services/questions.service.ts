@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { SaveQuestionDto } from '../dto/SaveQuestionDto';
 import { environment } from '../environments/enviroment';
-import { LoadingService } from './loading.service';
+
 
 @Injectable({
   providedIn: 'root'
@@ -16,24 +16,18 @@ export class QuestionService {
   constructor(
     private http: HttpClient,
     private httpBackend: HttpBackend,
-    public loadingService: LoadingService
+  
   ) {
     this.rawHttp = new HttpClient(httpBackend);
   }
 
   getQuestions(): Observable<string[]> {
     const apiUrl = `${this.baseUrl}/GetQuestionnaireToAsk`;
-    this.loadingService.show(); 
-    return this.rawHttp.get<string[]>(apiUrl).pipe(
-      finalize(() => this.loadingService.hide())
-    );
+    return this.rawHttp.get<string[]>(apiUrl).pipe();
   }
 
   saveQuestions(payload: SaveQuestionDto[]): Observable<boolean> {
     const apiUrl = `${this.baseUrl}/SaveQuestionnaire`;
-    this.loadingService.show();
-    return this.rawHttp.post<boolean>(apiUrl, payload).pipe(
-      finalize(() => this.loadingService.hide())
-    );
+    return this.rawHttp.post<boolean>(apiUrl, payload).pipe();
   }
 }

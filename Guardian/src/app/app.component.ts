@@ -148,7 +148,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
 
 setUserDetailsUI() {
-  try {
+  
     const storedUserInfo = this.userStateService.getUserStateLocalStorage();
 
   
@@ -173,9 +173,8 @@ setUserDetailsUI() {
     }
 
     this.userRol = Roles[this.userStateUI.roleId];
-  } catch (e) {
-    console.error('setUserDetailsUI() error:', e);
-  }
+  
+  
 }
 
 
