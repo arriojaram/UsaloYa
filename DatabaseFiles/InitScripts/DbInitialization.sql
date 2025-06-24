@@ -1,34 +1,45 @@
-﻿GO
+﻿
+IF NOT EXISTS (
+    SELECT 1 FROM [Company]
+    WHERE [Name] = 'JMC' AND [Address] = 'Online'
+)
+BEGIN
+    INSERT INTO [Company]
+           ([Name], [Address], StatusId, ExpirationDate, PlanId)
+    VALUES
+           ('JMC', 'Online', 3, '2030-12-31 00:00:00.000', 1)
+END
+ELSE
+BEGIN
+    UPDATE [Company]
+    SET PlanId = 1
+    WHERE [Name] = 'JMC' AND [Address] = 'Online';
 
-INSERT INTO [Company]
-           ([Name]
-           ,[Address],
-		   StatusId,
-		   ExpirationDate
-		   )
-     VALUES(
-           'JMC',
-           'Online',
-		   3,
-		   '2030-12-31 00:00:00.000'
-		   )
+    PRINT 'La compañía ya existía, se actualizó el PlanId a 1.'
+END
 GO
 
 
-
-INSERT INTO [Groups]
-           ([Name]
-           ,[Description]
-           ,[Permissions]
-           ,[CompanyId])
-     VALUES
-           ('General'
-           ,'Auto-generated'
-           ,'<permissions>*</permissions>'
-           ,1)
+DECLARE @CompanyId INT
+SELECT @CompanyId = CompanyId FROM [Company] WHERE [Name] = 'JMC' AND [Address] = 'Online'
 
 
+IF NOT EXISTS (
+    SELECT 1 FROM [Groups]
+    WHERE [Name] = 'General' AND [CompanyId] = @CompanyId
+)
+BEGIN
+    INSERT INTO [Groups]
+           ([Name], [Description], [Permissions], [CompanyId])
+    VALUES
+           ('General', 'Auto-generated', '<permissions>*</permissions>', @CompanyId)
+END
+ELSE
+BEGIN
+    PRINT 'Ya existe un grupo "General" para esa compañía.'
+END
 GO
+
 
 IF NOT EXISTS(SELECT [UserId] FROM [Users] WHERE [UserName] = 'johnwick') BEGIN
 	
