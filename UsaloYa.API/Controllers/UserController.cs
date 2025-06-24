@@ -200,7 +200,7 @@ namespace UsaloYa.API.Controllers
                 {
                     { "Nombre", result.FirstName },
                     { "Mensaje", $"Hola:<br/><br/>Cuidar tu seguridad y asegurar tu información son prioridades para nuestro equipo. Por eso, necesitamos que confirmes tu correo.<br/><br/>" +
-                                 $"Tu código de verificación es <strong>{result.CodeVerification}</strong>, por favor verifique su cuenta en la siguiente página:<br/><a href='www.google.com'>www.google.com</a>" }
+                                 $"Tu código de verificación es <strong>{result.CodeVerification}</strong>" }
                 };
 
                         await _emailService.SendEmailFromTemplateAsync(
