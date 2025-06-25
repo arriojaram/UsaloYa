@@ -123,6 +123,12 @@ BEGIN
     ALTER TABLE [dbo].[Users]
     ADD [Email] NVARCHAR(100) NULL;
 END
+
+IF COL_LENGTH('Sales', 'Folio') IS NULL
+BEGIN
+    ALTER TABLE [dbo].[Sales]
+    ADD [Folio] INT NULL;
+END
 GO
 
 

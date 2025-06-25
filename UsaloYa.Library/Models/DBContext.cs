@@ -281,8 +281,7 @@ public partial class DBContext : DbContext
             entity.Property(e => e.Notes)
                 .HasMaxLength(500)
                 .IsUnicode(false);
-            entity.Property(e => e.Folio)
-                .HasMaxLength(11)
+            entity.Property(e => e.Folio).HasColumnType("int")
                 .IsUnicode(false);
             entity.Property(e => e.PaymentMethod)
                 .HasMaxLength(50)
