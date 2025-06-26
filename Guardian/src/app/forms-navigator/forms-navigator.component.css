@@ -9,16 +9,21 @@ body {
   padding: 2rem;
 }
 
+
+/* Contenedor de pasos */
 .steps-horizontal {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  max-width: 800px;
+  flex-wrap: wrap; /* <-- Esto permite envolver pasos en pantallas pequeñas */
+  max-width: 100%;
   position: relative;
   padding: 0;
   width: 100%;
+  gap: 0.5rem;
 }
 
+/* Línea base entre los pasos */
 .steps-horizontal::before {
   content: '';
   position: absolute;
@@ -30,11 +35,14 @@ body {
   z-index: 1;
 }
 
+/* Paso individual */
 .step-horizontal {
-  flex: 1;
+  flex: 1 1 120px; /* <-- Se adapta con tamaño mínimo */
   text-align: center;
   position: relative;
   z-index: 2;
+  padding: 0 5px;
+  min-width: 100px;
 }
 
 .step-icon {
@@ -76,14 +84,18 @@ body {
   background: #2ecc71;
   border-color: #2ecc71;
   color: white;
-}.stepper-buttons {
+}
+
+/* Botones del stepper */
+.stepper-buttons {
   display: flex;
-  justify-content: center; /* Centrados en su contenedor */
-  gap: 1rem; /* Espacio entre botones */
+  justify-content: center;
+  gap: 1rem;
   margin-top: 2rem;
   max-width: 800px;
   margin-left: auto;
   margin-right: auto;
+  flex-wrap: wrap;
 }
 
 .stepper-buttons button {
@@ -110,9 +122,13 @@ body {
   box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3);
 }
 
-.stepper-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
+/* Media query solo para reducir texto si es necesario */
+@media (max-width: 480px) {
+  .step-description {
+    font-size: 11px;
+  }
+
+  .step-title {
+    font-size: 13px;
+  }
 }

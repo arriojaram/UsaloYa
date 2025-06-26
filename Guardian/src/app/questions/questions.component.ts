@@ -14,6 +14,7 @@ import { UserService } from '../services/user.service';
 import { TranslateService } from '@ngx-translate/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { LoadingService } from '../services/loading.service';
+import { FormValidationService } from '../services/form-validation.service';
 
 @Component({
   selector: 'app-questions',
@@ -40,7 +41,8 @@ export class QuestionsComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private navigationService: NavigationService,
     private translate: TranslateService,
-    private loadingService: LoadingService
+    private loadingService: LoadingService,
+    private validationService: FormValidationService
   ) {}
 
   ngOnInit(): void {
@@ -78,7 +80,18 @@ export class QuestionsComponent implements OnInit, OnDestroy {
       group[`respuesta${i}`] = [''];
     }
     this.form = this.fb.group(group);
+    // Registrar validez inicial
+this.validationService.setFormValid('questions', this.form.valid);
+
+// Actualizar cada vez que el estado cambie
+this.form.statusChanges
+  .pipe(takeUntil(this.destroy$))
+  .subscribe(() => {
+    this.validationService.setFormValid('questions', this.form.valid);
+  });
+
   }
+  
 
   submitAnswers(): void {
  

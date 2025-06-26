@@ -93,7 +93,6 @@ export class AppComponent implements OnInit, OnDestroy {
           case"register-company":
           case"questions":
           case"forms-navigator":
-          case"forms-navigator/register ":
           this.currentPath = "";
           break;
         default:

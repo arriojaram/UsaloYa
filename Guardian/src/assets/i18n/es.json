@@ -20,6 +20,10 @@
     "missing_data": "Faltan datos del usuario o de la empresa.",
     "sucess": "Registro completo. Se ha enviado un email de verificación.",
     "register_error": "Error al registrar: "
+  },
+
+  "form-navigator": {
+    "missing_data": "Faltan campos obligatorios"
   }
 
 }

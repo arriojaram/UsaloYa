@@ -12,7 +12,7 @@ import { CompanyService } from '../services/company.service';
 import { Router } from '@angular/router';
 import { SharedDataService } from '../services/shared-data.service';
 import { TranslateService } from '@ngx-translate/core';
-
+import { FormValidationService } from '../services/form-validation.service';
 @Component({
   selector: 'app-register-company',
   standalone: true,
@@ -34,7 +34,8 @@ export class RegisterCompanyComponent implements OnInit, OnDestroy {
     private router: Router,
     private companyService: CompanyService,
     private sharedDataService: SharedDataService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private validationService: FormValidationService
   ) {
     this.companyForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)], [this.nameValidator()]],
@@ -56,12 +57,26 @@ export class RegisterCompanyComponent implements OnInit, OnDestroy {
       );
       return;
     }
-
+    const savedCompany = this.registerDataService.getCompanyData();
+    if (savedCompany) {
+      this.companyForm.patchValue(savedCompany);
+    }
     const email = this.userData.email || this.sharedDataService.getEmail();
     if (email) {
       this.companyForm.patchValue({ email: email });
     }
+    // Emitir estado inicial
+    this.validationService.setFormValid('register-company', this.companyForm.valid);
+
+    // Emitir en cada cambio de validez
+    this.companyForm.statusChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.validationService.setFormValid('register-company', this.companyForm.valid);
+      });
+
   }
+
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -99,11 +114,6 @@ export class RegisterCompanyComponent implements OnInit, OnDestroy {
     };
 
     this.registerDataService.setCompanyData(company);
-
-    this.navigationService.showUIMessage(
-      this.translate.instant('register_company.company_saved'),
-      AlertLevel.Sucess
-    );
 
     this.router.navigate(['/forms-navigator/questions']);
   }
