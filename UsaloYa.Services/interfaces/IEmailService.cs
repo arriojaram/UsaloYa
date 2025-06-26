@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UsaloYa.Dto;
 
 namespace UsaloYa.Services.interfaces
 {
     public interface IEmailService
     {
-        Task SendEmailFromTemplateAsync(string toEmail, string subject, string templatePath, Dictionary<string, string> variables);
+        Task<bool> SendEmailNewUsers(SendVerificationCodeDto request, string templatePath);
+        Task<bool> SendEmailToAdmins(string username, string company, int idUserRegister, string templatePath);
     }
 
 
