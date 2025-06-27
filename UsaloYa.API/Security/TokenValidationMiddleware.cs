@@ -23,10 +23,12 @@ namespace UsaloYa.API.Security
                 context.Request.Path.StartsWithSegments("/api/User/Validate", StringComparison.OrdinalIgnoreCase) ||
                 context.Request.Path.StartsWithSegments("/api/User/IsUsernameUnique", StringComparison.OrdinalIgnoreCase) ||
                 context.Request.Path.StartsWithSegments("/api/User/RequestVerificationCodeEmail", StringComparison.OrdinalIgnoreCase) ||
-                context.Request.Path.StartsWithSegments("/api/Email/EnviarCorreo", StringComparison.OrdinalIgnoreCase) ||
+                context.Request.Path.StartsWithSegments("/api/Email/SendEmailNewUsers", StringComparison.OrdinalIgnoreCase) ||
                 context.Request.Path.StartsWithSegments("/api/User/GetUser", StringComparison.OrdinalIgnoreCase) ||
                 context.Request.Path.StartsWithSegments("/api/User/IsEmailUnique", StringComparison.OrdinalIgnoreCase) ||
+                context.Request.Path.StartsWithSegments("/api/Email/SendEmailToAdmins") ||
                 context.Request.Path.StartsWithSegments("/api/Questionnaire/GetQuestionnaireToAsk", StringComparison.OrdinalIgnoreCase) ||
+                context.Request.Path.StartsWithSegments("/api/Questionnaire/GetQuestionnaireByUser", StringComparison.OrdinalIgnoreCase) ||
                 context.Request.Path.StartsWithSegments("/api/Questionnaire/SaveQuestionnaire", StringComparison.OrdinalIgnoreCase) ||
                 context.Request.Path.StartsWithSegments("/api/Company/IsCompanyUnique", StringComparison.OrdinalIgnoreCase))
             {

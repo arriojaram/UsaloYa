@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using UsaloYa.Services.interfaces;
 using UsaloYa.Dto;
+using Azure.Identity;
+using UsaloYa.Dto.Utils;
 
 namespace UsaloYa.API.Controllers
 {
@@ -10,30 +12,37 @@ namespace UsaloYa.API.Controllers
     {
         private readonly IEmailService _emailService;
         private readonly IWebHostEnvironment _env;
+        private readonly IConfiguration _config;
+        private readonly IQuestionnaireService _questionnaireService;
 
-        public EmailController(IEmailService emailService, IWebHostEnvironment env)
+
+
+        public EmailController(IEmailService emailService, IWebHostEnvironment env, IConfiguration config, IQuestionnaireService questionnaireService)
         {
             _emailService = emailService;
             _env = env;
+            _config = config;
+            _questionnaireService = questionnaireService;
+         
         }
 
-        [HttpPost("EnviarCorreo")]
-        public async Task<IActionResult> Enviar([FromBody] SendVerificationCodeDto request)
+        [HttpPost("SendEmailNewUsers")]
+        public async Task<IActionResult> SendEmailNewUsers(SendVerificationCodeDto request)
         {
             var templatePath = Path.Combine(_env.ContentRootPath, "Templates", "Notificacion.html");
 
-            var variables = new Dictionary<string, string>
-        {
-            { "Nombre", request.FirstName },
-            { "Mensaje", $"Tu código de verificación es: {request.CodeVerification}" }
-        };
+            await _emailService.SendEmailNewUsers(request, templatePath);
 
-            await _emailService.SendEmailFromTemplateAsync(
-                request.Email,
-                "Verificación de correo electrónico.",
-                templatePath,
-                variables
-            );
+            return Ok("Correo enviado.");
+        }
+
+
+        [HttpPost("SendEmailToAdmins")]
+        public async Task<IActionResult> SendEmailToAdmins(string name, string company, int idUserRegister)
+        {
+
+            var templatePath = Path.Combine(_env.ContentRootPath, "Templates", "Notificacion.html");
+            await _emailService.SendEmailToAdmins(name, company, idUserRegister, templatePath);
 
             return Ok("Correo enviado.");
         }

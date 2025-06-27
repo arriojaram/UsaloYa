@@ -35,6 +35,20 @@ namespace UsaloYa.Dto.Utils
             }
         }
 
+        public static string GenerateHtmlQuestions(List<QuestionDto> questions)
+        {
+            var sb = new StringBuilder();
+
+            foreach (var p in questions)
+            {
+                var reply = p.Reply ? "Sí" : "No";
+                sb.Append($"<strong>{p.QuestionName}</strong>: {reply}<br/>");
+            }
+
+            return sb.ToString();
+        }
+
+
         public static bool IsSha256Hash(string input)
         {
             if (string.IsNullOrEmpty(input) || input.Length != 64)

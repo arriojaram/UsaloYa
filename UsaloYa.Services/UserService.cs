@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿    using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -388,7 +388,9 @@ namespace UsaloYa.Services
             {
                 FirstName = user.FirstName,
                 Email = user.Email,
-                CodeVerification = user.CodeVerification
+                CodeVerification = user.CodeVerification,
+                CompanyName = company.Name,
+                UserId= user.UserId
             };
         }
 

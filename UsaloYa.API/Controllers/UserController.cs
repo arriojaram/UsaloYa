@@ -1,14 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using UsaloYa.Library.Config;
-using UsaloYa.API.Security;
-using UsaloYa.Dto.Enums;
-using UsaloYa.Dto;
-using UsaloYa.Library.Models;
-using UsaloYa.Services.interfaces;
-using UsaloYa.Services;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Configuration;
 using System.ComponentModel.DataAnnotations;
+using UsaloYa.API.Security;
+using UsaloYa.Dto;
+using UsaloYa.Dto.Enums;
+using UsaloYa.Library.Config;
+using UsaloYa.Library.Models;
+using UsaloYa.Services;
+using UsaloYa.Services.interfaces;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace UsaloYa.API.Controllers
 {
@@ -22,8 +24,9 @@ namespace UsaloYa.API.Controllers
         private readonly DBContext _dBContext;
         private readonly AppConfig _settings;
         private readonly IWebHostEnvironment _env;
+        private readonly IConfiguration _config;
 
-        public UserController(DBContext dBContext, IUserService userService, ILogger<UserController> logger, AppConfig settings, IEmailService emailService, IWebHostEnvironment env)
+        public UserController(DBContext dBContext, IUserService userService, ILogger<UserController> logger, AppConfig settings, IEmailService emailService, IWebHostEnvironment env, IConfiguration config)
         {
             _logger = logger;
             _userService = userService;
@@ -31,6 +34,7 @@ namespace UsaloYa.API.Controllers
             _settings = settings;
             _emailService = emailService;
             _env = env;
+            _config = config;
         }
 
         [HttpGet("HelloWorld")]
@@ -194,57 +198,58 @@ namespace UsaloYa.API.Controllers
                 {
                     try
                     {
+                        var templatePath = Path.Combine(_env.ContentRootPath, "Templates", "Notificacion.html");
 
-                        string templatePath = Path.Combine(_env.ContentRootPath, "Templates", "Notificacion.html");
-                        var variables = new Dictionary<string, string>
-                {
-                    { "Nombre", result.FirstName },
-                    { "Mensaje", $"Hola:<br/><br/>Cuidar tu seguridad y asegurar tu información son prioridades para nuestro equipo. Por eso, necesitamos que confirmes tu correo.<br/><br/>" +
-                                 $"Tu código de verificación es <strong>{result.CodeVerification}</strong>" }
-                };
+                        SendVerificationCodeDto data = new();
+                        data.Email = result.Email;
+                        data.FirstName = result.FirstName;
+                        data.CodeVerification = result.CodeVerification;
 
-                        await _emailService.SendEmailFromTemplateAsync(
-                            toEmail: result.Email,
-                            subject: "Verificación de correo electrónico.",
-                            templatePath: templatePath,
-                            variables: variables
-                        );
+                        try
+                        {
+                            var responseSendEmailNewUsers = await _emailService.SendEmailNewUsers(data, templatePath);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Error al enviar correo al nuevo usuario {Email}", result.Email);
+                            return StatusCode(500, new { message = "email_send_error" });
+                        }
+
+                        try
+                        {
+                            var responseSendEmailToAdmins = await _emailService.SendEmailToAdmins(result.FirstName, result.CompanyName, result.UserId, templatePath);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Error al notificar a los administradores sobre el nuevo usuario {Email}", result.Email);
+                            return StatusCode(500, new { message = "email_send_error" });
+                        }
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, "Error al enviar correo de verificación para el usuario {Email}", result.Email);
-
-                        return StatusCode(500, new { message = "No se pudo enviar el correo de verificación." });
+                        _logger.LogError(ex, "Error general al procesar envío de correos para el usuario {Email}", result.Email);
+                        return StatusCode(500, new { message = "email_send_error" });
                     }
 
                     return Ok(new
                     {
-                        message = "Usuario registrado y correo de verificación enviado."
+                        message = "email_send_ok"
                     });
                 }
 
-                return BadRequest(new { message = "No se pudieron registrar los datos." });
-            }
-            catch (InvalidOperationException ex) when (ex.Message.Contains("Company already exists"))
-            {
-                _logger.LogWarning("Registro fallido: empresa existente - {Company}", request.CompanyDto.Name);
-                return Conflict(new { message = "La empresa ya se encuentra registrada." });
-            }
-            catch (ValidationException ex)
-            {
-                _logger.LogWarning(ex, "Error de validación al registrar usuario.");
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
+                return BadRequest(new { message = "error_register" });
+                }
+                catch (Exception ex)
+                {
                 _logger.LogError(ex, "Error inesperado en RegisterNewUser.");
                 return StatusCode(500, new
                 {
-                    message = "No se puede procesar la solicitud. Error interno del servidor.",
-                    detail = ex.Message // 🔐 Solo el mensaje, no el objeto completo
+                    message = "internal_server_error",
+                    detail = ex.Message
                 });
             }
         }
+
 
 
 
