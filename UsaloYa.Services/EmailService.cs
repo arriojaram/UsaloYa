@@ -23,107 +23,71 @@ namespace UsaloYa.Services
 
         public async Task<bool> SendEmailNewUsers(SendVerificationCodeDto request, string templatePath)
         {
-
-            if (!File.Exists(templatePath))
-                throw new FileNotFoundException("Plantilla no encontrada", templatePath);
-            var html = await File.ReadAllTextAsync(templatePath);
-
             var variables = new Dictionary<string, string>
-        {
-            { "Name", _configuration.GetSection("NotificationTemplates:NewUsers:Name").Value + request.FirstName },
-            { "Message", _configuration.GetSection("NotificationTemplates:NewUsers:Message").Value +
-                         $"<strong>{request.CodeVerification}</strong>" },
-            { "Verification", _configuration.GetSection("NotificationTemplates:NewUsers:Verification").Value +
-                                  _configuration.GetSection("NotificationTemplates:NewUsers:Message2").Value +
-                                  _configuration.GetSection("NotificationTemplates:NewUsers:LinkVerification").Value
-            }
-
-        };
-
-
-            foreach (var kv in variables)
             {
-                html = html.Replace($"{{{{{kv.Key}}}}}", kv.Value);
-            }
-
-            var message = new MimeMessage();
-            message.From.Add(new MailboxAddress(_configuration["EmailSettings:SenderName"], _configuration["EmailSettings:SenderEmail"]));
-            
-            message.To.Add(MailboxAddress.Parse(request.Email));
-
-            message.Subject = _configuration.GetSection("NotificationTemplates:NewUsers:Title").Value;
-            message.Body = new TextPart("html") { Text = html };
-
-            var option = _configuration["EmailSettings:SecureSocketOption"];
-
-            var secureOption = option switch
-            {
-                "SslOnConnect" => SecureSocketOptions.SslOnConnect,
-                "StartTls" => SecureSocketOptions.StartTls,
-                "None" => SecureSocketOptions.None,
-                _ => SecureSocketOptions.Auto
+                { "Name", _configuration["NotificationTemplates:NewUsers:Name"] + request.FirstName },
+                { "Message", _configuration["NotificationTemplates:NewUsers:Message"] + $"<strong>{request.CodeVerification}</strong>" },
+                { "Verification", _configuration["NotificationTemplates:NewUsers:Verification"] +
+                                  _configuration["NotificationTemplates:NewUsers:Message2"] +
+                                  _configuration["NotificationTemplates:NewUsers:LinkVerification"] }
             };
 
-            using var client = new SmtpClient();
-            try
-            {
-                await client.ConnectAsync(
-                _configuration["EmailSettings:SmtpServer"],
-                int.Parse(_configuration["EmailSettings:SmtpPort"]),
-                secureOption
-                );
+            var subject = _configuration["NotificationTemplates:NewUsers:Title"];
+            var recipients = new List<string> { request.Email };
 
-                await client.AuthenticateAsync(_configuration["EmailSettings:SenderEmail"], _configuration["EmailSettings:Password"]);
-                await client.SendAsync(message);
-                await client.DisconnectAsync(true);
-                return true;
-                
-
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException("Error al enviar el correo: " + ex.Message, ex);
-            }
+            return await SendTemplatedEmailAsync(subject, templatePath, variables, recipients);
         }
 
-        public async Task<bool> SendEmailToAdmins( string username, string company, int idUserRegister, string templatePath)
+
+        public async Task<bool> SendEmailToAdmins(string username, string company, int idUserRegister, string templatePath)
         {
-            if (!File.Exists(templatePath))
-                throw new FileNotFoundException("Plantilla no encontrada", templatePath);
-            List<string> adminEmails = _configuration.GetSection("EmailSettings:OnRegisterNotificationList").Get<List<string>>();
+            var adminEmails = _configuration.GetSection("EmailSettings:OnRegisterNotificationList").Get<List<string>>();
             var responsequestionnaire = await _questionnaireService.GetQuestionnaireByUser(idUserRegister) as List<QuestionDto>;
             var questionnaireHtml = Utils.GenerateHtmlQuestions(responsequestionnaire);
-            var html = await File.ReadAllTextAsync(templatePath);   
+
             var variables = new Dictionary<string, string>
             {
-                { "Name", _configuration.GetSection("NotificationTemplates:NewRegister:Name").Value },
-                { "Message", _configuration.GetSection("NotificationTemplates:NewRegister:Message").Value + $"<strong>{username}</strong>"+"<br/>"+
-                             _configuration.GetSection("NotificationTemplates:NewRegister:Message2").Value + $"<strong>{company}</strong>" +"<br/><br/>"+
-                             _configuration.GetSection("NotificationTemplates:NewRegister:Message3").Value + "<br/>"+
-                                                    questionnaireHtml
-            },
+                { "Name", _configuration["NotificationTemplates:NewRegister:Name"] },
+                { "Message", _configuration["NotificationTemplates:NewRegister:Message"] + $"<strong>{username}</strong><br/>" +
+                             _configuration["NotificationTemplates:NewRegister:Message2"] + $"<strong>{company}</strong><br/><br/>" +
+                             _configuration["NotificationTemplates:NewRegister:Message3"] + "<br/>" + questionnaireHtml },
                 { "Verification", "" }
             };
 
+            var subject = _configuration["NotificationTemplates:NewRegister:Title"];
+
+            return await SendTemplatedEmailAsync(subject, templatePath, variables, adminEmails);
+        }
+
+
+
+        public async Task<bool> SendTemplatedEmailAsync(string subject, string templatePath, Dictionary<string, string> variables, List<string> recipients)
+        {
+            if (!File.Exists(templatePath))
+                throw new FileNotFoundException("Plantilla no encontrada", templatePath);
+
+            var html = await File.ReadAllTextAsync(templatePath);
+
             foreach (var kv in variables)
             {
                 html = html.Replace($"{{{{{kv.Key}}}}}", kv.Value);
             }
 
             var message = new MimeMessage();
-            message.From.Add(new MailboxAddress(_configuration["EmailSettings:SenderName"], _configuration["EmailSettings:SenderEmail"]));
-            
-            foreach (var email in adminEmails)
+            message.From.Add(new MailboxAddress(
+                _configuration["EmailSettings:SenderName"],
+                _configuration["EmailSettings:SenderEmail"]
+            ));
+
+            foreach (var email in recipients)
             {
                 message.To.Add(MailboxAddress.Parse(email));
             }
 
-            message.Subject = _configuration.GetSection("NotificationTemplates:NewRegister:Title").Value;
+            message.Subject = subject;
             message.Body = new TextPart("html") { Text = html };
 
-
             var option = _configuration["EmailSettings:SecureSocketOption"];
-
             var secureOption = option switch
             {
                 "SslOnConnect" => SecureSocketOptions.SslOnConnect,
@@ -136,12 +100,16 @@ namespace UsaloYa.Services
             try
             {
                 await client.ConnectAsync(
-                _configuration["EmailSettings:SmtpServer"],
-                int.Parse(_configuration["EmailSettings:SmtpPort"]),
-                secureOption
+                    _configuration["EmailSettings:SmtpServer"],
+                    int.Parse(_configuration["EmailSettings:SmtpPort"]),
+                    secureOption
                 );
 
-                await client.AuthenticateAsync(_configuration["EmailSettings:SenderEmail"], _configuration["EmailSettings:Password"]);
+                await client.AuthenticateAsync(
+                    _configuration["EmailSettings:SenderEmail"],
+                    _configuration["EmailSettings:Password"]
+                );
+
                 await client.SendAsync(message);
                 await client.DisconnectAsync(true);
                 return true;
@@ -153,3 +121,4 @@ namespace UsaloYa.Services
         }
     }
 }
+

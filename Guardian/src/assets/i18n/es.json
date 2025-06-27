@@ -3,7 +3,8 @@
 
   "register_form": {
     "invalid_form": "Por favor corrige los errores del formulario",
-    "user_saved": "Datos de usuario capturados correctamente. Continúa con los datos de la compañía."
+    "user_saved": "Datos de usuario capturados correctamente. Continúa con los datos de la compañía.",
+    "error_register": "Error al registrar los datos de la compañía y el usuario"
   },
 
 
@@ -20,6 +21,14 @@
     "missing_data": "Faltan datos del usuario o de la empresa.",
     "sucess": "Registro completo. Se ha enviado un email de verificación.",
     "register_error": "Error al registrar: "
+  },
+
+  "emails":{
+    "email_send_error": "Error al enviar el correo electronico, por favor contactenos",
+    "email_send_ok": "Usuario registrado y correos enviados correctamente."
+  },
+  "data_base":{
+    "internal_server_error":"No se puede procesar la solicitud. Error interno del servidor."
   }
 
 }

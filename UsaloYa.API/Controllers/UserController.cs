@@ -212,7 +212,7 @@ namespace UsaloYa.API.Controllers
                         catch (Exception ex)
                         {
                             _logger.LogError(ex, "Error al enviar correo al nuevo usuario {Email}", result.Email);
-                            return StatusCode(500, new { message = "No se pudo enviar el correo al nuevo usuario." });
+                            return StatusCode(500, new { message = "email_send_error" });
                         }
 
                         try
@@ -222,39 +222,29 @@ namespace UsaloYa.API.Controllers
                         catch (Exception ex)
                         {
                             _logger.LogError(ex, "Error al notificar a los administradores sobre el nuevo usuario {Email}", result.Email);
-                            return StatusCode(500, new { message = "No se pudo notificar a los administradores." });
+                            return StatusCode(500, new { message = "email_send_error" });
                         }
                     }
                     catch (Exception ex)
                     {
                         _logger.LogError(ex, "Error general al procesar envío de correos para el usuario {Email}", result.Email);
-                        return StatusCode(500, new { message = "Ocurrió un error al enviar los correos." });
+                        return StatusCode(500, new { message = "email_send_error" });
                     }
 
                     return Ok(new
                     {
-                        message = "Usuario registrado y correos enviados correctamente."
+                        message = "email_send_ok"
                     });
                 }
 
-                return BadRequest(new { message = "No se pudieron registrar los datos." });
-            }
-            catch (InvalidOperationException ex) when (ex.Message.Contains("Company already exists"))
-            {
-                _logger.LogWarning("Registro fallido: empresa existente - {Company}", request.CompanyDto.Name);
-                return Conflict(new { message = "La empresa ya se encuentra registrada." });
-            }
-            catch (ValidationException ex)
-            {
-                _logger.LogWarning(ex, "Error de validación al registrar usuario.");
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
+                return BadRequest(new { message = "error_register" });
+                }
+                catch (Exception ex)
+                {
                 _logger.LogError(ex, "Error inesperado en RegisterNewUser.");
                 return StatusCode(500, new
                 {
-                    message = "No se puede procesar la solicitud. Error interno del servidor.",
+                    message = "internal_server_error",
                     detail = ex.Message
                 });
             }
