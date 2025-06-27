@@ -27,8 +27,13 @@
     "email_send_error": "Error al enviar el correo electronico, por favor contactenos",
     "email_send_ok": "Usuario registrado y correos enviados correctamente."
   },
+  
   "data_base":{
     "internal_server_error":"No se puede procesar la solicitud. Error interno del servidor."
+  },
+
+  "form-navigator": {
+    "missing_data": "Faltan campos obligatorios"
   }
 
 }

@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpBackend } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { finalize } from 'rxjs/operators';
 import { SaveQuestionDto } from '../dto/SaveQuestionDto';
 import { environment } from '../environments/enviroment';
 

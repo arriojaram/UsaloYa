@@ -11,6 +11,7 @@ import { SharedDataService } from '../services/shared-data.service';
 import { catchError, map, takeUntil } from 'rxjs/operators';
 import { of, Subject } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
+import { FormValidationService } from '../services/form-validation.service';
 
 @Component({
   selector: 'app-register',
@@ -32,7 +33,8 @@ export class RegisterComponent implements OnInit, OnDestroy {
     private registerDataService: RegisterDataService,
     private userService: UserService,
     private sharedDataService: SharedDataService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private validationService: FormValidationService
   ) { }
 
   ngOnInit(): void {
@@ -43,6 +45,15 @@ export class RegisterComponent implements OnInit, OnDestroy {
       username: [savedData?.userName || '', [Validators.required, Validators.pattern(/^[a-zA-Z0-9._-]{4,20}$/)], [this.usernameValidator()]],
       token: ['', [Validators.required, Validators.minLength(4)]]
     });
+    // Emitir estado inicial
+    this.validationService.setFormValid('register', this.registerForm.valid);
+    // Emitir en cada cambio de validez
+    this.registerForm.statusChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.validationService.setFormValid('register', this.registerForm.valid);
+      });
+
   }
 
   onSubmit(): void {
@@ -70,11 +81,6 @@ export class RegisterComponent implements OnInit, OnDestroy {
 
     this.registerDataService.setUserData(payload);
     this.sharedDataService.setEmail(formValue.email);
-
-    this.navigationService.showUIMessage(
-      this.translate.instant('register_form.user_saved'),
-      AlertLevel.Sucess
-    );
 
     this.loading = false;
 
