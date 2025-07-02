@@ -265,13 +265,13 @@ namespace UsaloYa.Services
 
             var existingProduct = await _dBContext.Products
                 .FirstOrDefaultAsync(p => p.ProductId == productDto.ProductId && p.CompanyId == companyId);
-
+            
             var productWithSameBarcodeAndSku = _dBContext.Products
-                .Where(p => (p.Barcode == productDto.Barcode || p.Sku == productDto.SKU) && p.CompanyId == companyId);
+                .Where(p => (p.Barcode == productDto.Barcode || (productDto.SKU != null && p.Sku == productDto.SKU)) && p.CompanyId == companyId);
 
             var numOfProducts = await productWithSameBarcodeAndSku.CountAsync();
             if (numOfProducts > 1 || (numOfProducts > 0 && productWithSameBarcodeAndSku.First().ProductId != productDto.ProductId)) return null;
-
+            
             if (existingProduct == null && productDto.ProductId == 0)
             {
                 if (user.CompanyStatusId == (int)CompanyStatus.Free)

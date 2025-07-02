@@ -1,4 +1,6 @@
 ﻿
+using System.Text.Json.Serialization;
+
 namespace UsaloYa.Library.Models;
 
 
@@ -59,6 +61,7 @@ public partial class Product
 
     public virtual ProductCategory? Category { get; set; }
 
+    [JsonIgnore]
     public virtual Company Company { get; set; } = null!;
 
     public virtual ICollection<SaleDetail> SaleDetails { get; set; } = new List<SaleDetail>();
