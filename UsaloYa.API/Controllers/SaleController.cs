@@ -31,9 +31,12 @@ namespace UsaloYa.API.Controllers
                 int saleId = await _saleService.AddSale(sale);
 
                 if (sale.SaleDetailsList != null)
+                    
                     await _saleService.AddProductsToSale(saleId, sale.SaleDetailsList);
 
-                return Ok(saleId);
+                    var folio = await _saleService.AddFolioSale(saleId, sale.CompanyId);
+
+                return Ok(new {saleId, folio});
             }
             catch (Exception ex)
             {

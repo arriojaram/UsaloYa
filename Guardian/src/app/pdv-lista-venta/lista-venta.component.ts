@@ -45,6 +45,7 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
   selectedCustomer: customerDto | undefined;  
   filteredCustomer: customerDto[] = [];  
   new: any;
+  folio: string;
 
   constructor(
     private router: Router,
@@ -60,6 +61,7 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
     this.isHidden = true;
     this.metodoPago = "";
     this.numVenta = "-1";
+    this.folio = "-1";
     this.userState = this.userStateService.getUserStateLocalStorage();
   }
 
@@ -182,6 +184,7 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
   generatePrintableTicket() {
     const companyName = this.userState.companyName;
     const ventaNumber = this.numVenta;
+    const ventaFolio = this.folio;
     const fechaHora = new Date().toLocaleString();  // Asumiendo que `fechaHora` se calcula así
     const products = this.ventaService.saleProductsGrouped;
     const totalVenta = this.ventaService.getTotalVenta();
@@ -198,24 +201,23 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
       const total = product.total.toFixed(2); 
 
       productListHtml += `<div>${count}${name} ${precio} ${total}</div>`;
-      productList += `${count}${name} ${precio} ${total}
-`;
+      productList += `${count}${name} ${precio} ${total}`;
     });
-    
-
     let ticket: string = `     *** ${companyName} ***
-${ventaNumber} 
-Fecha: ${fechaHora}
-Cant. Nombre   Precio   Importe
-${productList}
-Total: $${totalVenta.toFixed(2)}
-Recibido: $${this.pagoRecibido?.toFixed(2)}
-Cambio: $${cambio.toFixed(2)}    
-Cajero: ${cashierName}
+    ${ventaNumber}
+    ${ventaFolio} 
+    Fecha: ${fechaHora}
+    Cant. Nombre   Precio   Importe
+    ${productList}
+    Total: $${totalVenta.toFixed(2)}
+    Recibido: $${this.pagoRecibido?.toFixed(2)}
+    Cambio: $${cambio.toFixed(2)}    
+    Cajero: ${cashierName}
     ¡Gracias por su compra!`;
     
     let ticketHtml: string = `<div style="font-size: 13px; display: flex; justify-content: center;">*** ${companyName} ***</div>
     <div style="font-size: 12px;">${ventaNumber}</div>
+    <div style="font-size: 12px;">${ventaFolio}</div>
     <div style="font-size: 12px;">Fecha: ${fechaHora}</div>
     <div style="font-size: 12px;"><strong>Cant. Nombre   Precio   Importe</strong></div>
     <div style="font-size: 12px;">${productListHtml}</div><br>
@@ -356,8 +358,9 @@ Cajero: ${cashierName}
           next: (response) => 
           {
             
-            this.message = `Venta registrada: ${response}`;
-            this.numVenta = 'Num. Venta: ' + response;
+            this.message = `Venta registrada: ${response.saleId}`;
+            this.numVenta = 'Num. Venta: ' + response.saleId;
+            this.folio = 'Folio : ' + response.folio;
             this.messageClass = "alert  alert-success mt-2";
             this.showTicket();
           

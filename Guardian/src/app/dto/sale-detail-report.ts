@@ -1,5 +1,6 @@
 export interface SaleDetailReport {
     saleID: number;
+    folio : number;
     saleDate: Date;
     userId: number;
     userName: string;

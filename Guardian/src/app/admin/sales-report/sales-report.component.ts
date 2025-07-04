@@ -34,6 +34,7 @@ export class SalesReportComponent implements OnInit, OnDestroy {
   isAutorized: boolean = false;
   selectedSaleTotal: number = 0;
   selectedSaleId: number = 0;
+  selectedFolio: number = 0;
   showColumns = false;
   companyUsers: userDto[] | undefined;
   selectedUserName: string | undefined;
@@ -109,8 +110,8 @@ export class SalesReportComponent implements OnInit, OnDestroy {
     });
   }
   
-  redirectToDetails(saleId: number) {
-    this.getSale(saleId);
+  redirectToDetails(saleId: number, folio : number) {
+    this.getSale(saleId, folio);
     this.showMainReport = false;
     this.selectedSaleId = 0;
     this.selectedSaleTotal = 0;
@@ -151,7 +152,7 @@ export class SalesReportComponent implements OnInit, OnDestroy {
     });
   }
 
-  getSale(saleId: number): void {
+  getSale(saleId: number, folio: number): void {
     const userId = 0;
     this.saleProducts = [];
     this.filteredProducts = [];
@@ -183,6 +184,7 @@ export class SalesReportComponent implements OnInit, OnDestroy {
           this.filteredProducts = data;
           this.selectedSaleTotal = data.reduce((a, i) => a + i.totalPrice, 0 );
           this.selectedSaleId = saleId;
+          this.selectedFolio = folio;
         }
         else
         {

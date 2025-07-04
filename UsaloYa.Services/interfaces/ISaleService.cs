@@ -16,5 +16,8 @@ namespace UsaloYa.Services.interfaces
         Task<bool> UpdateTotalSale(int saleId, decimal totalSale);
         Task<bool> UpdateSaleStatus(int saleId, SaleStatus status);
         Task<bool> UpdateStockAfterStatusChange(int saleId, int companyId, bool isCancelAction);
+        Task<int?> AddFolioSale(int saleId, int CompanyId);
+
+
     }
 }

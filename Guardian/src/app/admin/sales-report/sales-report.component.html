@@ -87,7 +87,7 @@
                 <td>
                     <button class="btn btn-sm btn-primary" 
                         [disabled]="this.userState.companyStatusId == cStatus.Free"
-                        (click)="redirectToDetails(sale.saleID)">Ver Detalle</button>
+                        (click)="redirectToDetails(sale.saleID, sale.folio)">Ver Detalle</button>
                 </td>
             </tr>
         </tbody>
@@ -141,6 +141,7 @@
     </table>
     <div class="fs-4 d-flex justify-content-between" style="font-weight: bold;">
         <span>Venta-{{selectedSaleId}}</span>
+        <span>Folio-{{selectedFolio}}</span>
         <span>Total {{ selectedSaleTotal | currency:'MXN'}}</span>
     </div>
 </div>
