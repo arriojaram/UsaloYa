@@ -32,6 +32,7 @@ namespace UsaloYa.Services
                 {
                      
                     SaleID = r.SaleId,
+                    Folio = r.Folio,
                     SaleDate = r.SaleDate,
                     UserId = r.UserId,
                     UserName = r.User.UserName,
