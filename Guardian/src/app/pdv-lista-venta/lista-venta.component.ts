@@ -204,8 +204,7 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
       productList += `${count}${name} ${precio} ${total}`;
     });
     let ticket: string = `     *** ${companyName} ***
-    ${ventaNumber}
-    ${ventaFolio} 
+    ${ventaNumber} | ${ventaFolio} 
     Fecha: ${fechaHora}
     Cant. Nombre   Precio   Importe
     ${productList}
@@ -216,8 +215,7 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
     ¡Gracias por su compra!`;
     
     let ticketHtml: string = `<div style="font-size: 13px; display: flex; justify-content: center;">*** ${companyName} ***</div>
-    <div style="font-size: 12px;">${ventaNumber}</div>
-    <div style="font-size: 12px;">${ventaFolio}</div>
+    <div style="font-size: 12px;">${ventaNumber} | ${ventaFolio}</div>
     <div style="font-size: 12px;">Fecha: ${fechaHora}</div>
     <div style="font-size: 12px;"><strong>Cant. Nombre   Precio   Importe</strong></div>
     <div style="font-size: 12px;">${productListHtml}</div><br>
@@ -359,7 +357,7 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
           {
             
             this.message = `Venta registrada: ${response.saleId}`;
-            this.numVenta = 'Num. Venta: ' + response.saleId;
+            this.numVenta = 'ID: ' + response.saleId;
             this.folio = 'Folio : ' + response.folio;
             this.messageClass = "alert  alert-success mt-2";
             this.showTicket();
