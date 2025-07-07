@@ -48,6 +48,7 @@
         <thead>
             <tr>
                 <th class="d-none d-md-table-cell" [ngClass]="{'d-none d-md-table-cell': !showColumns}">Fecha</th>
+                 <th class="d-none d-md-table-cell" [ngClass]="{'d-none d-md-table-cell': !showColumns}">Folio</th>
                 <th>Cliente</th>
                 <th class="d-none d-md-table-cell" [ngClass]="{'d-none d-md-table-cell': !showColumns}">Notas</th>
                 <th class="d-none d-md-table-cell" [ngClass]="{'d-none d-md-table-cell': !showColumns}">Pago</th>
@@ -67,6 +68,7 @@
             <tr *ngFor="let sale of filteredSales">
                 
                 <td class="d-none d-md-table-cell" [ngClass]="{'d-none d-md-table-cell': !showColumns}">{{ sale.saleDate | date:'medium' }}</td>
+                <td class="d-none d-md-table-cell" [ngClass]="{'d-none d-md-table-cell': !showColumns}">{{ sale.folio }}</td>
                 <td>{{ sale.customerName }}</td>
                 <td class="d-none d-md-table-cell" [ngClass]="{'d-none d-md-table-cell': !showColumns}">{{ sale.notes }}</td>
                 <td class="d-none d-md-table-cell" [ngClass]="{'d-none d-md-table-cell': !showColumns}">{{ sale.payment }}</td>
