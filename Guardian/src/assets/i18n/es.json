@@ -34,6 +34,19 @@
 
   "form-navigator": {
     "missing_data": "Faltan campos obligatorios"
+  },
+  
+   "product": {
+    "invalid_quantity_unit": "El producto está configurado como 'Unidad' y no puede tener cantidad decimal.",
+    "stock_updated": "Se agregaron las nuevas configuraciones a las existencias del producto.",
+    "stock_update_error": "No se pudo actualizar el inventario.",
+    "missing_measure": "La medida del producto es obligatoria.",
+    "save_success": "Producto guardado correctamente.",
+    "save_error": "No se pudo guardar el producto.",
+    "not_found": "El producto no fue encontrado.",
+    "no_products_category": "No hay productos en la categoría seleccionada.",
+    "search_error": "Error al buscar productos.",
+    "invalid_stock_input": "La cantidad ingresada no es válida."
   }
 
 }

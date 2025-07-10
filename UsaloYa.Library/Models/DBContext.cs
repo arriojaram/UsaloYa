@@ -218,6 +218,13 @@ public partial class DBContext : DbContext
             entity.Property(e => e.UnitPrice3).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.Weight).HasColumnType("decimal(10, 2)");
 
+            entity.Property(e => e.Measure)
+      .HasMaxLength(20)
+      .IsUnicode(false)
+      .IsRequired()
+      .HasDefaultValue("Unidad");
+
+
             entity.HasOne(d => d.Category).WithMany(p => p.Products)
                 .HasForeignKey(d => d.CategoryId)
                 .HasConstraintName("FK_Products_ProductCategory");

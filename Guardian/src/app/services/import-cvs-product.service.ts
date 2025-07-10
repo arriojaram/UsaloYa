@@ -39,6 +39,7 @@ export class ImportCvsProductService {
       unitPrice2: parseFloat(row.Precio2) || 0,
       unitPrice3: parseFloat(row.Precio3) || 0,
       unitsInStock: parseInt(row.UnidadesEnStock) || 0,
+       measure: row.Medida.trim() || '',//tipo de medida
       discontinued: false, // Assuming a default value
       sku: row.Sku.trim() || '',
       barcode: row.CodigoBarras.trim() || '',

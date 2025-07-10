@@ -14,7 +14,9 @@
         public decimal? UnitPrice2 { get; set; }
         public decimal? UnitPrice3 { get; set; }
 
-        public int UnitsInStock { get; set; }
+        public decimal UnitsInStock { get; set; }
+
+        public string Measure {  get; set; }
         public bool Discontinued { get; set; }
        
         public string? SKU { get; set; }

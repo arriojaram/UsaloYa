@@ -18,7 +18,9 @@ public partial class Product
 
     public decimal? UnitPrice { get; set; }
 
-    public int UnitsInStock { get; set; }
+    public decimal UnitsInStock { get; set; }
+
+    public string Measure { get; set; } 
 
     public bool Discontinued { get; set; }
 

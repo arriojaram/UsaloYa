@@ -141,7 +141,8 @@ namespace UsaloYa.Services
                 UnitPrice1 = p.UnitPrice1,
                 UnitPrice2 = p.UnitPrice2,
                 UnitPrice3 = p.UnitPrice3,
-                UnitsInStock = p.UnitsInStock
+                UnitsInStock = p.UnitsInStock,
+                Measure = p.Measure
             }).ToList();
         }
 
@@ -166,6 +167,7 @@ namespace UsaloYa.Services
                 UnitPrice2 = product.UnitPrice2,
                 UnitPrice3 = product.UnitPrice3,
                 UnitsInStock = product.UnitsInStock,
+                Measure = product.Measure,
                 LowInventoryStart = product.AlertaStockNumProducts,
                 IsInventarioUpdated = product.IsInVentarioUpdated
             };
@@ -219,6 +221,9 @@ namespace UsaloYa.Services
                     UnitPrice2 = productDto.UnitPrice2 == 0 ? null : productDto.UnitPrice2,
                     UnitPrice3 = productDto.UnitPrice3 == 0 ? null : productDto.UnitPrice3,
                     UnitsInStock = productDto.UnitsInStock,
+
+                    Measure = productDto.Measure,
+
                     Discontinued = productDto.Discontinued,
                     DateModified = Utils.GetMxDateTime(),
                     Sku = string.IsNullOrEmpty(productDto.SKU) ? null : productDto.SKU,
@@ -280,6 +285,12 @@ namespace UsaloYa.Services
                     if (numExistingRecords >= _settings.FreeRoleMaxProducts) return null;
                 }
 
+             /*   var measure = productDto.Measure?.Trim();
+                if (measure != "Unidad" && measure != "Kg")
+                {
+                    measure = "Unidad";
+                }*/
+
                 existingProduct = new Product
                 {
                     Name = productDto.Name.Trim(),
@@ -291,6 +302,9 @@ namespace UsaloYa.Services
                     UnitPrice2 = productDto.UnitPrice2,
                     UnitPrice3 = productDto.UnitPrice3,
                     UnitsInStock = productDto.UnitsInStock,
+                    
+                    Measure=productDto.Measure,
+
                     Discontinued = productDto.Discontinued,
                     DateModified = Utils.GetMxDateTime(),
                     Sku = string.IsNullOrEmpty(productDto.SKU) ? null : productDto.SKU,
@@ -314,6 +328,9 @@ namespace UsaloYa.Services
                 existingProduct.UnitPrice2 = productDto.UnitPrice2;
                 existingProduct.UnitPrice3 = productDto.UnitPrice3;
                 existingProduct.UnitsInStock = productDto.UnitsInStock;
+
+                existingProduct.Measure = productDto.Measure;
+
                 existingProduct.Discontinued = productDto.Discontinued;
                 existingProduct.DateModified = Utils.GetMxDateTime();
                 existingProduct.Sku = string.IsNullOrEmpty(productDto.SKU) ? null : productDto.SKU;
@@ -354,6 +371,7 @@ namespace UsaloYa.Services
                     Name = p.Name,
                     CompanyId = p.CompanyId,
                     UnitsInStock = p.UnitsInStock,
+                    Measure = p.Measure,
                     TotalCashStock = p.UnitsInStock * p.UnitPrice,
                     UnitsInVentario = p.InVentario ?? 0,
                     AlertaStockNumProducts = p.AlertaStockNumProducts,
@@ -381,6 +399,7 @@ namespace UsaloYa.Services
                     Name = p.Name,
                     CompanyId = p.CompanyId,
                     UnitsInStock = p.UnitsInStock,
+                    Measure = p.Measure,
                     TotalCashStock = p.UnitsInStock * p.UnitPrice,
                     UnitsInVentario = p.InVentario ?? 0,
                     AlertaStockNumProducts = p.AlertaStockNumProducts,
@@ -415,6 +434,7 @@ namespace UsaloYa.Services
                     Name = p.Name,
                     CompanyId = p.CompanyId,
                     UnitsInStock = p.UnitsInStock,
+                    Measure = p.Measure,
                     TotalCashStock = p.UnitsInStock * p.UnitPrice,
                     UnitsInVentario = p.InVentario ?? 0,
                     AlertaStockNumProducts = p.AlertaStockNumProducts,
@@ -435,7 +455,7 @@ namespace UsaloYa.Services
         public async Task<InventoryDto> GetInventarioTop50(string keyword, int companyId, int pageNumber)
         {
             int pageSize = 50;
-            int totalInventoryProds = 0;
+            decimal totalInventoryProds = 0;
             decimal totalInventoryCash = 0;
 
             keyword = keyword.Trim();
@@ -451,6 +471,7 @@ namespace UsaloYa.Services
                         Name = p.Name,
                         CompanyId = p.CompanyId,
                         UnitsInStock = p.UnitsInStock,
+                        Measure = p.Measure,
                         TotalCashStock = p.UnitsInStock * p.UnitPrice,
                         UnitsInVentario = p.InVentario ?? 0,
                         AlertaStockNumProducts = p.AlertaStockNumProducts,
@@ -474,6 +495,7 @@ namespace UsaloYa.Services
                         Name = p.Name,
                         CompanyId = p.CompanyId,
                         UnitsInStock = p.UnitsInStock,
+                        Measure = p.Measure,
                         TotalCashStock = p.UnitsInStock * p.UnitPrice,
                         UnitsInVentario = p.InVentario ?? 0,
                         AlertaStockNumProducts = p.AlertaStockNumProducts,
@@ -495,6 +517,7 @@ namespace UsaloYa.Services
                     UnitPrice = p.UnitPrice ?? 0,
                     ProductId = p.ProductId,
                     UnitsInStock = p.UnitsInStock,
+                    Measure = p.Measure,
                     Discontinued = p.Discontinued
                 })
                 .Where(p => p.CompanyId == companyId && !p.Discontinued)
@@ -531,6 +554,7 @@ namespace UsaloYa.Services
                     Name = p.Name,
                     CompanyId = p.CompanyId,
                     UnitsInStock = p.UnitsInStock,
+                    Measure=p.Measure,
                     TotalCashStock = p.UnitsInStock * p.UnitPrice,
                     UnitsInVentario = p.InVentario ?? 0,
                     AlertaStockNumProducts = p.AlertaStockNumProducts,
@@ -570,6 +594,7 @@ namespace UsaloYa.Services
                     Name = product.Name,
                     CompanyId = product.CompanyId,
                     UnitsInStock = product.UnitsInStock,
+                    Measure=product.Measure,
                     TotalCashStock = product.UnitsInStock * product.UnitPrice,
                     UnitsInVentario = product.InVentario ?? 0,
                     AlertaStockNumProducts = product.AlertaStockNumProducts,
@@ -594,7 +619,7 @@ namespace UsaloYa.Services
             return true;
         }
 
-        public async Task<int> SetUnitsInStockByProductId(int productId, int companyId)
+        public async Task<decimal> SetUnitsInStockByProductId(int productId, int companyId)
         {
             var product = await _dBContext.Products.FirstOrDefaultAsync(p => p.ProductId == productId && p.CompanyId == companyId);
             if (product != null)
@@ -609,7 +634,7 @@ namespace UsaloYa.Services
             return -1;
         }
 
-        public async Task<int> SetUnitsInStock(int productId, int unitsInStock, bool isHardReset, int companyId)
+        public async Task<decimal> SetUnitsInStock(int productId, decimal unitsInStock, bool isHardReset, int companyId)
         {
             var product = await _dBContext.Products.FirstOrDefaultAsync(p => p.ProductId == productId && p.CompanyId == companyId);
 
