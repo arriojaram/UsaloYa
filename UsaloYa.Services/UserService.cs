@@ -69,9 +69,13 @@ namespace UsaloYa.Services
                     userToSave.LastUpdateBy = _configuration.GetValue<int>("SelfRegisterDefaults:LastUpdateBy");
                     userToSave.GroupId = _configuration.GetValue<int>("SelfRegisterDefaults:GroupId");
                 }
-                userToSave.CreatedBy = userDto.CreatedBy;
-                userToSave.LastUpdateBy = userDto.LastUpdatedBy;
-                userToSave.GroupId = userDto.GroupId;
+                else
+                {
+                    userToSave.CreatedBy = userDto.CreatedBy;
+                    userToSave.LastUpdateBy = userDto.LastUpdatedBy;
+                    userToSave.GroupId = userDto.GroupId;
+                    userToSave.IsVerifiedCode = true;
+                }
 
                 _dBContext.Users.Add(userToSave);
         
