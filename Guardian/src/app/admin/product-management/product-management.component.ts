@@ -13,6 +13,7 @@ import { setUnitsInStockDto } from '../../dto/setUnitsInStockDto';
 import { productCategoryDto } from '../../dto/productCategoryDto';
 import { ProductCategoryService } from '../../services/product-category.service';
 import { TranslateService } from '@ngx-translate/core';
+import { MeasureType } from '../../Enums/enums';
 
 @Component({
   selector: 'app-product-management',
@@ -29,7 +30,7 @@ export class ProductManagementComponent implements OnInit {
   selectedProduct: Producto | null = null;
   userState: userDto;
   showAddInventarioBox: boolean = false;
-
+  measr = MeasureType;
   pageNumber: number = 1;
   rol = Roles;
   cStatus = CompanyStatus;
@@ -74,7 +75,7 @@ export class ProductManagementComponent implements OnInit {
       companyId: [1, Validators.required],
       lowInventoryStart: [0],
       addToInventoryVal: [0],
-      measure: ['', Validators.required],
+      measure: [MeasureType.Ud, Validators.required],
     });
   }
 
@@ -94,14 +95,11 @@ export class ProductManagementComponent implements OnInit {
       let addVal = this.productForm.get('addToInventoryVal')?.value;
       let productId = this.productForm.get('productId')?.value;
       // Obtener medida
-      const measure = this.productForm.get('measure')?.value?.toLowerCase().trim();
+      const measure = this.productForm.get('measure')?.value;
 
       // Validar que productos de medida "unidad" no tengan decimales
-      if (measure === 'unidad' && addVal % 1 !== 0) {
-        this.navigationService.showUIMessage(
-          this.translate.instant('product.invalid_quantity_unit'),
-          AlertLevel.Warning
-        );
+      if (measure === MeasureType.Ud && addVal % 1 !== 0) {
+        this.navigationService.showUIMessage(this.translate.instant('product.invalid_quantity_unit'), AlertLevel.Warning);
         return; // Detener el proceso
       }
 
@@ -118,7 +116,7 @@ export class ProductManagementComponent implements OnInit {
               this.productForm.get('unitsInStock')?.setValue(newStock);
             },
             error: (err) => {
-              this.navigationService.showUIMessage("No se pudo actualizar el inventario.", AlertLevel.Error);
+              this.navigationService.showUIMessage(this.translate.instant('product.stock_update_error'), AlertLevel.Error);
               this.productForm.get('addToInventoryVal')?.setValue(0);
               console.log("No se pudo actualizar el inventario " + err);
             },
@@ -137,7 +135,7 @@ export class ProductManagementComponent implements OnInit {
       .subscribe({
         next: (products) => {
           if (products.length == 0)
-            this.navigationService.showUIMessage('No hay productos en la categoria seleccionada.');
+            this.navigationService.showUIMessage(this.translate.instant('product.no_products_category'));
 
           this.products = products.sort((a, b) => a.name.localeCompare(b.name));
         }
@@ -201,9 +199,9 @@ export class ProductManagementComponent implements OnInit {
             if (this.pageNumber > 1)
               this.moreItems = false;
             else
-              this.navigationService.showUIMessage("El producto no fue encontrado.");
+              this.navigationService.showUIMessage(this.translate.instant('product.not_found'));
           } else {
-            this.navigationService.showUIMessage("Error al procesar la solicitud. Servidor no disponible");
+            this.navigationService.showUIMessage(this.translate.instant('product.error_application'));
           }
         },
       });
@@ -223,9 +221,9 @@ export class ProductManagementComponent implements OnInit {
             if (this.pageNumber > 1)
               this.moreItems = false;
             else
-              this.navigationService.showUIMessage("El producto no fue encontrado.");
+              this.navigationService.showUIMessage(this.translate.instant('product.not_found'));
           } else {
-            this.navigationService.showUIMessage("Error al procesar la solicitud. Servidor no disponible");
+            this.navigationService.showUIMessage(this.translate.instant('product.error_application'));
           }
         },
       });
@@ -250,11 +248,11 @@ export class ProductManagementComponent implements OnInit {
       this.productForm.markAllAsTouched();
       return;
     }
-    const measure = this.productForm.get('measure')?.value?.toLowerCase().trim();
+    const measure = this.productForm.get('measure')?.value;
     let units = this.productForm.get('unitsInStock')?.value;
 
     // Si la medida es "unidad" y tiene decimales, truncamos a entero
-    if (measure === 'unidad' && units % 1 !== 0) {
+    if (measure === MeasureType.Ud && units % 1 !== 0) {
       this.productForm.get('unitsInStock')?.setValue(Math.floor(units));
     }
     if (this.productForm.valid) {
@@ -270,14 +268,14 @@ export class ProductManagementComponent implements OnInit {
               this.products.unshift(savedProduct);
 
             this.selectProduct(savedProduct.productId);
-            this.navigationService.showUIMessage("Producto guardado (" + savedProduct.productId + ")", AlertLevel.Sucess);
+            this.navigationService.showUIMessage(this.translate.instant('product.save_success') + ' (' + savedProduct.productId + ')', AlertLevel.Sucess);
           },
           error: (e) => {
             this.navigationService.showUIMessage(e.error.message);
           }
         });
     } else {
-      this.navigationService.showUIMessage('Proporciona toda la información requerida', AlertLevel.Warning);
+      this.navigationService.showUIMessage(this.translate.instant('product.information_missing'), AlertLevel.Warning);
     }
   }
 

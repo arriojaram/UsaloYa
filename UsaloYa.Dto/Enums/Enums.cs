@@ -15,7 +15,7 @@
         Cancelada = 1
     }
     public enum RentTypeId
-    { 
+    {
         Desconocido = 0,
         Mensualidad = 1,
         Condonacion = 2,
@@ -23,7 +23,7 @@
     }
 
     public enum Role
-    { 
+    {
         Unknown = 0,
         User = 1,
         Admin = 2,
@@ -39,6 +39,11 @@
         Expired = 2,
         Active = 3,
         Free = 4
+    }
+    public enum MeasureType
+    {
+        Unidad = 1,
+        Kg = 2
     }
 
     public static class EConverter

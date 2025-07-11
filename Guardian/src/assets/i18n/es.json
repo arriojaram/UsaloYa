@@ -1,52 +1,47 @@
 {
-
-
   "register_form": {
     "invalid_form": "Por favor corrige los errores del formulario",
     "user_saved": "Datos de usuario capturados correctamente. Continúa con los datos de la compañía.",
     "error_register": "Error al registrar los datos de la compañía y el usuario"
   },
-
-
   "register_company": {
     "missing_user_data": "Por favor registra primero los datos del usuario.",
     "invalid_form": "Formulario inválido",
     "incomplete_user_data": "Faltan los datos del usuario. Por favor regístrate primero.",
     "company_saved": "Datos de la compañía guardados correctamente. Continúa con las preguntas."
   },
-
-  
   "questions": {
     "load_error": "Error al cargar las preguntas. Intenta más tarde.",
     "missing_data": "Faltan datos del usuario o de la empresa.",
     "sucess": "Registro completo. Se ha enviado un email de verificación.",
     "register_error": "Error al registrar: "
   },
-
-  "emails":{
-    "email_send_error": "Error al enviar el correo electronico, por favor contactenos",
-    "email_send_ok": "Usuario registrado y correos enviados correctamente."
-  },
-  
-  "data_base":{
-    "internal_server_error":"No se puede procesar la solicitud. Error interno del servidor."
-  },
-
-  "form-navigator": {
-    "missing_data": "Faltan campos obligatorios"
-  },
-  
-   "product": {
+  "product": {
     "invalid_quantity_unit": "El producto está configurado como 'Unidad' y no puede tener cantidad decimal.",
     "stock_updated": "Se agregaron las nuevas configuraciones a las existencias del producto.",
     "stock_update_error": "No se pudo actualizar el inventario.",
-    "missing_measure": "La medida del producto es obligatoria.",
-    "save_success": "Producto guardado correctamente.",
-    "save_error": "No se pudo guardar el producto.",
+    "save_success": "Producto guardado",
     "not_found": "El producto no fue encontrado.",
     "no_products_category": "No hay productos en la categoría seleccionada.",
-    "search_error": "Error al buscar productos.",
-    "invalid_stock_input": "La cantidad ingresada no es válida."
-  }
+    "error_application": "Error al procesar la solicitud. Servidor no disponible.",
+    "information_missing": "Proporciona toda la información requerida"
+  },
+  "list_sale": {
+    "invalid_quantity_unit": "El producto está configurado como 'Unidad' y no puede tener cantidad decimal.",
+    "client_not_found": "No hay clientes con el nombre:",
+    "amount_must_be_positive": "El valor debe ser mayor que cero.",
+    "missing_received_amount": "No has agregado la cantidad de dinero recibida"
+  },
 
+  
+  "emails": {
+    "email_send_error": "Error al enviar el correo electronico, por favor contactenos",
+    "email_send_ok": "Usuario registrado y correos enviados correctamente."
+  },
+  "data_base": {
+    "internal_server_error": "No se puede procesar la solicitud. Error interno del servidor."
+  },
+  "form-navigator": {
+    "missing_data": "Faltan campos obligatorios"
+  }
 }

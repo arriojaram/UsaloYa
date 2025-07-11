@@ -285,11 +285,6 @@ namespace UsaloYa.Services
                     if (numExistingRecords >= _settings.FreeRoleMaxProducts) return null;
                 }
 
-             /*   var measure = productDto.Measure?.Trim();
-                if (measure != "Unidad" && measure != "Kg")
-                {
-                    measure = "Unidad";
-                }*/
 
                 existingProduct = new Product
                 {
@@ -594,7 +589,7 @@ namespace UsaloYa.Services
                     Name = product.Name,
                     CompanyId = product.CompanyId,
                     UnitsInStock = product.UnitsInStock,
-                    Measure=product.Measure,
+                    Measure= product.Measure,
                     TotalCashStock = product.UnitsInStock * product.UnitPrice,
                     UnitsInVentario = product.InVentario ?? 0,
                     AlertaStockNumProducts = product.AlertaStockNumProducts,

@@ -20,7 +20,7 @@ public partial class Product
 
     public decimal UnitsInStock { get; set; }
 
-    public string Measure { get; set; } 
+    public int Measure { get; set; } 
 
     public bool Discontinued { get; set; }
 

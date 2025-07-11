@@ -7,7 +7,7 @@
         public decimal UnitPrice { get; set; }
         public decimal UnitsInStock { get; set; }
         
-        public string Measure { get; set; }
+        public int Measure { get; set; }
         public bool Discontinued { get; set; }
     }
 }

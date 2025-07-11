@@ -16,7 +16,7 @@
         public string Barcode { get; set; }
         public decimal? UnitsInStock { get; set; }
 
-        public string Measure { get; set; }
+        public int Measure { get; set; }
         public decimal? TotalCashStock { get; set; }
         public decimal? UnitsInVentario { get; set; }
         public int? InVentarioAlertLevel { get; set; } //3:Normal, 2:Warning, 1:Critial

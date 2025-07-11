@@ -13,7 +13,7 @@ export interface Producto {
   unitPrice2: number,
   unitPrice3: number,
   unitsInStock: number;
-  measure: string;
+  measure: number;
   discontinued: boolean;
   sku: string;
   barcode: string;

@@ -73,18 +73,11 @@ namespace UsaloYa.Services
             foreach (var detail in saleDetails)
             {
                 var productDb = await _dBContext.Products
-        .AsNoTracking()
+                 .AsNoTracking()
         .FirstOrDefaultAsync(p => p.ProductId == detail.ProductId);
 
                 if (productDb == null)
                     throw new Exception($"Producto con ID {detail.ProductId} no encontrado.");
-                var measure = productDb.Measure?.Trim().ToLower();
-
-                // Validación de medida vs cantidad
-                if (measure == "unidad" && detail.Quantity % 1 != 0)
-                    throw new Exception($"El producto '{productDb.Name}' está configurado como 'Unidad' y no puede tener cantidad decimal ({detail.Quantity}).");
-                totalSale += detail.TotalPrice;
-
                 var product = new SaleDetail
                 {
                     SaleId = saleId,
