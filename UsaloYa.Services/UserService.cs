@@ -1,19 +1,20 @@
-﻿    using Microsoft.EntityFrameworkCore;
+﻿using Azure.Core;
+    using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using UsaloYa.Dto.Utils;
 using UsaloYa.Dto;
-using UsaloYa.Library.Models;
-using UsaloYa.Library.Config;
-using UsaloYa.Services.interfaces;
 using UsaloYa.Dto.Enums;
-using System.Runtime;
-using Microsoft.Extensions.Configuration;
-using System.Security.Cryptography;
-using Azure.Core;
+using UsaloYa.Dto.Utils;
+using UsaloYa.Library.Config;
+using UsaloYa.Library.Models;
+using UsaloYa.Services.interfaces;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 
 namespace UsaloYa.Services
@@ -62,13 +63,16 @@ namespace UsaloYa.Services
                         RoleId = userDto.RoleId,
                         CodeVerification = userDto.CodeVerification
                     };
-
-                    if (userDto.LastUpdatedBy == 0 || userDto.CreatedBy == 0 || userDto.GroupId == 0)
-                    {
-                        userToSave.CreatedBy = _configuration.GetValue<int>("SelfRegisterDefaults:CreatedBy");
-                        userToSave.LastUpdateBy = _configuration.GetValue<int>("SelfRegisterDefaults:LastUpdateBy");
+                if (userDto.LastUpdatedBy == 0 || userDto.CreatedBy == 0 || userDto.GroupId == 0)
+                {
+                    userToSave.CreatedBy = _configuration.GetValue<int>("SelfRegisterDefaults:CreatedBy");
+                    userToSave.LastUpdateBy = _configuration.GetValue<int>("SelfRegisterDefaults:LastUpdateBy");
                     userToSave.GroupId = _configuration.GetValue<int>("SelfRegisterDefaults:GroupId");
-                    }
+                }
+                userToSave.CreatedBy = userDto.CreatedBy;
+                userToSave.LastUpdateBy = userDto.LastUpdatedBy;
+                userToSave.GroupId = userDto.GroupId;
+
                 _dBContext.Users.Add(userToSave);
         
                 }
@@ -152,26 +156,19 @@ namespace UsaloYa.Services
 
         public async Task<IEnumerable<UserResponseDto>> GetAllUsers(int companyId, string name, Role requestorRole, int requestorId)
         {
-            name = name?.Trim();
+            name = name?.Trim()?.ToLower();
 
-            var query = _dBContext.Users.AsQueryable();
+            if (string.IsNullOrEmpty(name))
+            {
+                // Si no hay búsqueda, devuelve lista vacía
+                return Enumerable.Empty<UserResponseDto>();
+            }
 
-            if (!string.IsNullOrEmpty(name) && !name.Equals("-1", StringComparison.OrdinalIgnoreCase))
-            {
-                name = name.ToLower();
-                query = query
-                    .Include(u => u.Company)
-                    .Where(u =>
-                        (u.FirstName.ToLower().Contains(name) || u.LastName.ToLower().Contains(name) ||
-                         u.Company != null && u.Company.Name.ToLower().Contains(name))
-                        && (u.CompanyId == companyId || companyId == 0));
-            }
-            else
-            {
-                query = query
-                    .Where(u => u.CompanyId == companyId || companyId == 0)
-                    .OrderByDescending(u => u.UserId);
-            }
+            var query = _dBContext.Users
+                .Include(u => u.Company)
+                .Where(u =>
+                    EF.Functions.Like((u.FirstName + " " + u.LastName).ToLower(), $"%{name}%")
+                    && u.CompanyId == companyId);
 
             var mainUsers = await query
                 .Take(50)
@@ -181,7 +178,8 @@ namespace UsaloYa.Services
                     IsEnabled = u.IsEnabled ?? false,
                     UserName = u.UserName,
                     FirstName = u.FirstName,
-                    LastName = u.LastName
+                    LastName = u.LastName,
+                    CompanyId = u.CompanyId
                 })
                 .ToListAsync();
 
@@ -190,19 +188,20 @@ namespace UsaloYa.Services
             if (requestorRole > Role.Admin)
             {
                 salesmanUsers = await _dBContext.Users
-                    .Where(u => u.CreatedBy == requestorId)
+                    .Where(u => u.CreatedBy == requestorId
+                                && EF.Functions.Like((u.FirstName + " " + u.LastName).ToLower(), $"%{name}%"))
                     .Select(u => new UserResponseDto
                     {
                         UserId = u.UserId,
                         IsEnabled = u.IsEnabled ?? false,
                         UserName = u.UserName,
                         FirstName = u.FirstName,
-                        LastName = u.LastName
+                        LastName = u.LastName,
+                        CompanyId = u.CompanyId
                     })
                     .ToListAsync();
             }
 
-            // Unir y eliminar duplicados si existen (por UserId)
             var allUsers = mainUsers
                 .UnionBy(salesmanUsers, u => u.UserId)
                 .OrderBy(u => u.FirstName)
@@ -211,6 +210,8 @@ namespace UsaloYa.Services
 
             return allUsers;
         }
+
+
 
 
 
@@ -444,23 +445,20 @@ namespace UsaloYa.Services
             return (false, "No se pudo procesar su peticion.", 0);
 
         }
-    }
-/*
-    public async Task<UserDto?> GetByEmailAsync(string email)
+
+        public async Task<IEnumerable<UserResponseDto>> GetUsersByCompany(int companyId)
         {
-            var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Email == email);
-
-            if (user == null) return null;
-
-            return new UserDto
+            var users = await _dBContext.Users.Where(p => p.CompanyId == companyId).ToListAsync();
+            return users.Select(u => new UserResponseDto
             {
-                UserId = user.UserId,
-                Name = user.Name,
-                Email = user.Email,
-                
-            };
-        }
-*/
+                UserId = u.UserId,
+                IsEnabled = u.IsEnabled ?? false,
+                UserName = u.UserName,
+                FirstName = u.FirstName,
+                LastName = u.LastName,
+                CompanyId = u.CompanyId,
 
+            });
+        }
     }
+}

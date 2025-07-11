@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.Design;
 using UsaloYa.API.Security;
 using UsaloYa.Dto;
 using UsaloYa.Dto.Enums;
@@ -238,9 +239,9 @@ namespace UsaloYa.API.Controllers
                 }
 
                 return BadRequest(new { message = "error_register" });
-                }
-                catch (Exception ex)
-                {
+            }
+            catch (Exception ex)
+            {
                 _logger.LogError(ex, "Error inesperado en RegisterNewUser.");
                 return StatusCode(500, new
                 {
@@ -304,18 +305,24 @@ namespace UsaloYa.API.Controllers
                 return StatusCode(500, new { message = ex.Message });
             }
         }
-    }
-/*
-   [HttpGet("byEmail/{email}")]
-        public async Task<ActionResult<UserDto>> GetUserByEmail(string email)
+
+
+        [HttpGet("GetUsersByCompany")]
+        public async Task<IActionResult> GetUsersByCompany([FromHeader] string RequestorId, int companyId)
         {
-            var user = await _userService.GetByEmailAsync(email);
-            if (user == null)
-                return NotFound();
+            try
+            {
+                
 
-            return Ok(user);
+                var users = await _userService.GetUsersByCompany(companyId);
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "GetAll.ApiError");
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
+            }
+
         }
-*/
-
-
-    } 
+    }
+}

@@ -5,7 +5,7 @@ import { AbstractControl, FormBuilder, FormGroup,  ReactiveFormsModule, Validato
 import { userDto } from '../../dto/userDto';
 import { NavigationService } from '../../services/navigation.service';
 import { UserStateService } from '../../services/user-state.service';
-import { NgClass, NgFor, NgIf } from '@angular/common';
+import { NgClass, NgFor, NgIf, NgStyle } from '@angular/common';
 import { format } from 'date-fns';
 import { first } from 'rxjs';
 import { adminGroupDto } from '../../dto/adminGroupDto';
@@ -14,17 +14,22 @@ import { AlertLevel, CompanyStatus, getUserStatusEnumName, Roles } from '../../E
 import { CompanyService } from '../../services/company.service';
 import { environment } from '../../environments/enviroment';
 
+
 @Component({
     selector: 'app-user-management',
-    imports: [ReactiveFormsModule, NgFor, NgIf, NgClass],
+    imports: [ReactiveFormsModule, NgFor, NgIf, NgClass, NgStyle ],
     templateUrl: './user-management.component.html',
-    styleUrl: './user-management.component.css'
+    styleUrl: './user-management.component.css',
+   
 })
 export class UserManagementComponent {
   userForm: FormGroup;
   passwordForm: FormGroup;
   selectedUser: userDto | null = null;
+  selectedCompany: AdminCompanyDto | null = null;
+  expandedCompanyIds: number[] = [];
   userList: userDto[] = [];
+  userListsByCompany: { [companyId: number]: userDto[] } = {};
   userState: userDto;
   
   groups: adminGroupDto [] = [];
@@ -36,6 +41,7 @@ export class UserManagementComponent {
   isAutorized: boolean = false;
 
   passwordVisible: boolean = false;
+  keyword: string = "";
 
   constructor(
     private fb: FormBuilder,
@@ -70,40 +76,12 @@ export class UserManagementComponent {
       this.isAutorized = true;
 
 
-    this.searchUsersInternal('-1');
+    this.searchCompaniesInternal();
     this.navigationService.checkScreenSize();
 
     this.userService.getGroups().pipe(first())
       .subscribe((data) => {
         this.groups = data;
-      });
-
-    this.companyService.getAll4List(this.userState.companyId, '-1').pipe(first())
-      .subscribe(
-      {
-        next: (data) => 
-          {  
-            // Filter the companies to display only the one the user owns to
-            if(!(this.userState.roleId >= this.rol.Ventas))
-            {
-              data = data.filter(c => c.companyId == this.userState.companyId)
-            }
-
-            this.companies = data; 
-          },
-        error: (error) =>
-        {
-          if (error.error instanceof ErrorEvent) {
-            let message = error.error.message || error.statusText;
-            this.navigationService.showUIMessage(message);
-          }
-          else{
-            if(error.status == 401)
-              this.navigationService.showUIMessage('No autorizado');
-           
-          }
-          
-        }
       });
 
     this.initRoles();
@@ -234,6 +212,41 @@ export class UserManagementComponent {
     });
   }
 
+  selectCompany(companyId: number): void {
+    const index = this.expandedCompanyIds.indexOf(companyId);
+    if (index !== -1) {
+      this.expandedCompanyIds.splice(index, 1);
+    } else { 
+      this.expandedCompanyIds.push(companyId);
+    }
+    this.resetPasswordForm();
+    
+    if (!this.userListsByCompany[companyId]) {
+      this.userService.GetUsersByCompany(companyId).pipe(first())
+      .subscribe({
+        next: (users) => {
+          this.userListsByCompany[companyId] = users.sort((a,b) => (a.firstName ?? '').localeCompare((b.firstName ?? '')));
+          if (users.length > 0) {
+            this.selectUser(users[0].userId);
+          }
+        },
+        error: (e) => {
+          this.navigationService.showUIMessage(e.error);
+        }
+      });
+    }
+  }
+
+  companiesFiltered(): AdminCompanyDto[] {
+  if (this.keyword) { 
+    return this.companies.filter(c => this.userListsByCompany[c.companyId]?.length > 0);
+  } else {
+    return this.companies;
+  }
+}
+
+  
+
   saveUser(): void {
     if (this.userForm.invalid) {
       this.userForm.markAllAsTouched();
@@ -281,21 +294,47 @@ export class UserManagementComponent {
 
   searchUsers(event: Event): void {
     const inputElement = event.target as HTMLInputElement;
-    const keyword = inputElement.value || '-1'; // Default to an empty string if keyword is null or undefined
-    this.searchUsersInternal(keyword);
+    this.keyword = inputElement.value.trim();
+    if (this.keyword) {
+      this.searchUsersInternal(this.keyword);
+    } else {
+      this.userListsByCompany = {};
+      this.expandedCompanyIds = [];
+      this.searchCompaniesInternal();
+    }
   }
-  
+ 
   private searchUsersInternal(name: string): void {
-    let companyId = this.userState.companyId;
-    if(this.userState.roleId === Roles.Root)
-      companyId = 0;
+  let companyId = this.userState.companyId;
+  if(this.userState.roleId === Roles.Root)
+    companyId = 0;
 
-    this.userService.getAllUser(companyId, name).pipe(first())
+  this.userService.getAllUser(companyId, name).pipe(first())
     .subscribe({
       next: (users) => {
-        this.userList = users.sort((a,b) => (a.firstName?? '').localeCompare((b.firstName?? '')));
-        if(users.length > 0)
-        {
+        // Limpiar anteriores resultados
+        this.userListsByCompany = {};
+        this.expandedCompanyIds = [];
+
+        users.forEach(user => {
+          const cid = user.companyId;
+          // Si no existe la lista para esa compañía, crearla
+          if (!this.userListsByCompany[cid]) {
+            this.userListsByCompany[cid] = [];
+            // expandir esa compañía
+            this.expandedCompanyIds.push(cid);
+          }
+          this.userListsByCompany[cid].push(user);
+        });
+
+        // Ordenar cada lista
+        Object.keys(this.userListsByCompany).forEach(cid => {
+          this.userListsByCompany[+cid] = this.userListsByCompany[+cid]
+            .sort((a,b) => (a.firstName ?? '').localeCompare((b.firstName ?? '')));
+        });
+
+        // Si hay al menos un usuario, seleccionamos el primero (puedes ajustar esto)
+        if (users.length > 0) {
           this.selectUser(users[0].userId);
         }
       },
@@ -303,6 +342,44 @@ export class UserManagementComponent {
         this.navigationService.showUIMessage(e.error);
       }
     });
+}
+
+  
+  private searchCompaniesInternal(): void {
+    this.companyService.getAll4List(this.userState.companyId, '-1').pipe(first())
+    .subscribe(
+      {
+        next: (companies) => 
+          {
+            if(!(this.userState.roleId >= this.rol.Ventas))
+            {
+              companies = companies.filter(c => c.companyId == this.userState.companyId)
+            }
+            this.companies = companies.sort((a,b) => (a.name?? '').localeCompare((b.name?? '')));
+        if(companies.length > 0)
+        {
+          this.selectCompany(companies[0].companyId);
+        }
+          },
+        error: (error) =>
+          {
+            if (error.error instanceof ErrorEvent) {
+              let message = error.error.message || error.statusText;
+              this.navigationService.showUIMessage(message);
+            }
+            else
+            {
+              if(error.status == 401)
+                this.navigationService.showUIMessage('No autorizado');
+            }          
+          }
+      });
+    
+  }
+
+  getCompanyColor(companyId: number): string {
+    const colors = ['#FF6B6B', '#6BCB77', '#4D96FF', '#FFD93D', '#FF6EC7', '#9B59B6', '#E67E22', '#1ABC9C'];
+    return colors[companyId % colors.length];
   }
 
 }
