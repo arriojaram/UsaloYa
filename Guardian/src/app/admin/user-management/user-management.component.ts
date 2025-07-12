@@ -248,37 +248,45 @@ export class UserManagementComponent {
   
 
   saveUser(): void {
-    if (this.userForm.invalid) {
-      this.userForm.markAllAsTouched();
-      
-      return;
-    }
-
-    if (this.userForm.valid) {
-      const user: userDto = this.userForm.value;
-      user.token = "a-Fc1C149Afbf4c8--996++"; //Temp password for new users
-      user.lastUpdatedBy = this.userState.userId;
-      user.createdBy = this.userState.userId;
-      
-      this.userService.saveUser(user).pipe(first())
-        .subscribe({
-          next: (result) => {
-            if(user.userId == 0)
-              this.userList.unshift(result);
-            
-            this.selectUser(result.userId);
-            this.navigationService.showUIMessage("Usuario guardado (" + result.userName + ")", AlertLevel.Sucess);
-          },
-          error:(err) => {
-            const m1 = err.error.message;
-            if(m1)
-              this.navigationService.showUIMessage(m1);
-            else
-              this.navigationService.showUIMessage(err.error);
-          },
-      });
-    }
+  if (this.userForm.invalid) {
+    this.userForm.markAllAsTouched();
+    return;
   }
+
+  if (this.userForm.valid) {
+    const user: userDto = this.userForm.value;
+    user.token = "a-Fc1C149Afbf4c8--996++"; // Temp password for new users
+    user.lastUpdatedBy = this.userState.userId;
+    user.createdBy = this.userState.userId;
+
+    this.userService.saveUser(user).pipe(first())
+      .subscribe({
+        next: (result) => {
+          const companyId = result.companyId;
+
+          this.userService.GetUsersByCompany(companyId).pipe(first())
+            .subscribe({
+              next: (users) => {
+                this.userListsByCompany[companyId] = users.sort((a,b) => (a.firstName?? '').localeCompare((b.firstName?? '')));              
+                this.selectUser(result.userId);
+                this.navigationService.showUIMessage("Usuario guardado (" + result.userName + ")", AlertLevel.Sucess);
+              },
+              error: (e) => {
+                this.navigationService.showUIMessage(e.error);
+              }
+            });
+        },
+        error:(err) => {
+          const m1 = err.error.message;
+          if(m1)
+            this.navigationService.showUIMessage(m1);
+          else
+            this.navigationService.showUIMessage(err.error);
+        },
+    });
+  }
+}
+
 
   setPassword(): void {
      
