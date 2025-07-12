@@ -68,7 +68,30 @@ export class UserService {
     );
   }
 
+  GetUsersByCompany(companyId: number): Observable<userDto[]> {
+    const apiUrl = `${this.baseUrl}/GetUsersByCompany?companyId=${companyId}`;
+
+    return this.http.get<userDto[]>(apiUrl).pipe(
+      catchError(error => {
+        console.error('GetUsersByCompany() | ', error);
+        throw error;
+      })
+    );
+  }
+
+
   getAllUser(companyId: number, name: string): Observable<userDto[]> {
+    const apiUrl = `${this.baseUrl}/GetAll?name=${name}&companyId=${companyId}`;
+
+    return this.http.get<userDto[]>(apiUrl).pipe(
+      catchError(error => {
+        console.error('getAllUser() | ', error);
+        throw error;
+      })
+    );
+  }
+
+  get(companyId: number, name: string): Observable<userDto[]> {
     const apiUrl = `${this.baseUrl}/GetAll?name=${name}&companyId=${companyId}`;
 
     return this.http.get<userDto[]>(apiUrl).pipe(

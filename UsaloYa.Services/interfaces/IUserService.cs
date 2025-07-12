@@ -24,6 +24,7 @@ namespace UsaloYa.Services.interfaces
         Task<bool> IsEmailUnique(string email);
 
         Task<(bool isValid, string message, int userId)> RequestVerificationCodeEmail(RequestVerificationCodeDto data, string deviceId);
+        Task<IEnumerable<UserResponseDto>> GetUsersByCompany(int companyId);
 
     }
 }
