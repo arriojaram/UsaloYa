@@ -312,7 +312,9 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                
+                var user = await HeaderValidatorService.ValidateRequestor(RequestorId, Role.Admin, _dBContext);
+                if (user.UserId <= 0) return Unauthorized(AppConfig.NO_AUTORIZADO);
+
 
                 var users = await _userService.GetUsersByCompany(companyId);
                 return Ok(users);
