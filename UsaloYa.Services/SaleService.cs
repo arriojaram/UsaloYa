@@ -72,12 +72,8 @@ namespace UsaloYa.Services
 
             foreach (var detail in saleDetails)
             {
-                var productDb = await _dBContext.Products
-                 .AsNoTracking()
-        .FirstOrDefaultAsync(p => p.ProductId == detail.ProductId);
+                totalSale += detail.TotalPrice;
 
-                if (productDb == null)
-                    throw new Exception($"Producto con ID {detail.ProductId} no encontrado.");
                 var product = new SaleDetail
                 {
                     SaleId = saleId,
@@ -158,9 +154,6 @@ namespace UsaloYa.Services
             return true;
         }
 
-        public Task<bool> UpdateStock(int productId, int selledItems)
-        {
-            throw new NotImplementedException();
-        }
+    
     }
 }

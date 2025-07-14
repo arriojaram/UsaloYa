@@ -18,6 +18,7 @@ import { CompanyService } from '../services/company.service';
 import { MeasureType } from '../Enums/enums';
 import { TranslateService } from '@ngx-translate/core';
 
+
 @Component({
   selector: 'app-lista-venta',
   imports: [CommonModule, FormsModule],
@@ -35,7 +36,7 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
   numVenta: string;
   messageClass: string = "alert  alert-success mt-2";
   selectedPrinterName: string = '';
-  measr = MeasureType;
+  measure = MeasureType;
 
   @ViewChild('inputNumber') inputNumber?: ElementRef;
   tempProductCounter: number | undefined;
@@ -48,6 +49,7 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
   selectedCustomer: customerDto | undefined;
   filteredCustomer: customerDto[] = [];
   new: any;
+  folio: string;
 
   constructor(
     private router: Router,
@@ -63,6 +65,7 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
     this.isHidden = true;
     this.metodoPago = "";
     this.numVenta = "-1";
+    this.folio = "-1";
     this.userState = this.userStateService.getUserStateLocalStorage();
   }
 
@@ -179,6 +182,7 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
   generatePrintableTicket() {
     const companyName = this.userState.companyName;
     const ventaNumber = this.numVenta;
+    const ventaFolio = this.folio;
     const fechaHora = new Date().toLocaleString();  // Asumiendo que `fechaHora` se calcula así
     const products = this.ventaService.saleProductsGrouped;
     const totalVenta = this.ventaService.getTotalVenta();
@@ -187,7 +191,7 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
 
     let productList: string = '';
     let productListHtml: string = '';
-    //se agrega el tipo de medida
+
     products.forEach(product => {
       const count = product.count.toString().padEnd(3, ' ');
       const measure = MeasureType[product.measure];
@@ -198,23 +202,21 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
       productListHtml += `<div>${count} ${measure} ${name} ${precio} ${total}</div>`;
       productList += `${count} ${measure} ${name} ${precio} ${total}`;
     });
-
-
     let ticket: string = `     *** ${companyName} ***
-${ventaNumber} 
-Fecha: ${fechaHora}
-Cant. Medida  Nombre   Precio   Importe
-${productList}
-Total: $${totalVenta.toFixed(2)}
-Recibido: $${this.pagoRecibido?.toFixed(2)}
-Cambio: $${cambio.toFixed(2)}    
-Cajero: ${cashierName}
+    ${ventaNumber} | ${ventaFolio} 
+    Fecha: ${fechaHora}
+    Cant. Medida Nombre   Precio   Importe
+    ${productList}
+    Total: $${totalVenta.toFixed(2)}
+    Recibido: $${this.pagoRecibido?.toFixed(2)}
+    Cambio: $${cambio.toFixed(2)}    
+    Cajero: ${cashierName}
     ¡Gracias por su compra!`;
 
     let ticketHtml: string = `<div style="font-size: 13px; display: flex; justify-content: center;">*** ${companyName} ***</div>
-    <div style="font-size: 12px;">${ventaNumber}</div>
+    <div style="font-size: 12px;">${ventaNumber} | ${ventaFolio}</div>
     <div style="font-size: 12px;">Fecha: ${fechaHora}</div>
-    <div style="font-size: 12px;"><strong>Cant. Medida  Nombre   Precio   Importe</strong></div>
+    <div style="font-size: 12px;"><strong>Cant. Medida Nombre   Precio   Importe</strong></div>
     <div style="font-size: 12px;">${productListHtml}</div><br>
     <div style="font-size: 14px;">Total: $${totalVenta.toFixed(2)}</div>
     <div style="font-size: 14px;">Recibido: $${this.pagoRecibido?.toFixed(2)}</div>
@@ -295,7 +297,6 @@ Cajero: ${cashierName}
     this.isSelectingCustomer = false;
   }
 
-  //edita la cantidad de un producto
   enableEditing(item: any) {
     item.editing = true;
     this.tempProductCounter = item.count;
@@ -323,9 +324,7 @@ Cajero: ${cashierName}
     }
     event.preventDefault();
   }
-
-  //flechas arriba y abajo
-  onCountChange(producto: Producto) {
+    onCountChange(producto: Producto) {
     if (!producto.count || producto.count < 0.01) {
       producto.count = 1;
     }
@@ -333,7 +332,7 @@ Cajero: ${cashierName}
     const measure = MeasureType[producto.measure];
 
     // Si el producto es por unidad y tiene decimales, redondeamos hacia abajo
-    if (producto.measure === this.measr.Ud && producto.count % 1 !== 0) {
+    if (producto.measure === this.measure.Ud && producto.count % 1 !== 0) {
       producto.count = Math.floor(producto.count); // Elimina los decimales
       this.navigationService.showUIMessage(this.translate.instant('list_sale.invalid_quantity_unit'), AlertLevel.Warning);
     }
@@ -361,8 +360,9 @@ Cajero: ${cashierName}
           {
             next: (response) => {
 
-              this.message = `Venta registrada: ${response}`;
-              this.numVenta = 'Num. Venta: ' + response;
+              this.message = `Venta registrada: ${response.saleId}`;
+              this.numVenta = 'ID: ' + response.saleId;
+              this.folio = 'Folio : ' + response.folio;
               this.messageClass = "alert  alert-success mt-2";
               this.showTicket();
 
@@ -394,7 +394,7 @@ Cajero: ${cashierName}
       }, environment.notificationsDisplayTimeSeconds);
     }
     else {
-      this.navigationService.showUIMessage(this.translate.instant('list_sale.missing_received_amount'), AlertLevel.Warning);
+      this.navigationService.showUIMessage('No has agregado la cantidad de dinero recibida', AlertLevel.Warning);
     }
   }
 }

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Producto } from '../dto/producto';
 import * as Papa from 'papaparse';
 import { from, Observable } from 'rxjs';
+import { MeasureType } from '../Enums/enums';
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +18,7 @@ export class ImportCvsProductService {
         skipEmptyLines: true,
         complete: (results) => {
           let productos: Producto[] = results.data.map((row: any) => this.toProducto(row));
-          if(isFreeRole && productos.length > 10)
+          if (isFreeRole && productos.length > 10)
             productos = productos.slice(0, 10);
 
           resolve(productos);
@@ -28,8 +29,19 @@ export class ImportCvsProductService {
   }
 
   private toProducto(row: any): Producto {
+
+    // Convierte el texto de la medida en la enumeración asignada
+    const medidaMap: Record<string, MeasureType> = {
+      '': MeasureType.Desconocido,
+      'Ud': MeasureType.Ud,
+      'Kg': MeasureType.Kg,
+    };
+
+    const medidaTexto = (row.Medida || '').trim();
+    const medidaNumero = medidaMap[medidaTexto];
+
     return {
-      productId: 0, 
+      productId: 0,
       name: row.Nombre.trim() || '',
       description: row.Descripcion ? row.Descripcion.trim() : '',
       categoria: row.Categoria ? row.Categoria.trim() : '',
@@ -39,14 +51,14 @@ export class ImportCvsProductService {
       unitPrice2: parseFloat(row.Precio2) || 0,
       unitPrice3: parseFloat(row.Precio3) || 0,
       unitsInStock: parseInt(row.UnidadesEnStock) || 0,
-       measure: row.Medida.trim() || '',//tipo de medida
+      measure: medidaNumero,
       discontinued: false, // Assuming a default value
       sku: row.Sku.trim() || '',
       barcode: row.CodigoBarras.trim() || '',
       companyId: 0,
-      categoryId:0,
-      count:0,
-      total:0,
+      categoryId: 0,
+      count: 0,
+      total: 0,
       lowInventoryStart: parseInt(row.AlertaExistencias) || 0,
     };
   }

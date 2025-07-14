@@ -30,7 +30,7 @@ export class ProductManagementComponent implements OnInit {
   selectedProduct: Producto | null = null;
   userState: userDto;
   showAddInventarioBox: boolean = false;
-  measr = MeasureType;
+  measure = MeasureType;
   pageNumber: number = 1;
   rol = Roles;
   cStatus = CompanyStatus;

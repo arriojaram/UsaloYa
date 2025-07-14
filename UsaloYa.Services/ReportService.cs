@@ -58,6 +58,7 @@ namespace UsaloYa.Services
                     Barcode = r.Product.Barcode,
                     ProductName = r.Product.Name,
                     Quantity = r.Quantity,
+                   Measure =r.Product.Measure,
                     BuyPrice = r.Product.BuyPrice,
                     SoldPrice = r.UnitPrice,
                     ProductPrice1 = r.Product.UnitPrice1,

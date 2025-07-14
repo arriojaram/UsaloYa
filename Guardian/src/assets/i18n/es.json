@@ -32,8 +32,31 @@
     "amount_must_be_positive": "El valor debe ser mayor que cero.",
     "missing_received_amount": "No has agregado la cantidad de dinero recibida"
   },
+  "Inventary_report": {
+    "request_incorrect": "Petición incorrecta.",
+    "inventory_stock_synced":"Se igualaron los valores de las existencias al de los capturados en el inventario.",
+    "product_not_found": "El producto no fue encontrado.",
+    "products_not_found": "No se encontraron productos.",
+    "server_error":"Error al procesar la solicitud. Servidor no disponible",
+    "no_products_by_category":"No se encontraron productos con la categoria seleccionada.",
+    "updated": "Actualizado.",
+    "updated_error": "Error no se pudo actualizar.",
+    "invalid_quantity_unit": "Este producto solo permite valores enteros porque su medida es por unidad.",
+    "inventory_initialized_zero": "Se inicializaron todos los valores del inventario a cero.",
+    "no_products_by_status":"No se encontraron productos con estado ",
+    "no_more_products":"No hay productos mas.",
+    "no_products_existing_by_status":"No se encontraron productos en existencias con estado",
+    "negative_quantity_not_allowed":"No se permiten cantidades negativas"
 
-  
+  },
+
+"Sales_report": {
+      "request_incorrect": "Petición incorrecta.",
+      "network_unavailable": "Error de disponibilidad de red, intenta mas tarde.",
+      "no_product_registration": "No hay registro de productos para la venta seleccionada",
+      "no_register_sale": "No hay registro de ventas entre las fechas"
+    },
+
   "emails": {
     "email_send_error": "Error al enviar el correo electronico, por favor contactenos",
     "email_send_ok": "Usuario registrado y correos enviados correctamente."

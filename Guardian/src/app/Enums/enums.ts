@@ -65,6 +65,7 @@ export enum StatusVentaEnum {
 }
 
 export enum MeasureType {
+    Desconocido = 0,
     Ud = 1,
     Kg = 2
 }

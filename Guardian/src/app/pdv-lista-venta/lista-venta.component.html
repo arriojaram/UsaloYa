@@ -37,7 +37,7 @@
           <ng-container *ngIf="producto.editing; else mostrarCantidad">
             <input type="number" min="1" [(ngModel)]="producto.count" (change)="onCountChange(producto)"
               class="form-control-sm text-center" style="width: 70px;"
-              [step]="producto.measure === measr.Ud ? '1' : '0.01'" />
+              [step]="producto.measure === measure.Ud ? '1' : '0.01'" />
           </ng-container>
 
           <!-- Mostrar solo el número si no se está editando -->
@@ -141,7 +141,7 @@
       <img src="../assets/icons/logos/logo-192x192.png" alt="Guardian_Logo" class="img-fluid mb-2"
         style="max-width: 50px;">
       <h5 class="card-title mb-1">{{ this.userState.companyName}}</h5>
-      <p class="card-subtitle text-muted">{{ this.numVenta + ' | Fecha:' + fechaHora }}</p>
+      <p class="card-subtitle text-muted">{{ this.numVenta + ' | '+ this.folio + ' | Fecha:' + fechaHora }}</p>
     </div>
     <div class="card-body">
       <table class="table table-striped">
@@ -159,7 +159,7 @@
             <td>{{ item.barcode }}</td>
             <td>{{ item.name }}</td>
             <td>{{ item.count }}</td>
-            <td>{{ item.measure }}</td>
+            <td>{{ getMeasureName(item.measure) }}</td>
             <td>{{ item.total | currency:'MXN' }}</td>
           </tr>
         </tbody>

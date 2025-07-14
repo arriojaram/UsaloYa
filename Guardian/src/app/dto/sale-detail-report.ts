@@ -18,6 +18,7 @@ export interface SaleDetailReport {
     barcode: string;
     productName: string;
     quantity: number;
+    measure:number;
     totalPrice: number;
     saleID: number;
     saleDate: Date;

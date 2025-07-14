@@ -125,14 +125,14 @@
                   <input *ngIf="selectedProduct == null" id="unitsInStock" #unitsInStockInput
                     (click)="unitsInStockInput.select()" type="number" class="form-control"
                     formControlName="unitsInStock"
-                    [step]="productForm.get('measure')?.value === 'measer.unidad' ? 1 : 0.01"
-                    [min]="productForm.get('measure')?.value === 'measer.unidad' ? 1 : 0.01">
+                    [step]="productForm.get('measure')?.value === 'measure.unidad' ? 1 : 0.01"
+                    [min]="productForm.get('measure')?.value === 'measure.unidad' ? 1 : 0.01">
 
                   <!-- Campo para agregar inventario a producto existente -->
                   <input *ngIf="showAddInventarioBox" class="bg-warning" #addToInventoryValInput
                     (click)="addToInventoryValInput.select()" formControlName="addToInventoryVal" type="number"
-                    [step]="productForm.get('measure')?.value === 'measr.unidad' ? 1 : 0.01"
-                    [min]="productForm.get('measure')?.value === 'measr.unidad' ? 1 : 0.01" max="1000000">
+                    [step]="productForm.get('measure')?.value === 'measure.unidad' ? 1 : 0.01"
+                    [min]="productForm.get('measure')?.value === 'measure.unidad' ? 1 : 0.01" max="1000000">
 
                   <button *ngIf="this.selectedProduct" class="ms-2 btn btn-primary"
                     [ngClass]="{'btn-success': showAddInventarioBox}"
@@ -146,8 +146,8 @@
                 <div class="d-flex col-md-4 form-group">
                   <select id="measure" class="form-select" formControlName="measure">
                     <option value="" disabled selected>Selecciona una unidad</option>
-                    <option [value]="measr.Ud">Unidad</option>
-                    <option [value]="measr.Kg">Kilogramo</option>
+                    <option [value]="measure.Ud">Unidad</option>
+                    <option [value]="measure.Kg">Kilogramo</option>
                   </select>
                   <div *ngIf="isFieldInvalid('measure')" class="invalid-feedback">
                     La medida es obligatoria.

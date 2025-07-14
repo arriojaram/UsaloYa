@@ -11,6 +11,8 @@ public partial class SaleDetail
 
     public decimal Quantity { get; set; }
 
+    
+
     public decimal UnitPrice { get; set; }
 
     public decimal TotalPrice { get; set; }

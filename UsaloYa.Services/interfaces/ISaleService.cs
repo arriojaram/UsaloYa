@@ -12,7 +12,7 @@ namespace UsaloYa.Services.interfaces
     {
         Task<int> AddSale(SaleDto sale);
         Task<bool> AddProductsToSale(int saleId, List<SaleDetailsDto> saleDetails);
-        Task<bool> UpdateStock(int productId, int selledItems);
+        Task<bool> UpdateStock(int productId, decimal selledItems);
         Task<bool> UpdateTotalSale(int saleId, decimal totalSale);
         Task<bool> UpdateSaleStatus(int saleId, SaleStatus status);
         Task<bool> UpdateStockAfterStatusChange(int saleId, int companyId, bool isCancelAction);
