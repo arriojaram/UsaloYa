@@ -59,10 +59,10 @@ namespace UsaloYa.Services
             };
 
             _dBContext.Sales.Add(newSale);
-            
+
             await _dBContext.SaveChangesAsync();
-      
-          
+
+
             return newSale.SaleId;
         }
 
@@ -97,7 +97,7 @@ namespace UsaloYa.Services
             return true;
         }
 
-        public async Task<bool> UpdateStock(int productId, int selledItems)
+        public async Task<bool> UpdateStock(int productId, decimal selledItems)
         {
             var existingProduct = await _dBContext.Products.FirstOrDefaultAsync(p => p.ProductId == productId);
             if (existingProduct == null) return false;
@@ -153,5 +153,7 @@ namespace UsaloYa.Services
             await _dBContext.SaveChangesAsync();
             return true;
         }
+
+
     }
 }

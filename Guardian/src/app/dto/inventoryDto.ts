@@ -10,7 +10,8 @@ export interface InventoryProduct {
   inVentarioAlertLevel: number; //3:Normal, 2:Warning, 1:Critico
   alertaStockNumProducts: number;
   categoryName: string,
-  isInVentarioUpdated: boolean
+  isInVentarioUpdated: boolean;
+  measure: number;
 }
 
 
