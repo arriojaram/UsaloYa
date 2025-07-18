@@ -22,10 +22,10 @@ namespace UsaloYa.Services.interfaces
         Task<List<Product4InventariotDto>> GetInventarioWithDiscrepancias(int companyId, int pageNumber);
         Task<InventoryDto> GetInventarioTop50(string keyword, int companyId, int pageNumber);
         Task<List<Product4InventariotDto>> GetInventarioItemsUpdated(int companyId, int pageNumber);
-        Task<Product4InventariotDto> SetInVentario(string barcode, int quantity, int companyId);
+        Task<Product4InventariotDto> SetInVentario(string barcode, decimal quantity, int companyId);
         Task<bool> SetAllUnitsStock(int companyId);
         Task<bool> ResetAllInVentario(int companyId);
-        Task<int> SetUnitsInStockByProductId(int productId, int companyId);
-        Task<int> SetUnitsInStock(int productId, int unitsInStock, bool isHardReset, int companyId);
+        Task<decimal> SetUnitsInStockByProductId(int productId, int companyId);
+        Task<decimal> SetUnitsInStock(int productId, decimal unitsInStock, bool isHardReset, int companyId);
     }
 }

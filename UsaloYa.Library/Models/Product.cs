@@ -9,6 +9,7 @@ public partial class Product
     public int ProductId { get; set; }
 
     public string Name { get; set; } = null!;
+    public int Measure { get;set; }
 
     public string? Description { get; set; }
 
@@ -18,7 +19,7 @@ public partial class Product
 
     public decimal? UnitPrice { get; set; }
 
-    public int UnitsInStock { get; set; }
+    public decimal UnitsInStock { get; set; }
 
     public bool Discontinued { get; set; }
 
@@ -53,7 +54,7 @@ public partial class Product
     /// <summary>
     /// Valor utilizado para guardar informacion temporal del inventario del producto
     /// </summary>
-    public int? InVentario { get; set; }
+    public decimal? InVentario { get; set; }
 
     public int? AlertaStockNumProducts { get; set; }
 
