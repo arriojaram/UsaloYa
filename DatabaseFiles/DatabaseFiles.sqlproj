@@ -57,11 +57,14 @@
   <ItemGroup>
     <Folder Include="Properties" />
     <Folder Include="InitScripts" />
+    <Folder Include="StoredProcedures" />
   </ItemGroup>
   <ItemGroup>
     <None Include="InitScripts\DbInitialization.sql" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="InitScripts\GenerateFolio.sql" />
+    <Build Include="StoredProcedures\AddFolioSale.sql" />
+    <Build Include="StoredProcedures\sp_DeleteInactiveCompanies.sql" />
   </ItemGroup>
 </Project>

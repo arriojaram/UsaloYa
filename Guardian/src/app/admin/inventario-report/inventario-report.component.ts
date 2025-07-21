@@ -180,8 +180,8 @@ export class InventarioReportComponent implements OnInit, OnDestroy {
       this.isCapturingStock = false;
 
 
-    if (!this.editingInventario[productId] && this.newProdInventoryVal) {
-      if (this.newProdInventoryVal !== 0) { 
+    if (!this.editingInventario[productId] && this.newProdInventoryVal != null) {
+      if (this.newProdInventoryVal >= 0) { 
          //Obtiene el producto actual
         const product = this.filteredProducts.find(p => p.productId === productId);
 
@@ -268,7 +268,8 @@ export class InventarioReportComponent implements OnInit, OnDestroy {
     let p = this.filteredProducts.find(p => p.productId == productId);
     if (p) {
       p.unitsInStock = newStock;
-      p.inVentarioAlertLevel = p.unitsInStock <= 0 ? InventoryView.Critical :
+        p.unitsInVentario = 0;
+        p.inVentarioAlertLevel = p.unitsInStock <= 0 ? InventoryView.Critical :
         p.unitsInStock <= p.alertaStockNumProducts ? InventoryView.Warning
           : InventoryView.Other;
       p.isInVentarioUpdated = false;
@@ -318,8 +319,8 @@ export class InventarioReportComponent implements OnInit, OnDestroy {
     if (code) {
       let stockInfo: setInVentarioByBarcodeDto = {
         code: code,
-        quantity: 1
-      };
+        quantity: -1
+     };
       this.inventoryService.setProductInventarioValue(stockInfo, this.userState.companyId).pipe(first())
         .subscribe({
           next: (product) => {

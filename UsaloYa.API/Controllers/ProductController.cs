@@ -139,7 +139,7 @@ namespace UsaloYa.API.Controllers
 
 
         [HttpGet("GetInventarioByCategoryId")]
-        public async Task<IActionResult> GetInventarioByCategoryId([FromHeader] int categoryId, int companyId, int pageNumber)
+        public async Task<IActionResult> GetInventarioByCategoryId( int categoryId, int companyId, int pageNumber)
         {
             try
             {
