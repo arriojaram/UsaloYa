@@ -188,7 +188,6 @@ export class InventarioReportComponent implements OnInit, OnDestroy{
     if(!this.editingInventario[productId] && this.newProdInventoryVal != null)
     {
       
-    console.log("Entró con valor: ", this.newProdInventoryVal );
       if(this.newProdInventoryVal >= 0)
       {
         let stockInfo:setInVentarioByBarcodeDto = {
