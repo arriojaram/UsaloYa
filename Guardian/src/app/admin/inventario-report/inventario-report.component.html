@@ -143,11 +143,7 @@
                         (click)="openCaptureNewInventory(p.productId, p.barcode)">{{editingInventario[p.productId] ? "G" : "E"}}</button>
                     <input *ngIf="editingInventario[p.productId]" 
                         class="bg-warning" (keydown.enter)="openCaptureNewInventory(p.productId, p.barcode)"
-<<<<<<< HEAD
                         [(ngModel)]="newProdInventoryVal" type="number" min="0" max="1000000">
-=======
-                        [(ngModel)]="newProdInventoryVal" type="number" min="1" max="1000000" step="any">
->>>>>>> 56a121dcc2a119989eb17eb3e57b035ac959512d
                     <span *ngIf="!editingInventario[p.productId]">
                         {{ p.unitsInVentario }}
                     </span>
