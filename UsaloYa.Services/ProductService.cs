@@ -574,7 +574,7 @@ namespace UsaloYa.Services
 
             if (product != null)
             {
-<<<<<<< HEAD
+
                 if (quantity == -1)
                 {
                     product.InVentario = (product.InVentario ?? 0) + 1;
@@ -582,9 +582,7 @@ namespace UsaloYa.Services
                 {
                     product.InVentario = quantity;
                 }              
-=======
-                product.InVentario = quantity;
->>>>>>> 56a121dcc2a119989eb17eb3e57b035ac959512d
+
                 product.IsInVentarioUpdated = true;
 
                 _dBContext.Entry(product).State = EntityState.Modified;
