@@ -185,9 +185,11 @@ export class InventarioReportComponent implements OnInit, OnDestroy{
       this.isCapturingStock = false;
 
    
-    if(!this.editingInventario[productId] && this.newProdInventoryVal)
+    if(!this.editingInventario[productId] && this.newProdInventoryVal != null)
     {
-      if(this.newProdInventoryVal !== 0)
+      
+    console.log("Entró con valor: ", this.newProdInventoryVal );
+      if(this.newProdInventoryVal >= 0)
       {
         let stockInfo:setInVentarioByBarcodeDto = {
            code: code,
@@ -250,6 +252,7 @@ export class InventarioReportComponent implements OnInit, OnDestroy{
     if(p)
     {
       p.unitsInStock = newStock;
+      p.unitsInVentario = 0;
       p.inVentarioAlertLevel = p.unitsInStock <= 0 ? InventoryView.Critical:
                                p.unitsInStock <= p.alertaStockNumProducts ? InventoryView.Warning
                               : InventoryView.Other;
@@ -304,7 +307,7 @@ export class InventarioReportComponent implements OnInit, OnDestroy{
     {  
       let stockInfo:setInVentarioByBarcodeDto = {
         code: code,
-        quantity: 1
+        quantity: -1
      };
       this.inventoryService.setProductInventarioValue(stockInfo, this.userState.companyId).pipe(first())
       .subscribe({

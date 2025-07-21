@@ -424,7 +424,7 @@ namespace UsaloYa.Services
                     CategoryName = p.Category.Name ?? "",
                     IsInVentarioUpdated = p.IsInVentarioUpdated ?? false
                 })
-                .Where(p => p.CompanyId == companyId && !p.Discontinued && p.UnitsInVentario != p.UnitsInStock)
+                .Where(p => p.CompanyId == companyId && !p.Discontinued && p.UnitsInVentario > 0 && p.UnitsInVentario != p.UnitsInStock)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -555,7 +555,13 @@ namespace UsaloYa.Services
 
             if (product != null)
             {
-                product.InVentario = quantity > 1 ? quantity : (product.InVentario ?? 0) + 1;
+                if (quantity == -1)
+                {
+                    product.InVentario = (product.InVentario ?? 0) + 1;
+                }else
+                {
+                    product.InVentario = quantity;
+                }              
                 product.IsInVentarioUpdated = true;
 
                 _dBContext.Entry(product).State = EntityState.Modified;
@@ -601,6 +607,7 @@ namespace UsaloYa.Services
             {
                 product.UnitsInStock = product.InVentario ?? 0;
                 product.IsInVentarioUpdated = false;
+                product.InVentario = 0;
 
                 _dBContext.Entry(product).State = EntityState.Modified;
                 await _dBContext.SaveChangesAsync();
