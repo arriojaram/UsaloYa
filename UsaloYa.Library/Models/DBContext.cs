@@ -218,6 +218,8 @@ public partial class DBContext : DbContext
             entity.Property(e => e.UnitPrice3).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.Weight).HasColumnType("decimal(10, 2)");
 
+
+
             entity.HasOne(d => d.Category).WithMany(p => p.Products)
                 .HasForeignKey(d => d.CategoryId)
                 .HasConstraintName("FK_Products_ProductCategory");
@@ -226,6 +228,12 @@ public partial class DBContext : DbContext
                 .HasForeignKey(d => d.CompanyId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Products_Company");
+
+            entity.Property(e => e.Measure)
+      .HasColumnName("Measure")
+      .HasConversion<int>()  // si es enum
+      .IsRequired();
+
         });
 
         modelBuilder.Entity<ProductCategory>(entity =>

@@ -64,6 +64,12 @@ export enum StatusVentaEnum {
     Cancelada 
 }
 
+export enum MeasureType {
+    Desconocido = 0,
+    Ud = 1,
+    Kg = 2
+}
+
 export function getCompanyStatusEnumName(value: number): string {
     const name = CompanyStatus[value];
     if (name === undefined) {

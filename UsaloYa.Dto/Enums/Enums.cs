@@ -40,6 +40,11 @@
         Active = 3,
         Free = 4
     }
+    public enum MeasureType
+    {
+        Unidad = 1,
+        Kg = 2
+    }
 
     public static class EConverter
     {

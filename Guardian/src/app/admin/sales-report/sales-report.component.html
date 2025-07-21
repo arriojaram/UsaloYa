@@ -122,6 +122,7 @@
             <th>Nombre</th>
             <th>P. Compra</th>
             <th>Cantidad</th>
+            <th>Medida</th>
             <th>P. Venta</th>
             <th>Fecha Venta</th>
             <th>$ Total</th>
@@ -133,6 +134,7 @@
             <td>{{ sale.productName }}</td>
             <td>{{ sale.buyPrice | currency:'MXN' }}
             <td>{{ sale.quantity }}</td>
+            <td>{{ getMeasureName(sale.measure) }}</td>
             <td>{{ sale.soldPrice | currency:'MXN' }}
                 <span><sup>{{ '*'.repeat(sale.priceLevel) }}</sup></span>
             </td>
