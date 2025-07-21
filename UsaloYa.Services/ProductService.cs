@@ -580,6 +580,7 @@ namespace UsaloYa.Services
                     product.InVentario = (product.InVentario ?? 0) + 1;
                 }else
                 {
+                    if (quantity >=0)
                     product.InVentario = quantity;
                 }              
 
