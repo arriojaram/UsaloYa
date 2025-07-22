@@ -8,9 +8,10 @@ import { UserStateService } from '../../services/user-state.service';
 import { userDto } from '../../dto/userDto';
 import { first, Subject, takeUntil } from 'rxjs';
 import { SaleService } from '../../services/sale.service';
-import { AlertLevel, CompanyStatus, PriceLevel, Roles, StatusVentaEnum } from '../../Enums/enums';
+import { AlertLevel, CompanyStatus, MeasureType, PriceLevel, Roles, StatusVentaEnum } from '../../Enums/enums';
 import { UserService } from '../../services/user.service';
 import { environment } from '../../environments/enviroment';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'app-sales-report',
@@ -34,11 +35,13 @@ export class SalesReportComponent implements OnInit, OnDestroy {
   isAutorized: boolean = false;
   selectedSaleTotal: number = 0;
   selectedSaleId: number = 0;
+  selectedFolio: number = 0;
   showColumns = false;
   companyUsers: userDto[] | undefined;
   selectedUserName: string | undefined;
   rol = Roles;
   cStatus = CompanyStatus;
+  mearureType = MeasureType;
   
   private unsubscribe$: Subject<void> = new Subject();
   
@@ -47,7 +50,8 @@ export class SalesReportComponent implements OnInit, OnDestroy {
     private reportService: ReportsService,
     private navigationService: NavigationService,
     private userStateService: UserStateService,
-    private userService: UserService
+    private userService: UserService,
+    private translate: TranslateService
   ) 
   {
     this.userState = userStateService.getUserStateLocalStorage();
@@ -57,7 +61,7 @@ export class SalesReportComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     if(this.userState.roleId < Roles.User)
-      this.navigationService.showUIMessage("Petición incorrecta.");
+      this.navigationService.showUIMessage(this.translate.instant('Sales_report.request_incorrect'));
     else
       this.isAutorized = true;
     
@@ -109,8 +113,8 @@ export class SalesReportComponent implements OnInit, OnDestroy {
     });
   }
   
-  redirectToDetails(saleId: number) {
-    this.getSale(saleId);
+  redirectToDetails(saleId: number, folio : number) {
+    this.getSale(saleId, folio);
     this.showMainReport = false;
     this.selectedSaleId = 0;
     this.selectedSaleTotal = 0;
@@ -146,12 +150,12 @@ export class SalesReportComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.error(err);
-        this.navigationService.showUIMessage("Error de disponibilidad de red, intenta mas tarde.");
+        this.navigationService.showUIMessage(this.translate.instant('Sales_report.network_unavailable'));
       },
     });
   }
 
-  getSale(saleId: number): void {
+  getSale(saleId: number, folio: number): void {
     const userId = 0;
     this.saleProducts = [];
     this.filteredProducts = [];
@@ -183,10 +187,11 @@ export class SalesReportComponent implements OnInit, OnDestroy {
           this.filteredProducts = data;
           this.selectedSaleTotal = data.reduce((a, i) => a + i.totalPrice, 0 );
           this.selectedSaleId = saleId;
+          this.selectedFolio = folio;
         }
         else
         {
-          this.navigationService.showUIMessage('No hay registro de productos para la venta seleccionada' );  
+          this.navigationService.showUIMessage(this.translate.instant('Sales_report.no_product_registration'));
         }
       },
       error:(err) => {
@@ -270,7 +275,7 @@ export class SalesReportComponent implements OnInit, OnDestroy {
         else
         {
           this.setTotalsToZero();
-          this.navigationService.showUIMessage('No hay registro de ventas entre las fechas ' + fromDate.toString() + ' - ' + toDate.toString() );  
+          this.navigationService.showUIMessage(this.translate.instant('Sales_report.no_register_sale') + ' ' + fromDate.toString() + ' - ' + toDate.toString() ); 
         }
       },
       error:(err) => {
@@ -305,5 +310,8 @@ export class SalesReportComponent implements OnInit, OnDestroy {
     }
   }
 
+  getMeasureName(measure: number): string {
+    return MeasureType[measure];
+  }
  
 }

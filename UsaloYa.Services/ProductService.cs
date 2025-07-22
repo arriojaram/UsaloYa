@@ -29,8 +29,8 @@ namespace UsaloYa.Services
             _dBContext = dBContext;
             _productCategoryService = productCategoryService;
             _settings = settings;
-            
-          
+
+
         }
 
         public async Task<IEnumerable<Product4ListDto>> FilterProducts(int pageNumber, int categoryId, int companyId)
@@ -141,7 +141,8 @@ namespace UsaloYa.Services
                 UnitPrice1 = p.UnitPrice1,
                 UnitPrice2 = p.UnitPrice2,
                 UnitPrice3 = p.UnitPrice3,
-                UnitsInStock = p.UnitsInStock
+                UnitsInStock = p.UnitsInStock,
+                Measure = p.Measure
             }).ToList();
         }
 
@@ -166,6 +167,7 @@ namespace UsaloYa.Services
                 UnitPrice2 = product.UnitPrice2,
                 UnitPrice3 = product.UnitPrice3,
                 UnitsInStock = product.UnitsInStock,
+                Measure = product.Measure,
                 LowInventoryStart = product.AlertaStockNumProducts,
                 IsInventarioUpdated = product.IsInVentarioUpdated
             };
@@ -219,6 +221,9 @@ namespace UsaloYa.Services
                     UnitPrice2 = productDto.UnitPrice2 == 0 ? null : productDto.UnitPrice2,
                     UnitPrice3 = productDto.UnitPrice3 == 0 ? null : productDto.UnitPrice3,
                     UnitsInStock = productDto.UnitsInStock,
+
+                    Measure = productDto.Measure,
+
                     Discontinued = productDto.Discontinued,
                     DateModified = Utils.GetMxDateTime(),
                     Sku = string.IsNullOrEmpty(productDto.SKU) ? null : productDto.SKU,
@@ -265,13 +270,13 @@ namespace UsaloYa.Services
 
             var existingProduct = await _dBContext.Products
                 .FirstOrDefaultAsync(p => p.ProductId == productDto.ProductId && p.CompanyId == companyId);
-            
+
             var productWithSameBarcodeAndSku = _dBContext.Products
                 .Where(p => (p.Barcode == productDto.Barcode || (productDto.SKU != null && p.Sku == productDto.SKU)) && p.CompanyId == companyId);
 
             var numOfProducts = await productWithSameBarcodeAndSku.CountAsync();
             if (numOfProducts > 1 || (numOfProducts > 0 && productWithSameBarcodeAndSku.First().ProductId != productDto.ProductId)) return null;
-            
+
             if (existingProduct == null && productDto.ProductId == 0)
             {
                 if (user.CompanyStatusId == (int)CompanyStatus.Free)
@@ -279,6 +284,7 @@ namespace UsaloYa.Services
                     var numExistingRecords = await _dBContext.Products.CountAsync(c => c.CompanyId == companyId);
                     if (numExistingRecords >= _settings.FreeRoleMaxProducts) return null;
                 }
+
 
                 existingProduct = new Product
                 {
@@ -291,6 +297,9 @@ namespace UsaloYa.Services
                     UnitPrice2 = productDto.UnitPrice2,
                     UnitPrice3 = productDto.UnitPrice3,
                     UnitsInStock = productDto.UnitsInStock,
+
+                    Measure = productDto.Measure,
+
                     Discontinued = productDto.Discontinued,
                     DateModified = Utils.GetMxDateTime(),
                     Sku = string.IsNullOrEmpty(productDto.SKU) ? null : productDto.SKU,
@@ -314,6 +323,9 @@ namespace UsaloYa.Services
                 existingProduct.UnitPrice2 = productDto.UnitPrice2;
                 existingProduct.UnitPrice3 = productDto.UnitPrice3;
                 existingProduct.UnitsInStock = productDto.UnitsInStock;
+
+                existingProduct.Measure = productDto.Measure;
+
                 existingProduct.Discontinued = productDto.Discontinued;
                 existingProduct.DateModified = Utils.GetMxDateTime();
                 existingProduct.Sku = string.IsNullOrEmpty(productDto.SKU) ? null : productDto.SKU;
@@ -336,7 +348,7 @@ namespace UsaloYa.Services
         public async Task<IEnumerable<Product4InventariotDto>> GetInventarioByCategoryId(int categoryId, int companyId, int pageNumber)
         {
             int pageSize = 50;
-            
+
 
             return await _dBContext.Products
                 .Include(c => c.Category)
@@ -354,6 +366,7 @@ namespace UsaloYa.Services
                     Name = p.Name,
                     CompanyId = p.CompanyId,
                     UnitsInStock = p.UnitsInStock,
+                    Measure = p.Measure,
                     TotalCashStock = p.UnitsInStock * p.UnitPrice,
                     UnitsInVentario = p.InVentario ?? 0,
                     AlertaStockNumProducts = p.AlertaStockNumProducts,
@@ -381,6 +394,7 @@ namespace UsaloYa.Services
                     Name = p.Name,
                     CompanyId = p.CompanyId,
                     UnitsInStock = p.UnitsInStock,
+                    Measure = p.Measure,
                     TotalCashStock = p.UnitsInStock * p.UnitPrice,
                     UnitsInVentario = p.InVentario ?? 0,
                     AlertaStockNumProducts = p.AlertaStockNumProducts,
@@ -415,6 +429,7 @@ namespace UsaloYa.Services
                     Name = p.Name,
                     CompanyId = p.CompanyId,
                     UnitsInStock = p.UnitsInStock,
+                    Measure = p.Measure,
                     TotalCashStock = p.UnitsInStock * p.UnitPrice,
                     UnitsInVentario = p.InVentario ?? 0,
                     AlertaStockNumProducts = p.AlertaStockNumProducts,
@@ -424,7 +439,7 @@ namespace UsaloYa.Services
                     CategoryName = p.Category.Name ?? "",
                     IsInVentarioUpdated = p.IsInVentarioUpdated ?? false
                 })
-                .Where(p => p.CompanyId == companyId && !p.Discontinued && p.UnitsInVentario != p.UnitsInStock)
+                .Where(p => p.CompanyId == companyId && !p.Discontinued && p.UnitsInVentario > 0 && p.UnitsInVentario != p.UnitsInStock)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -435,7 +450,7 @@ namespace UsaloYa.Services
         public async Task<InventoryDto> GetInventarioTop50(string keyword, int companyId, int pageNumber)
         {
             int pageSize = 50;
-            int totalInventoryProds = 0;
+            decimal totalInventoryProds = 0;
             decimal totalInventoryCash = 0;
 
             keyword = keyword.Trim();
@@ -451,6 +466,7 @@ namespace UsaloYa.Services
                         Name = p.Name,
                         CompanyId = p.CompanyId,
                         UnitsInStock = p.UnitsInStock,
+                        Measure = p.Measure,
                         TotalCashStock = p.UnitsInStock * p.UnitPrice,
                         UnitsInVentario = p.InVentario ?? 0,
                         AlertaStockNumProducts = p.AlertaStockNumProducts,
@@ -474,6 +490,7 @@ namespace UsaloYa.Services
                         Name = p.Name,
                         CompanyId = p.CompanyId,
                         UnitsInStock = p.UnitsInStock,
+                        Measure = p.Measure,
                         TotalCashStock = p.UnitsInStock * p.UnitPrice,
                         UnitsInVentario = p.InVentario ?? 0,
                         AlertaStockNumProducts = p.AlertaStockNumProducts,
@@ -495,6 +512,7 @@ namespace UsaloYa.Services
                     UnitPrice = p.UnitPrice ?? 0,
                     ProductId = p.ProductId,
                     UnitsInStock = p.UnitsInStock,
+                    Measure = p.Measure,
                     Discontinued = p.Discontinued
                 })
                 .Where(p => p.CompanyId == companyId && !p.Discontinued)
@@ -531,6 +549,7 @@ namespace UsaloYa.Services
                     Name = p.Name,
                     CompanyId = p.CompanyId,
                     UnitsInStock = p.UnitsInStock,
+                    Measure = p.Measure,
                     TotalCashStock = p.UnitsInStock * p.UnitPrice,
                     UnitsInVentario = p.InVentario ?? 0,
                     AlertaStockNumProducts = p.AlertaStockNumProducts,
@@ -547,7 +566,7 @@ namespace UsaloYa.Services
             return products.OrderBy(p => p.InVentarioAlertLevel).ThenBy(p => p.UnitsInStock).ToList();
         }
 
-        public async Task<Product4InventariotDto> SetInVentario(string barcode, int quantity, int companyId)
+        public async Task<Product4InventariotDto> SetInVentario(string barcode, decimal quantity, int companyId)
         {
             var product = await _dBContext.Products
                 .Include(c => c.Category)
@@ -555,7 +574,16 @@ namespace UsaloYa.Services
 
             if (product != null)
             {
-                product.InVentario = quantity > 1 ? quantity : (product.InVentario ?? 0) + 1;
+
+                if (quantity == -1)
+                {
+                    product.InVentario = (product.InVentario ?? 0) + 1;
+                }else
+                {
+                    if (quantity >=0)
+                    product.InVentario = quantity;
+                }              
+
                 product.IsInVentarioUpdated = true;
 
                 _dBContext.Entry(product).State = EntityState.Modified;
@@ -570,6 +598,7 @@ namespace UsaloYa.Services
                     Name = product.Name,
                     CompanyId = product.CompanyId,
                     UnitsInStock = product.UnitsInStock,
+                    Measure = product.Measure,
                     TotalCashStock = product.UnitsInStock * product.UnitPrice,
                     UnitsInVentario = product.InVentario ?? 0,
                     AlertaStockNumProducts = product.AlertaStockNumProducts,
@@ -594,13 +623,14 @@ namespace UsaloYa.Services
             return true;
         }
 
-        public async Task<int> SetUnitsInStockByProductId(int productId, int companyId)
+        public async Task<decimal> SetUnitsInStockByProductId(int productId, int companyId)
         {
             var product = await _dBContext.Products.FirstOrDefaultAsync(p => p.ProductId == productId && p.CompanyId == companyId);
             if (product != null)
             {
                 product.UnitsInStock = product.InVentario ?? 0;
                 product.IsInVentarioUpdated = false;
+                product.InVentario = 0;
 
                 _dBContext.Entry(product).State = EntityState.Modified;
                 await _dBContext.SaveChangesAsync();
@@ -609,7 +639,7 @@ namespace UsaloYa.Services
             return -1;
         }
 
-        public async Task<int> SetUnitsInStock(int productId, int unitsInStock, bool isHardReset, int companyId)
+        public async Task<decimal> SetUnitsInStock(int productId, decimal unitsInStock, bool isHardReset, int companyId)
         {
             var product = await _dBContext.Products.FirstOrDefaultAsync(p => p.ProductId == productId && p.CompanyId == companyId);
 

@@ -3,6 +3,6 @@
     public class BarcodeDto
     {
         public string Code { get; set; }
-        public int Quantity { get; set; }
+        public decimal Quantity { get; set; }
     }
 }

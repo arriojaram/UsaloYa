@@ -328,10 +328,10 @@ export class SaleService extends Dexie implements OnInit{
     return sale;
   }
 
-   finishSale(userId: number, companyId: number, notas: string, metodoPago: string): Observable<number> {
+   finishSale(userId: number, companyId: number, notas: string, metodoPago: string): Observable<{ saleId: number, folio: number }> {
     const apiUrl = `${this.baseUrl}/AddSale`;
     const sale = this.buildSale(userId, companyId, notas, metodoPago);
-    return this.httpClient.post<number>(apiUrl, sale).pipe(
+    return this.httpClient.post<{ saleId: number, folio: number }>(apiUrl, sale).pipe(
       tap(() => {
         //this.totalVenta = 0;
       }),

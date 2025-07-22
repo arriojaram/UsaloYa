@@ -30,8 +30,9 @@ namespace UsaloYa.Services
                     && s.SaleDate >= fromDate.Date && s.SaleDate <= toDate.Date)
                 .Select(r => new
                 {
-                     
+
                     SaleID = r.SaleId,
+                    Folio = r.Folio,
                     SaleDate = r.SaleDate,
                     UserId = r.UserId,
                     UserName = r.User.UserName,
@@ -57,6 +58,7 @@ namespace UsaloYa.Services
                     Barcode = r.Product.Barcode,
                     ProductName = r.Product.Name,
                     Quantity = r.Quantity,
+                    Measure = r.Product.Measure,
                     BuyPrice = r.Product.BuyPrice,
                     SoldPrice = r.UnitPrice,
                     ProductPrice1 = r.Product.UnitPrice1,

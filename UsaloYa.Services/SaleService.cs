@@ -1,12 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using UsaloYa.Dto;
 using UsaloYa.Dto.Enums;
 using UsaloYa.Dto.Utils;
-using UsaloYa.Dto;
 using UsaloYa.Library.Models;
 using UsaloYa.Services.interfaces;
 
@@ -21,6 +16,33 @@ namespace UsaloYa.Services
             _dBContext = dBContext;
         }
 
+        public async Task<int?> AddFolioSale(int saleId, int companyId)
+        {
+            using var connection = _dBContext.Database.GetDbConnection();
+            await connection.OpenAsync();
+
+            using var command = connection.CreateCommand();
+            command.CommandText = "AddFolioSale";
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+
+            // Parámetros
+            var saleIdParam = command.CreateParameter();
+            saleIdParam.ParameterName = "@SaleId";
+            saleIdParam.Value = saleId;
+            command.Parameters.Add(saleIdParam);
+
+            var companyIdParam = command.CreateParameter();
+            companyIdParam.ParameterName = "@CompanyId";
+            companyIdParam.Value = companyId;
+            command.Parameters.Add(companyIdParam);
+
+            // Ejecutar y leer el valor devuelto
+            var result = await command.ExecuteScalarAsync();
+
+            return result != null ? Convert.ToInt32(result) : (int?)null;
+        }
+
+
         public async Task<int> AddSale(SaleDto sale)
         {
             var newSale = new Sale
@@ -33,12 +55,13 @@ namespace UsaloYa.Services
                 Status = "Abierta",
                 Tax = sale.Tax,
                 UserId = sale.UserId,
-                //Folio = sale.Folio,
                 TotalSale = 0
             };
 
             _dBContext.Sales.Add(newSale);
+
             await _dBContext.SaveChangesAsync();
+
 
             return newSale.SaleId;
         }
@@ -74,7 +97,7 @@ namespace UsaloYa.Services
             return true;
         }
 
-        public async Task<bool> UpdateStock(int productId, int selledItems)
+        public async Task<bool> UpdateStock(int productId, decimal selledItems)
         {
             var existingProduct = await _dBContext.Products.FirstOrDefaultAsync(p => p.ProductId == productId);
             if (existingProduct == null) return false;
@@ -130,5 +153,7 @@ namespace UsaloYa.Services
             await _dBContext.SaveChangesAsync();
             return true;
         }
+
+
     }
 }
