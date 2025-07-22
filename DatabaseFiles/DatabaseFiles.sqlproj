@@ -65,6 +65,6 @@
   <ItemGroup>
     <Build Include="InitScripts\GenerateFolio.sql" />
     <Build Include="StoredProcedures\AddFolioSale.sql" />
-    <Build Include="StoredProcedures\sp_DeleteInactiveCompanies.sql" />
+    <Build Include="StoredProcedures\DeleteInactiveCompanies.sql" />
   </ItemGroup>
 </Project>
