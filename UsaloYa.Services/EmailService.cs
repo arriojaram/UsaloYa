@@ -2,6 +2,8 @@
 using MailKit.Security;
 using Microsoft.Extensions.Configuration;
 using MimeKit;
+using System;
+using System.Text;
 using UsaloYa.Dto;
 using UsaloYa.Dto.Utils;
 using UsaloYa.Library.Models;
@@ -9,6 +11,7 @@ using UsaloYa.Services.interfaces;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using static Org.BouncyCastle.Math.EC.ECCurve;
 namespace UsaloYa.Services
+
 {
 
     public class EmailService : IEmailService
@@ -149,29 +152,22 @@ namespace UsaloYa.Services
 
         public string BuildInterpolatedMessage(string configKeyBase, Dictionary<string, string> placeholders)
         {
-            var messageParts = new List<string>();
             var listMessages = _configuration
                 .GetSection(configKeyBase)
-                .GetChildren().
-                Where(section => section.Key.Contains("Message"));
-            foreach (var item in listMessages)
-            {
+                .GetChildren()
+                .Where(section => section.Key.Contains("Message"))
+                .Select(section => section.Value?.Replace("\n", "<br/>") ?? "");
 
-                var template = item.Value;
-                template = template.Replace("\n", "<br/>");
-                messageParts.Add(template);
+            var fullMessage = string.Join("<br/><br/>", listMessages);
+
+            foreach (var placeholder in placeholders)
+            {
+                fullMessage = fullMessage.Replace($"{{{placeholder.Key}}}", placeholder.Value);
             }
 
-            for (int i = 0; i < messageParts.Count; i++)
-            {
-                foreach (var placeholder in placeholders)
-                {
-                    messageParts[i] = messageParts[i].Replace($"{{{placeholder.Key}}}", placeholder.Value);
-                }
-            }
-
-            return string.Join("<br/><br/>", messageParts);
+            return fullMessage;
         }
+
 
     }
 }
