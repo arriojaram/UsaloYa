@@ -290,7 +290,6 @@ namespace UsaloYa.API.Controllers
         public async Task<IActionResult> RequestVerificationCodeEmail([FromHeader] string DeviceId, [FromBody] RequestVerificationCodeDto request)
         {
             var templatePath = Path.Combine(_env.ContentRootPath, "Templates", "Notificacion.html");
-            _logger.LogInformation("Recibido email: {Email}, code: {Code}, deviceId: {DeviceId}", request.Email, request.Code, DeviceId);
 
             try
             {
