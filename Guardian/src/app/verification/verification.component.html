@@ -1,0 +1,46 @@
+<div class="form-container">
+  <h2 class="title">Código de Verificación</h2>
+
+  <form [formGroup]="verificationForm" (ngSubmit)="onSubmit()" class="form">
+
+    <div class="form-group">
+      <label for="Code" class="form-label">Código</label>
+      <input type="text" id="Code" class="input" [class.input-error]="
+          verificationForm.get('Code')?.invalid &&
+          verificationForm.get('Code')?.touched
+        " formControlName="Code" placeholder="Ingresa el código" />
+      <div class="error-msg" *ngIf="
+          verificationForm.get('Code')?.hasError('required') &&
+          verificationForm.get('Code')?.touched
+        ">
+        El código es obligatorio.
+      </div>
+    </div>
+
+
+    <div class="form-group">
+      <label for="Email" class="form-label">E-mail</label>
+      <input type="email" id="Email" class="input" [class.input-error]="
+          verificationForm.get('Email')?.invalid &&
+          verificationForm.get('Email')?.touched
+        " formControlName="Email" placeholder="Confirma tu e-mail" />
+      <div class="error-msg" *ngIf="
+          verificationForm.get('Email')?.hasError('required') &&
+          verificationForm.get('Email')?.touched
+        ">
+        El correo es obligatorio.
+      </div>
+      <div class="error-msg" *ngIf="
+          verificationForm.get('Email')?.hasError('email') &&
+          verificationForm.get('Email')?.touched
+        ">
+        El correo no es válido.
+      </div>
+    </div>
+
+
+    <button type="submit" class="submit" [disabled]="verificationForm.invalid">
+      Verificar
+    </button>
+  </form>
+</div>

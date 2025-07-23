@@ -12,12 +12,14 @@ import { InventarioService } from '../../services/inventario.service.service';
 import { setUnitsInStockDto } from '../../dto/setUnitsInStockDto';
 import { productCategoryDto } from '../../dto/productCategoryDto';
 import { ProductCategoryService } from '../../services/product-category.service';
+import { TranslateService } from '@ngx-translate/core';
+import { MeasureType } from '../../Enums/enums';
 
 @Component({
-    selector: 'app-product-management',
-    templateUrl: './product-management.component.html',
-    styleUrls: ['./product-management.component.css'],
-    imports: [ReactiveFormsModule, FormsModule, NgFor, NgIf, NgClass]
+  selector: 'app-product-management',
+  templateUrl: './product-management.component.html',
+  styleUrls: ['./product-management.component.css'],
+  imports: [ReactiveFormsModule, FormsModule, NgFor, NgIf, NgClass]
 })
 export class ProductManagementComponent implements OnInit {
 
@@ -28,29 +30,28 @@ export class ProductManagementComponent implements OnInit {
   selectedProduct: Producto | null = null;
   userState: userDto;
   showAddInventarioBox: boolean = false;
-
+  measure = MeasureType;
   pageNumber: number = 1;
   rol = Roles;
   cStatus = CompanyStatus;
   selectedCategoryId: number = 0;
   moreItems: boolean | undefined;
-  
+  previousMeasure: MeasureType = MeasureType.Ud;
 
   constructor(
-    private fb: FormBuilder, 
+    private fb: FormBuilder,
     private productService: ProductService,
     private userService: UserStateService,
     public navigationService: NavigationService,
     private inventoryService: InventarioService,
-    private categoryService: ProductCategoryService
-  ) 
-  {
+    private categoryService: ProductCategoryService,
+    private translate: TranslateService
+  ) {
     this.userState = userService.getUserStateLocalStorage();
     this.productForm = this.initProductForm();
   }
 
-  initProductForm() : FormGroup
-  {
+  initProductForm(): FormGroup {
     return this.fb.group({
       productId: [0],
       name: ['', Validators.required],
@@ -73,7 +74,8 @@ export class ProductManagementComponent implements OnInit {
       size: [''],
       companyId: [1, Validators.required],
       lowInventoryStart: [0],
-      addToInventoryVal: [0]
+      addToInventoryVal: [0],
+      measure: [MeasureType.Ud, Validators.required],
     });
   }
 
@@ -82,32 +84,54 @@ export class ProductManagementComponent implements OnInit {
     this.moreItems = true;
     this.searchProductsInternal('-1');
     this.navigationService.checkScreenSize();
-    this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId?? 0);
-    
+    this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId ?? 0);
     this.getCategories();
+
+    this.productForm.get('measure')?.valueChanges.subscribe((newMeasure) => {
+      const units = this.productForm.get('unitsInStock')?.value;
+
+      if (this.previousMeasure !== newMeasure) {
+        // Si la medida cambia
+        if (newMeasure === MeasureType.Ud && units % 1 !== 0) {
+          this.navigationService.showUIMessage(
+            this.translate.instant('product.adverticed_unit'),
+            AlertLevel.Warning
+          );
+        }
+        this.previousMeasure = newMeasure;
+      }
+    });
+
   }
 
   openCaptureInventory() {
-    this.showAddInventarioBox=!this.showAddInventarioBox;
-    if(!this.showAddInventarioBox && this.productForm.get('addToInventoryVal'))
-    {
+    this.showAddInventarioBox = !this.showAddInventarioBox;
+    if (!this.showAddInventarioBox && this.productForm.get('addToInventoryVal')) {
       let addVal = this.productForm.get('addToInventoryVal')?.value;
       let productId = this.productForm.get('productId')?.value;
+      // Obtener medida
+      const measure = this.productForm.get('measure')?.value;
+
+      // Validar que productos de medida "unidad" no tengan decimales
+      if (measure === MeasureType.Ud && addVal % 1 !== 0) {
+        this.navigationService.showUIMessage(this.translate.instant('product.invalid_quantity_unit'), AlertLevel.Warning);
+        return; // Detener el proceso
+      }
+
       //Si esta abierto y se hace click entonces sumar o restar el valor proporcionado
-      if(addVal !== 0)
-      {
-        let stockInfo:setUnitsInStockDto = {isHardReset:false, productId, unitsInStock:addVal};
+      if (addVal !== 0) {
+        let stockInfo: setUnitsInStockDto = { isHardReset: false, productId, unitsInStock: addVal };
 
         this.inventoryService.setUnitsInStockToProduct(stockInfo, this.userState.companyId).pipe(first())
           .subscribe({
             next: (newStock) => {
-              this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId?? 0);
-              this.navigationService.showUIMessage("Se agregaron las nuevas configuraciones a las existencias del producto.", AlertLevel.Sucess);      
+              this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId ?? 0);
+              this.navigationService.showUIMessage(this.translate.instant('product.stock_updated'), AlertLevel.Sucess);
               this.productForm.get('addToInventoryVal')?.setValue(0);
               this.productForm.get('unitsInStock')?.setValue(newStock);
             },
-            error:(err) => {
-              this.navigationService.showUIMessage("No se pudo actualizar el inventario.", AlertLevel.Error);      
+            error: (err) => {
+              this.navigationService.showUIMessage(this.translate.instant('product.stock_update_error'), AlertLevel.Error);
               this.productForm.get('addToInventoryVal')?.setValue(0);
               console.log("No se pudo actualizar el inventario " + err);
             },
@@ -117,19 +141,19 @@ export class ProductManagementComponent implements OnInit {
   }
 
   filterProducts(): void {
-    this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId?? 0);
+    this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId ?? 0);
     this.pageNumber = 1;
     this.moreItems = true;
     let categoryId = this.selectedCategoryId;
     let companyId = this.userState.companyId;
     this.productService.filterProducts(this.pageNumber, companyId, categoryId).pipe(first())
       .subscribe({
-        next:(products) => {
-          if(products.length == 0)
-            this.navigationService.showUIMessage('No hay productos en la categoria seleccionada.');
-          
-          this.products = products.sort((a,b) => a.name.localeCompare(b.name));
-          }
+        next: (products) => {
+          if (products.length == 0)
+            this.navigationService.showUIMessage(this.translate.instant('product.no_products_category'));
+
+          this.products = products.sort((a, b) => a.name.localeCompare(b.name));
+        }
       });
   }
 
@@ -138,106 +162,103 @@ export class ProductManagementComponent implements OnInit {
     this.moreItems = true;
     let keyword = this.navigationService.searchItem;
     if (!keyword || keyword.trim() === "") {
-      keyword="-1";
+      keyword = "-1";
     }
     this.searchProductsInternal(keyword);
-    
+
   }
-  
+
   loadMore(): void {
-    this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId?? 0);
+    this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId ?? 0);
     this.pageNumber++;
-    if(this.selectedCategoryId > 0)
-    {
+    if (this.selectedCategoryId > 0) {
       this.appendToFilteredResults();
     }
-    else
-    {
+    else {
       let keyword = this.navigationService.searchItem;
       if (!keyword || keyword.trim() === "") {
-        keyword="-1";
+        keyword = "-1";
       }
-  
+
       this.appendToSearchResults(keyword);
     }
   }
 
   private appendToFilteredResults(): void {
     this.productService.filterProducts(this.pageNumber, this.userState.companyId, this.selectedCategoryId).pipe(first())
-    .subscribe({
-      next: (products) => {
-        if(products.length == 0)
-        {
-          this.moreItems = false;
-          return;
+      .subscribe({
+        next: (products) => {
+          if (products.length == 0) {
+            this.moreItems = false;
+            return;
+          }
+          this.products = this.products.concat(products.sort((a, b) => a.name.localeCompare(b.name)));
         }
-        this.products = this.products.concat(products.sort((a,b) => a.name.localeCompare(b.name)));
-      }
-    });
+      });
   }
 
   private appendToSearchResults(name: string): void {
     this.productService.searchProducts4List(this.pageNumber, this.userState.companyId, name).pipe(first())
-    .subscribe({
-      next: (products) => {
-        if(products.length == 0)
-        {
-          this.moreItems = false;
-          return;
-        }
-        
-        this.products = this.products.concat(products.sort((a,b) => a.name.localeCompare(b.name)));
-      },
-      error:(err) => {
-
-        if (err.status === 404) {  
-          if(this.pageNumber > 1)
+      .subscribe({
+        next: (products) => {
+          if (products.length == 0) {
             this.moreItems = false;
-          else
-            this.navigationService.showUIMessage("El producto no fue encontrado.");
-        } else {
-          this.navigationService.showUIMessage("Error al procesar la solicitud. Servidor no disponible" );
-        }
-      },
-    });
+            return;
+          }
+
+          this.products = this.products.concat(products.sort((a, b) => a.name.localeCompare(b.name)));
+        },
+        error: (err) => {
+
+          if (err.status === 404) {
+            if (this.pageNumber > 1)
+              this.moreItems = false;
+            else
+              this.navigationService.showUIMessage(this.translate.instant('product.not_found'));
+          } else {
+            this.navigationService.showUIMessage(this.translate.instant('product.error_application'));
+          }
+        },
+      });
   }
 
   private searchProductsInternal(name: string): void {
     this.productService.searchProducts4List(this.pageNumber, this.userState.companyId, name).pipe(first())
-    .subscribe({
-      next: (products) => {
-        this.products = products.sort((a,b) => a.name.localeCompare(b.name));
-        if(this.products.length > 0)
-        {
-          this.selectProduct(products[0].productId);
-        }
-      },
-      error:(err) => {
-        if (err.status === 404) {  
-          if(this.pageNumber > 1)
-            this.moreItems = false;
-          else
-            this.navigationService.showUIMessage("El producto no fue encontrado.");
-        } else {
-          this.navigationService.showUIMessage("Error al procesar la solicitud. Servidor no disponible" );
-        }
-      },
-    });
+      .subscribe({
+        next: (products) => {
+          this.products = products.sort((a, b) => a.name.localeCompare(b.name));
+          if (this.products.length > 0) {
+            this.selectProduct(products[0].productId);
+          }
+        },
+        error: (err) => {
+          if (err.status === 404) {
+            if (this.pageNumber > 1)
+              this.moreItems = false;
+            else
+              this.navigationService.showUIMessage(this.translate.instant('product.not_found'));
+          } else {
+            this.navigationService.showUIMessage(this.translate.instant('product.error_application'));
+          }
+        },
+      });
   }
 
   selectProduct(productId: number): void {
     this.productService.getProduct(this.userState.companyId, productId).pipe(first())
-    .subscribe(product => {
-      this.selectedProduct = product;
-      this.productForm.patchValue(product);
-      if(this.userState.companyStatusId == this.cStatus.Free)
-      {
-        this.productForm.get('unitPrice1')?.disable();
-        this.productForm.get('unitPrice2')?.disable();
-        this.productForm.get('unitPrice3')?.disable();
-      }
-      this.navigationService.checkScreenSize();
-    });
+      .subscribe(product => {
+        this.selectedProduct = product;
+        this.productForm.patchValue(product);
+
+        this.previousMeasure = product.measure;
+
+        if (this.userState.companyStatusId == this.cStatus.Free) {
+          this.productForm.get('unitPrice1')?.disable();
+          this.productForm.get('unitPrice2')?.disable();
+          this.productForm.get('unitPrice3')?.disable();
+        }
+        this.navigationService.checkScreenSize();
+      });
   }
 
   saveProduct(): void {
@@ -245,28 +266,34 @@ export class ProductManagementComponent implements OnInit {
       this.productForm.markAllAsTouched();
       return;
     }
+    const measure = this.productForm.get('measure')?.value;
+    let units = this.productForm.get('unitsInStock')?.value;
+
+    // Si la medida es "unidad" y tiene decimales, truncamos a entero
+    if (measure === MeasureType.Ud && units % 1 !== 0) {
+      this.productForm.get('unitsInStock')?.setValue(Math.floor(units));
+    }
     if (this.productForm.valid) {
-      this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId?? 0);
+      this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId ?? 0);
       const product: Producto = this.productForm.value;
       product.companyId = this.userState.companyId;
-      
+
       this.productService.saveProduct(this.userState.companyId, product).pipe(first())
-      .subscribe({
-        next: (savedProduct) => {
-          this.pageNumber = 1;
-          if(product.productId == 0)
-            this.products.unshift(savedProduct);
-          
-          this.selectProduct(savedProduct.productId);
-          this.navigationService.showUIMessage("Producto guardado (" + savedProduct.productId + ")", AlertLevel.Sucess);
-        },
-        error: (e) => 
-        {
-          this.navigationService.showUIMessage(e.error.message);
-        }
-      });
+        .subscribe({
+          next: (savedProduct) => {
+            this.pageNumber = 1;
+            if (product.productId == 0)
+              this.products.unshift(savedProduct);
+
+            this.selectProduct(savedProduct.productId);
+            this.navigationService.showUIMessage(this.translate.instant('product.save_success') + ' (' + savedProduct.productId + ')', AlertLevel.Sucess);
+          },
+          error: (e) => {
+            this.navigationService.showUIMessage(e.error.message);
+          }
+        });
     } else {
-      this.navigationService.showUIMessage('Proporciona toda la información requerida', AlertLevel.Warning);
+      this.navigationService.showUIMessage(this.translate.instant('product.information_missing'), AlertLevel.Warning);
     }
   }
 
@@ -283,23 +310,19 @@ export class ProductManagementComponent implements OnInit {
   }
 
   private getCategories(): void {
-    if(this.userState != null)
-    {
+    if (this.userState != null) {
       this.categoryService.getAll(this.userState.companyId, '-1').pipe(first())
-      .subscribe(users => {
-        this.categoryList = users.sort((a,b) => (a.name?? '').localeCompare((b.name?? '')));
-        if(this.userState.companyStatusId != this.cStatus.Free)
-        {
-          this.categoryListFilter = this.categoryList;
-        }
-        else
-        {
-          this.categoryListFilter = [];
-        }
-      });
+        .subscribe(users => {
+          this.categoryList = users.sort((a, b) => (a.name ?? '').localeCompare((b.name ?? '')));
+          if (this.userState.companyStatusId != this.cStatus.Free) {
+            this.categoryListFilter = this.categoryList;
+          }
+          else {
+            this.categoryListFilter = [];
+          }
+        });
     }
-    else
-    {
+    else {
       console.error("Estado de usuario invalido.");
     }
   }

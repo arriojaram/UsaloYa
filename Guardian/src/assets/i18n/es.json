@@ -1,0 +1,69 @@
+{
+  "register_form": {
+    "invalid_form": "Por favor corrige los errores del formulario",
+    "user_saved": "Datos de usuario capturados correctamente. Continúa con los datos de la compañía.",
+    "error_register": "Error al registrar los datos de la compañía y el usuario"
+  },
+  "register_company": {
+    "missing_user_data": "Por favor registra primero los datos del usuario.",
+    "invalid_form": "Formulario inválido",
+    "incomplete_user_data": "Faltan los datos del usuario. Por favor regístrate primero.",
+    "company_saved": "Datos de la compañía guardados correctamente. Continúa con las preguntas."
+  },
+  "questions": {
+    "load_error": "Error al cargar las preguntas. Intenta más tarde.",
+    "missing_data": "Faltan datos del usuario o de la empresa.",
+    "sucess": "Registro completo. Se ha enviado un email de verificación.",
+    "register_error": "Error al registrar: "
+  },
+  "product": {
+    "invalid_quantity_unit": "El producto está configurado como 'Unidad' y no puede tener cantidad decimal.",
+    "stock_updated": "Se agregaron las nuevas configuraciones a las existencias del producto.",
+    "stock_update_error": "No se pudo actualizar el inventario.",
+    "save_success": "Producto guardado",
+    "not_found": "El producto no fue encontrado.",
+    "no_products_category": "No hay productos en la categoría seleccionada.",
+    "error_application": "Error al procesar la solicitud. Servidor no disponible.",
+    "information_missing": "Proporciona toda la información requerida",
+    "adverticed_unit":"La unidad fue cambiada a 'unidad'. El stock se redondeará automáticamente al valor entero más bajo."
+
+  },
+  "list_sale": {
+    "invalid_quantity_unit": "El producto está configurado como 'Unidad' y no puede tener cantidad decimal.",
+    "client_not_found": "No hay clientes con el nombre:",
+    "amount_must_be_positive": "El valor debe ser mayor que cero.",
+    "missing_received_amount": "No has agregado la cantidad de dinero recibida"
+  },
+  "Inventary_report": {
+    "request_incorrect": "Petición incorrecta.",
+    "inventory_stock_synced": "Se igualaron los valores de las existencias al de los capturados en el inventario.",
+    "product_not_found": "El producto no fue encontrado.",
+    "products_not_found": "No se encontraron productos.",
+    "server_error": "Error al procesar la solicitud. Servidor no disponible",
+    "no_products_by_category": "No se encontraron productos con la categoria seleccionada.",
+    "updated": "Actualizado.",
+    "updated_error": "Error no se pudo actualizar.",
+    "invalid_quantity_unit": "Este producto solo permite valores enteros porque su medida es por unidad.",
+    "inventory_initialized_zero": "Se inicializaron todos los valores del inventario a cero.",
+    "no_products_by_status": "No se encontraron productos con estado ",
+    "no_more_products": "No hay productos mas.",
+    "no_products_existing_by_status": "No se encontraron productos en existencias con estado",
+    "negative_quantity_not_allowed": "No se permiten cantidades negativas"
+  },
+  "Sales_report": {
+    "request_incorrect": "Petición incorrecta.",
+    "network_unavailable": "Error de disponibilidad de red, intenta mas tarde.",
+    "no_product_registration": "No hay registro de productos para la venta seleccionada",
+    "no_register_sale": "No hay registro de ventas entre las fechas"
+  },
+  "emails": {
+    "email_send_error": "Error al enviar el correo electronico, por favor contactenos",
+    "email_send_ok": "Usuario registrado y correos enviados correctamente."
+  },
+  "data_base": {
+    "internal_server_error": "No se puede procesar la solicitud. Error interno del servidor."
+  },
+  "form-navigator": {
+    "missing_data": "Faltan campos obligatorios"
+  }
+}

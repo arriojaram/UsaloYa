@@ -14,14 +14,31 @@
             <div class="card-body">
                 <h6 class="card-title">Buscar Usuarios</h6>
                 <div class="input-group mb-3">
-                <input type="text" class="form-control" placeholder="Escribe el nombre aqui..." (input)="searchUsers($event)">
-                
+                    <input type="text" class="form-control" placeholder="Escribe el nombre aqui..." (input)="searchUsers($event)">
                 </div>
+                
                 <ul class="list-group mt-3">
-                    <li *ngFor="let user of userList" class="list-group-item list-group-item-action" [ngClass]="{'text-primary': this.selectedUser?.userId == user.userId}" (click)="selectUser(user.userId)">
-                        {{ user.firstName + ' ' + user.lastName + ' (' + user.userName + ')' }}
+                    <li *ngFor="let company of companiesFiltered()" 
+                    class="list-group-item list-group-item-action"
+                        [ngClass]="{'text-primary': this.selectedCompany?.companyId == company.companyId}"
+                        (click)="selectCompany(company.companyId)">
+                        
+                       <span class="caret" [class.expanded]="expandedCompanyIds.includes(company.companyId)"></span>
+                       {{ company.name }}
+                                                
+                        <ul *ngIf="expandedCompanyIds.includes(company.companyId)" 
+                            class="list-group mt-2 sublist"
+                            [ngStyle]="{'border-left': '4px solid ' + getCompanyColor(company.companyId)}">
+                        <li *ngFor="let user of userListsByCompany[company.companyId] || []"
+                            class="list-group-item list-group-item-action"
+                            [ngClass]="{'text-primary': this.selectedUser?.userId == user.userId}"
+                            (click)="selectUser(user.userId); $event.stopPropagation()">
+                            {{ user.firstName + ' ' + user.lastName + ' (' + user.userName + ')' }}
+                            </li>
+                        </ul>
                     </li>
                 </ul>
+              
             </div>
             </div>
         </div>

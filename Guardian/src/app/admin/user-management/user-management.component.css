@@ -1,0 +1,40 @@
+
+.sublist {
+  margin-left: 16px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  padding-left: 8px;
+}
+
+
+.list-group-item-action {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.list-group-item-action:hover {
+  background-color: #eef6fb;
+}
+
+.list-group-item-action::before {
+  display: inline-block;
+  width: 1em;
+  margin-right: 4px;
+}
+
+.caret {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 6px;
+  border-right: 2px solid rgb(61, 61, 61);
+  border-bottom: 2px solid rgb(61, 61, 61);
+  transform: rotate(-45deg); /* por defecto apuntando a la derecha (>) */
+  transition: transform 0.2s ease;
+}
+
+/* Cuando está expandido, la rotamos para que apunte abajo (v) */
+.caret.expanded {
+  transform: rotate(45deg);
+}
+

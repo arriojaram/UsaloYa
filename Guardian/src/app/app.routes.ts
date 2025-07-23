@@ -12,20 +12,34 @@ import { PolicyComponent } from './resources/policy.component';
 import { AgreementsComponent } from './resources/agreements.component';
 import { InventarioReportComponent } from './admin/inventario-report/inventario-report.component';
 import { PcategoriesComponent } from './admin/pcategories/pcategories.component';
+import { RegisterCompanyComponent } from './register-company/register-company.component';
+import { RegisterComponent } from './register/register.component';
+import { VerifyCodeComponent } from './verification/verification.component';
+import { QuestionsComponent } from './questions/questions.component';
+import { FormNavigatorComponent } from './forms-navigator/forms-navigator.component';
+
 
 export const routes: Routes = [
-    {path: '', redirectTo: 'login', pathMatch: 'full' },
-    {path: 'login', component: LoginComponent },
+    { path: '', redirectTo: 'login', pathMatch: 'full' },
+    { path: 'login', component: LoginComponent },
+    { path: 'verification', component: VerifyCodeComponent },
+    
+    {path: 'forms-navigator',component: FormNavigatorComponent,
+        children: [
+            { path: 'register', component: RegisterComponent },
+            { path: 'register-company',component:RegisterCompanyComponent },
+            {path: 'questions', component: QuestionsComponent}
+        ]
+    },
     { path: 'reporteinventario', component: InventarioReportComponent, canActivate: [AuthGuard] },
     { path: 'reporteventas', component: SalesReportComponent, canActivate: [AuthGuard] },
-    { path: 'importar', component: ImportProductsComponent, canActivate: [AuthGuard] },  
-    { path: 'companies', component: CompanyManagementComponent, canActivate: [AuthGuard] },  
+    { path: 'importar', component: ImportProductsComponent, canActivate: [AuthGuard] },
+    { path: 'companies', component: CompanyManagementComponent, canActivate: [AuthGuard] },
     { path: 'productos', component: ProductManagementComponent, canActivate: [AuthGuard] },
     { path: 'categorias', component: PcategoriesComponent, canActivate: [AuthGuard] },
     { path: 'usuarios', component: UserManagementComponent, canActivate: [AuthGuard] },
     { path: 'clientes', component: CustomerManagementComponent, canActivate: [AuthGuard] },
     { path: 'main', component: PuntoDeVentaComponent, canActivate: [AuthGuard] },
-
     { path: 'policy', component: PolicyComponent, canActivate: [AuthGuard] },
     { path: 'agreements', component: AgreementsComponent, canActivate: [AuthGuard] }
 ];

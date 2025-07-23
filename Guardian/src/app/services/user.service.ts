@@ -1,11 +1,31 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { catchError, Observable } from 'rxjs';
-import { userDto as userDto } from '../dto/userDto';
+import { HttpClient,HttpBackend } from '@angular/common/http';
+import { catchError,  map, Observable } from 'rxjs';
+import { userDto } from '../dto/userDto';
 import { environment } from '../environments/enviroment';
 import { TokenDto } from '../dto/authenticateDto';
 import { adminGroupDto } from '../dto/adminGroupDto';
 import { NavigationService } from './navigation.service';
+import { RegisterUserQuestionnaireAndCompanyDto } from '../dto/RegisterUserQuestionnaireAndCompanyDto';
+import { HttpHeaders } from '@angular/common/http';
+import { VerificationResponseDto } from '../dto/VerificationResponseDto';
+
+export interface RequestVerificationCodeDto {
+  Email: string;
+  Code: string;
+}
+
+export interface VerificationResponse {
+  isValid: boolean;
+  message: string;
+  userId: number;
+}
+
+export interface LoginResponseDto {
+  isValid: boolean;
+  message: string;
+  userId: number;
+}
 
 
 @Injectable({
@@ -13,14 +33,17 @@ import { NavigationService } from './navigation.service';
 })
 export class UserService {
 
+  private rawHttp: HttpClient;
+
   private baseUrl = environment.apiUrlBase + '/api/User';
 
   constructor(
     private http: HttpClient,
-    private navigationService: NavigationService
-  ) 
-  {
-
+    private navigationService: NavigationService,
+     private httpBackend: HttpBackend        
+   
+  ) { 
+    this.rawHttp = new HttpClient(httpBackend);
   }
 
   saveUser(user: userDto): Observable<userDto> {
@@ -36,7 +59,7 @@ export class UserService {
 
   getUser(userId: number): Observable<userDto> {
     const apiUrl = `${this.baseUrl}/GetUser?i=0&userId=${userId}`;
-    
+
     return this.http.get<userDto>(apiUrl).pipe(
       catchError(error => {
         console.error('getUser() | ', error);
@@ -45,8 +68,20 @@ export class UserService {
     );
   }
 
-  getAllUser(companyId: number, name:string): Observable<userDto[]> {
-    const apiUrl =`${this.baseUrl}/GetAll?name=${name}&companyId=${companyId}`;
+  GetUsersByCompany(companyId: number): Observable<userDto[]> {
+    const apiUrl = `${this.baseUrl}/GetUsersByCompany?companyId=${companyId}`;
+
+    return this.http.get<userDto[]>(apiUrl).pipe(
+      catchError(error => {
+        console.error('GetUsersByCompany() | ', error);
+        throw error;
+      })
+    );
+  }
+
+
+  getAllUser(companyId: number, name: string): Observable<userDto[]> {
+    const apiUrl = `${this.baseUrl}/GetAll?name=${name}&companyId=${companyId}`;
 
     return this.http.get<userDto[]>(apiUrl).pipe(
       catchError(error => {
@@ -55,10 +90,21 @@ export class UserService {
       })
     );
   }
-  
+
+  get(companyId: number, name: string): Observable<userDto[]> {
+    const apiUrl = `${this.baseUrl}/GetAll?name=${name}&companyId=${companyId}`;
+
+    return this.http.get<userDto[]>(apiUrl).pipe(
+      catchError(error => {
+        console.error('getAllUser() | ', error);
+        throw error;
+      })
+    );
+  }
+
   getGroups(): Observable<adminGroupDto[]> {
-    const apiUrl =`${this.baseUrl}/GetGroups`;
-    
+    const apiUrl = `${this.baseUrl}/GetGroups`;
+
     return this.http.get<adminGroupDto[]>(apiUrl).pipe(
       catchError(error => {
         console.error('getGroups() | ', error);
@@ -81,4 +127,77 @@ export class UserService {
       })
     );
   }
+
+registerNewUser(data: RegisterUserQuestionnaireAndCompanyDto): Observable<{ userId: number, message: string }> {
+  const apiUrl = `${this.baseUrl}/RegisterNewUser`;
+  return this.rawHttp.post<{ userId: number, message: string }>(apiUrl, data).pipe(
+    catchError(error => {
+      console.error('registerNewUser() | ', error);
+      throw error;
+    })
+  );
 }
+
+
+  checkUsernameUnique(username: string): Observable<boolean> {
+    const apiUrl = `${this.baseUrl}/IsUsernameUnique`;
+    return this.rawHttp.post<boolean>(apiUrl, JSON.stringify(username), {
+      headers: { 'Content-Type': 'application/json' }
+    }).pipe(
+      catchError(error => {
+        console.error('checkUsernameUnique() | ', error);
+        throw error;
+      })
+    );
+  }
+
+
+checkEmailUnique(email: string): Observable<boolean> {
+  const apiUrl = `${this.baseUrl}/IsEmailUnique`;
+  return this.rawHttp.post<boolean>(apiUrl, JSON.stringify(email), {
+    headers: { 'Content-Type': 'application/json' }
+  }).pipe(
+    catchError(error => {
+      console.error('checkEmailUnique() | ', error);
+      throw error;
+    })
+  );
+}
+
+
+
+  
+
+  requestVerificationCode(request: RequestVerificationCodeDto, deviceId: string): Observable<VerificationResponseDto> {
+    const apiUrl = `${this.baseUrl}/RequestVerificationCode`;
+
+    const headers = new HttpHeaders({
+      'DeviceId': deviceId
+    });
+
+    return this.http.post<VerificationResponseDto>(apiUrl, request, { headers }).pipe(
+      catchError(error => {
+        console.error('requestVerificationCode() | ', error);
+        throw error;
+      })
+    );
+  }
+
+ requestVerificationCodeEmail(request: { Code: string; Email: string }, deviceId: string): Observable<VerificationResponseDto> {
+  const apiUrl = `${this.baseUrl}/RequestVerificationCodeEmail`;
+
+  const headers = new HttpHeaders({
+    'DeviceId': deviceId
+  });
+
+  return this.http.post<VerificationResponseDto>(apiUrl, request, { headers }).pipe(
+    catchError(error => {
+      console.error('requestVerificationCodeEmail() | ', error);
+      throw error;
+    })
+  );
+}
+
+
+}
+

@@ -1,34 +1,45 @@
-﻿GO
+﻿
+IF NOT EXISTS (
+    SELECT 1 FROM [Company]
+    WHERE [Name] = 'JMC' AND [Address] = 'Online'
+)
+BEGIN
+    INSERT INTO [Company]
+           ([Name], [Address], StatusId, ExpirationDate, PlanId)
+    VALUES
+           ('JMC', 'Online', 3, '2030-12-31 00:00:00.000', 1)
+END
+ELSE
+BEGIN
+    UPDATE [Company]
+    SET PlanId = 1
+    WHERE [Name] = 'JMC' AND [Address] = 'Online';
 
-INSERT INTO [Company]
-           ([Name]
-           ,[Address],
-		   StatusId,
-		   ExpirationDate
-		   )
-     VALUES(
-           'JMC',
-           'Online',
-		   3,
-		   '2030-12-31 00:00:00.000'
-		   )
+    PRINT 'La compañía ya existía, se actualizó el PlanId a 1.'
+END
 GO
 
 
-
-INSERT INTO [Groups]
-           ([Name]
-           ,[Description]
-           ,[Permissions]
-           ,[CompanyId])
-     VALUES
-           ('General'
-           ,'Auto-generated'
-           ,'<permissions>*</permissions>'
-           ,1)
+DECLARE @CompanyId INT
+SELECT @CompanyId = CompanyId FROM [Company] WHERE [Name] = 'JMC' AND [Address] = 'Online'
 
 
+IF NOT EXISTS (
+    SELECT 1 FROM [Groups]
+    WHERE [Name] = 'General' AND [CompanyId] = @CompanyId
+)
+BEGIN
+    INSERT INTO [Groups]
+           ([Name], [Description], [Permissions], [CompanyId])
+    VALUES
+           ('General', 'Auto-generated', '<permissions>*</permissions>', @CompanyId)
+END
+ELSE
+BEGIN
+    PRINT 'Ya existe un grupo "General" para esa compañía.'
+END
 GO
+
 
 IF NOT EXISTS(SELECT [UserId] FROM [Users] WHERE [UserName] = 'johnwick') BEGIN
 	
@@ -67,3 +78,84 @@ IF NOT EXISTS(SELECT * FROM [PlanRentas]) BEGIN
 	UPDATE [PlanRentas] SET Price = 0, NumUsers = 2 WHERE Id = 1
 
 END
+
+
+
+IF NOT EXISTS (
+    SELECT * FROM sysobjects 
+    WHERE name = 'Questions' AND xtype = 'U'
+)
+BEGIN
+    CREATE TABLE [dbo].[Questions](
+        [QuestionId] [int] IDENTITY(1,1) NOT NULL,
+        [QuestionName] [nvarchar](300) NOT NULL,
+        [Reply] [bit] NOT NULL,
+        [IdUser] [int] NULL,
+     CONSTRAINT [PK_Questions] PRIMARY KEY CLUSTERED 
+    (
+        [QuestionId] ASC
+    )WITH (
+        PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, 
+        IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, 
+        ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF
+    ) ON [PRIMARY]
+    ) ON [PRIMARY]
+END
+GO
+
+
+IF COL_LENGTH('Users', 'CodeVerification') IS NULL
+BEGIN
+    ALTER TABLE [dbo].[Users]
+    ADD [CodeVerification] NVARCHAR(10) NULL;
+END
+
+IF COL_LENGTH('Users', 'IsVerifiedCode') IS NULL
+BEGIN
+    ALTER TABLE [dbo].[Users]
+    ADD [IsVerifiedCode] BIT NULL;
+
+    ALTER TABLE [dbo].[Users] ADD DEFAULT (CONVERT([bit],(0))) FOR [IsVerifiedCode];
+END
+
+IF COL_LENGTH('Users', 'Email') IS NULL
+BEGIN
+    ALTER TABLE [dbo].[Users]
+    ADD [Email] NVARCHAR(100) NULL;
+END
+
+IF COL_LENGTH('Sales', 'Folio') IS NULL
+BEGIN
+    ALTER TABLE [dbo].[Sales]
+    ADD [Folio] INT NULL;
+END
+GO
+
+
+IF NOT EXISTS (
+    SELECT * 
+    FROM sys.foreign_keys 
+    WHERE name = 'FK_Questions_Users_IdUser'
+)
+BEGIN
+    ALTER TABLE [dbo].[Questions]  WITH CHECK 
+    ADD CONSTRAINT [FK_Questions_Users_IdUser] 
+    FOREIGN KEY([IdUser])
+    REFERENCES [dbo].[Users] ([UserId])
+    ON DELETE CASCADE;
+
+    ALTER TABLE [dbo].[Questions] CHECK CONSTRAINT [FK_Questions_Users_IdUser];
+END
+GO
+
+
+IF COL_LENGTH('Users', 'IsVerifiedCode') IS NOT NULL
+BEGIN
+    UPDATE [Users]
+    SET [IsVerifiedCode] = 1;
+END
+GO
+
+
+
+

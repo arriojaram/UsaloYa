@@ -1,5 +1,6 @@
 export interface SaleDetailReport {
     saleID: number;
+    folio : number;
     saleDate: Date;
     userId: number;
     userName: string;
@@ -17,6 +18,7 @@ export interface SaleDetailReport {
     barcode: string;
     productName: string;
     quantity: number;
+    measure: number;
     totalPrice: number;
     saleID: number;
     saleDate: Date;
