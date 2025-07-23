@@ -42,7 +42,7 @@
     }
     public enum MeasureType
     {
-        Unidad = 1,
+        Ud = 1,
         Kg = 2
     }
 

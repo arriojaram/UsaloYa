@@ -24,7 +24,9 @@
     "not_found": "El producto no fue encontrado.",
     "no_products_category": "No hay productos en la categoría seleccionada.",
     "error_application": "Error al procesar la solicitud. Servidor no disponible.",
-    "information_missing": "Proporciona toda la información requerida"
+    "information_missing": "Proporciona toda la información requerida",
+    "adverticed_unit":"La unidad fue cambiada a 'unidad'. El stock se redondeará automáticamente al valor entero más bajo."
+
   },
   "list_sale": {
     "invalid_quantity_unit": "El producto está configurado como 'Unidad' y no puede tener cantidad decimal.",

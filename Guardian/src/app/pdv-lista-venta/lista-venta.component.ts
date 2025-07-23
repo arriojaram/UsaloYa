@@ -308,19 +308,22 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
 
   disableEditing(item: Producto, event: any) {
     const newValue = this.inputNumber?.nativeElement.value;
-    if (newValue > 0 && newValue != this.tempProductCounter) {
+    if (newValue > 0 && newValue != this.tempProductCounter) 
+    {
       item.count = newValue; // Acepta el nuevo valor si es mayor que cero
       item.editing = false;  // Desactiva el modo de edición
-
+      
       this.ventaService.updateNumOfProductos(item.productId, newValue);
-    }
-    else {
-      if (newValue <= 0) {
-        this.navigationService.showUIMessage(this.translate.instant('list_sale.amount_must_be_positive'), AlertLevel.Warning);
-        item.count = this.tempProductCounter ?? 0;
-      }
+    } 
+    else 
+    {
+      if(newValue <= 0)
+      {
+        this.navigationService.showUIMessage(this.translate.instant('list_sale.invalid_quantity_unit'), AlertLevel.Warning);
+        item.count = this.tempProductCounter?? 0;
+      } 
       item.editing = false;
-
+      
     }
     event.preventDefault();
   }
