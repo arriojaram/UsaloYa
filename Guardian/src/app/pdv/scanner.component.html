@@ -1,45 +1,57 @@
-<div class="card">
-    <div class="card-body">
-        <h5>Punto de Venta - Captura o escanea el código del producto</h5>
-
-        <form [formGroup]="formVenta" (ngSubmit)="addProductToSaleList()" class="d-flex flex-column">
-            <div class="mb-2 mt-4">
-                
-                <label class="form-label">
-                    Código del producto  <i class="bi bi-upc-scan fs-6"></i>
-                </label>
-                <input type="text" formControlName="codigo" class="form-control" placeholder="Ingresa el código de barras">
-               
-            </div>
-            <div class="d-flex justify-content-between">
-                <button type="submit" class="btn btn-warning"  [disabled]="formVenta.invalid">
-                    Agregar a la venta
-                </button>
-                <button type="button" class="btn btn-outline-primary" (click)="showSearchProduct()">
-                    <i class="bi bi-search me-1"></i>{{this.custButtonLabel}}
-                </button>
-            </div>
-        </form>      
-        <div [class]="messageClass" [hidden]="isHidden" style="position: absolute; top:0; left: 0; width: 100%; z-index: 10;">
-            {{ label_productoAdded }}
-        </div>
+<div class="card shadow-sm my-3 mx-auto" style="max-width: 500px;">
+  <div class="card-body">
+    <h5 class="d-none d-md-block mb-3 text-primary">
+      <i class="bi bi-upc-scan me-2"></i>Punto de Venta - Escanea o ingresa el código
+    </h5>
+    <form [formGroup]="formVenta" (ngSubmit)="addProductToSaleList()" class="d-flex flex-column gap-2">
+      <div>
+        <label for="codigo" class="form-label visually-hidden">Código de barras</label>
+        <input id="codigo" type="text" formControlName="codigo" class="form-control form-control-lg"
+          placeholder="Código de barras o SKU" autocomplete="off" autofocus>
+      </div>
+      <div class="d-flex justify-content-between gap-2">
+        <button type="submit" class="btn btn-warning flex-fill" [disabled]="formVenta.invalid">
+          <i class="bi bi-plus-circle me-1"></i>Agregar
+        </button>
+        <button type="button" class="btn btn-outline-primary flex-fill" (click)="showSearchProduct()">
+          <i class="bi bi-search me-1"></i>{{ this.custButtonLabel }}
+        </button>
+      </div>
+    </form>
+    <div id="message-product-added" [class]="messageClass" [hidden]="isHidden" class="mt-2">
+      <div class="alert alert-success py-2 px-3 mb-0" *ngIf="!isHidden">
+        {{ label_productoAdded }}
+      </div>
     </div>
+  </div>
 </div>
- <!-- Panel para buscar producto -->
- <div *ngIf="isSearchingProduct" class="mt-3 col-12 col-md-3 border">
-    <input id="cliente-input" type="text" class="form-control"  #searchInput (click)="searchInput.select()"
-        [(ngModel)]="productName" placeholder="Escriba el nombre para buscar" 
-        autocomplete="off" (keydown.enter)="searchProduct()"
-    /> 
-    <ul *ngIf="filteredProduct.length > 0" class="list-group mt-2">
-      <li *ngFor="let p of filteredProduct" class="list-group-item" (click)="selectProduct(p)">
-        {{ p.sku }} - {{ p.name }}
+
+<!-- Panel para buscar producto -->
+<div id="search-product-panel" *ngIf="isSearchingProduct" class="mt-3 col-12 col-sm-6 mx-auto border bg-light rounded shadow-sm p-3">
+  <div>
+    <input id="search-product-input" type="text" class="form-control mb-2" #searchInput (click)="searchInput.select()"
+      [(ngModel)]="productName" placeholder="Buscar producto por nombre o SKU"
+      autocomplete="off" (keydown.enter)="searchProduct()" />
+    <ul *ngIf="filteredProduct.length > 0" class="list-group mt-2" style="max-height: 200px; overflow-y: auto;">
+      <li *ngFor="let p of filteredProduct" class="list-group-item list-group-item-action"
+          (click)="selectProduct(p)" style="cursor:pointer;">
+        <span class="fw-bold">{{ p.sku }}</span> - {{ p.name }}
       </li>
     </ul>
-    <button class="btn btn-primary my-2 me-2" (click)="searchProduct()">Buscar</button>
-    <button class="btn btn-secondary my-2" (click)="showSearchProduct()">Cancelar</button>
-    <button class="btn close-btn" type="button" (click)="cleanSearchProdPanel()">Limpiar</button>
+    <div class="d-flex gap-2 mt-2">
+      <button class="btn btn-primary flex-fill" (click)="searchProduct()">
+        <i class="bi bi-search"></i> Buscar
+      </button>
+      <button class="btn btn-secondary flex-fill" (click)="showSearchProduct()">
+        <i class="bi bi-x-circle"></i> Cancelar
+      </button>
+      <button class="btn btn-outline-dark flex-fill" type="button" (click)="cleanSearchProdPanel()">
+        <i class="bi bi-eraser"></i> Limpiar
+      </button>
+    </div>
   </div>
+</div>
+
 <app-lista-venta></app-lista-venta>
 
 

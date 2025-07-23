@@ -1,155 +1,153 @@
-<div class="table-responsive">
-  <table class="table">
-    <thead>
-      <tr>
-        <th class="d-none d-sm-table-cell">C. Barras</th>
-        <th>Nombre</th>
-        <th class="d-none d-sm-table-cell">Descripción</th>
-        <th>Precio</th>
-        <th class="d-none d-sm-table-cell">Cantidad</th>
-        <th class="d-table-cell d-sm-none">Cant.</th>
-        <th class="d-none d-sm-table-cell">Tipo de medida</th>
-        <th class="d-table-cell d-sm-none">Medida</th>
-        <th>Importe</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let producto of ventaService.saleProductsGrouped">
-        <td class="d-none d-sm-table-cell">{{ producto.barcode }}</td>
-        <td>{{ producto.name }}</td>
-        <td>{{ producto.description }}</td>
-        <td>
-          <span *ngIf="this.selectedCustomer == undefined">
-            {{ producto.unitPrice | currency :'MXN'}}
-          </span>
-          <select *ngIf="this.selectedCustomer" (change)="onSelectPrice($event, producto.productId)">
-            <option [value]='0'>{{ producto.unitPrice | currency :'MXN'}}</option>
-            <option [value]='1' *ngIf="producto.unitPrice1 > 0">{{ producto.unitPrice1 | currency :'MXN'}}</option>
-            <option [value]='2' *ngIf="producto.unitPrice2 > 0">{{ producto.unitPrice2 | currency :'MXN'}}</option>
-            <option [value]='3' *ngIf="producto.unitPrice3 > 0">{{ producto.unitPrice3 | currency :'MXN'}}</option>
-          </select>
-
-        </td>
-        <!-- Celda para mostrar o editar la cantidad -->
-        <td (mouseenter)="producto.editing = true" (mouseleave)="producto.editing = false">
-
-          <!-- Mostrar input si el cursor está encima -->
-          <ng-container *ngIf="producto.editing; else mostrarCantidad">
-            <input type="number" min="1" [(ngModel)]="producto.count" (change)="onCountChange(producto)"
-              class="form-control-sm text-center" style="width: 70px;"
-              [step]="producto.measure === measure.Ud ? '1' : '0.01'" />
-          </ng-container>
-
-          <!-- Mostrar solo el número si no se está editando -->
-          <ng-template #mostrarCantidad>
-            <span>{{ producto.count }}</span>
-          </ng-template>
-
-        </td>
-
-
-        <td>{{getMeasureName(producto.measure)}}</td><!-- Medida -->
-
-        <td>{{ producto.total | currency :'MXN'}}</td>
-        <td>
-          <button class="btn btn-danger" (click)="removeProduct(producto.productId)">
-            <i class="fas fa-trash-alt"></i>
-          </button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-
-  <div class="my-1 d-flex justify-content-start">
-    <div class="my-1 d-flex justify-content-end">
-      <button [class]="custButtonClass" class="d-flex me-1 align-items-center" (click)="showSearchCustomerPanel()">
-        <i class="bi bi-person-lines-fill me-1"></i>{{this.custButtonLabel}}
-      </button>
-      <span class="d-flex me-2 mt-2" *ngIf="this.selectedCustomer">{{this.selectedCustomer.firstName + ' ' +
-        this.selectedCustomer.lastName1}}</span>
+<div class="card shadow-sm mb-3">
+  <div class="card-body p-2">
+    <!-- Tabla de productos -->
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th class="d-none d-md-table-cell">C. Barras</th>
+            <th>Nombre</th>
+            <th class="d-none d-md-table-cell">Descripción</th>
+            <th>Precio</th>
+            <th class="d-none d-md-table-cell">Cantidad</th>
+            <th class="d-table-cell d-md-none">Cant.</th>
+            <th class="d-none d-md-table-cell">Medida</th>
+            <th class="d-table-cell d-md-none">M</th>
+            <th>Importe</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let producto of ventaService.saleProductsGrouped">
+            <td class="d-none d-md-table-cell">{{ producto.barcode }}</td>
+            <td class="fw-semibold">{{ producto.name }}</td>
+            <td class="d-none d-md-table-cell text-muted small">{{ producto.description }}</td>
+            <td>
+              <span *ngIf="!selectedCustomer">
+                {{ producto.unitPrice | currency :'MXN'}}
+              </span>
+              <select *ngIf="selectedCustomer" (change)="onSelectPrice($event, producto.productId)" class="form-select form-select-sm">
+                <option [value]='0'>{{ producto.unitPrice | currency :'MXN'}}</option>
+                <option [value]='1' *ngIf="producto.unitPrice1 > 0">{{ producto.unitPrice1 | currency :'MXN'}}</option>
+                <option [value]='2' *ngIf="producto.unitPrice2 > 0">{{ producto.unitPrice2 | currency :'MXN'}}</option>
+                <option [value]='3' *ngIf="producto.unitPrice3 > 0">{{ producto.unitPrice3 | currency :'MXN'}}</option>
+              </select>
+            </td>
+            <td (mouseenter)="producto.editing = true" (mouseleave)="producto.editing = false">
+              <ng-container *ngIf="producto.editing; else mostrarCantidad">
+                <input type="number" min="1" [(ngModel)]="producto.count" (change)="onCountChange(producto)"
+                  class="form-control form-control-sm text-center border-primary" style="width: 70px;"
+                  [step]="producto.measure === measure.Ud ? '1' : '0.01'" />
+              </ng-container>
+              <ng-template #mostrarCantidad>
+                <span class="badge bg-light text-dark px-2 py-1">{{ producto.count }}</span>
+              </ng-template>
+            </td>
+            <td>{{ getMeasureName(producto.measure) }}</td>
+            <td class="fw-bold">{{ producto.total | currency :'MXN'}}</td>
+            <td>
+              <button class="btn btn-outline-danger btn-sm" (click)="removeProduct(producto.productId)" title="Eliminar">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-    <h4 class="me-3 mt-2 text-danger">Total de la Venta: {{ ventaService.getTotalVenta() | currency :'MXN'}}</h4>
-  </div>
-
-  <!-- Panel para seleccionar cliente -->
-  <div *ngIf="isSelectingCustomer" class="mt-3 col-12 col-md-3">
-    <label for="cliente-input" class="form-label">Seleccione un cliente:</label>
-    <input id="cliente-input" type="text" class="form-control" [(ngModel)]="customerName"
-      placeholder="Escriba el nombre para buscar" autocomplete="off" />
-    <ul *ngIf="filteredCustomer.length > 0" class="list-group mt-2">
-      <li *ngFor="let c of filteredCustomer" class="list-group-item" (click)="selectCustomer(c)">
-        {{ c.firstName + ' ' + c.lastName1 + ' ' + c.lastName2 }}
-      </li>
-    </ul>
-    <button class="btn btn-primary my-2 me-2" (click)="searchCustomers()">Buscar</button>
-    <button class="btn btn-secondary my-2" (click)="showSearchCustomerPanel()">Cancelar</button>
-  </div>
-
-
-</div>
-<div class="card">
-  <div class="card-body">
-    <div [class]="messageClass" [hidden]="isHidden">
-      {{ message }}
+    <!-- Total y cliente -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mt-3">
+      <div class="d-flex align-items-center gap-2">
+        <button [class]="custButtonClass" class="d-flex align-items-center" (click)="showSearchCustomerPanel()">
+          <i class="bi bi-person-lines-fill me-1"></i>{{ custButtonLabel }}
+        </button>
+        <span *ngIf="selectedCustomer" class="fw-bold text-primary">
+          {{ selectedCustomer.firstName + ' ' + selectedCustomer.lastName1 }}
+        </span>
+      </div>
+      <h4 class="text-danger mb-0">Total: {{ ventaService.getTotalVenta() | currency :'MXN'}}</h4>
     </div>
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-12 col-md-3 mb-2">
-          <div>Dinero Recibido</div>
-          <input type="number" class="form-control fs-5" #pagoRecibidoInput (click)="pagoRecibidoInput.select()"
-            style="background-color: rgba(255, 255, 0, 0.26);" [(ngModel)]="pagoRecibido"
-            (ngModelChange)="onInputChange($event)" step="0.50" min="0" placeholder="Ingresa cantidad recibida"
-            (keydown.enter)="finalizarVenta()">
-        </div>
-        <div class="col-12 col-md-3 mb-2"> <!-- Colocamos mb-2 para margin-bottom en dispositivos móviles y desktop -->
-          Método de pago
-          <select [(ngModel)]="metodoPago" class="form-select fs-5">
-            <option value="Efectivo">Efectivo</option>
-            <option value="Tarjeta">Tarjeta</option>
-            <option value="Transferencia">Transferencia</option>
-          </select>
-        </div>
-        <div class="col-12 col-md-6 mb-2">
-          <!-- Usa todo el ancho en móviles y la mitad en pantallas medianas y grandes -->
-          <textarea class="form-control form-control-md" placeholder="Notas de la venta - (Añadir notas aquí)"
-            [(ngModel)]="notaVenta"></textarea>
+    <!-- Panel para seleccionar cliente -->
+    <div *ngIf="isSelectingCustomer" class="mt-3 col-12 col-sm-4 mx-auto">
+      <div class="card border-primary">
+        <div class="card-body p-3">
+          <label for="cliente-input" class="form-label">Seleccione un cliente:</label>
+          <input id="cliente-input" type="text" class="form-control mb-2" [(ngModel)]="customerName"
+            placeholder="Buscar cliente por nombre" autocomplete="off" />
+          <ul *ngIf="filteredCustomer.length > 0" class="list-group" style="max-height: 180px; overflow-y: auto;">
+            <li *ngFor="let c of filteredCustomer" class="list-group-item list-group-item-action"
+                (click)="selectCustomer(c)" style="cursor:pointer;">
+              {{ c.firstName + ' ' + c.lastName1 + ' ' + c.lastName2 }}
+            </li>
+          </ul>
+          <div class="d-flex gap-2 mt-2">
+            <button class="btn btn-primary flex-fill" (click)="searchCustomers()">Buscar</button>
+            <button class="btn btn-secondary flex-fill" (click)="showSearchCustomerPanel()">Cancelar</button>
+          </div>
         </div>
       </div>
     </div>
-
-    <div class="d-flex justify-content-between align-items-center">
-      <button id="finalizarVentaBtn" class="btn btn-success" [disabled]="!this.canFinishSale()"
-        (click)="finalizarVenta()">
-        <i class="bi bi-cart-check"></i> Finalizar Venta
-      </button>
-
-      <button class="btn btn-secondary" (click)="resetListaVenta()">
-        <i class="bi bi-arrow-counterclockwise"></i> Reiniciar Venta
-      </button>
-    </div>
-    <div class="mt-3 text-danger" style="background-color: rgba(0, 128, 0, 0.123)">
-      <h4>Cambio: {{ ventaService.getCambio(this.pagoRecibido?? 0) | currency :'MXN'}}</h4>
+    <!-- Panel de pago y notas y dinero recibido (unificado) -->
+    <div class="row g-3 align-items-end mt-3">
+      <div class="col-12 col-sm-4 mb-3 mb-md-0">
+        <div class="border rounded-3 p-3 bg-light-subtle">
+          <label class="form-label fw-bold">Dinero Recibido</label>
+          <input type="number" class="form-control form-control-lg border-primary w-100" #pagoRecibidoInput (click)="pagoRecibidoInput.select()"
+            style="background-color: rgba(255, 255, 0, 0.13);" [(ngModel)]="pagoRecibido"
+            (ngModelChange)="onInputChange($event)" step="0.50" min="0" placeholder="Cantidad recibida"
+            (keydown.enter)="finalizarVenta()">
+          <div class="mt-2 small text-muted">Ingresa el monto recibido por el cliente.</div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="border rounded-3 p-3 h-100">
+          <div style="cursor:pointer;" (click)="togglePaymentNotesCollapse()">
+            <span *ngIf="isPaymentNotesCollapsed" class="fs-5">+</span>
+            <span *ngIf="!isPaymentNotesCollapsed" class="fs-5">-</span>
+            <span class="ms-2 fw-bold">Método de pago y notas</span>
+          </div>
+          <div *ngIf="!isPaymentNotesCollapsed" class="mt-2">
+            <select id="metodoPago" [(ngModel)]="metodoPago" class="form-select mb-2">
+              <option value="Efectivo">Efectivo</option>
+              <option value="Tarjeta">Tarjeta</option>
+              <option value="Transferencia">Transferencia</option>
+            </select>
+            <textarea class="form-control" placeholder="Notas de la venta" [(ngModel)]="notaVenta" style="min-height: 60px;"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4 d-flex flex-column justify-content-between gap-2">
+        <button id="finalizarVentaBtn" class="btn btn-success mb-2" [disabled]="!canFinishSale()" (click)="finalizarVenta()">
+          <i class="bi bi-cart-check"></i> Finalizar Venta
+        </button>
+        <button class="btn btn-secondary" (click)="resetListaVenta()">
+          <i class="bi bi-arrow-counterclockwise"></i> Reiniciar Venta
+        </button>
+        <div class="mt-3 text-danger bg-success bg-opacity-10 p-2 rounded text-center">
+          <h4 class="mb-0">Cambio: {{ ventaService.getCambio(pagoRecibido ?? 0) | currency :'MXN'}}</h4>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
 <!-- Contenedor del ticket -->
 <div *ngIf="ticketVisible"
-  class="d-flex align-items-center justify-content-center position-fixed w-100 h-100 bg-dark bg-opacity-50 top-0 start-0">
-  <div class="card text-center w-75 w-md-50">
+  class="d-flex align-items-center justify-content-center position-fixed w-100 h-100 bg-dark bg-opacity-50 top-0 start-0"
+  style="z-index: 1050;">
+  <div class="card text-center w-100 w-md-50 shadow-lg" style="max-width: 400px;">
     <div class="card-header bg-light">
       <img src="../assets/icons/logos/logo-192x192.png" alt="Guardian_Logo" class="img-fluid mb-2"
         style="max-width: 50px;">
-      <h5 class="card-title mb-1">{{ this.userState.companyName}}</h5>
-      <p class="card-subtitle text-muted">{{ this.numVenta + ' | '+ this.folio + ' | Fecha:' + fechaHora }}</p>
+      <h5 class="card-title mb-1">{{ userState.companyName }}</h5>
+      <p class="card-subtitle text-muted small">{{ numVenta + ' | ' + folio + ' | Fecha: ' + fechaHora }}</p>
     </div>
     <div class="card-body">
-      <table class="table table-striped">
+      <table class="table table-sm table-striped mb-2">
         <thead>
           <tr>
             <th>ID</th>
             <th>Nombre</th>
-            <th>Cantidad</th>
+            <th>Cant.</th>
             <th>Medida</th>
             <th>Total</th>
           </tr>
@@ -164,15 +162,14 @@
           </tr>
         </tbody>
       </table>
-      <hr>
       <div class="d-flex justify-content-end mt-2">
-        <strong>Total:</strong> <span>{{ ventaService.getTotalVenta() | currency : 'MXN' }}</span>
+        <strong>Total:</strong> <span class="ms-2">{{ ventaService.getTotalVenta() | currency : 'MXN' }}</span>
       </div>
       <div class="d-flex justify-content-end mt-2 text-danger">
-        <strong>Cambio:</strong><span>{{ ventaService.getCambio(this.pagoRecibido?? 0) | currency :'MXN'}}</span>
+        <strong>Cambio:</strong><span class="ms-2">{{ ventaService.getCambio(pagoRecibido ?? 0) | currency :'MXN'}}</span>
       </div>
       <div class="d-flex justify-content-start mt-2">
-        Cajero:&nbsp;<strong><span>{{this.userState.firstName + ' ' + this.userState.lastName }}</span></strong>
+        Cajero:&nbsp;<strong><span>{{ userState.firstName + ' ' + userState.lastName }}</span></strong>
       </div>
     </div>
     <div class="card-footer bg-light">

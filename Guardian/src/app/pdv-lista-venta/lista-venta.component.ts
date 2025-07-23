@@ -51,6 +51,14 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
   new: any;
   folio: string;
 
+  // Estado para colapsar/expandir el contenedor de método de pago y notas
+  isPaymentNotesCollapsed: boolean = true;
+
+  // Método para alternar el estado de colapso/expansión
+  togglePaymentNotesCollapse() {
+    this.isPaymentNotesCollapsed = !this.isPaymentNotesCollapsed;
+  }
+
   constructor(
     private router: Router,
     public ventaService: SaleService,
@@ -295,6 +303,8 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
     this.notaVenta = '';
     this.metodoPago = 'Efectivo';
     this.isSelectingCustomer = false;
+    this.selectedCustomer = undefined;
+    this.custButtonClass = 'btn btn-success';
   }
 
   enableEditing(item: any) {

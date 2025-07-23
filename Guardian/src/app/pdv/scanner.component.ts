@@ -23,14 +23,13 @@ export class PuntoDeVentaComponent implements OnInit {
     qrResultString: string = "init";
     isHidden?: boolean;
     label_productoAdded?: string;
-    messageClass: string = "alert  alert-success mt-2";
+    messageClass: string = "alert  alert-success mt-1";
     
     isSearchingProduct: boolean = false;
-    
     productName: string = '';  // Almacena el texto ingresado
     
     filteredProduct: Producto[] = [];  
-    custButtonLabel: string = 'Buscar Producto';
+    custButtonLabel: string = 'Buscar';
 
     constructor(
         public ventasService: SaleService,
@@ -68,7 +67,7 @@ export class PuntoDeVentaComponent implements OnInit {
 
     selectProduct(product: Producto) {
         
-        this.custButtonLabel = 'Buscar Producto';
+        this.custButtonLabel = 'Buscar';
         this.isSearchingProduct = false;
         this.filteredProduct = [];
 
@@ -79,11 +78,10 @@ export class PuntoDeVentaComponent implements OnInit {
 
     showSearchProduct(): void {
         this.isSearchingProduct = !this.isSearchingProduct;
-        this.custButtonLabel = this.isSearchingProduct ? 'Cerrar' : 'Buscar Producto';
+        this.custButtonLabel = this.isSearchingProduct ? 'Cerrar' : 'Buscar';
         if(this.isSearchingProduct)
         {
-        this.ventasService.productCatalog
-        
+            this.ventasService.productCatalog
         }
     }
 
@@ -115,7 +113,7 @@ export class PuntoDeVentaComponent implements OnInit {
         if(isAdded)
         {
             this.messageClass = "alert  alert-success mt-2";
-            this.label_productoAdded = `Producto ${ this.codigo.value} agregado correctamente`;     
+            this.label_productoAdded = `Producto agregado a la venta`;     
             this.ventasService.playBeep(true);   
         }
         else
@@ -125,12 +123,10 @@ export class PuntoDeVentaComponent implements OnInit {
             this.ventasService.playBeep(false);
         }
 
-        
         setTimeout(() => {
             this.isHidden = true; // Oculta el div después de 5 segundos
         }, 3000);
     
         this.formVenta.get('codigo')?.setValue('');
-    }
-    
+    }   
 }

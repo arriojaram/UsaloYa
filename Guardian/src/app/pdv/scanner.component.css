@@ -1,0 +1,10 @@
+#message-product-added {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    z-index: 2000;
+    text-align: center;
+    
+    pointer-events: none;
+  }
