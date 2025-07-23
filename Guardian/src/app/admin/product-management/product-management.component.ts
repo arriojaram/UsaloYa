@@ -36,7 +36,7 @@ export class ProductManagementComponent implements OnInit {
   cStatus = CompanyStatus;
   selectedCategoryId: number = 0;
   moreItems: boolean | undefined;
-
+  previousMeasure: MeasureType = MeasureType.Ud;
 
   constructor(
     private fb: FormBuilder,
@@ -85,8 +85,23 @@ export class ProductManagementComponent implements OnInit {
     this.searchProductsInternal('-1');
     this.navigationService.checkScreenSize();
     this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId ?? 0);
-
     this.getCategories();
+
+    this.productForm.get('measure')?.valueChanges.subscribe((newMeasure) => {
+      const units = this.productForm.get('unitsInStock')?.value;
+
+      if (this.previousMeasure !== newMeasure) {
+        // Si la medida cambia
+        if (newMeasure === MeasureType.Ud && units % 1 !== 0) {
+          this.navigationService.showUIMessage(
+            this.translate.instant('product.adverticed_unit'),
+            AlertLevel.Warning
+          );
+        }
+        this.previousMeasure = newMeasure;
+      }
+    });
+
   }
 
   openCaptureInventory() {
@@ -234,6 +249,9 @@ export class ProductManagementComponent implements OnInit {
       .subscribe(product => {
         this.selectedProduct = product;
         this.productForm.patchValue(product);
+
+        this.previousMeasure = product.measure;
+
         if (this.userState.companyStatusId == this.cStatus.Free) {
           this.productForm.get('unitPrice1')?.disable();
           this.productForm.get('unitPrice2')?.disable();

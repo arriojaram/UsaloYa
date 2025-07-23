@@ -31,14 +31,17 @@
 
         </td>
         <!-- Celda para mostrar o editar la cantidad -->
-        <td (mouseenter)="producto.editing = true" (mouseleave)="producto.editing = false">
+        <td>
+          <!-- Campo intercambiable para la edición -->
+          <span *ngIf="!producto.editing; else editInput" (click)="enableEditing(producto)" style="max-width: 10px;">
+            {{ producto.count }}
+          </span>
 
-          <!-- Mostrar input si el cursor está encima -->
-          <ng-container *ngIf="producto.editing; else mostrarCantidad">
+          <ng-template #editInput>
             <input type="number" min="1" [(ngModel)]="producto.count" (change)="onCountChange(producto)"
-              class="form-control-sm text-center" style="width: 70px;"
-              [step]="producto.measure === measure.Ud ? '1' : '0.01'" />
-          </ng-container>
+              (keydown.enter)="disableEditing(producto, $event)" class="form-control-sm text-center"
+              style="width: 70px;" [step]="producto.measure === measure.Ud ? '1' : '0.01'" />
+          </ng-template>
 
           <!-- Mostrar solo el número si no se está editando -->
           <ng-template #mostrarCantidad>
