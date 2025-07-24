@@ -266,7 +266,17 @@ namespace UsaloYa.Services
             var user = await HeaderValidatorService.ValidateRequestor(requestorId, Role.Admin, _dBContext);
             if (user.UserId <= 0) return null;
 
+
             if (productDto.Equals(default(ProductDto)) || companyId <= 0) return null;
+
+            // Suponiendo que Measure es un enum o int que indica el tipo de medida
+            if (productDto.Measure == (int)MeasureType.Ud)
+            {
+                // Truncar UnitsInStock a entero (sin decimales)
+                productDto.UnitsInStock = Math.Floor(productDto.UnitsInStock);
+            }
+
+
 
             var existingProduct = await _dBContext.Products
                 .FirstOrDefaultAsync(p => p.ProductId == productDto.ProductId && p.CompanyId == companyId);
@@ -297,9 +307,7 @@ namespace UsaloYa.Services
                     UnitPrice2 = productDto.UnitPrice2,
                     UnitPrice3 = productDto.UnitPrice3,
                     UnitsInStock = productDto.UnitsInStock,
-
                     Measure = productDto.Measure,
-
                     Discontinued = productDto.Discontinued,
                     DateModified = Utils.GetMxDateTime(),
                     Sku = string.IsNullOrEmpty(productDto.SKU) ? null : productDto.SKU,
@@ -307,7 +315,10 @@ namespace UsaloYa.Services
                     DateAdded = Utils.GetMxDateTime(),
                     CompanyId = companyId,
                     AlertaStockNumProducts = productDto.LowInventoryStart ?? 0,
-                    IsInVentarioUpdated = productDto.IsInventarioUpdated
+                    IsInVentarioUpdated = productDto.IsInventarioUpdated,
+                    InVentario = 0
+
+
                 };
 
                 _dBContext.Products.Add(existingProduct);
