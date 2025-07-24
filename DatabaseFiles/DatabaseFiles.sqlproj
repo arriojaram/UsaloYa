@@ -63,9 +63,9 @@
     <None Include="InitScripts\DbInitialization.sql" />
   </ItemGroup>
   <ItemGroup>
-    <Build Include="InitScripts\GenerateFolio.sql" />
-    <Build Include="StoredProcedures\AddFolioSale.sql" />
-    <Build Include="StoredProcedures\DeleteInactiveCompanies.sql" />
-    <Build Include="InitScripts\add_measure_column_and_adjust_stock.sql" />
+    <None Include="InitScripts\GenerateFolio.sql" />
+    <None Include="StoredProcedures\AddFolioSale.sql" />
+    <None Include="StoredProcedures\DeleteInactiveCompanies.sql" />
+    <None Include="InitScripts\AddMeasureColAndAdjustStock.sql" />
   </ItemGroup>
 </Project>
