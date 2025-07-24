@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing.Template;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System.ComponentModel.DataAnnotations;
@@ -288,13 +289,14 @@ namespace UsaloYa.API.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> RequestVerificationCodeEmail([FromHeader] string DeviceId, [FromBody] RequestVerificationCodeDto request)
         {
-            _logger.LogInformation("Recibido email: {Email}, code: {Code}, deviceId: {DeviceId}", request.Email, request.Code, DeviceId);
+            var templatePath = Path.Combine(_env.ContentRootPath, "Templates", "Notificacion.html");
 
             try
             {
                 var (isValid, message, userId) = await _userService.RequestVerificationCodeEmail(request, DeviceId);
                 if (isValid == true)
                 {
+                    await _emailService.SendWelcomeEmail(request.Email, templatePath);
                     return Ok(new { isValid = isValid, userId = userId, message = message });
                 }
                 return BadRequest("No se logró verificar");

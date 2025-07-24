@@ -47,5 +47,15 @@ namespace UsaloYa.API.Controllers
             return Ok("Correo enviado.");
         }
 
+        [HttpPost("SendWelcomeEmail")]
+        public async Task<IActionResult> SendWelcomeEmail(string email)
+        {
+
+            var templatePath = Path.Combine(_env.ContentRootPath, "Templates", "Notificacion.html");
+            await _emailService.SendWelcomeEmail(email, templatePath);
+
+            return Ok("Correo enviado.");
+        }
+
     }
 }

@@ -2,12 +2,16 @@
 using MailKit.Security;
 using Microsoft.Extensions.Configuration;
 using MimeKit;
+using System;
+using System.Text;
 using UsaloYa.Dto;
 using UsaloYa.Dto.Utils;
 using UsaloYa.Library.Models;
 using UsaloYa.Services.interfaces;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using static Org.BouncyCastle.Math.EC.ECCurve;
 namespace UsaloYa.Services
+
 {
 
     public class EmailService : IEmailService
@@ -23,13 +27,15 @@ namespace UsaloYa.Services
 
         public async Task<bool> SendEmailNewUsers(SendVerificationCodeDto request, string templatePath)
         {
+            var placeholders = new Dictionary<string, string>
+            {
+                { "CodeVerification", $"<strong>{request.CodeVerification}</strong>" }
+            };
             var variables = new Dictionary<string, string>
             {
                 { "Name", _configuration["NotificationTemplates:NewUsers:Name"] + request.FirstName },
-                { "Message", _configuration["NotificationTemplates:NewUsers:Message"] + $"<strong>{request.CodeVerification}</strong>" },
-                { "Verification", _configuration["NotificationTemplates:NewUsers:Verification"] +
-                                  _configuration["NotificationTemplates:NewUsers:Message2"] +
-                                  _configuration["NotificationTemplates:NewUsers:LinkVerification"] }
+                { "Message", BuildInterpolatedMessage("NotificationTemplates:NewUsers", placeholders) },
+                { "Verification", _configuration["NotificationTemplates:NewUsers:Verification"] }
             };
 
             var subject = _configuration["NotificationTemplates:NewUsers:Title"];
@@ -44,19 +50,43 @@ namespace UsaloYa.Services
             var adminEmails = _configuration.GetSection("EmailSettings:OnRegisterNotificationList").Get<List<string>>();
             var responsequestionnaire = await _questionnaireService.GetQuestionnaireByUser(idUserRegister) as List<QuestionDto>;
             var questionnaireHtml = Utils.GenerateHtmlQuestions(responsequestionnaire);
+            var placeholders = new Dictionary<string, string>
+            {
+                { "username", $"<strong>{username}</strong>" },
+                { "company", $"<strong>{company}</strong>" },
+                { "questionnaireHtml", questionnaireHtml }
+            };
 
             var variables = new Dictionary<string, string>
             {
                 { "Name", _configuration["NotificationTemplates:NewRegister:Name"] },
-                { "Message", _configuration["NotificationTemplates:NewRegister:Message"] + $"<strong>{username}</strong><br/>" +
-                             _configuration["NotificationTemplates:NewRegister:Message2"] + $"<strong>{company}</strong><br/><br/>" +
-                             _configuration["NotificationTemplates:NewRegister:Message3"] + "<br/>" + questionnaireHtml },
+                { "Message", BuildInterpolatedMessage("NotificationTemplates:NewRegister", placeholders) },
                 { "Verification", "" }
             };
 
             var subject = _configuration["NotificationTemplates:NewRegister:Title"];
 
             return await SendTemplatedEmailAsync(subject, templatePath, variables, adminEmails);
+        }
+
+
+        public async Task<bool> SendWelcomeEmail(string email, string templatePath)
+        {
+            var placeholders = new Dictionary<string, string>{}; 
+          
+
+            var variables = new Dictionary<string, string>
+            {
+                { "Name", _configuration["NotificationTemplates:Welcome:Name"] },
+                { "Message",BuildInterpolatedMessage("NotificationTemplates:Welcome", placeholders) },
+                { "Verification", _configuration["NotificationTemplates:Welcome:Verification"] }
+            };
+  
+
+            var subject = _configuration["NotificationTemplates:Welcome:Title"];
+            var recipients = new List<string> { email };
+
+            return await SendTemplatedEmailAsync(subject, templatePath, variables, recipients);
         }
 
 
@@ -119,6 +149,26 @@ namespace UsaloYa.Services
                 throw new InvalidOperationException("Error al enviar el correo: " + ex.Message, ex);
             }
         }
+
+        public string BuildInterpolatedMessage(string configKeyBase, Dictionary<string, string> placeholders)
+        {
+            var listMessages = _configuration
+                .GetSection(configKeyBase)
+                .GetChildren()
+                .Where(section => section.Key.Contains("Message"))
+                .Select(section => section.Value?.Replace("\n", "<br/>") ?? "");
+
+            var fullMessage = string.Join("<br/><br/>", listMessages);
+
+            foreach (var placeholder in placeholders)
+            {
+                fullMessage = fullMessage.Replace($"{{{placeholder.Key}}}", placeholder.Value);
+            }
+
+            return fullMessage;
+        }
+
+
     }
 }
 
