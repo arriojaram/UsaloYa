@@ -33,15 +33,18 @@
                 <option [value]='3' *ngIf="producto.unitPrice3 > 0">{{ producto.unitPrice3 | currency :'MXN'}}</option>
               </select>
             </td>
-            <td (mouseenter)="producto.editing = true" (mouseleave)="producto.editing = false">
-              <ng-container *ngIf="producto.editing; else mostrarCantidad">
+            <td>
+              <span *ngIf="!producto.editing; else editInput" (click)="enableEditing(producto)" style="max-width: 10px;">
+                {{ producto.count }}
+              </span>
+    
+              <ng-template #editInput>
                 <input type="number" min="1" [(ngModel)]="producto.count" (change)="onCountChange(producto)"
-                  class="form-control form-control-sm text-center border-primary" style="width: 70px;"
-                  [step]="producto.measure === measure.Ud ? '1' : '0.01'" />
-              </ng-container>
-              <ng-template #mostrarCantidad>
-                <span class="badge bg-light text-dark px-2 py-1">{{ producto.count }}</span>
+                  (keydown.enter)="disableEditing(producto, $event)" class="form-control-sm text-center"
+                  style="width: 70px;" [step]="producto.measure === measure.Ud ? '1' : '0.01'" />
               </ng-template>
+
+              
             </td>
             <td>{{ getMeasureName(producto.measure) }}</td>
             <td class="fw-bold">{{ producto.total | currency :'MXN'}}</td>
@@ -98,7 +101,7 @@
           <div class="mt-2 small text-muted">Ingresa el monto recibido por el cliente.</div>
         </div>
       </div>
-      <div class="col-12 col-md-4">
+      <div class="col-12 col-sm-4">
         <div class="border rounded-3 p-3 h-100">
           <div style="cursor:pointer;" (click)="togglePaymentNotesCollapse()">
             <span *ngIf="isPaymentNotesCollapsed" class="fs-5">+</span>
