@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ProductService } from '../../services/product.service';
 import { Producto } from '../../dto/producto';
-import { NgClass, NgFor, NgIf } from '@angular/common';
+import { NgFor, NgIf } from '@angular/common';
 import { UserStateService } from '../../services/user-state.service';
 import { userDto } from '../../dto/userDto';
 import { NavigationService } from '../../services/navigation.service';
@@ -19,7 +19,7 @@ import { MeasureType } from '../../Enums/enums';
   selector: 'app-product-management',
   templateUrl: './product-management.component.html',
   styleUrls: ['./product-management.component.css'],
-  imports: [ReactiveFormsModule, FormsModule, NgFor, NgIf, NgClass]
+  imports: [ReactiveFormsModule, FormsModule, NgFor, NgIf]
 })
 export class ProductManagementComponent implements OnInit {
 
@@ -249,7 +249,7 @@ export class ProductManagementComponent implements OnInit {
       .subscribe(product => {
         this.selectedProduct = product;
         this.productForm.patchValue(product);
-
+        
         this.previousMeasure = product.measure;
 
         if (this.userState.companyStatusId == this.cStatus.Free) {

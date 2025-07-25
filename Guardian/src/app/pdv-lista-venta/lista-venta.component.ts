@@ -50,6 +50,16 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
   filteredCustomer: customerDto[] = [];
   new: any;
   folio: string;
+  isPaymentNotesCollapsed: boolean = true;
+
+  
+  togglePaymentNotesCollapse() {
+    this.isPaymentNotesCollapsed = !this.isPaymentNotesCollapsed;
+  }
+
+  private isMobileDevice(): boolean {
+    return window.innerWidth < 992; // Bootstrap lg breakpoint
+  }
 
   constructor(
     private router: Router,
@@ -77,6 +87,10 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.metodoPago = "Efectivo";
     this.userState = this.userStateService.getUserStateLocalStorage();
+    
+    // Configurar estado inicial del colapso - siempre colapsado por defecto
+    this.isPaymentNotesCollapsed = true;
+    
     this.validatePrinterSettings();
   }
 
@@ -139,7 +153,7 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
 
     this.selectedCustomer = customer;
     this.ventaService.customerId = customer.customerId;
-    this.custButtonClass = 'btn btn-danger';
+    this.custButtonClass = 'btn btn-info';
     this.custButtonLabel = '-';
     this.isSelectingCustomer = false;
     this.filteredCustomer = [];
@@ -149,7 +163,7 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
   showSearchCustomerPanel(): void {
     this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId ?? 0);
     this.isSelectingCustomer = !this.isSelectingCustomer;
-    this.custButtonClass = this.isSelectingCustomer ? 'btn btn-danger' : 'btn btn-success';
+    this.custButtonClass = this.isSelectingCustomer ? 'btn btn-info' : 'btn btn-success';
     this.custButtonLabel = this.isSelectingCustomer ? '-' : '+';
     if (this.isSelectingCustomer) {
       this.searchCustomers();
@@ -291,10 +305,13 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
     this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId ?? 0);
     this.ventaService.saleProductsGrouped = [];
     this.ventaService.totalVenta = 0;
+    this.ventaService.totalProductos = 0;
     this.pagoRecibido = undefined;
     this.notaVenta = '';
     this.metodoPago = 'Efectivo';
     this.isSelectingCustomer = false;
+    this.selectedCustomer = undefined;
+    this.custButtonClass = 'btn btn-success';
   }
 
   enableEditing(item: any) {

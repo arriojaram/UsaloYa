@@ -8,9 +8,13 @@
 
   <ItemGroup>
     <Compile Remove="Config\**" />
+    <Compile Remove="NewFolder\**" />
     <Content Remove="Config\**" />
+    <Content Remove="NewFolder\**" />
     <EmbeddedResource Remove="Config\**" />
+    <EmbeddedResource Remove="NewFolder\**" />
     <None Remove="Config\**" />
+    <None Remove="NewFolder\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -39,7 +43,6 @@
 
   <ItemGroup>
     <Folder Include="Logs\" />
-    <Folder Include="NewFolder\" />
   </ItemGroup>
 
   <ItemGroup>

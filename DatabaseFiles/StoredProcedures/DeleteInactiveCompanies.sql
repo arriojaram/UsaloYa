@@ -1,4 +1,4 @@
-CREATE PROCEDURE DeleteInactiveCompanies
+CREATE OR ALTER PROCEDURE DeleteInactiveCompanies
 AS
 BEGIN
     SET NOCOUNT ON;

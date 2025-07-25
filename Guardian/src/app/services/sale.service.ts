@@ -18,7 +18,7 @@ export class SaleService extends Dexie implements OnInit{
   productCatalogTable: Dexie.Table<Producto, number>;
   migrationsTable: Dexie.Table<Date, number>;
   totalVenta: number = 0;
-
+  totalProductos: number = 0;
   private baseUrl = environment.apiUrlBase + '/api/Sale';
   isOnline: boolean | undefined;
   private currentSale: Sale;
@@ -148,7 +148,6 @@ export class SaleService extends Dexie implements OnInit{
     
     if(this.productCatalog.length == 0)
     {
-      console.log('Buscar producto offline');
       const cachedProduct = await this.productCatalogTable.where('barcode').equals(barcode.toString()).toArray();
       if(cachedProduct && cachedProduct.length > 0)
       {
@@ -271,10 +270,13 @@ export class SaleService extends Dexie implements OnInit{
 
   private updateTotal()
   {
+    this.totalProductos = 0;
     this.totalVenta = 0;
     this.saleProductsGrouped.forEach((product) => {
       this.totalVenta += product.total;
+      this.totalProductos += product.count;
     });
+  
   }
 
   private groupProducts(newProduct: Producto): void {
