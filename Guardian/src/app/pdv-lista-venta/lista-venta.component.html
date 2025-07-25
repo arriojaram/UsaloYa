@@ -1,137 +1,323 @@
+<!-- Sales List Section -->
 <div class="card shadow-sm mb-3">
-  <div class="card-body p-2">
-    <!-- Tabla de productos -->
+  <div class="card-header bg-success text-white py-2">
+    <h6 class="mb-0 d-flex align-items-center justify-content-between">
+      <span>
+        <i class="bi bi-cart3 me-2"></i>Lista de Venta
+      </span>
+      <span class="badge bg-light text-success fs-6">
+        {{ ventaService.saleProductsGrouped.length }} productos
+      </span>
+    </h6>
+  </div>
+  <div class="card-body p-0">
+    <!-- Products Table -->
     <div class="table-responsive">
       <table class="table table-hover align-middle mb-0">
         <thead class="table-light">
           <tr>
-            <th class="d-none d-md-table-cell">C. Barras</th>
-            <th>Nombre</th>
-            <th class="d-none d-md-table-cell">Descripción</th>
-            <th>Precio</th>
-            <th class="d-none d-md-table-cell">Cantidad</th>
-            <th class="d-table-cell d-md-none">Cant.</th>
-            <th class="d-none d-md-table-cell">Medida</th>
-            <th class="d-table-cell d-md-none">M</th>
-            <th>Importe</th>
-            <th></th>
+            <th class="d-none d-lg-table-cell text-center" style="width: 120px;">C. Barras</th>
+            <th style="min-width: 150px;">Producto</th>
+            <th class="d-none d-md-table-cell" style="width: 120px;">Precio</th>
+            <th class="text-center" style="width: 80px;">
+              <span class="d-none d-md-inline">Cantidad</span>
+              <span class="d-md-none">Cant.</span>
+            </th>
+            <th class="d-none d-lg-table-cell text-center" style="width: 80px;">Medida</th>
+            <th class="text-end" style="width: 100px;">Total</th>
+            <th class="text-center" style="width: 50px;"></th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let producto of ventaService.saleProductsGrouped">
-            <td class="d-none d-md-table-cell">{{ producto.barcode }}</td>
-            <td class="fw-semibold">{{ producto.name }}</td>
-            <td class="d-none d-md-table-cell text-muted small">{{ producto.description }}</td>
+          <tr *ngFor="let producto of ventaService.saleProductsGrouped; let i = index" 
+              [class.table-secondary]="i % 2 === 0">
+            <td class="d-none d-lg-table-cell text-center small text-muted">
+              {{ producto.barcode }}
+            </td>
             <td>
-              <span *ngIf="!selectedCustomer">
+              <div class="fw-semibold text-dark">{{ producto.name }}</div>
+              <div class="d-md-none small text-muted mt-1">
+                <span class="me-2">{{ producto.unitPrice | currency :'MXN'}}</span>
+                <span class="badge bg-secondary">{{ getMeasureName(producto.measure) }}</span>
+              </div>
+              <div class="d-none d-md-block d-lg-none small text-muted">{{ producto.description }}</div>
+            </td>
+            <td class="d-none d-md-table-cell">
+              <span *ngIf="!selectedCustomer" class="fw-bold text-success">
                 {{ producto.unitPrice | currency :'MXN'}}
               </span>
-              <select *ngIf="selectedCustomer" (change)="onSelectPrice($event, producto.productId)" class="form-select form-select-sm">
+              <select *ngIf="selectedCustomer" (change)="onSelectPrice($event, producto.productId)" 
+                      class="form-select form-select-sm">
                 <option [value]='0'>{{ producto.unitPrice | currency :'MXN'}}</option>
                 <option [value]='1' *ngIf="producto.unitPrice1 > 0">{{ producto.unitPrice1 | currency :'MXN'}}</option>
                 <option [value]='2' *ngIf="producto.unitPrice2 > 0">{{ producto.unitPrice2 | currency :'MXN'}}</option>
                 <option [value]='3' *ngIf="producto.unitPrice3 > 0">{{ producto.unitPrice3 | currency :'MXN'}}</option>
               </select>
             </td>
-            <td>
-              <span *ngIf="!producto.editing; else editInput" (click)="enableEditing(producto)" style="max-width: 10px;">
-                {{ producto.count }}
-              </span>
-    
-              <ng-template #editInput>
-                <input type="number" min="1" [(ngModel)]="producto.count" (change)="onCountChange(producto)"
-                  (keydown.enter)="disableEditing(producto, $event)" class="form-control-sm text-center"
-                  style="width: 70px;" [step]="producto.measure === measure.Ud ? '1' : '0.01'" />
-              </ng-template>
-
-              
+            <td class="text-center">
+              <div class="d-flex align-items-center justify-content-center">
+                <span *ngIf="!producto.editing; else editInput" 
+                      (click)="enableEditing(producto)" 
+                      class="badge bg-primary fs-6 px-2 py-1" 
+                      style="cursor: pointer; min-width: 40px;">
+                  {{ producto.count }}
+                </span>
+                <ng-template #editInput>
+                  <input type="number" min="1" [(ngModel)]="producto.count" 
+                         (change)="onCountChange(producto)"
+                         (keydown.enter)="disableEditing(producto, $event)" 
+                         class="form-control form-control-sm text-center"
+                         style="width: 70px;" 
+                         [step]="producto.measure === measure.Ud ? '1' : '0.01'" />
+                </ng-template>
+              </div>
             </td>
-            <td>{{ getMeasureName(producto.measure) }}</td>
-            <td class="fw-bold">{{ producto.total | currency :'MXN'}}</td>
-            <td>
-              <button class="btn btn-outline-danger btn-sm" (click)="removeProduct(producto.productId)" title="Eliminar">
+            <td class="d-none d-lg-table-cell text-center">
+              <span class="badge bg-secondary">{{ getMeasureName(producto.measure) }}</span>
+            </td>
+            <td class="text-end fw-bold text-success">
+              {{ producto.total | currency :'MXN'}}
+            </td>
+            <td class="text-center">
+              <button class="btn btn-outline-danger btn-sm" 
+                      (click)="removeProduct(producto.productId)" 
+                      title="Eliminar producto">
                 <i class="bi bi-trash"></i>
               </button>
+            </td>
+          </tr>
+          
+          <!-- Empty State -->
+          <tr *ngIf="ventaService.saleProductsGrouped.length === 0">
+            <td [attr.colspan]="7" class="text-center py-4 text-muted">
+              <i class="bi bi-cart-x display-4 mb-3 d-block"></i>
+              <h5>No hay productos en la venta</h5>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
-    <!-- Total y cliente -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mt-3">
-      <div class="d-flex align-items-center gap-2">
-        <button [class]="custButtonClass" class="d-flex align-items-center" (click)="showSearchCustomerPanel()">
-          <i class="bi bi-person-lines-fill me-1"></i>{{ custButtonLabel }}
-        </button>
-        <span *ngIf="selectedCustomer" class="fw-bold text-primary">
-          {{ selectedCustomer.firstName + ' ' + selectedCustomer.lastName1 }}
-        </span>
-      </div>
-      <h4 class="text-danger mb-0">Total: {{ ventaService.getTotalVenta() | currency :'MXN'}}</h4>
-    </div>
-    <!-- Panel para seleccionar cliente -->
-    <div *ngIf="isSelectingCustomer" class="mt-3 col-12 col-sm-4 mx-auto">
-      <div class="card border-primary">
-        <div class="card-body p-3">
-          <label for="cliente-input" class="form-label">Seleccione un cliente:</label>
-          <input id="cliente-input" type="text" class="form-control mb-2" [(ngModel)]="customerName"
-            placeholder="Buscar cliente por nombre" autocomplete="off" />
-          <ul *ngIf="filteredCustomer.length > 0" class="list-group" style="max-height: 180px; overflow-y: auto;">
-            <li *ngFor="let c of filteredCustomer" class="list-group-item list-group-item-action"
-                (click)="selectCustomer(c)" style="cursor:pointer;">
-              {{ c.firstName + ' ' + c.lastName1 + ' ' + c.lastName2 }}
-            </li>
-          </ul>
-          <div class="d-flex gap-2 mt-2">
-            <button class="btn btn-primary flex-fill" (click)="searchCustomers()">Buscar</button>
-            <button class="btn btn-secondary flex-fill" (click)="showSearchCustomerPanel()">Cancelar</button>
-          </div>
+  </div>
+  
+  <!-- Customer and Total Section -->
+  <div class="card-footer bg-light">
+    <div class="row align-items-center">
+      <div class="col-12 col-md-6 mb-2 mb-md-0">
+        <div class="d-flex align-items-center gap-2">
+          <button [class]="custButtonClass" class="btn btn-sm d-flex align-items-center" 
+                  (click)="showSearchCustomerPanel()">
+            <i class="bi bi-person-lines-fill me-1"></i>
+            <span class="d-none d-sm-inline">{{ custButtonLabel }}</span>
+            <span class="d-sm-none">Cliente</span>
+          </button>
+          <span *ngIf="selectedCustomer" class="fw-bold text-primary">
+            {{ selectedCustomer.firstName + ' ' + selectedCustomer.lastName1 }}
+          </span>
         </div>
       </div>
-    </div>
-    <!-- Panel de pago y notas y dinero recibido (unificado) -->
-    <div class="row g-3 align-items-end mt-3">
-      <div class="col-12 col-sm-4 mb-3 mb-md-0">
-        <div class="border rounded-3 p-3 bg-light-subtle">
-          <label class="form-label fw-bold">Dinero Recibido</label>
-          <input type="number" class="form-control form-control-lg border-primary w-100" #pagoRecibidoInput (click)="pagoRecibidoInput.select()"
-            style="background-color: rgba(255, 255, 0, 0.13);" [(ngModel)]="pagoRecibido"
-            (ngModelChange)="onInputChange($event)" step="0.50" min="0" placeholder="Cantidad recibida"
-            (keydown.enter)="finalizarVenta()">
-          <div class="mt-2 small text-muted">Ingresa el monto recibido por el cliente.</div>
-        </div>
-      </div>
-      <div class="col-12 col-sm-4">
-        <div class="border rounded-3 p-3 h-100">
-          <div style="cursor:pointer;" (click)="togglePaymentNotesCollapse()">
-            <span *ngIf="isPaymentNotesCollapsed" class="fs-5">+</span>
-            <span *ngIf="!isPaymentNotesCollapsed" class="fs-5">-</span>
-            <span class="ms-2 fw-bold">Método de pago y notas</span>
-          </div>
-          <div *ngIf="!isPaymentNotesCollapsed" class="mt-2">
-            <select id="metodoPago" [(ngModel)]="metodoPago" class="form-select mb-2">
-              <option value="Efectivo">Efectivo</option>
-              <option value="Tarjeta">Tarjeta</option>
-              <option value="Transferencia">Transferencia</option>
-            </select>
-            <textarea class="form-control" placeholder="Notas de la venta" [(ngModel)]="notaVenta" style="min-height: 60px;"></textarea>
-          </div>
-        </div>
-      </div>
-      <div class="col-12 col-md-4 d-flex flex-column justify-content-between gap-2">
-        <button id="finalizarVentaBtn" class="btn btn-success mb-2" [disabled]="!canFinishSale()" (click)="finalizarVenta()">
-          <i class="bi bi-cart-check"></i> Finalizar Venta
-        </button>
-        <button class="btn btn-secondary" (click)="resetListaVenta()">
-          <i class="bi bi-arrow-counterclockwise"></i> Reiniciar Venta
-        </button>
-        <div class="mt-3 text-danger bg-success bg-opacity-10 p-2 rounded text-center">
-          <h4 class="mb-0">Cambio: {{ ventaService.getCambio(pagoRecibido ?? 0) | currency :'MXN'}}</h4>
+      <div class="col-12 col-md-6 text-md-end">
+        <div class="bg-success bg-opacity-10 rounded p-2 border border-success">
+          <h4 class="text-success mb-0 fw-bold">
+            <i class="bi bi-currency-dollar me-1"></i>
+            Total: {{ ventaService.getTotalVenta() | currency :'MXN'}}
+          </h4>
         </div>
       </div>
     </div>
   </div>
 </div>
+<!-- Customer Selection Panel -->
+<div *ngIf="isSelectingCustomer" class="container-fluid px-0 mt-3">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+      <div class="card shadow border-info">
+        <div class="card-header bg-info text-white py-2">
+          <h6 class="mb-0 d-flex align-items-center">
+            <i class="bi bi-person-search me-2"></i>Seleccionar Cliente
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="input-group input-group-lg mb-3">
+            <span class="input-group-text bg-light">
+              <i class="bi bi-person text-info"></i>
+            </span>
+            <input id="cliente-input" type="text" class="form-control" [(ngModel)]="customerName"
+              placeholder="Buscar cliente por nombre" autocomplete="off" />
+          </div>
+          
+          <!-- Customer Results -->
+          <div *ngIf="filteredCustomer.length > 0" class="border rounded bg-white" 
+               style="max-height: 200px; overflow-y: auto;">
+            <div *ngFor="let c of filteredCustomer; let i = index" 
+                 class="list-group-item list-group-item-action border-0 border-bottom"
+                 (click)="selectCustomer(c)" style="cursor:pointer;"
+                 [class.bg-light]="i % 2 === 0">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <div class="fw-bold text-info">{{ c.firstName + ' ' + c.lastName1 + ' ' + c.lastName2 }}</div>
+                  <small class="text-muted">Cliente registrado</small>
+                </div>
+                <i class="bi bi-arrow-right-circle text-success"></i>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Action Buttons -->
+          <div class="d-grid gap-2 d-md-flex mt-3">
+            <button class="btn btn-info flex-fill" (click)="searchCustomers()">
+              <i class="bi bi-search me-1"></i> Buscar
+            </button>
+            <button class="btn btn-outline-secondary flex-fill" (click)="showSearchCustomerPanel()">
+              <i class="bi bi-x-circle me-1"></i> Cancelar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Payment and Checkout Section -->
+<div class="row g-3 mt-3">
+  <!-- Payment Information Card -->
+  <div class="col-12 col-lg-6">
+    <div class="card shadow-sm border-success h-100">
+      <div class="card-header bg-success text-white py-2">
+        <h6 class="mb-0 d-flex align-items-center">
+          <i class="bi bi-cash-stack me-2"></i>Información de Pago
+        </h6>
+      </div>
+      <div class="card-body">
+        <!-- Payment Input Section -->
+        <div class="mb-3">
+          <label class="form-label fw-bold text-success">
+            <i class="bi bi-currency-dollar me-1"></i>Dinero Recibido
+          </label>
+          <div class="input-group input-group-lg mb-3">
+            <span class="input-group-text bg-light">
+              <i class="bi bi-currency-dollar text-success"></i>
+            </span>
+            <input id="pagoRecibido" type="number" class="form-control text-center fw-bold"
+              style="background-color: rgba(40, 167, 69, 0.1);" [(ngModel)]="pagoRecibido"
+              (ngModelChange)="onInputChange($event)" step="0.50" min="0" 
+              placeholder="0.00" (keydown.enter)="finalizarVenta()">
+          </div>
+          <small class="text-muted">Monto recibido del cliente</small>
+        </div>
+        
+        <!-- Change Display -->
+        <div class="alert alert-info text-center">
+          <div class="fw-bold">
+            <i class="bi bi-arrow-return-left me-1"></i>Cambio
+          </div>
+          <h4 class="mb-0 text-primary">
+            {{ ventaService.getCambio(pagoRecibido ?? 0) | currency :'MXN'}}
+          </h4>
+        </div>
+        
+        <!-- Payment Method Tabs -->
+        <div class="mt-3">
+          <h6 class="mb-2 fw-bold text-success small">
+            <i class="bi bi-credit-card me-1"></i>Método de Pago
+          </h6>
+          <ul class="nav nav-pills nav-justified" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link py-2" 
+                      [class.active]="metodoPago === 'Efectivo'"
+                      type="button" 
+                      (click)="metodoPago = 'Efectivo'">
+                <i class="bi bi-cash-stack me-1"></i>
+                <span class="d-none d-sm-inline">Efectivo</span>
+                <span class="d-sm-none">Efec.</span>
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link py-2" 
+                      [class.active]="metodoPago === 'Tarjeta'"
+                      type="button" 
+                      (click)="metodoPago = 'Tarjeta'">
+                <i class="bi bi-credit-card me-1"></i>
+                <span class="d-none d-sm-inline">Tarjeta</span>
+                <span class="d-sm-none">Tarj.</span>
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link py-2" 
+                      [class.active]="metodoPago === 'Transferencia'"
+                      type="button" 
+                      (click)="metodoPago = 'Transferencia'">
+                <i class="bi bi-phone me-1"></i>
+                <span class="d-none d-sm-inline">Transferencia</span>
+                <span class="d-sm-none">Tran.</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Actions and Finalization Card -->
+  <div class="col-12 col-lg-6">
+    <div class="card shadow-sm border-warning h-100">
+      <div class="card-header bg-warning text-dark py-2">
+        <h6 class="mb-0 d-flex align-items-center">
+          <i class="bi bi-cart-check me-2"></i>Finalizar Venta
+        </h6>
+      </div>
+      <div class="card-body d-flex flex-column justify-content-center">
+        <!-- Action Buttons -->
+        <div class="d-grid gap-3">
+          <button id="finalizarVentaBtn" class="btn btn-success btn-lg" 
+                  [disabled]="!canFinishSale()" (click)="finalizarVenta()">
+            <i class="bi bi-cart-check me-2"></i>Finalizar Venta
+          </button>
+          
+          <button class="btn btn-outline-secondary btn-lg" (click)="resetListaVenta()">
+            <i class="bi bi-arrow-counterclockwise me-2"></i>Reiniciar Venta
+          </button>
+        </div>
+        
+        <!-- Sale Summary -->
+        <div class="mt-4 p-3 bg-light rounded">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="fw-bold text-muted">Total de la Venta:</span>
+            <span class="h5 mb-0 text-success fw-bold">
+              {{ ventaService.getTotalVenta() | currency :'MXN'}}
+            </span>
+          </div>
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="fw-bold text-muted">Productos:</span>
+            <span class="badge bg-primary fs-6">
+              {{ ventaService.saleProductsGrouped.length }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    <!-- Notes Section Card -->
+    <div class="row g-3 mt-2">
+      <div class="col-12">
+        <div class="card border-info">
+          <div class="card-header bg-info text-white py-2 d-flex justify-content-between align-items-center" 
+               style="cursor:pointer;" (click)="togglePaymentNotesCollapse()">
+            <h6 class="mb-0">
+              <i class="bi bi-sticky me-1"></i>Notas de Venta
+            </h6>
+            <i class="bi" [class.bi-chevron-down]="isPaymentNotesCollapsed" 
+               [class.bi-chevron-up]="!isPaymentNotesCollapsed"></i>
+          </div>
+          <div class="card-body" [class.d-none]="isPaymentNotesCollapsed">
+            <textarea class="form-control" placeholder="Agregar notas sobre la venta..." 
+                      [(ngModel)]="notaVenta" rows="3"></textarea>
+            <small class="text-muted mt-1 d-block">Opcional: Información adicional sobre la transacción</small>
+          </div>
+        </div>
+      </div>
+    </div>
 
 <!-- Contenedor del ticket -->
 <div *ngIf="ticketVisible"

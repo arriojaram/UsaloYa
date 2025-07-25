@@ -1,224 +1,414 @@
-<div class="container-fluid mt-1">
-  <div class="row">
-    <div class="col-12 d-flex justify-content-start align-items-center">
-
-      <div class="hamburger-menu" (click)="navigationService.toggleSearchPanel()">
-        <i class="{{navigationService.toogleClass}} fs-4"></i>
-      </div>
-      <h5 class="ms-2 mt-3">Gestión de Productos</h5>
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-12 col-md-4 search-panel" [class.d-none]="navigationService.isSearchPanelHidden">
-      <div class="card">
-        <div class="card-body">
-          <h6 class="card-title">Buscar Productos</h6>
-          <div class="input-group mb-2">
-            <input type="text" class="form-control" [(ngModel)]="navigationService.searchItem" placeholder="Buscar...">
-            <div class="input-group-append">
-              <button class="btn close-btn" type="button" (click)="navigationService.searchItem = ''; searchProducts()">
-                &times;
+<!-- Product Management Section -->
+<div class="container-fluid px-0">
+  <!-- Header Section -->
+  <div class="row g-2 mb-2">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white py-1">
+          <div class="d-flex justify-content-between align-items-center">
+            <h6 class="mb-0 d-flex align-items-center small">
+              <button class="btn btn-link text-white p-0 me-2" (click)="navigationService.toggleSearchPanel()">
+                <i class="{{navigationService.toogleClass}} fs-6"></i>
               </button>
-              <button class="btn btn-outline-primary" type="button" (click)="searchProducts()">
-                Buscar
+              <i class="bi bi-box-seam me-1 fs-6"></i>
+              <span class="d-none d-sm-inline">Gestión de </span>Productos
+            </h6>
+            <div class="d-flex gap-1">
+              <button type="button" class="btn btn-light btn-sm small" (click)="newProduct()" 
+                      *ngIf="this.userState.roleId > rol.User">
+                <i class="bi bi-plus-circle me-1"></i>
+                <span class="d-none d-sm-inline">Nuevo </span>Producto
               </button>
-            </div>
-          </div>
-          <div class="card-title">
-            <i class="bi bi-funnel me-1"></i>Categorias
-          </div>
-          <div class="input-group mb-1">
-            <select [(ngModel)]="selectedCategoryId" id="selectedCategoryId" class="form-select me-1">
-              <option value="0" selected>Todas</option>
-              <option *ngFor="let option of categoryListFilter" [value]="option.categoryId">
-                {{ option.name }}
-              </option>
-            </select>
-            <div class="input-group-append">
-              <button class="btn close-btn" type="button" (click)="selectedCategoryId = 0; filterProducts()">
-                &times;
-              </button>
-              <button class="btn btn-outline-primary" type="button" (click)="filterProducts()">
-                Filtrar
-              </button>
-            </div>
-          </div>
-          <ul class="list-group mt-3">
-            <li *ngFor="let product of products" class="list-group-item list-group-item-action"
-              [ngClass]="{'text-primary': this.selectedProduct?.productId == product.productId}"
-              (click)="selectProduct(product.productId)">
-              {{ product.name }}
-            </li>
-          </ul>
-          <div class="input-group mb-3">
-
-            <div class="input-group-append">
-              <button *ngIf="moreItems" class="btn btn-outline-secondary" type="button" (click)="loadMore()">Cargar
-                mas...</button>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="col-12" [class.col-md-8]="!navigationService.isSearchPanelHidden"
-      [class.col-md-12]="navigationService.isSearchPanelHidden">
-      <div class="card">
-        <div class="card-body">
-          <h6 class="card-title">Detalles del Producto</h6>
-          <form [formGroup]="productForm">
-            <div class="form-row">
-              <div class="form-group mb-2">
+  </div>
 
-                <label for="name">Nombre</label>
-                <input id="name" type="text" class="form-control required-input" formControlName="name">
-                <div *ngIf="productForm.get('name')?.invalid && productForm.get('name')?.touched"
-                  class="invalid-feedback">
-                  Nombre es obligatorio.
+  <div class="row g-2">
+    <!-- Search and Filter Panel -->
+    <div class="col-12 col-lg-4" [class.d-none]="navigationService.isSearchPanelHidden">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-info text-white py-1">
+          <h6 class="mb-0 d-flex align-items-center small">
+            <i class="bi bi-search me-1 fs-6"></i>Buscar y Filtrar
+          </h6>
+        </div>
+        <div class="card-body p-3">
+          <!-- Search Section -->
+          <div class="mb-3">
+            <label class="form-label fw-bold text-muted" style="font-size: 0.75rem;">BUSCAR PRODUCTOS</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light">
+                <i class="bi bi-search text-info" style="font-size: 0.85rem;"></i>
+              </span>
+              <input type="text" class="form-control form-control-sm" [(ngModel)]="navigationService.searchItem" 
+                     placeholder="Nombre del producto..." autocomplete="off">
+              <button class="btn btn-outline-info btn-sm" type="button" (click)="searchProducts()">
+                <i class="bi bi-search" style="font-size: 0.8rem;"></i>
+              </button>
+            </div>
+            <button *ngIf="navigationService.searchItem" 
+                    class="btn btn-outline-secondary btn-sm mt-1 small" 
+                    (click)="navigationService.searchItem = ''; searchProducts()">
+              <i class="bi bi-x-circle me-1"></i>Limpiar búsqueda
+            </button>
+          </div>
+
+          <!-- Category Filter -->
+          <div class="mb-3">
+            <label class="form-label fw-bold text-muted" style="font-size: 0.75rem;">FILTRAR POR CATEGORÍA</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light">
+                <i class="bi bi-funnel text-warning" style="font-size: 0.85rem;"></i>
+              </span>
+              <select [(ngModel)]="selectedCategoryId" class="form-select form-select-sm">
+                <option value="0">Todas las categorías</option>
+                <option *ngFor="let option of categoryListFilter" [value]="option.categoryId">
+                  {{ option.name }}
+                </option>
+              </select>
+              <button class="btn btn-outline-warning btn-sm" type="button" (click)="filterProducts()">
+                <i class="bi bi-funnel" style="font-size: 0.8rem;"></i>
+              </button>
+            </div>
+            <button *ngIf="selectedCategoryId != 0" 
+                    class="btn btn-outline-secondary btn-sm mt-1 small" 
+                    (click)="selectedCategoryId = 0; filterProducts()">
+              <i class="bi bi-x-circle me-1"></i>Quitar filtro
+            </button>
+          </div>
+
+          <!-- Products List -->
+          <div>
+            <label class="form-label fw-bold text-muted" style="font-size: 0.75rem;">PRODUCTOS ENCONTRADOS</label>
+            <div class="border rounded bg-white" style="max-height: 280px; overflow-y: auto;">
+              <div *ngFor="let product of products; let i = index" 
+                   class="list-group-item list-group-item-action border-0 border-bottom py-2"
+                   [class.bg-primary]="this.selectedProduct?.productId == product.productId"
+                   [class.text-white]="this.selectedProduct?.productId == product.productId"
+                   [class.bg-light]="this.selectedProduct?.productId != product.productId && i % 2 === 0"
+                   (click)="selectProduct(product.productId)" style="cursor: pointer;">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <div class="fw-bold small">{{ product.name }}</div>
+                    <small class="opacity-75" style="font-size: 0.7rem;">SKU: {{ product.sku || 'N/A' }}</small>
+                  </div>
+                  <i class="bi bi-arrow-right-circle" style="font-size: 0.9rem;"></i>
                 </div>
               </div>
-              <div class="form-group">
-                <div class="d-flex justify-content-end">
-                  <label for="discontinued">
-                    <input id="discontinued" type="checkbox" class="form-check-input form-check-input-lg"
-                      formControlName="discontinued">
-                    Esta descontinuado
+              
+              <!-- Empty State -->
+              <div *ngIf="products.length === 0" class="text-center py-3 text-muted">
+                <i class="bi bi-box fs-1 mb-2 d-block"></i>
+                <h6 class="small">No hay productos</h6>
+                <small style="font-size: 0.7rem;">Intenta ajustar los filtros de búsqueda</small>
+              </div>
+            </div>
+            
+            <!-- Load More Button -->
+            <div class="d-grid mt-2" *ngIf="moreItems">
+              <button class="btn btn-outline-secondary btn-sm small" (click)="loadMore()">
+                <i class="bi bi-arrow-down-circle me-1"></i>Cargar más productos
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Product Details Form -->
+    <div class="col-12" [class.col-lg-8]="!navigationService.isSearchPanelHidden"
+         [class.col-lg-12]="navigationService.isSearchPanelHidden">
+      
+      <!-- Basic Information Card -->
+      <div class="card shadow-sm mb-2">
+        <div class="card-header bg-success text-white py-1">
+          <h6 class="mb-0 d-flex align-items-center small">
+            <i class="bi bi-info-circle me-1 fs-6"></i>Información Básica
+          </h6>
+        </div>
+        <div class="card-body p-3">
+          <form [formGroup]="productForm">
+            <div class="row g-2">
+              <!-- Product Name -->
+              <div class="col-12 col-md-8">
+                <label for="name" class="form-label fw-bold small">Nombre del Producto *</label>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-light">
+                    <i class="bi bi-tag text-success" style="font-size: 0.85rem;"></i>
+                  </span>
+                  <input id="name" type="text" class="form-control" formControlName="name" 
+                         placeholder="Ingresa el nombre del producto">
+                </div>
+                <div *ngIf="productForm.get('name')?.invalid && productForm.get('name')?.touched"
+                     class="text-danger mt-1" style="font-size: 0.75rem;">
+                  <i class="bi bi-exclamation-circle me-1"></i>Nombre es obligatorio.
+                </div>
+              </div>
+
+              <!-- Discontinued Status -->
+              <div class="col-12 col-md-4">
+                <label class="form-label fw-bold small">Estado</label>
+                <div class="form-check form-switch mt-1">
+                  <input id="discontinued" type="checkbox" class="form-check-input" 
+                         formControlName="discontinued">
+                  <label class="form-check-label small" for="discontinued">
+                    <span *ngIf="!productForm.get('discontinued')?.value" class="text-success">
+                      <i class="bi bi-check-circle me-1" style="font-size: 0.8rem;"></i>Activo
+                    </span>
+                    <span *ngIf="productForm.get('discontinued')?.value" class="text-warning">
+                      <i class="bi bi-exclamation-triangle me-1" style="font-size: 0.8rem;"></i>Descontinuado
+                    </span>
                   </label>
                 </div>
               </div>
-              <div>
-                <label for="measure">Tipo de medida</label>
-                <div class="d-flex col-md-4 form-group">
-                  <select id="measure" class="form-select required-input" formControlName="measure">
-                    <option value="" disabled selected>Selecciona una unidad</option>
+
+              <!-- SKU and Barcode -->
+              <div class="col-12 col-md-6">
+                <label for="sku" class="form-label fw-bold small">Código SKU *</label>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-light">
+                    <i class="bi bi-qr-code text-primary" style="font-size: 0.85rem;"></i>
+                  </span>
+                  <input id="sku" type="text" class="form-control" formControlName="sku" 
+                         placeholder="Código único del producto">
+                </div>
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label for="barcode" class="form-label fw-bold small">Código de Barras *</label>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-light">
+                    <i class="bi bi-upc-scan text-primary" style="font-size: 0.85rem;"></i>
+                  </span>
+                  <input id="barcode" type="text" class="form-control" formControlName="barcode" 
+                         placeholder="Código de barras">
+                </div>
+                <div *ngIf="productForm.get('barcode')?.invalid && productForm.get('barcode')?.touched"
+                     class="text-danger mt-1" style="font-size: 0.75rem;">
+                  <i class="bi bi-exclamation-circle me-1"></i>Código de Barras es obligatorio.
+                </div>
+              </div>
+
+              <!-- Measure and Category -->
+              <div class="col-12 col-md-6">
+                <label for="measure" class="form-label fw-bold small">Tipo de Medida *</label>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-light">
+                    <i class="bi bi-rulers text-warning" style="font-size: 0.85rem;"></i>
+                  </span>
+                  <select id="measure" class="form-select" formControlName="measure">
+                    <option value="" disabled>Selecciona una unidad</option>
                     <option [value]="measure.Ud">Unidad</option>
                     <option [value]="measure.Kg">Kilogramo</option>
                   </select>
-                  <div *ngIf="isFieldInvalid('measure')" class="invalid-feedback">
-                    La medida es obligatoria.
-                  </div>
                 </div>
-              </div>
-              <div class="form-group">
-                <label for="barcode">Código de Barras</label>
-                <input id="barcode" type="text" class="form-control required-input" formControlName="barcode">
-                <div *ngIf="productForm.get('barcode')?.invalid && productForm.get('barcode')?.touched"
-                  class="invalid-feedback">
-                  Código de Barras es obligatorio.
-                </div>
-
-              </div>
-
-              <div class="form-group">
-                <label for="sku">Código SKU</label>
-                <input id="sku" type="text" class="form-control required-input" formControlName="sku">
-              </div>
-
-
-              <div class="form-group mb-1">
-                <label for="buyPrice">Precio de Compra</label>
-                <input id="buyPrice" type="number" class="form-control required-input" formControlName="buyPrice"
-                  min="0.01" max="10000.00">
-                <div *ngIf="productForm.get('buyPrice')?.invalid &&productForm.get('buyPrice')?.touched"
-                  class="invalid-feedback">
-                  Precio de compra es obligatorio.
+                <div *ngIf="isFieldInvalid('measure')" class="text-danger mt-1" style="font-size: 0.75rem;">
+                  <i class="bi bi-exclamation-circle me-1"></i>La medida es obligatoria.
                 </div>
               </div>
 
-              <div>
-                <label for="unitsInStock">Stock</label>
-                <div class="d-flex col-md-4 form-group">
-
-                  <label *ngIf="!showAddInventarioBox && this.selectedProduct != null" id="unitsInStock" type="number"
-                    class="form-control fake-disabled">
-                    {{ productForm.get('unitsInStock')?.value }}
-                  </label>
-
-                  <!-- Campo de entrada para nuevo producto -->
-                  <input *ngIf="selectedProduct == null" id="unitsInStock" #unitsInStockInput
-                    (click)="unitsInStockInput.select()" type="number" class="form-control"
-                    formControlName="unitsInStock" [step]="productForm.get('measure')?.value === measure.Ud ? 1 : 0.01"
-                    [min]="productForm.get('measure')?.value === measure.Ud ? 1 : 0.01">
-
-                  <!-- Campo para agregar inventario a producto existente -->
-                  <input *ngIf="showAddInventarioBox" class="bg-warning" #addToInventoryValInput
-                    (click)="addToInventoryValInput.select()" formControlName="addToInventoryVal" type="number"
-                    [step]="productForm.get('measure')?.value === measure.Ud ? 1 : 0.01"
-                    [min]="productForm.get('measure')?.value === measure.Ud ? 1 : 0.01" max="1000000">
-
-                  <button *ngIf="this.selectedProduct" class="ms-2 btn btn-primary"
-                    [ngClass]="{'btn-success': showAddInventarioBox}"
-                    (click)="openCaptureInventory()">{{showAddInventarioBox ? "Sumar" : "Agregar"}}</button>
-
-                </div>
-              </div>
-
-
-
-
-              <div>
-                <label for="categoryId">Categoria</label>
-                <div class="col-lg-4 col-md-6 col-12">
+              <div class="col-12 col-md-6">
+                <label for="categoryId" class="form-label fw-bold small">Categoría</label>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-light">
+                    <i class="bi bi-collection text-info" style="font-size: 0.85rem;"></i>
+                  </span>
                   <select formControlName="categoryId" id="categoryId" class="form-select">
+                    <option value="" disabled>Selecciona una categoría</option>
                     <option *ngFor="let option of categoryList" [value]="option.categoryId">
                       {{ option.name }}
                     </option>
                   </select>
                 </div>
               </div>
-              <hr>
-              <div class="d-flex justify-content-center align-items-center">
-                <strong>Precios Venta</strong>
-              </div>
-              <div class="form-group">
-                <label for="unitPrice">Precio General</label>
-                <input id="unitPrice" type="number" class="form-control required-input" formControlName="unitPrice"
-                  min="0.01" max="10000.00">
-                <div *ngIf="productForm.get('unitPrice')?.invalid &&productForm.get('unitPrice')?.touched"
-                  class="invalid-feedback">
-                  Precio unitario es obligatorio.
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="unitPrice">Precio Cliente - 1</label>
-                <input id="unitPrice1" type="number" class="form-control" formControlName="unitPrice1" min="0.01"
-                  max="10000.00">
-              </div>
-              <div class="form-group">
-                <label for="unitPrice">Precio Cliente - 2</label>
-                <input id="unitPrice2" type="number" class="form-control" formControlName="unitPrice2" min="0.01"
-                  max="10000.00">
-              </div>
-              <div class="form-group">
-                <label for="unitPrice">Precio Cliente - 3</label>
-                <input id="unitPrice3" type="number" class="form-control" formControlName="unitPrice3" min="0.01"
-                  max="10000.00">
-              </div>
-              <hr>
 
-              <div class="form-group col-md-6">
-                <label for="lowInventoryStart">Alertar baja existencia de productos a partir de</label>
-                <input id="lowInventoryStart" type="number" class="form-control" min="0"
-                  formControlName="lowInventoryStart">
-                <div
-                  *ngIf="productForm.get('lowInventoryStart')?.invalid &&productForm.get('lowInventoryStart')?.touched"
-                  class="invalid-feedback">
-                  La alerta de inventario bajo debe ser mayor o igual a cero.
+              <!-- Description -->
+              <div class="col-12">
+                <label for="description" class="form-label fw-bold small">Notas del Producto</label>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-light">
+                    <i class="bi bi-card-text text-secondary" style="font-size: 0.85rem;"></i>
+                  </span>
+                  <textarea id="description" class="form-control" formControlName="description" 
+                            rows="2" placeholder="Descripción adicional del producto (opcional)"></textarea>
                 </div>
-              </div>
-              <div class="form-group">
-                <label for="description">Notas del producto</label>
-                <input id="description" type="text" class="form-control" formControlName="description">
-
-              </div>
-              <div class="d-flex justify-content-end my-3">
-                <button type="button" class="btn btn-primary mx-2 btn-floating-secondary" (click)="newProduct()"
-                  *ngIf="this.userState.roleId > rol.User">Nuevo</button>
-                <button type="button" class="btn btn-success btn-floating" (click)="saveProduct()"
-                  *ngIf="this.userState.roleId > rol.User">Guardar</button>
               </div>
             </div>
           </form>
+        </div>
+      </div>
+
+      <!-- Inventory and Pricing Cards -->
+      <div class="row g-2">
+        <!-- Inventory Management Card -->
+        <div class="col-12 col-lg-6">
+          <div class="card shadow-sm h-100">
+            <div class="card-header bg-warning text-white py-1">
+              <h6 class="mb-0 d-flex align-items-center small">
+                <i class="bi bi-boxes me-1 fs-6"></i>Inventario
+              </h6>
+            </div>
+            <div class="card-body p-3">
+              <!-- Buy Price -->
+              <div class="mb-2">
+                <label for="buyPrice" class="form-label fw-bold small">Precio de Compra *</label>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-light">
+                    <i class="bi bi-currency-dollar text-success" style="font-size: 0.85rem;"></i>
+                  </span>
+                  <input id="buyPrice" type="number" class="form-control" formControlName="buyPrice"
+                         min="0.01" max="10000.00" placeholder="0.00">
+                </div>
+                <div *ngIf="productForm.get('buyPrice')?.invalid && productForm.get('buyPrice')?.touched"
+                     class="text-danger mt-1" style="font-size: 0.75rem;">
+                  <i class="bi bi-exclamation-circle me-1"></i>Precio de compra es obligatorio.
+                </div>
+              </div>
+
+              <!-- Stock Management -->
+              <div class="mb-2">
+                <label for="unitsInStock" class="form-label fw-bold small">Stock Actual</label>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-light">
+                    <i class="bi bi-box text-info" style="font-size: 0.85rem;"></i>
+                  </span>
+                  
+                  <!-- Display current stock for existing products -->
+                  <input *ngIf="!showAddInventarioBox && this.selectedProduct != null" 
+                         class="form-control" readonly
+                         [value]="productForm.get('unitsInStock')?.value">
+                  
+                  <!-- Input for new products -->
+                  <input *ngIf="selectedProduct == null" id="unitsInStock" #unitsInStockInput
+                         (click)="unitsInStockInput.select()" type="number" class="form-control"
+                         formControlName="unitsInStock" 
+                         [step]="productForm.get('measure')?.value === measure.Ud ? 1 : 0.01"
+                         [min]="productForm.get('measure')?.value === measure.Ud ? 1 : 0.01"
+                         placeholder="Cantidad inicial">
+                  
+                  <!-- Input for adding inventory to existing products -->
+                  <input *ngIf="showAddInventarioBox" class="form-control border-warning" 
+                         #addToInventoryValInput (click)="addToInventoryValInput.select()" 
+                         formControlName="addToInventoryVal" type="number"
+                         [step]="productForm.get('measure')?.value === measure.Ud ? 1 : 0.01"
+                         [min]="productForm.get('measure')?.value === measure.Ud ? 1 : 0.01" 
+                         max="1000000" placeholder="Cantidad a agregar">
+                  
+                  <button *ngIf="this.selectedProduct" class="btn btn-sm" 
+                          [class.btn-outline-primary]="!showAddInventarioBox"
+                          [class.btn-success]="showAddInventarioBox"
+                          (click)="openCaptureInventory()">
+                    <i class="bi" [class.bi-plus-circle]="!showAddInventarioBox" 
+                       [class.bi-check-circle]="showAddInventarioBox" class="me-1" style="font-size: 0.8rem;"></i>
+                    <span class="small">{{showAddInventarioBox ? "Sumar" : "Agregar"}}</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Low Inventory Alert -->
+              <div>
+                <label for="lowInventoryStart" class="form-label fw-bold small">Alerta de Stock Bajo</label>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-light">
+                    <i class="bi bi-exclamation-triangle text-warning" style="font-size: 0.85rem;"></i>
+                  </span>
+                  <input id="lowInventoryStart" type="number" class="form-control" min="0"
+                         formControlName="lowInventoryStart" placeholder="Cantidad mínima">
+                </div>
+                <small class="text-muted mt-1" style="font-size: 0.7rem;">Se enviará una alerta cuando el stock llegue a esta cantidad</small>
+                <div *ngIf="productForm.get('lowInventoryStart')?.invalid && productForm.get('lowInventoryStart')?.touched"
+                     class="text-danger mt-1" style="font-size: 0.75rem;">
+                  <i class="bi bi-exclamation-circle me-1"></i>La alerta de inventario bajo debe ser mayor o igual a cero.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pricing Card -->
+        <div class="col-12 col-lg-6">
+          <div class="card shadow-sm h-100">
+            <div class="card-header bg-info text-white py-1">
+              <h6 class="mb-0 d-flex align-items-center small">
+                <i class="bi bi-currency-exchange me-1 fs-6"></i>Precios de Venta
+              </h6>
+            </div>
+            <div class="card-body p-3">
+              <!-- General Price -->
+              <div class="mb-2">
+                <label for="unitPrice" class="form-label fw-bold small">Precio General *</label>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-light">
+                    <i class="bi bi-currency-dollar text-success" style="font-size: 0.85rem;"></i>
+                  </span>
+                  <input id="unitPrice" type="number" class="form-control" formControlName="unitPrice"
+                         min="0.01" max="10000.00" placeholder="0.00">
+                </div>
+                <div *ngIf="productForm.get('unitPrice')?.invalid && productForm.get('unitPrice')?.touched"
+                     class="text-danger mt-1" style="font-size: 0.75rem;">
+                  <i class="bi bi-exclamation-circle me-1"></i>Precio unitario es obligatorio.
+                </div>
+              </div>
+
+              <!-- Customer Prices -->
+              <div class="row g-1">
+                <div class="col-12">
+                  <label class="form-label fw-bold text-muted" style="font-size: 0.75rem;">PRECIOS ESPECIALES (OPCIONAL)</label>
+                </div>
+                
+                <div class="col-12">
+                  <label for="unitPrice1" class="form-label small">Precio Cliente Tipo 1</label>
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-light">
+                      <i class="bi bi-person text-primary" style="font-size: 0.85rem;"></i>
+                    </span>
+                    <input id="unitPrice1" type="number" class="form-control" formControlName="unitPrice1" 
+                           min="0.01" max="10000.00" placeholder="0.00">
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <label for="unitPrice2" class="form-label small">Precio Cliente Tipo 2</label>
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-light">
+                      <i class="bi bi-person text-primary" style="font-size: 0.85rem;"></i>
+                    </span>
+                    <input id="unitPrice2" type="number" class="form-control" formControlName="unitPrice2" 
+                           min="0.01" max="10000.00" placeholder="0.00">
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <label for="unitPrice3" class="form-label small">Precio Cliente Tipo 3</label>
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-light">
+                      <i class="bi bi-person text-primary" style="font-size: 0.85rem;"></i>
+                    </span>
+                    <input id="unitPrice3" type="number" class="form-control" formControlName="unitPrice3" 
+                           min="0.01" max="10000.00" placeholder="0.00">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons Card -->
+      <div class="card shadow-sm mt-2" *ngIf="this.userState.roleId > rol.User">
+        <div class="card-body p-2">
+          <div class="d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-outline-secondary" (click)="newProduct()">
+              <i class="bi bi-plus-circle me-1" style="font-size: 0.9rem;"></i>
+              <span class="small">Nuevo Producto</span>
+            </button>
+            <button type="button" class="btn btn-success" (click)="saveProduct()">
+              <i class="bi bi-save me-1" style="font-size: 0.9rem;"></i>
+              <span class="small">Guardar Cambios</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -59,6 +59,11 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
     this.isPaymentNotesCollapsed = !this.isPaymentNotesCollapsed;
   }
 
+  // Método para detectar si es dispositivo móvil
+  private isMobileDevice(): boolean {
+    return window.innerWidth < 992; // Bootstrap lg breakpoint
+  }
+
   constructor(
     private router: Router,
     public ventaService: SaleService,
@@ -85,6 +90,10 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.metodoPago = "Efectivo";
     this.userState = this.userStateService.getUserStateLocalStorage();
+    
+    // Configurar estado inicial del colapso - siempre colapsado por defecto
+    this.isPaymentNotesCollapsed = true;
+    
     this.validatePrinterSettings();
   }
 

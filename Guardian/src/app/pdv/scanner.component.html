@@ -1,58 +1,195 @@
-<div class="card shadow-sm my-3 mx-auto" style="max-width: 500px;">
-  <div class="card-body">
-    <h5 class="d-none d-md-block mb-3 text-primary">
-      <i class="bi bi-upc-scan me-2"></i>Punto de Venta - Escanea o ingresa el código
-    </h5>
-    <form [formGroup]="formVenta" (ngSubmit)="addProductToSaleList()" class="d-flex flex-column gap-2">
-      <div>
-        <label for="codigo" class="form-label visually-hidden">Código de barras</label>
-        <input id="codigo" type="text" formControlName="codigo" class="form-control form-control-lg"
-          placeholder="Código de barras o SKU" autocomplete="off" autofocus>
+<!-- Scanner Section -->
+<div class="container-fluid px-0">
+  <div class="row g-3">
+    <div class="col-12 col-lg-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-primary text-white py-2">
+          <h6 class="mb-0 d-flex align-items-center">
+            <i class="bi bi-upc-scan me-2"></i>
+            <span class="d-none d-sm-inline">Punto de Venta - </span>Escanear Producto
+          </h6>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="formVenta" (ngSubmit)="addProductToSaleList()" class="d-flex flex-column gap-3">
+            <div class="input-group input-group-lg">
+              <span class="input-group-text bg-light">
+                <i class="bi bi-upc-scan text-primary"></i>
+              </span>
+              <input id="codigo" type="text" formControlName="codigo" class="form-control"
+                placeholder="Código de barras o SKU" autocomplete="off" autofocus>
+            </div>
+            <div class="d-grid gap-2 d-md-flex">
+              <button type="submit" class="btn btn-success btn-lg flex-fill" [disabled]="formVenta.invalid">
+                <i class="bi bi-plus-circle me-2"></i>Agregar Producto
+              </button>
+              <button type="button" class="btn btn-outline-primary btn-lg flex-fill" (click)="showSearchProduct()">
+                <i class="bi bi-search me-2"></i>
+                <span class="d-none d-sm-inline">{{ this.custButtonLabel }}</span>
+                <span class="d-sm-none">Buscar</span>
+              </button>
+            </div>
+          </form>
+          
+          <!-- Success Message -->
+          <div id="message-product-added" [class]="messageClass" [hidden]="isHidden" class="mt-3">
+            <div class="alert alert-success d-flex align-items-center py-2 px-3 mb-0" *ngIf="!isHidden">
+              <i class="bi bi-check-circle-fill me-2"></i>
+              {{ label_productoAdded }}
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="d-flex justify-content-between gap-2">
-        <button type="submit" class="btn btn-warning flex-fill" [disabled]="formVenta.invalid">
-          <i class="bi bi-plus-circle me-1"></i>Agregar
-        </button>
-        <button type="button" class="btn btn-outline-primary flex-fill" (click)="showSearchProduct()">
-          <i class="bi bi-search me-1"></i>{{ this.custButtonLabel }}
-        </button>
-      </div>
-    </form>
-    <div id="message-product-added" [class]="messageClass" [hidden]="isHidden" class="mt-2">
-      <div class="alert alert-success py-2 px-3 mb-0" *ngIf="!isHidden">
-        {{ label_productoAdded }}
+    </div>
+    
+    <!-- Quick Stats & Info Panel - Hidden on mobile -->
+    <div class="col-lg-6 d-none d-lg-block" *ngIf="!isSearchingProduct">
+      <div class="card shadow-sm h-100 border-0" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+        <div class="card-header bg-success text-white py-3 border-0">
+          <h6 class="mb-0 d-flex align-items-center">
+            <i class="bi bi-speedometer2 me-2"></i>
+            Panel de Control
+          </h6>
+        </div>
+        <div class="card-body p-4">
+          <div class="row g-3">
+            <!-- Quick Actions -->
+            <div class="col-12">
+              <div class="d-flex align-items-center mb-3">
+                <div class="bg-success bg-opacity-10 rounded-circle p-2 me-3">
+                  <i class="bi bi-lightning-charge text-success"></i>
+                </div>
+                <div>
+                  <h6 class="mb-0 text-success">Acciones Rápidas</h6>
+                  <small class="text-muted">Funciones principales</small>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Scanner Tip -->
+            <div class="col-12">
+              <div class="bg-light rounded p-3 border-start border-4 border-warning">
+                <div class="d-flex align-items-start">
+                  <i class="bi bi-lightbulb text-warning me-2 mt-1"></i>
+                  <div>
+                    <small class="fw-bold text-dark">Tip:</small>
+                    <small class="text-muted d-block">Escanea códigos de barras o usa el buscador para agregar productos rápidamente</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Status Indicator -->
+            <div class="col-12">
+              <div class="d-flex align-items-center justify-content-between p-2 bg-white rounded border">
+                <div class="d-flex align-items-center">
+                  <div class="bg-success rounded-circle" style="width: 8px; height: 8px;"></div>
+                  <small class="ms-2 text-muted">Sistema activo</small>
+                </div>
+                <small class="text-success fw-bold">Listo</small>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Panel para buscar producto -->
-<div id="search-product-panel" *ngIf="isSearchingProduct" class="mt-3 col-12 col-sm-6 mx-auto border bg-light rounded shadow-sm p-3">
-  <div>
-    <input id="search-product-input" type="text" class="form-control mb-2" #searchInput (click)="searchInput.select()"
-      [(ngModel)]="productName" placeholder="Buscar producto por nombre o SKU"
-      autocomplete="off" (keydown.enter)="searchProduct()" />
-    <ul *ngIf="filteredProduct.length > 0" class="list-group mt-2" style="max-height: 200px; overflow-y: auto;">
-      <li *ngFor="let p of filteredProduct" class="list-group-item list-group-item-action"
-          (click)="selectProduct(p)" style="cursor:pointer;">
-        <span class="fw-bold">{{ p.sku }}</span> - {{ p.name }}
-      </li>
-    </ul>
-    <div class="d-flex gap-2 mt-2">
-      <button class="btn btn-primary flex-fill" (click)="searchProduct()">
-        <i class="bi bi-search"></i> Buscar
-      </button>
-      <button class="btn btn-secondary flex-fill" (click)="showSearchProduct()">
-        <i class="bi bi-x-circle"></i> Cancelar
-      </button>
-      <button class="btn btn-outline-dark flex-fill" type="button" (click)="cleanSearchProdPanel()">
-        <i class="bi bi-eraser"></i> Limpiar
-      </button>
+<!-- Product Search Panel -->
+<div id="search-product-panel" *ngIf="isSearchingProduct" class="container-fluid px-0 mt-3">
+  <div class="row">
+    <div class="col-12 col-lg-6">
+      <div class="card shadow border-warning">
+        <div class="card-header text-white py-2" style="background: linear-gradient(135deg, #fd7e14 0%, #e55100 100%);">
+          <h6 class="mb-0 d-flex align-items-center">
+            <i class="bi bi-search me-2"></i>Buscar Producto
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="input-group input-group-lg mb-3">
+            <span class="input-group-text" style="background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); border-color: #fd7e14;">
+              <i class="bi bi-search text-warning"></i>
+            </span>
+            <input id="search-product-input" type="text" class="form-control" #searchInput 
+              (click)="searchInput.select()" [(ngModel)]="productName" 
+              placeholder="Buscar por nombre" autocomplete="on" 
+              (keydown.enter)="searchProduct()" />
+          </div>
+          
+          <!-- Search Results -->
+          <div *ngIf="filteredProduct.length > 0" class="border rounded bg-white" 
+               style="max-height: 250px; overflow-y: auto;">
+            <div *ngFor="let p of filteredProduct; let i = index" 
+                 class="list-group-item list-group-item-action border-0 border-bottom"
+                 (click)="selectProduct(p)" style="cursor:pointer;"
+                 [class.bg-light]="i % 2 === 0">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <div class="fw-bold">{{ p.name }}</div>
+                  <small class="text-muted">SKU: {{ p.sku }}</small>
+                </div>
+                <i class="bi bi-arrow-right-circle text-success"></i>
+              </div>
+            </div>
+          </div>
+          
+          <!-- No Results -->
+          <div *ngIf="productName && filteredProduct.length === 0" 
+               class="text-center text-muted py-4">
+            <i class="bi bi-search display-6 mb-2 d-block"></i>
+            <p class="mb-0">No se encontraron productos</p>
+          </div>
+          
+          <!-- Action Buttons -->
+          <div class="d-grid gap-2 d-md-flex mt-3">
+            <button class="btn flex-fill" style="background: linear-gradient(135deg, #fd7e14 0%, #e55100 100%); border-color: #fd7e14; color: white;" (click)="searchProduct()">
+              <i class="bi bi-search me-1"></i> Buscar
+            </button>
+            <button class="btn btn-outline-secondary flex-fill" (click)="cleanSearchProdPanel()">
+              <i class="bi bi-eraser me-1"></i> Limpiar
+            </button>
+            <button class="btn btn-outline-danger flex-fill" (click)="showSearchProduct()">
+              <i class="bi bi-x-circle me-1"></i> Cancelar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-6 mt-3 mt-lg-0 d-none d-lg-block">
+      <div class="card shadow-sm h-100 border-0" style="background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);">
+        <div class="card-body p-4">
+          <div class="text-center mb-4">
+            <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+              <i class="bi bi-search text-warning" style="font-size: 1.5rem;"></i>
+            </div>
+            <h5 class="mt-3 text-warning">Búsqueda Manual</h5>
+          </div>
+          
+          <div class="row g-2">
+            <div>
+              <div class="bg-white rounded p-2 text-center border">
+                <i class="bi bi-tag text-muted d-block mb-1"></i>
+                <small class="text-muted">Por Nombre</small>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mt-3 p-3 bg-white rounded border-start border-4 border-warning">
+            <small class="text-muted">
+              <i class="bi bi-info-circle me-1"></i>
+              Utiliza la búsqueda manual para encontrar productos por nombre
+            </small>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
+<div class="mt-2">
+  <app-lista-venta></app-lista-venta>
+</div>
 
-<app-lista-venta></app-lista-venta>
 
 
 
