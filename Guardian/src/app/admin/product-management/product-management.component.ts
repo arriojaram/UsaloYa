@@ -249,7 +249,7 @@ export class ProductManagementComponent implements OnInit {
       .subscribe(product => {
         this.selectedProduct = product;
         this.productForm.patchValue(product);
-
+        
         this.previousMeasure = product.measure;
 
         if (this.userState.companyStatusId == this.cStatus.Free) {

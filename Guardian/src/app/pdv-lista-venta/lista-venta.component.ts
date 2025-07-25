@@ -156,7 +156,7 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
 
     this.selectedCustomer = customer;
     this.ventaService.customerId = customer.customerId;
-    this.custButtonClass = 'btn btn-danger';
+    this.custButtonClass = 'btn btn-info';
     this.custButtonLabel = '-';
     this.isSelectingCustomer = false;
     this.filteredCustomer = [];
@@ -166,7 +166,7 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
   showSearchCustomerPanel(): void {
     this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId ?? 0);
     this.isSelectingCustomer = !this.isSelectingCustomer;
-    this.custButtonClass = this.isSelectingCustomer ? 'btn btn-danger' : 'btn btn-success';
+    this.custButtonClass = this.isSelectingCustomer ? 'btn btn-info' : 'btn btn-success';
     this.custButtonLabel = this.isSelectingCustomer ? '-' : '+';
     if (this.isSelectingCustomer) {
       this.searchCustomers();
@@ -308,6 +308,7 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
     this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId ?? 0);
     this.ventaService.saleProductsGrouped = [];
     this.ventaService.totalVenta = 0;
+    this.ventaService.totalProductos = 0;
     this.pagoRecibido = undefined;
     this.notaVenta = '';
     this.metodoPago = 'Efectivo';

@@ -1,4 +1,3 @@
-<!-- Sales List Section -->
 <div class="card shadow-sm mb-3">
   <div class="card-header bg-success text-white py-2">
     <h6 class="mb-0 d-flex align-items-center justify-content-between">
@@ -6,7 +5,7 @@
         <i class="bi bi-cart3 me-2"></i>Lista de Venta
       </span>
       <span class="badge bg-light text-success fs-6">
-        {{ ventaService.saleProductsGrouped.length }} productos
+        {{ ventaService.totalProductos }} productos
       </span>
     </h6>
   </div>
@@ -87,7 +86,6 @@
             </td>
           </tr>
           
-          <!-- Empty State -->
           <tr *ngIf="ventaService.saleProductsGrouped.length === 0">
             <td [attr.colspan]="7" class="text-center py-4 text-muted">
               <i class="bi bi-cart-x display-4 mb-3 d-block"></i>
@@ -107,8 +105,8 @@
           <button [class]="custButtonClass" class="btn btn-sm d-flex align-items-center" 
                   (click)="showSearchCustomerPanel()">
             <i class="bi bi-person-lines-fill me-1"></i>
-            <span class="d-none d-sm-inline">{{ custButtonLabel }}</span>
-            <span class="d-sm-none">Cliente</span>
+            
+            <span>Cliente</span>
           </button>
           <span *ngIf="selectedCustomer" class="fw-bold text-primary">
             {{ selectedCustomer.firstName + ' ' + selectedCustomer.lastName1 }}
@@ -138,8 +136,8 @@
         </div>
         <div class="card-body">
           <div class="input-group input-group-lg mb-3">
-            <span class="input-group-text bg-light">
-              <i class="bi bi-person text-info"></i>
+            <span class="input-group-text bg-info">
+              <i class="bi bi-person text-dark"></i>
             </span>
             <input id="cliente-input" type="text" class="form-control" [(ngModel)]="customerName"
               placeholder="Buscar cliente por nombre" autocomplete="off" />
@@ -154,7 +152,7 @@
                  [class.bg-light]="i % 2 === 0">
               <div class="d-flex justify-content-between align-items-center">
                 <div>
-                  <div class="fw-bold text-info">{{ c.firstName + ' ' + c.lastName1 + ' ' + c.lastName2 }}</div>
+                  <div class="fw-bold text-dark">{{ c.firstName + ' ' + c.lastName1 + ' ' + c.lastName2 }}</div>
                   <small class="text-muted">Cliente registrado</small>
                 </div>
                 <i class="bi bi-arrow-right-circle text-success"></i>
@@ -247,7 +245,7 @@
                       type="button" 
                       (click)="metodoPago = 'Transferencia'">
                 <i class="bi bi-phone me-1"></i>
-                <span class="d-none d-sm-inline">Transferencia</span>
+                <span class="d-none d-sm-inline">SPEI</span>
                 <span class="d-sm-none">Tran.</span>
               </button>
             </li>
@@ -289,7 +287,7 @@
           <div class="d-flex justify-content-between align-items-center">
             <span class="fw-bold text-muted">Productos:</span>
             <span class="badge bg-primary fs-6">
-              {{ ventaService.saleProductsGrouped.length }}
+              {{ ventaService.totalProductos }}
             </span>
           </div>
         </div>
@@ -313,7 +311,7 @@
           <div class="card-body" [class.d-none]="isPaymentNotesCollapsed">
             <textarea class="form-control" placeholder="Agregar notas sobre la venta..." 
                       [(ngModel)]="notaVenta" rows="3"></textarea>
-            <small class="text-muted mt-1 d-block">Opcional: Información adicional sobre la transacción</small>
+            <small class="text-muted mt-1 d-block">Opcional: Información adicional sobre la venta</small>
           </div>
         </div>
       </div>
