@@ -50,16 +50,13 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
   filteredCustomer: customerDto[] = [];
   new: any;
   folio: string;
-
-  // Estado para colapsar/expandir el contenedor de método de pago y notas
   isPaymentNotesCollapsed: boolean = true;
 
-  // Método para alternar el estado de colapso/expansión
+  
   togglePaymentNotesCollapse() {
     this.isPaymentNotesCollapsed = !this.isPaymentNotesCollapsed;
   }
 
-  // Método para detectar si es dispositivo móvil
   private isMobileDevice(): boolean {
     return window.innerWidth < 992; // Bootstrap lg breakpoint
   }
