@@ -1,21 +1,3 @@
-/* Centrado total */
-.form-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background-color: #f4f4f4; 
-  padding: 10px;
-  box-sizing: border-box;
-}
-
-
-/* Más espaciado entre elementos */
-.form-container.compact .form {
-  gap: 20px;
-  margin-top: 10px;
-}
-
 /* Slim submit button */
 .submit.slim {
   padding: 10px 12px;

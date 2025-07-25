@@ -1,13 +1,12 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
 import { NgIf } from '@angular/common';
 import { AuthorizationService } from '../services/authorization.service';
 import { Router, RouterModule } from '@angular/router';
 import { UserStateService } from '../services/user-state.service';
 import { NavigationService } from '../services/navigation.service';
 import { userDto } from '../dto/userDto';
-import { catchError, first, of, Subject, switchMap, takeUntil } from 'rxjs';
+import { catchError, of, Subject, switchMap } from 'rxjs';
 import { environment } from '../environments/enviroment';
 import { TokenDto } from '../dto/authenticateDto';
 import { loginResponseDto } from '../dto/loginReponseDto';
@@ -16,7 +15,7 @@ import { AlertLevel } from '../Enums/enums';
 
 @Component({
     selector: 'app-login',
-    imports: [RouterModule, ReactiveFormsModule, HttpClientModule, NgIf],
+    imports: [RouterModule, ReactiveFormsModule, NgIf],
     templateUrl: './login.component.html',
     styleUrl: './login.component.css'
 })
@@ -30,7 +29,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     private authService: AuthorizationService,
     private userStateService: UserStateService,
     private navigation: NavigationService,
-    
+   
   ) {
     
     this.loginForm = this.fb.group({
@@ -40,6 +39,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+  
     if(!this.navigation.getItemWithExpiry('deviceId'))
     {
       let deviceId = this.authService.generateDeviceId();
@@ -48,6 +48,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
   }
