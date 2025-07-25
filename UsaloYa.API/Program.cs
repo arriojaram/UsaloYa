@@ -17,6 +17,21 @@ var loggerSettings = new LoggerConfiguration()
 //Add logging settings
 builder.Logging.AddSerilog(loggerSettings);
 
+// Configure CORS
+var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<List<string>>(); // List of allowed URLS through CONFIG file
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin",
+        builder =>
+        {
+            if (allowedOrigins != null)
+                builder.WithOrigins(allowedOrigins.ToArray())  // Add or remove URLs from appsettings
+                                                               //.AllowAnyOrigin()
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+        });
+});
+
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
@@ -33,21 +48,8 @@ builder.Services.AddDbContext<UsaloYa.Library.Models.DBContext>(
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
     });
 
-// Configure CORS
-var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<List<string>>(); // List of allowed URLS through CONFIG file
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowSpecificOrigin",
-        builder =>
-        {
-            if (allowedOrigins != null)
-                builder.WithOrigins(allowedOrigins.ToArray())  // Add or remove URLs from appsettings
-                    //.AllowAnyOrigin()
-                    .AllowAnyHeader()
-                    .AllowAnyMethod();
-        });
-});
+
 builder.Services.AddSingleton<AppConfig>();
 builder.Services.AddScoped<ProductCategoryService>();
 builder.Services.AddScoped<AccessValidationFilter>();

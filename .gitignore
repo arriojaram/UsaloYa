@@ -406,7 +406,8 @@ Guardian/.angular/cache/
 .vite/
 
 # Node modules
-node_modules/
+**/node_modules/
+**/.angular/
 
 # Dist output
 **/dist/
