@@ -30,7 +30,7 @@ namespace UsaloYa.API.Controllers
                 string base64 = Convert.ToBase64String(signed);
                 return Content(base64);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 if ((STORAGE_FLAGS & X509KeyStorageFlags.MachineKeySet) == X509KeyStorageFlags.MachineKeySet)
                 {
