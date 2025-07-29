@@ -1,100 +1,233 @@
-<div class="container mt-1">
-  <div class="row">
-      <div class="col-12 d-flex justify-content-start align-items-center">
-          <div class="hamburger-menu" (click)="navigationService.toggleSearchPanel()">
-            <i class="{{navigationService.toogleClass}} fs-4" ></i>
+<!-- Customer Management Section -->
+<div class="container-fluid px-0">
+  <!-- Professional Toolbar Header -->
+  <div class="bg-white border-bottom shadow-sm mb-3">
+    <div class="container-fluid">
+      <div class="d-flex align-items-center justify-content-between py-1">
+        <div class="d-flex align-items-center">
+          <button class="btn btn-ghost me-3" (click)="navigationService.toggleSearchPanel()">
+            <i class="{{navigationService.toogleClass}} fs-5 text-usalo-primary"></i>
+          </button>
+          <div class="toolbar-title-group">
+            <h5 class="mb-0 fw-bold text-dark d-flex align-items-center">
+              Gestión de Clientes
+              <span class="ms-2 badge bg-usalo-primary-10 text-usalo-primary rounded-pill small">
+                ({{(customerList || []).length}})
+              </span>
+            </h5>
           </div>
-          <h5 class="ms-2 mt-3">Gestión de Clientes</h5>
+        </div>
+
+        <div class="toolbar-actions d-flex align-items-center gap-2">
+          <button type="button" class="btn btn-usalo-primary btn-sm" (click)="newCustomer()">
+            <i class="bi bi-plus-circle me-1"></i>
+            <span class="d-none d-sm-inline">Nuevo Cliente</span>
+          </button>
+        </div>
       </div>
+    </div>
   </div>
 
-    <div class="row">
-      <div class="col-12 col-md-4 search-panel" [class.d-none]="navigationService.isSearchPanelHidden">
-            <div class="card">
-            <div class="card-body">
-                <h6 class="card-title">Buscar Clientes</h6>
-                <div class="input-group mb-3">
-                <input type="text" class="form-control" [(ngModel)]="navigationService.searchItem" placeholder="Escribe el nombre aqui..." (input)="searchCustomers($event)">
-               
-                </div>
-                <ul class="list-group mt-3">
-                <li *ngFor="let c of customerList" class="list-group-item list-group-item-action" 
-                      [ngClass]="{'text-primary': this.selectedCustomer?.customerId == c.customerId}"
-                      (click)="selectUser(c.customerId)">
-                    {{ c.firstName + ' ' + c.lastName1 + ' ' + c.lastName2 }}
-                </li>
-                </ul>
-            </div>
-            </div>
+  <div class="row g-2">
+    <!-- Search and Filter Panel -->
+    <div class="col-12 col-lg-4" [class.d-none]="navigationService.isSearchPanelHidden">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-usalo-info-gradient text-white py-1">
+          <h6 class="mb-0 d-flex align-items-center small">
+            <i class="bi bi-search me-1 fs-6"></i>Buscar Cliente
+          </h6>
         </div>
-        <div class="col-12" [class.col-md-8]="!navigationService.isSearchPanelHidden" [class.col-md-12]="navigationService.isSearchPanelHidden">
-            <div class="card">
-                <div class="card-body">
-                    <h6 class="card-title">Detalles del Usuario</h6>
-                    <div class="user-edit-container">
-                        <form [formGroup]="customerForm" (ngSubmit)="saveCustomer()">
-                            <div class="form-group mb-2">
-                              <label for="firstName">Nombre</label>
-                              <input id="firstName" formControlName="firstName" type="text" class="form-control required-input"/>
-                              <div *ngIf="customerForm.get('firstName')?.invalid && customerForm.get('firstName')?.touched" class="invalid-feedback">
-                                Nombre es obligatorio.
-                              </div>
-                            </div>
-                          
-                            <div class="form-group mb-2">
-                              <label for="lastName1">Apellido Paterno</label>
-                              <input id="lastName1" formControlName="lastName1" type="text" class="form-control required-input"/>
-                              <div *ngIf="customerForm.get('lastName1')?.invalid && customerForm.get('lastName1')?.touched" class="invalid-feedback">
-                                Apellido Paterno es obligatorio.
-                              </div>
-                            </div>
-                          
-                            <div class="form-group mb-2">
-                              <label for="lastName2">Apellido Materno</label>
-                              <input id="lastName2" formControlName="lastName2" type="text" class="form-control"/>
-                            </div>
-                          
-                            <div class="form-group mb-2">
-                                <label for="cellPhoneNumber">Celular</label>
-                                <input id="cellPhoneNumber" formControlName="cellPhoneNumber" type="text" class="form-control required-input"
-                                     minlength="10" maxlength="15" pattern="^[0-9]{10,15}$" required placeholder="Ingresa tu número de teléfono"/>
-                                <div *ngIf="customerForm.get('cellPhoneNumber')?.invalid && customerForm.get('cellPhoneNumber')?.touched" class="invalid-feedback">
-                                    Celular es inválido.
-                                  </div>
-                            </div>
-
-                            <div class="form-group mb-2">
-                              <label for="workPhoneNumber">Tel. Casa/Trabajo</label>
-                              <input id="workPhoneNumber" formControlName="workPhoneNumber" type="text" class="form-control"
-                                   minlength="10" maxlength="15" pattern="^[0-9]{10,15}$" placeholder="Ingresa tu número de teléfono de casa"/>
-                             
-                          </div>
-                          
-                            <div class="form-group mb-2">
-                                <label for="address">Dirección</label>
-                                <input id="address" formControlName="address" type="text" class="form-control"/>
-                            </div>
-
-                            <div class="form-group mb-2">
-                              <label for="email">Correo electrónico</label>
-                              <input id="email" formControlName="email" type="email" class="form-control"/>
-                            </div>
-                          
-                            <div class="form-group mb-2">
-                              <label for="notes">Notas</label>
-                              <textarea id="notes" formControlName="notes" class="form-control"></textarea>
-                            </div>
-                          
-                            <div class="d-flex justify-content-end my-3">
-                                <button type="button" class="btn btn-primary mx-2 btn-floating-secondary" (click)="newCustomer()">Nuevo</button>
-                                <button type="submit" [disabled]="customerForm.invalid" class="btn btn-success btn-floating">Guardar Cliente</button>
-                            </div>    
-                            
-                          </form>
-                          
-                    </div>
-                </div>
+        <div class="card-body p-3">
+          <!-- Search Section -->
+          <div class="mb-3">
+            <label class="form-label fw-bold text-muted" style="font-size: 0.75rem;">BUSCAR CLIENTES</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light">
+                <i class="bi bi-search text-info" style="font-size: 0.85rem;"></i>
+              </span>
+              <input type="text" class="form-control form-control-sm" [(ngModel)]="navigationService.searchItem"
+                placeholder="Nombre del cliente..." autocomplete="off" (input)="searchCustomers($event)">
+              <button class="btn btn-outline-info btn-sm" type="button" (click)="searchCustomers($event)">
+                <i class="bi bi-search" style="font-size: 0.8rem;"></i>
+              </button>
             </div>
+            <button *ngIf="navigationService.searchItem" class="btn btn-outline-secondary btn-sm mt-1 small"
+              (click)="navigationService.searchItem = ''; searchCustomers($event)">
+              <i class="bi bi-x-circle me-1"></i>Limpiar búsqueda
+            </button>
+          </div>
+
+          <!-- Customers List -->
+          <div>
+            <label class="form-label fw-bold text-muted" style="font-size: 0.75rem;">CLIENTES ENCONTRADOS</label>
+            <div class="border rounded bg-white" style="max-height: 400px; overflow-y: auto;">
+              <div *ngFor="let c of customerList; let i = index"
+                class="list-group-item list-group-item-action border-0 border-bottom py-2"
+                [class.bg-primary]="this.selectedCustomer?.customerId == c.customerId"
+                [class.text-white]="this.selectedCustomer?.customerId == c.customerId"
+                [class.bg-light]="this.selectedCustomer?.customerId != c.customerId && i % 2 === 0"
+                (click)="selectUser(c.customerId)" style="cursor: pointer;">
+                <div class="d-flex justify-content-between align-items-center px-2 py-1">
+                  <div>
+                    <div class="fw-bold small">{{ c.firstName + ' ' + c.lastName1 + ' ' + c.lastName2 }}</div>
+                    <small class="opacity-75" style="font-size: 0.7rem;">Tel: {{ c.cellPhoneNumber || 'N/A' }}</small>
+                  </div>
+                  <i class="bi bi-arrow-right-circle" style="font-size: 0.9rem;"></i>
+                </div>
+              </div>
+
+              <!-- Empty State -->
+              <div *ngIf="customerList.length === 0" class="text-center py-3 text-muted">
+                <i class="bi bi-people fs-1 mb-2 d-block"></i>
+                <h6 class="small">No hay clientes</h6>
+                <small style="font-size: 0.7rem;">Intenta ajustar los filtros de búsqueda</small>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
+
+    <!-- Customer Details Form -->
+    <div class="col-12" [class.col-lg-8]="!navigationService.isSearchPanelHidden"
+      [class.col-lg-12]="navigationService.isSearchPanelHidden">
+      <form [formGroup]="customerForm">
+        <!-- Basic Information Card -->
+        <div class="card shadow-sm mb-2">
+          <div class="card-header bg-usalo-success-gradient text-white py-1">
+            <h6 class="mb-0 d-flex align-items-center small">
+              <i class="bi bi-info-circle me-1 fs-6"></i>Información Básica
+            </h6>
+          </div>
+          <div class="card-body p-3">
+            <div class="row g-2">
+              <!-- First Name -->
+              <div class="col-12 col-md-6">
+                <label for="firstName" class="form-label fw-bold small">Nombre *</label>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-light">
+                    <i class="bi bi-person text-success" style="font-size: 0.85rem;"></i>
+                  </span>
+                  <input id="firstName" type="text" class="form-control" formControlName="firstName"
+                    placeholder="Ingresa el nombre">
+                </div>
+                <div *ngIf="customerForm.get('firstName')?.invalid && customerForm.get('firstName')?.touched"
+                  class="text-danger mt-1" style="font-size: 0.75rem;">
+                  <i class="bi bi-exclamation-circle me-1"></i>Nombre es obligatorio.
+                </div>
+              </div>
+
+              <!-- Last Name 1 -->
+              <div class="col-12 col-md-6">
+                <label for="lastName1" class="form-label fw-bold small">Apellido Paterno *</label>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-light">
+                    <i class="bi bi-person text-success" style="font-size: 0.85rem;"></i>
+                  </span>
+                  <input id="lastName1" type="text" class="form-control" formControlName="lastName1"
+                    placeholder="Ingresa el apellido paterno">
+                </div>
+                <div *ngIf="customerForm.get('lastName1')?.invalid && customerForm.get('lastName1')?.touched"
+                  class="text-danger mt-1" style="font-size: 0.75rem;">
+                  <i class="bi bi-exclamation-circle me-1"></i>Apellido Paterno es obligatorio.
+                </div>
+              </div>
+
+              <!-- Last Name 2 -->
+              <div class="col-12 col-md-6">
+                <label for="lastName2" class="form-label fw-bold small">Apellido Materno</label>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-light">
+                    <i class="bi bi-person text-success" style="font-size: 0.85rem;"></i>
+                  </span>
+                  <input id="lastName2" type="text" class="form-control" formControlName="lastName2"
+                    placeholder="Ingresa el apellido materno (opcional)">
+                </div>
+              </div>
+
+              <!-- Cell Phone -->
+              <div class="col-12 col-md-6">
+                <label for="cellPhoneNumber" class="form-label fw-bold small">Celular *</label>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-light">
+                    <i class="bi bi-phone text-primary" style="font-size: 0.85rem;"></i>
+                  </span>
+                  <input id="cellPhoneNumber" type="text" class="form-control" formControlName="cellPhoneNumber"
+                    placeholder="10 dígitos" minlength="10" maxlength="15" pattern="^[0-9]{10,15}$">
+                </div>
+                <div *ngIf="customerForm.get('cellPhoneNumber')?.invalid && customerForm.get('cellPhoneNumber')?.touched"
+                  class="text-danger mt-1" style="font-size: 0.75rem;">
+                  <i class="bi bi-exclamation-circle me-1"></i>Celular es inválido.
+                </div>
+              </div>
+
+              <!-- Work Phone -->
+              <div class="col-12 col-md-6">
+                <label for="workPhoneNumber" class="form-label fw-bold small">Tel. Casa/Trabajo</label>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-light">
+                    <i class="bi bi-telephone text-primary" style="font-size: 0.85rem;"></i>
+                  </span>
+                  <input id="workPhoneNumber" type="text" class="form-control" formControlName="workPhoneNumber"
+                    placeholder="10 dígitos (opcional)" minlength="10" maxlength="15" pattern="^[0-9]{10,15}$">
+                </div>
+              </div>
+
+              <!-- Address -->
+              <div class="col-12 col-md-6">
+                <label for="address" class="form-label fw-bold small">Dirección</label>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-light">
+                    <i class="bi bi-geo-alt text-warning" style="font-size: 0.85rem;"></i>
+                  </span>
+                  <input id="address" type="text" class="form-control" formControlName="address"
+                    placeholder="Dirección del cliente">
+                </div>
+              </div>
+
+              <!-- Email -->
+              <div class="col-12 col-md-6">
+                <label for="email" class="form-label fw-bold small">Correo Electrónico</label>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-light">
+                    <i class="bi bi-envelope text-info" style="font-size: 0.85rem;"></i>
+                  </span>
+                  <input id="email" type="email" class="form-control" formControlName="email"
+                    placeholder="correo@ejemplo.com">
+                </div>
+              </div>
+
+              <!-- Notes -->
+              <div class="col-12">
+                <label for="notes" class="form-label fw-bold small">Notas del Cliente</label>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-light">
+                    <i class="bi bi-card-text text-secondary" style="font-size: 0.85rem;"></i>
+                  </span>
+                  <textarea id="notes" class="form-control" formControlName="notes" rows="2"
+                    placeholder="Información adicional del cliente (opcional)"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons Card -->
+        <div class="card shadow-sm mt-2">
+          <div class="card-body p-2">
+            <div class="d-flex justify-content-end gap-2">
+              <button type="button" class="btn btn-outline-secondary" (click)="newCustomer()">
+                <i class="bi bi-plus-circle me-1" style="font-size: 0.9rem;"></i>
+                <span class="small">Nuevo Cliente</span>
+              </button>
+              <button type="button" class="btn btn-success" (click)="saveCustomer()" [disabled]="customerForm.invalid">
+                <i class="bi bi-save me-1" style="font-size: 0.9rem;"></i>
+                <span class="small">Guardar Cliente</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>

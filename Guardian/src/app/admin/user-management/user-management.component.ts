@@ -226,9 +226,7 @@ export class UserManagementComponent {
       .subscribe({
         next: (users) => {
           this.userListsByCompany[companyId] = users.sort((a,b) => (a.firstName ?? '').localeCompare((b.firstName ?? '')));
-          if (users.length > 0) {
-            this.selectUser(users[0].userId);
-          }
+          
         },
         error: (e) => {
           this.navigationService.showUIMessage(e.error);
@@ -364,10 +362,7 @@ export class UserManagementComponent {
               companies = companies.filter(c => c.companyId == this.userState.companyId)
             }
             this.companies = companies.sort((a,b) => (a.name?? '').localeCompare((b.name?? '')));
-        if(companies.length > 0)
-        {
-          this.selectCompany(companies[0].companyId);
-        }
+       
           },
         error: (error) =>
           {
