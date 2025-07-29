@@ -3,7 +3,7 @@
   <div class="row g-3">
     <div class="col-12 col-lg-6">
       <div class="card shadow-sm h-100">
-        <div class="card-header bg-primary text-white py-2">
+        <div class="card-header bg-usalo-secondary-gradient text-white py-2">
           <h6 class="mb-0 d-flex align-items-center">
             <i class="bi bi-upc-scan me-2"></i>
             <span class="d-none d-sm-inline">Punto de Venta - </span>Escanear Producto
@@ -13,7 +13,7 @@
           <form [formGroup]="formVenta" (ngSubmit)="addProductToSaleList()" class="d-flex flex-column gap-3">
             <div class="input-group input-group-lg">
               <span class="input-group-text bg-light">
-                <i class="bi bi-upc-scan text-primary"></i>
+                <i class="bi bi-upc-scan text-usalo-primary"></i>
               </span>
               <input id="codigo" type="text" formControlName="codigo" class="form-control"
                 placeholder="Código de barras o SKU" autocomplete="off" autofocus>
@@ -42,22 +42,16 @@
     
     <!-- Quick Stats & Info Panel - Hidden on mobile -->
     <div class="col-lg-6 d-none d-lg-block" *ngIf="!isSearchingProduct">
-      <div class="card shadow-sm h-100 border-0" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
-        <div class="card-header bg-success text-white py-3 border-0">
-          <h6 class="mb-0 d-flex align-items-center">
-            <i class="bi bi-speedometer2 me-2"></i>
-            Panel de Control
-          </h6>
-        </div>
+      <div class="card shadow-sm h-100 border-0 bg-usalo-gray">
         <div class="card-body p-4">
           <div class="row g-3">
             <div class="col-12">
               <div class="d-flex align-items-center mb-3">
-                <div class="bg-success bg-opacity-10 rounded-circle p-2 me-3">
-                  <i class="bi bi-lightning-charge text-success"></i>
+                <div class="rounded-circle p-2 me-3" style="background-color: var(--usalo-success-10);">
+                  <i class="bi bi-lightning-charge text-usalo-success"></i>
                 </div>
                 <div>
-                  <h6 class="mb-0 text-success">Acciones Rápidas</h6>
+                  <h6 class="mb-0 text-usalo-success">Acciones Rápidas</h6>
                   <small class="text-muted">Funciones principales</small>
                 </div>
               </div>
@@ -78,10 +72,10 @@
             <div class="col-12">
               <div class="d-flex align-items-center justify-content-between p-2 bg-white rounded border">
                 <div class="d-flex align-items-center">
-                  <div class="bg-success rounded-circle" style="width: 8px; height: 8px;"></div>
+                  <div class="rounded-circle" style="width: 8px; height: 8px; background-color: var(--usalo-success);"></div>
                   <small class="ms-2 text-muted">Sistema activo</small>
                 </div>
-                <small class="text-success fw-bold">Listo</small>
+                <small class="text-usalo-success fw-bold">Listo</small>
               </div>
             </div>
           </div>
@@ -95,15 +89,15 @@
 <div id="search-product-panel" *ngIf="isSearchingProduct" class="container-fluid px-0 mt-3">
   <div class="row">
     <div class="col-12 col-lg-6">
-      <div class="card shadow border-warning">
-        <div class="card-header text-white py-2" style="background: linear-gradient(135deg, #fd7e14 0%, #e55100 100%);">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-usalo-warning-gradient text-white py-2">
           <h6 class="mb-0 d-flex align-items-center">
             <i class="bi bi-search me-2"></i>Buscar Producto
           </h6>
         </div>
         <div class="card-body">
           <div class="input-group input-group-lg mb-3">
-            <span class="input-group-text" style="background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); border-color: #fd7e14;">
+            <span class="input-group-text" style="background-color: var(--usalo-warning-10); border-color: var(--usalo-warning);">
               <i class="bi bi-search text-warning"></i>
             </span>
             <input id="search-product-input" type="text" class="form-control" #searchInput 
@@ -138,7 +132,7 @@
           
           <!-- Action Buttons -->
           <div class="d-grid gap-2 d-md-flex mt-3">
-            <button class="btn flex-fill" style="background: linear-gradient(135deg, #fd7e14 0%, #e55100 100%); border-color: #fd7e14; color: white;" (click)="searchProduct()">
+            <button class="btn btn-usalo-warning flex-fill" (click)="searchProduct()">
               <i class="bi bi-search me-1"></i> Buscar
             </button>
             <button class="btn btn-outline-secondary flex-fill" (click)="cleanSearchProdPanel()">
@@ -153,13 +147,13 @@
     </div>
     
     <div class="col-lg-6 mt-3 mt-lg-0 d-none d-lg-block">
-      <div class="card shadow-sm h-100 border-0" style="background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);">
+      <div class="card shadow-sm h-100 border-0 bg-usalo-light">
         <div class="card-body p-4">
           <div class="text-center mb-4">
-            <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-              <i class="bi bi-search text-warning" style="font-size: 1.5rem;"></i>
+            <div class="rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px; background-color: var(--usalo-info-10);">
+              <i class="bi bi-search text-usalo-info" style="font-size: 1.5rem;"></i>
             </div>
-            <h5 class="mt-3 text-warning">Búsqueda Manual</h5>
+            <h5 class="mt-3 text-usalo-info">Búsqueda Manual</h5>
           </div>
           
           <div class="row g-2">
@@ -171,7 +165,7 @@
             </div>
           </div>
           
-          <div class="mt-3 p-3 bg-white rounded border-start border-4 border-warning">
+          <div class="mt-3 p-3 bg-white rounded border-start border-4 border-info">
             <small class="text-muted">
               <i class="bi bi-info-circle me-1"></i>
               Utiliza la búsqueda manual para encontrar productos por nombre

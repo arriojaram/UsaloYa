@@ -1,0 +1,376 @@
+/* ===== USALO YA - UNIFIED COLOR PALETTE ===== */
+
+/* Primary Brand Colors */
+:root {
+  /* Brand Primary - Purple-Blue Gradient */
+  --usalo-primary: #667eea;
+  --usalo-primary-dark: #764ba2;
+  --usalo-primary-light: #8b9aed;
+  --usalo-primary-gradient: linear-gradient(135deg, #3f83cb  0%, #a5c378  100%);
+  --usalo-primary-gradient-hover: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+  
+  /* Secondary Colors */
+  --usalo-secondary-gradient: linear-gradient(135deg, #667eea  0%, #764ba2  100%);
+  --usalo-secondary: #6c757d;
+  --usalo-secondary-light: #adb5bd;
+  --usalo-secondary-dark: #495057;
+  
+  /* Success Colors - Green System */
+  --usalo-success: #28a745;
+  --usalo-success-light: #20c997;
+  --usalo-success-dark: #198754;
+  --usalo-success-gradient: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  
+  /* Warning Colors - Orange System */
+  --usalo-warning: #ffc107;
+  --usalo-warning-light: #ffecb3;
+  --usalo-warning-dark: #e67e22;
+  --usalo-warning-gradient: linear-gradient(135deg, #ffc107 0%, #e67e22 100%);
+  
+  /* Danger Colors - Red System */
+  --usalo-danger: #dc3545;
+  --usalo-danger-light: #f8d7da;
+  --usalo-danger-dark: #c82333;
+  --usalo-danger-gradient: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  
+  /* Info Colors - Blue System */
+  --usalo-info: #17a2b8;
+  --usalo-info-light: #d1ecf1;
+  --usalo-info-dark: #138496;
+  --usalo-info-gradient: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+  
+  /* Neutral Colors */
+  --usalo-white: #ffffff;
+  --usalo-light: #f8f9fa;
+  --usalo-light-gray: #e9ecef;
+  --usalo-gray: #dee2e6;
+  --usalo-dark-gray: #ced4da;
+  --usalo-dark: #343a40;
+  --usalo-black: #000000;
+  
+  /* Background Gradients */
+  --usalo-bg-light: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  --usalo-bg-gray: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  --usalo-bg-dark: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  
+  /* Special Purpose Colors */
+  --usalo-whatsapp: #25d366;
+  --usalo-whatsapp-dark: #128c7e;
+  --usalo-whatsapp-gradient: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+  
+  /* Transparency Variants */
+  --usalo-primary-10: rgba(102, 126, 234, 0.1);
+  --usalo-primary-20: rgba(102, 126, 234, 0.2);
+  --usalo-primary-30: rgba(102, 126, 234, 0.3);
+  --usalo-success-10: rgba(40, 167, 69, 0.1);
+  --usalo-success-20: rgba(40, 167, 69, 0.2);
+  --usalo-warning-10: rgba(255, 193, 7, 0.1);
+  --usalo-warning-20: rgba(255, 193, 7, 0.2);
+  --usalo-danger-10: rgba(220, 53, 69, 0.1);
+  --usalo-danger-20: rgba(220, 53, 69, 0.2);
+  --usalo-info-10: rgba(23, 162, 184, 0.1);
+  --usalo-info-20: rgba(23, 162, 184, 0.2);
+  
+  /* Text Colors */
+  --usalo-text-primary: var(--usalo-primary);
+  --usalo-text-secondary: var(--usalo-secondary);
+  --usalo-text-success: var(--usalo-success);
+  --usalo-text-warning: var(--usalo-warning-dark);
+  --usalo-text-danger: var(--usalo-danger);
+  --usalo-text-info: var(--usalo-info);
+  --usalo-text-light: var(--usalo-secondary-light);
+  --usalo-text-dark: var(--usalo-dark);
+  --usalo-text-white: var(--usalo-white);
+  
+  /* Border Colors */
+  --usalo-border-primary: var(--usalo-primary);
+  --usalo-border-success: var(--usalo-success);
+  --usalo-border-warning: var(--usalo-warning);
+  --usalo-border-danger: var(--usalo-danger);
+  --usalo-border-info: var(--usalo-info);
+  --usalo-border-light: var(--usalo-gray);
+  --usalo-border-dark: var(--usalo-secondary);
+  
+  /* Shadow Colors */
+  --usalo-shadow-primary: rgba(102, 126, 234, 0.3);
+  --usalo-shadow-success: rgba(40, 167, 69, 0.3);
+  --usalo-shadow-warning: rgba(255, 193, 7, 0.3);
+  --usalo-shadow-danger: rgba(220, 53, 69, 0.3);
+  --usalo-shadow-info: rgba(23, 162, 184, 0.3);
+  --usalo-shadow-dark: rgba(0, 0, 0, 0.15);
+  --usalo-shadow-light: rgba(0, 0, 0, 0.1);
+}
+
+/* ===== UTILITY CLASSES ===== */
+
+/* Background Classes */
+.bg-usalo-primary { background: var(--usalo-primary) !important; }
+.bg-usalo-primary-gradient { background: var(--usalo-primary-gradient) !important; }
+.bg-usalo-secondary-gradient { background: var(--usalo-secondary-gradient) !important; }
+.bg-usalo-success { background: var(--usalo-success) !important; }
+.bg-usalo-success-gradient { background: var(--usalo-success-gradient) !important; }
+.bg-usalo-warning { background: var(--usalo-warning) !important; }
+.bg-usalo-warning-gradient { background: var(--usalo-warning-gradient) !important; }
+.bg-usalo-danger { background: var(--usalo-danger) !important; }
+.bg-usalo-danger-gradient { background: var(--usalo-danger-gradient) !important; }
+.bg-usalo-info { background: var(--usalo-info) !important; }
+.bg-usalo-info-gradient { background: var(--usalo-info-gradient) !important; }
+.bg-usalo-light { background: var(--usalo-bg-light) !important; }
+.bg-usalo-gray { background: var(--usalo-bg-gray) !important; }
+.bg-usalo-dark { background: var(--usalo-bg-dark) !important; }
+.bg-usalo-whatsapp { background: var(--usalo-whatsapp-gradient) !important; }
+
+/* Text Classes */
+.text-usalo-primary { color: var(--usalo-text-primary) !important; }
+.text-usalo-success { color: var(--usalo-text-success) !important; }
+.text-usalo-warning { color: var(--usalo-text-warning) !important; }
+.text-usalo-danger { color: var(--usalo-text-danger) !important; }
+.text-usalo-info { color: var(--usalo-text-info) !important; }
+.text-usalo-secondary { color: var(--usalo-text-secondary) !important; }
+.text-usalo-light { color: var(--usalo-text-light) !important; }
+.text-usalo-dark { color: var(--usalo-text-dark) !important; }
+
+/* Border Classes */
+.border-usalo-primary { border-color: var(--usalo-border-primary) !important; }
+.border-usalo-success { border-color: var(--usalo-border-success) !important; }
+.border-usalo-warning { border-color: var(--usalo-border-warning) !important; }
+.border-usalo-danger { border-color: var(--usalo-border-danger) !important; }
+.border-usalo-info { border-color: var(--usalo-border-info) !important; }
+
+/* Button Variants */
+.btn-usalo-primary {
+  background: var(--usalo-primary-gradient);
+  border: none;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.btn-usalo-primary:hover {
+  background: var(--usalo-primary-gradient-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--usalo-shadow-primary);
+}
+
+.btn-usalo-success {
+  background: var(--usalo-success-gradient);
+  border: none;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.btn-usalo-success:hover {
+  background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--usalo-shadow-success);
+}
+
+.btn-usalo-warning {
+  background: var(--usalo-warning-gradient);
+  border: none;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.btn-usalo-warning:hover {
+  background: linear-gradient(135deg, #e0a800 0%, #d68910 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--usalo-shadow-warning);
+}
+
+.btn-usalo-whatsapp {
+  background: var(--usalo-whatsapp-gradient);
+  border: none;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.btn-usalo-whatsapp:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+}
+
+/* Card Variants */
+.card-usalo-primary {
+  border-top: 4px solid var(--usalo-primary);
+  box-shadow: 0 4px 12px var(--usalo-shadow-light);
+}
+
+.card-usalo-success {
+  border-top: 4px solid var(--usalo-success);
+  box-shadow: 0 4px 12px var(--usalo-shadow-light);
+}
+
+.card-usalo-warning {
+  border-top: 4px solid var(--usalo-warning);
+  box-shadow: 0 4px 12px var(--usalo-shadow-light);
+}
+
+.card-usalo-danger {
+  border-top: 4px solid var(--usalo-danger);
+  box-shadow: 0 4px 12px var(--usalo-shadow-light);
+}
+
+.card-usalo-info {
+  border-top: 4px solid var(--usalo-info);
+  box-shadow: 0 4px 12px var(--usalo-shadow-light);
+}
+
+/* Badge Variants */
+.badge-usalo-primary {
+  background: var(--usalo-primary);
+  color: white;
+}
+
+.badge-usalo-success {
+  background: var(--usalo-success);
+  color: white;
+}
+
+.badge-usalo-warning {
+  background: var(--usalo-warning);
+  color: var(--usalo-dark);
+}
+
+.badge-usalo-danger {
+  background: var(--usalo-danger);
+  color: white;
+}
+
+.badge-usalo-info {
+  background: var(--usalo-info);
+  color: white;
+}
+
+/* Alert Variants */
+.alert-usalo-primary {
+  background-color: var(--usalo-primary-10);
+  border-color: var(--usalo-primary);
+  color: var(--usalo-primary-dark);
+}
+
+.alert-usalo-success {
+  background-color: var(--usalo-success-10);
+  border-color: var(--usalo-success);
+  color: var(--usalo-success-dark);
+}
+
+.alert-usalo-warning {
+  background-color: var(--usalo-warning-10);
+  border-color: var(--usalo-warning);
+  color: var(--usalo-warning-dark);
+}
+
+.alert-usalo-danger {
+  background-color: var(--usalo-danger-10);
+  border-color: var(--usalo-danger);
+  color: var(--usalo-danger-dark);
+}
+
+.alert-usalo-info {
+  background-color: var(--usalo-info-10);
+  border-color: var(--usalo-info);
+  color: var(--usalo-info-dark);
+}
+
+/* ===== PROFESSIONAL TOOLBAR STYLES ===== */
+/* Ghost Button Style */
+.btn-ghost {
+  background: transparent;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  transition: all 0.15s ease;
+  color: var(--usalo-primary);
+}
+
+.btn-ghost:hover {
+  background-color: rgba(102, 126, 234, 0.1);
+  transform: translateY(-1px);
+  color: var(--usalo-primary-dark);
+}
+
+.btn-ghost:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+/* Icon Container */
+.icon-container {
+  width: 2.5rem;
+  height: 2.5rem;
+  background: linear-gradient(135deg, var(--usalo-primary), var(--usalo-primary-dark));
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  color: white;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  transition: all 0.15s ease;
+}
+
+.icon-container:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* Toolbar Title Group */
+.toolbar-title-group h4 {
+  font-size: 1.5rem;
+  letter-spacing: -0.025em;
+  color: var(--usalo-dark);
+  font-weight: 700;
+}
+
+.toolbar-title-group small {
+  font-size: 0.875rem;
+  color: var(--usalo-secondary);
+  font-weight: 500;
+}
+
+/* Toolbar Actions */
+.toolbar-actions .btn-group .btn {
+  border-color: var(--usalo-light-gray);
+  transition: all 0.15s ease;
+}
+
+.toolbar-actions .btn-group .btn:hover {
+  border-color: var(--usalo-primary);
+  color: var(--usalo-primary);
+  transform: translateY(-1px);
+}
+
+.toolbar-actions .btn-usalo-primary {
+  background: linear-gradient(135deg, var(--usalo-primary), var(--usalo-primary-dark));
+  border: none;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  transition: all 0.15s ease;
+}
+
+.toolbar-actions .btn-usalo-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  background: linear-gradient(135deg, var(--usalo-primary-dark), var(--usalo-primary));
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .product-management-toolbar .container-fluid {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .toolbar-title-group h4 {
+    font-size: 1.25rem;
+  }
+  
+  .icon-container {
+    width: 2rem;
+    height: 2rem;
+    font-size: 1rem;
+  }
+  
+  .toolbar-actions {
+    gap: 0.5rem !important;
+  }
+}

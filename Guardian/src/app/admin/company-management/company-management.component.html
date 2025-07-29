@@ -1,273 +1,496 @@
-<div class="container-fluid mt-1" *ngIf="isAutorized">
-    <div class="row">
-        <div class="col-12 d-flex justify-content-start align-items-center">
-            <div class="hamburger-menu" (click)="navigationService.toggleSearchPanel()">
-                <i class="{{navigationService.toogleClass}} fs-4" ></i>
-            </div>
-            <h5 class="ms-2 mt-3">Empresas</h5>
+<!-- Company Management Section -->
+<div class="container-fluid px-0">
+  <!-- Professional Toolbar Header -->
+  <div class="bg-white border-bottom shadow-sm mb-3">
+    <div class="container-fluid">
+      <div class="d-flex align-items-center justify-content-between py-1">
+        <div class="d-flex align-items-center">
+          <button class="btn btn-ghost me-3" (click)="navigationService.toggleSearchPanel()">
+            <i class="{{navigationService.toogleClass}} fs-5 text-usalo-primary"></i>
+          </button>
+          <div class="toolbar-title-group">
+            <h5 class="mb-0 fw-bold text-dark d-flex align-items-center">
+              Gestión de Empresas
+            </h5>
+          </div>
         </div>
+
+        <div class="toolbar-actions d-flex align-items-center gap-2">
+          <button type="button" class="btn btn-usalo-primary btn-sm" (click)="newCompany()"
+            *ngIf="this.userState.roleId > rol.Admin && this.userState.companyStatusId != cStatus.Free">
+            <i class="bi bi-plus-circle me-1"></i>
+            <span class="d-none d-sm-inline">Nueva Empresa</span>
+          </button>
+        </div>
+      </div>
     </div>
-    
-    <div class="row">
-        <div class="col-12 col-md-4 search-panel" [class.d-none]="navigationService.isSearchPanelHidden" >
-            <div class="card" *ngIf="this.userState.roleId >= rol.Ventas">
-                <div class="card-body">
-                    <h6 class="card-title">Filtar</h6>
-                    <div class="input-group mb-3">
-                    <input type="text" class="form-control" placeholder="Escribe el nombre aqui..." (input)="searchCompany($event)">
-                    
-                    </div>
-                    <ul class="list-group mt-3">
-                    <li *ngFor="let c of companyList" class="list-group-item list-group-item-action" 
-                            [ngClass]="{'text-primary': this.selectedCompany?.companyId == c.companyId}" 
-                            (click)="selectCompany(c.companyId, true)">
-                        {{ c.name }}
-                    </li>
-                    </ul>
+  </div>
+
+  <div class="row g-2">
+    <!-- Search and Filter Panel -->
+    <div class="col-12 col-lg-4" [class.d-none]="navigationService.isSearchPanelHidden" *ngIf="this.userState.roleId >= rol.Ventas">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-usalo-info-gradient text-white py-1">
+          <h6 class="mb-0 d-flex align-items-center small">
+            <i class="bi bi-search me-1 fs-6"></i>Buscar Empresa
+          </h6>
+        </div>
+        <div class="card-body p-3">
+          <!-- Search Section -->
+          <div class="mb-3">
+            <label class="form-label fw-bold text-muted" style="font-size: 0.75rem;">BUSCAR EMPRESAS</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light">
+                <i class="bi bi-search text-info" style="font-size: 0.85rem;"></i>
+              </span>
+              <input type="text" class="form-control form-control-sm" placeholder="Escribe el nombre aqui..." 
+                (input)="searchCompany($event)" autocomplete="off">
+            </div>
+          </div>
+
+          <!-- Companies List -->
+          <div>
+            <label class="form-label fw-bold text-muted" style="font-size: 0.75rem;">EMPRESAS ENCONTRADAS</label>
+            <div class="border rounded bg-white" style="max-height: 500px; overflow-y: auto;">
+              <div *ngFor="let c of companyList; let i = index"
+                class="list-group-item list-group-item-action border-0 border-bottom py-2"
+                [class.bg-primary]="this.selectedCompany?.companyId == c.companyId"
+                [class.text-white]="this.selectedCompany?.companyId == c.companyId"
+                [class.bg-light]="this.selectedCompany?.companyId != c.companyId && i % 2 === 0"
+                (click)="selectCompany(c.companyId, true)" style="cursor: pointer;">
+                <div class="d-flex justify-content-between align-items-center px-2 py-1">
+                  <div>
+                    <div class="fw-bold small">{{ c.name }}</div>
+                    <small class="opacity-75" style="font-size: 0.7rem;">ID: {{ c.companyId }}</small>
+                  </div>
+                  <i class="bi bi-arrow-right-circle" style="font-size: 0.9rem;"></i>
                 </div>
+              </div>
+
+              <!-- Empty State -->
+              <div *ngIf="companyList.length === 0" class="text-center py-3 text-muted">
+                <i class="bi bi-building fs-1 mb-2 d-block"></i>
+                <h6 class="small">No hay empresas</h6>
+                <small style="font-size: 0.7rem;">Intenta ajustar los filtros de búsqueda</small>
+              </div>
             </div>
+          </div>
         </div>
-        <div class="col-12" [class.col-md-8]="!navigationService.isSearchPanelHidden" [class.col-md-12]="navigationService.isSearchPanelHidden">
-            <div class="card">
-                <div class="card-body">
-                    <h6 class="card-title">{{ selectedCompany == null ? "Selecciona una empresa ó crea una nueva, da click en Detalles." : selectedCompany.name }}</h6>
-                    <ul class="nav nav-tabs">
-                        <li class="nav-item">
-                            <a class="nav-link" [class.active]="activeTab === 'tabDetalles'" (click)="setActiveTab('tabDetalles')">Detalles</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" [class.active]="activeTab === 'tabPagos'" (click)="setActiveTab('tabPagos')">Pagos</a>
-                        </li>
-                        <li class="nav-item" *ngIf="this.userState.roleId >= rol.Admin && this.userState.companyStatusId != cStatus.Free ">
-                            <a class="nav-link" [class.active]="activeTab === 'tabSettings'" (click)="setActiveTab('tabSettings')">Configuraciones</a>
-                        </li>
-                    </ul>
-                    <div class="tab-content mt-3">
-                        <div class="tab-pane" [class.active]="activeTab === 'tabDetalles'" id="tabDetalles">
-                            <form [formGroup]="companyForm" (ngSubmit)="saveCompany()">
-                                <div class="form-row"> 
-                                    <div class="form-group">
-                                       
-                                        <label for="userName">Nombre de la empresa</label>
-                                        
-                                        <input id="name" class="form-control" formControlName="name" placeholder="Empresa"
-                                           *ngIf="companyForm.get('companyId')?.value <= 0 || this.userState.roleId > rol.Ventas">
-                                        <label class="form-control opacity-50 fw-bold"
-                                            *ngIf="companyForm.get('companyId')?.value > 0 && this.userState.roleId <= rol.Admin">
-                                            {{companyForm.get('name')?.value}}</label>
-                                 
-                                        <div *ngIf="companyForm.get('name')?.invalid && companyForm.get('name')?.touched" class="invalid-feedback">
-                                            Nombre de la empresa es obligatorio.
-                                        </div>
-                                        
-                                    </div>
-                                
-                                    <div class="form-group col-md-12 d-flex">
-                                        <div class="col-md-8 mb-2 pr-2">
-                                            <label for="userName">Estatus <i class="bi bi-power"></i></label>
-                                            <label class="form-control opacity-50 fw-bold">{{companyForm.get('statusDesc')?.value}}</label>
-                                        </div>
-                                        <div class="d-flex justify-content-end mx-2 my-4" 
-                                            *ngIf="this.userState.roleId > rol.Admin && this.userState.companyStatusId != cStatus.Free">
-                                            <button type="button" class="btn"
-                                                [ngClass]="{'btn-success' : this.selectedCompany?.statusId == cStatus.Inactive, 'btn-danger' : this.selectedCompany?.statusId != cStatus.Inactive}" 
-                                                (click)="setDisabled()">{{this.selectedCompany?.statusId == cStatus.Inactive ? 'Activar' : 'Desactivar'}}</button>
-                                        </div>    
-                                    </div>
-                                    <div class="form-group col-md-12 d-flex">
-                                        <div class="col-md-8 mb-2 pr-2">
-                                            <label for="userName">Expiración de la subscripción</label>
-                                            <label class="form-control opacity-50 fw-bold">{{companyForm.get('expirationDateUI')?.value}}</label>
-                                        </div>
-                                    </div>
-                                    <div class="form-group mb-2">
-                                        <label for="address">Dirección</label>
-                                        <textarea id="address" class="form-control" formControlName="address" placeholder="Dirección"></textarea>
-                                        <div *ngIf="companyForm.get('address')?.invalid && companyForm.get('address')?.touched" class="invalid-feedback">
-                                            La dirección es obligatoria.
-                                        </div>
-                                    </div>    
-                                    <div class="form-group col-md-12 d-flex">
-                                        <div class="col-md-8 mb-2 pr-2">
-                                            <label for="telNumber">Teléfono</label>
-                                            <input id="telNumber" class="form-control" formControlName="telNumber" placeholder="Teléfono" maxlength="10">
-                                        </div>
-                                    </div>
-                                    <div class="form-group col-md-12 d-flex">
-                                        <div class="col-md-8 mb-2 pr-2">
-                                            <label for="celNumber">Celular</label>
-                                            <input id="celNumber" class="form-control" formControlName="celNumber" placeholder="Celular" maxlength="10">
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group col-md-12 d-flex">
-                                        <div class="col-md-8 mb-2 pr-2">
-                                            <label for="email">E-mail</label>
-                                            <input id="email" class="form-control" formControlName="email" placeholder="E-mail" maxlength="50">
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group">
-                                            <label for="ownerInfo">Información general del representante</label>
-                                            <textarea id="ownerInfo" class="form-control" formControlName="ownerInfo" placeholder="Representante" maxlength="500"></textarea>
-                                  
-                                    </div>
-
-                                    <div class="form-group col-md-12 d-flex">
-                                        <div class="col-md-8 mb-2 pr-2">
-                                            <label for="userName">Fecha de creación</label>
-                                            <label class="form-control opacity-50 fw-bold">{{companyForm.get('creationDateUI')?.value}}</label>
-                                        </div>
-                                    </div>
-                                    <div class="form-group col-md-12 d-flex">
-                                        <div class="col-md-8 mb-2 pr-2">
-                                            <label for="userName">Creado por el usuario</label>
-                                            <label class="form-control opacity-50 fw-bold">{{companyForm.get('createdByUserName')?.value}}</label>
-                                        </div>
-                                    </div>
-                                    <div class="form-group col-md-12 d-flex">
-                                        <div class="col-md-8 mb-2 pr-2">
-                                            <label for="userName">Actualizado por el usuario</label>
-                                            <label class="form-control opacity-50 fw-bold">{{companyForm.get('lastUpdateByUserName')?.value}}</label>
-                                        </div>
-                                    </div>
-                                
-                                
-                                    <div class="d-flex justify-content-end my-3" *ngIf="this.userState.roleId >= rol.Admin">
-                                        <button type="button" class="btn btn-primary mx-2 btn-floating-secondary"
-                                            *ngIf="this.userState.roleId > rol.Admin && this.userState.companyStatusId != cStatus.Free"
-                                            (click)="newCompany()">Nuevo</button>
-                                        <button type="submit" class="btn btn-success btn-floating">Guardar</button>
-                                    </div>    
-                                </div>
-                            </form>
-                        </div>
-                        <div class="tab-pane" [class.active]="activeTab === 'tabPagos'" id="tabPagos">
-                           <!-- Sección 1: Información general y lista -->
-                            <div class="container mb-2 rounded">
-                                <div class="rounded bg-section1 text-white">
-                                    <div class="p-3 mb-2 bg-title text-white">Plan activo: <span>{{ this.selectedCompany?.planIdUI }}</span></div>
-                                    <div class="row">
-                                        <!-- Primer Div: Lista de opciones -->
-                                        <!-- Cambio de col-6 a col-12 col-md-6 para mejorar la visualización en móviles -->
-                                        <div class="col-12 col-md-6">
-                                            <div class="ms-3"> * {{this.selectedLicenceInfo.notes}}</div>
-                                            <div class="ms-3"> * Sin límite de uso.</div>
-                                            <div class="ms-3" *ngIf="this.userState.companyStatusId == cStatus.Free"> * La cuenta gratuita esta limitada en funcionalidad.</div>
-
-                                        </div>
-                                        <!-- Segundo Div: Información de pagos -->
-                                        <!-- Cambio de col-6 a col-12 col-md-6 para mejorar la visualización en móviles -->
-                                        <div class="col-12 col-md-6 mb-3">
-                                            <div class="mb-3 fs-5">Pago</div>
-                                            <div class="mb-1"  *ngIf="this.userState.companyStatusId == cStatus.Free">No requiere pago - Plan Gratuito</div>
-                                            <div class="mb-1"  *ngIf="this.userState.companyStatusId != cStatus.Free">Tu próxima factura será de {{this.selectedCompany?.planPrice | currency:'MXN'}} y llegará el {{this.selectedCompany?.expirationDate | date:'fullDate'}}</div>
-                                            <div class="mb-3">Contacta a tu vendedor para obtener más información: {{this.selectedCompany?.createdByFullName}}</div>
-                                            <div class="mb-3">
-                                                <a [href]="whatsUrl" target="_blank" class="text-white text-decoration-none">
-                                                    
-                                                    Ó escribenos al <i class="bi bi-whatsapp fs-5 text-white me-1"></i>WhatsApp
-                                                </a> 
-                                            </div>
-                                            
-                                            <div *ngIf="this.userState.roleId >= rol.Admin">
-                                                <button class="btn btn-outline-light me-2" [disabled]="showAddPaymentSection" (click)="showPaymentPanel()"
-                                                    *ngIf="(this.userState?.roleId ?? 0) > rol.Admin">Agregar Pago</button>
-                                                <button class="btn btn-outline-light" [disabled]="showUpgradeSection" (click)="showUpgradeLicense()"
-                                                    *ngIf="this.selectedCompany?.statusId == cStatus.Free || (this.userState.roleId > rol.Admin && this.selectedCompany?.planId == 1)">Hacer Premium</button>
-                                            </div>
-                                           
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Sección 2: Agregar pago -->
-                            <div *ngIf="showAddPaymentSection" class="container mb-4">
-                                <div class="row align-items-center">
-                                    <!-- Ajustes para una mejor respuesta en tamaños más pequeños -->
-                                    <div class="col-lg-4 col-md-6 col-12"> 
-                                        Ingresa Monto <input type="number" class="form-control" placeholder="Monto" [(ngModel)]="rentAmmount">
-                                    </div>
-                                    <div class="col-lg-4 col-md-6 col-12">
-                                        Selecciona Tipo
-                                        <select [(ngModel)]="paymentTypeId" class="form-select">
-                                            <option *ngFor="let option of tipoPagoList" [value]="option.value">
-                                                {{ option.name }}
-                                            </option>
-                                        </select>
-                                    </div>
-                                    <div class="col-lg-4 col-md-6 col-12">
-                                        Notas <input type="text" class="form-control" placeholder="Notas" [(ngModel)]="notas">
-                                    </div>
-                                    <div class="col-lg-4 col-md-12 col-12 mt-2"> 
-                                        <div class="d-grid gap-2 d-md-block"> 
-                                            <button class="btn btn-primary me-1" (click)="ValidateEnteredAmount()">Agregar</button>
-                                            <button class="btn btn-secondary ms-1" (click)="cancelAddPayment()">Cancelar</button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div *ngIf="mostrarConfirmacion" class="text-center mt-3">
-                                    <p>¿Confirmas agregar este pago de {{ rentAmmount | currency:'MXN'}} para la empresa {{ this.selectedCompany?.name }}?</p>
-                                    <div class="d-grid gap-2 d-md-block text-center"> <!-- Usar d-grid para mejor distribución de botones en pantallas pequeñas -->
-                                        <button class="btn btn-success me-1" (click)="addConfirmedPayment();">Sí</button>
-                                        <button class="btn btn-danger ms-1" (click)="mostrarConfirmacion = false">No</button>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div *ngIf="showUpgradeSection" class="container mb-4">
-                                <div class="col-lg-4 col-md-6 col-12">
-                                    <select [(ngModel)]="licenseId" class="form-select">
-                                        <option value="0" selected>Selecciona Licencia</option>
-                                        <option *ngFor="let option of licenseList" [value]="option.id">
-                                            {{ option.name }}
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="col-lg-4 col-md-12 col-12 mt-2"> 
-                                    <div class="d-grid gap-2 d-md-block"> 
-                                        <button class="btn btn-success me-1" (click)="upgradeLicense()">Actualizar</button>
-                                        <button class="btn btn-secondary ms-1" (click)="cancelUpgrade()">Cancelar</button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Sección 3: Historial de pagos -->
-                            <div class="container" *ngIf="this.userState.roleId >= rol.Admin && this.selectedCompany?.statusId != cStatus.Free 
-                                && this.selectedCompany?.planId != 1">
-                                <h3>Historial de Pagos</h3>
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>Id</th>
-                                            <th>Fecha</th>
-                                            <th>Monto</th>
-                                            <th>Descripción</th>
-                                            <th>Ingresó</th>
-                                            <th>Expira</th>
-                                            <th>Notas</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr *ngFor="let pago of paymentHistory">
-                                            <td>{{pago.id}}</td>
-                                            <td>{{pago.referenceDate | date:'mediumDate' }}</td>
-                                            <td>{{pago.amount | currency:'MXN'}}</td>
-                                            <td>{{pago.statusIdUI}}</td>
-                                            <td>{{pago.byUserName}}</td>
-                                            <td>{{pago.expirationDate | date:'mediumDate' }}</td>
-                                            <td>{{pago.notas}}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="tab-pane" [class.active]="activeTab === 'tabSettings'" id="tabSettings">
-                            <app-settings #settingsComponent></app-settings>
-                        </div>
-                    </div>
-            </div>
-        </div>
+      </div>
     </div>
+
+    <!-- Company Details Form -->
+    <div class="col-12" [class.col-lg-8]="!navigationService.isSearchPanelHidden"
+      [class.col-lg-12]="navigationService.isSearchPanelHidden">
+      
+      <!-- Company Information Card -->
+      <div class="card shadow-sm mb-2">
+        <div class="card-header bg-usalo-secondary-gradient text-white py-1">
+          <h6 class="mb-0 d-flex align-items-center small">
+            <i class="bi bi-info-circle me-1 fs-6"></i>
+            {{ selectedCompany == null ? "Selecciona una empresa ó crea una nueva" : selectedCompany.name }}
+          </h6>
+        </div>
+        <div class="card-body p-3">
+          <!-- Navigation Tabs -->
+          <ul class="nav nav-tabs nav-tabs-sm mb-3">
+            <li class="nav-item">
+              <a class="nav-link small" [class.active]="activeTab === 'tabDetalles'" (click)="setActiveTab('tabDetalles')">
+                <i class="bi bi-card-text me-1"></i>Detalles
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link small" [class.active]="activeTab === 'tabPagos'" (click)="setActiveTab('tabPagos')">
+                <i class="bi bi-credit-card me-1"></i>Pagos
+              </a>
+            </li>
+            <li class="nav-item" *ngIf="this.userState.roleId >= rol.Admin && this.userState.companyStatusId != cStatus.Free">
+              <a class="nav-link small" [class.active]="activeTab === 'tabSettings'" (click)="setActiveTab('tabSettings')">
+                <i class="bi bi-gear me-1"></i>Configuraciones
+              </a>
+            </li>
+          </ul>
+
+          <!-- Tab Content -->
+          <div class="tab-content">
+            <!-- Details Tab -->
+            <div class="tab-pane" [class.active]="activeTab === 'tabDetalles'" id="tabDetalles">
+              <form [formGroup]="companyForm" (ngSubmit)="saveCompany()">
+                <div class="row g-2">
+                  <!-- Company Name -->
+                  <div class="col-12 col-md-8">
+                    <label for="name" class="form-label fw-bold small">Nombre de la Empresa *</label>
+                    <div class="input-group input-group-sm">
+                      <span class="input-group-text bg-light">
+                        <i class="bi bi-building text-success" style="font-size: 0.85rem;"></i>
+                      </span>
+                      <input id="name" type="text" class="form-control" formControlName="name" placeholder="Empresa"
+                        *ngIf="companyForm.get('companyId')?.value <= 0 || this.userState.roleId > rol.Ventas">
+                      <label class="form-control opacity-50 fw-bold"
+                        *ngIf="companyForm.get('companyId')?.value > 0 && this.userState.roleId <= rol.Admin">
+                        {{companyForm.get('name')?.value}}
+                      </label>
+                    </div>
+                    <div *ngIf="companyForm.get('name')?.invalid && companyForm.get('name')?.touched" 
+                      class="text-danger mt-1" style="font-size: 0.75rem;">
+                      <i class="bi bi-exclamation-circle me-1"></i>Nombre de la empresa es obligatorio.
+                    </div>
+                  </div>
+
+                  
+                  
+
+                  <!-- Status -->
+                  <div class="col-12 col-md-4">
+                    <label class="form-label fw-bold small">Estado 
+                        <i class="bi" [class.bi-check-circle]="this.selectedCompany?.statusId != cStatus.Inactive" 
+                        [class.bi-x-circle]="this.selectedCompany?.statusId == cStatus.Inactive" style="font-size: 0.8rem;"></i>
+                    </label>
+                    <div class="col-12 col-md-4">
+                        <div class="form-check form-switch mt-1" *ngIf="this.userState.roleId > rol.Admin && this.userState.companyStatusId != cStatus.Free">
+                            <input id="discontinued" type="checkbox" class="form-check-input" (click)="setDisabled()" formControlName="statusId" >
+                            <label class="form-check-label small" for="discontinued">
+                            <span *ngIf="this.selectedCompany?.statusId != cStatus.Inactive" class="text-success">
+                                <i class="bi bi-check-circle me-1" style="font-size: 0.8rem;"></i>Activo
+                            </span>
+                            <span *ngIf="this.selectedCompany?.statusId == cStatus.Inactive" class="text-danger d-flex">
+                                <i class="bi bi-exclamation-triangle me-1" style="font-size: 0.8rem;"></i>Inactivo
+                            </span>
+                            </label>
+                        </div>
+                        </div>
+                  </div>
+
+                  <!-- Expiration Date -->
+                  <div class="col-12 col-md-6">
+                    <label class="form-label fw-bold small">Expiración de la Subscripción</label>
+                    <div class="input-group input-group-sm">
+                      <span class="input-group-text bg-light">
+                        <i class="bi bi-calendar-event text-info" style="font-size: 0.85rem;"></i>
+                      </span>
+                      <label class="form-control opacity-50 fw-bold">{{companyForm.get('expirationDateUI')?.value}}</label>
+                    </div>
+                  </div>
+
+                  <!-- Address -->
+                  <div class="col-12">
+                    <label for="address" class="form-label fw-bold small">Dirección *</label>
+                    <div class="input-group input-group-sm">
+                      <span class="input-group-text bg-light">
+                        <i class="bi bi-geo-alt text-primary" style="font-size: 0.85rem;"></i>
+                      </span>
+                      <textarea id="address" class="form-control" formControlName="address" rows="2" placeholder="Dirección"></textarea>
+                    </div>
+                    <div *ngIf="companyForm.get('address')?.invalid && companyForm.get('address')?.touched" 
+                      class="text-danger mt-1" style="font-size: 0.75rem;">
+                      <i class="bi bi-exclamation-circle me-1"></i>La dirección es obligatoria.
+                    </div>
+                  </div>
+
+                  <!-- Contact Information -->
+                  <div class="col-12 col-md-6">
+                    <label for="telNumber" class="form-label fw-bold small">Teléfono</label>
+                    <div class="input-group input-group-sm">
+                      <span class="input-group-text bg-light">
+                        <i class="bi bi-telephone text-success" style="font-size: 0.85rem;"></i>
+                      </span>
+                      <input id="telNumber" type="text" class="form-control" formControlName="telNumber" 
+                        placeholder="Teléfono" maxlength="10">
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-md-6">
+                    <label for="celNumber" class="form-label fw-bold small">Celular</label>
+                    <div class="input-group input-group-sm">
+                      <span class="input-group-text bg-light">
+                        <i class="bi bi-phone text-success" style="font-size: 0.85rem;"></i>
+                      </span>
+                      <input id="celNumber" type="text" class="form-control" formControlName="celNumber" 
+                        placeholder="Celular" maxlength="10">
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-md-6">
+                    <label for="email" class="form-label fw-bold small">E-mail</label>
+                    <div class="input-group input-group-sm">
+                      <span class="input-group-text bg-light">
+                        <i class="bi bi-envelope text-info" style="font-size: 0.85rem;"></i>
+                      </span>
+                      <input id="email" type="email" class="form-control" formControlName="email" 
+                        placeholder="E-mail" maxlength="50">
+                    </div>
+                  </div>
+
+                  <!-- Owner Information -->
+                  <div class="col-12">
+                    <label for="ownerInfo" class="form-label fw-bold small">Información del Representante</label>
+                    <div class="input-group input-group-sm">
+                      <span class="input-group-text bg-light">
+                        <i class="bi bi-person text-warning" style="font-size: 0.85rem;"></i>
+                      </span>
+                      <textarea id="ownerInfo" class="form-control" formControlName="ownerInfo" 
+                        rows="3" placeholder="Información del representante" maxlength="500"></textarea>
+                    </div>
+                  </div>
+
+                  <!-- Creation Information -->
+                  <div class="col-12 col-md-6">
+                    <label class="form-label fw-bold small">Fecha de Creación</label>
+                    <div class="input-group input-group-sm">
+                      <span class="input-group-text bg-light">
+                        <i class="bi bi-calendar-plus text-secondary" style="font-size: 0.85rem;"></i>
+                      </span>
+                      <label class="form-control opacity-50 fw-bold">{{companyForm.get('creationDateUI')?.value}}</label>
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-md-6">
+                    <label class="form-label fw-bold small">Creado por</label>
+                    <div class="input-group input-group-sm">
+                      <span class="input-group-text bg-light">
+                        <i class="bi bi-person-plus text-secondary" style="font-size: 0.85rem;"></i>
+                      </span>
+                      <label class="form-control opacity-50 fw-bold">{{companyForm.get('createdByUserName')?.value}}</label>
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-md-6">
+                    <label class="form-label fw-bold small">Actualizado por</label>
+                    <div class="input-group input-group-sm">
+                      <span class="input-group-text bg-light">
+                        <i class="bi bi-person-check text-secondary" style="font-size: 0.85rem;"></i>
+                      </span>
+                      <label class="form-control opacity-50 fw-bold">{{companyForm.get('lastUpdateByUserName')?.value}}</label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex justify-content-end gap-2 mt-3" *ngIf="this.userState.roleId >= rol.Admin">
+                  <button type="button" class="btn btn-outline-secondary btn-sm" (click)="newCompany()"
+                    *ngIf="this.userState.roleId > rol.Admin && this.userState.companyStatusId != cStatus.Free">
+                    <i class="bi bi-plus-circle me-1" style="font-size: 0.9rem;"></i>
+                    <span class="small">Nueva Empresa</span>
+                  </button>
+                  <button type="submit" class="btn btn-success btn-sm">
+                    <i class="bi bi-save me-1" style="font-size: 0.9rem;"></i>
+                    <span class="small">Guardar Cambios</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Payments Tab -->
+            <div class="tab-pane" [class.active]="activeTab === 'tabPagos'" id="tabPagos">
+              <!-- Plan Information Card -->
+              <div class="card shadow-sm mb-3">
+                <div class="card-header bg-warning text-white py-1">
+                  <h6 class="mb-0 d-flex align-items-center small">
+                    <i class="bi bi-credit-card me-1 fs-6"></i>Plan Activo: {{ this.selectedCompany?.planIdUI }}
+                  </h6>
+                </div>
+                <div class="card-body p-3">
+                  <div class="row g-2">
+                    <div class="col-12 col-md-6">
+                      <div class="mb-2">
+                        <i class="bi bi-check-circle text-success me-1"></i>
+                        <span class="small">{{this.selectedLicenceInfo.notes}}</span>
+                      </div>
+                      <div class="mb-2">
+                        <i class="bi bi-infinity text-success me-1"></i>
+                        <span class="small">Sin límite de uso.</span>
+                      </div>
+                      <div class="mb-2" *ngIf="this.userState.companyStatusId == cStatus.Free">
+                        <i class="bi bi-exclamation-triangle text-warning me-1"></i>
+                        <span class="small">La cuenta gratuita está limitada en funcionalidad.</span>
+                      </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <div class="mb-2">
+                        <label class="form-label fw-bold small">Información de Pago</label>
+                      </div>
+                      <div class="mb-2" *ngIf="this.userState.companyStatusId == cStatus.Free">
+                        <span class="badge bg-success">No requiere pago - Plan Gratuito</span>
+                      </div>
+                      <div class="mb-2" *ngIf="this.userState.companyStatusId != cStatus.Free">
+                        <span class="small">Próxima factura: {{this.selectedCompany?.planPrice | currency:'MXN'}}</span><br>
+                        <span class="small text-muted">Vence: {{this.selectedCompany?.expirationDate | date:'fullDate'}}</span>
+                      </div>
+                      <div class="mb-2">
+                        <span class="small">Contacto: {{this.selectedCompany?.createdByFullName}}</span>
+                      </div>
+                      <div class="mb-2">
+                        <a [href]="whatsUrl" target="_blank" class="btn btn-success btn-sm">
+                          <i class="bi bi-whatsapp me-1"></i>WhatsApp
+                        </a>
+                      </div>
+                      
+                      <div class="d-flex gap-1" *ngIf="this.userState.roleId >= rol.Admin">
+                        <button class="btn btn-outline-primary btn-sm" [disabled]="showAddPaymentSection" 
+                          (click)="showPaymentPanel()" *ngIf="(this.userState?.roleId ?? 0) > rol.Admin">
+                          <i class="bi bi-plus-circle me-1"></i>Agregar Pago
+                        </button>
+                        <button class="btn btn-outline-warning btn-sm" [disabled]="showUpgradeSection" 
+                          (click)="showUpgradeLicense()" 
+                          *ngIf="this.selectedCompany?.statusId == cStatus.Free || (this.userState.roleId > rol.Admin && this.selectedCompany?.planId == 1)">
+                          <i class="bi bi-arrow-up-circle me-1"></i>Hacer Premium
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Add Payment Section -->
+              <div *ngIf="showAddPaymentSection" class="card shadow-sm mb-3">
+                <div class="card-header bg-info text-white py-1">
+                  <h6 class="mb-0 d-flex align-items-center small">
+                    <i class="bi bi-plus-circle me-1 fs-6"></i>Agregar Pago
+                  </h6>
+                </div>
+                <div class="card-body p-3">
+                  <div class="row g-2">
+                    <div class="col-12 col-md-4">
+                      <label class="form-label fw-bold small">Monto</label>
+                      <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-light">
+                          <i class="bi bi-currency-dollar text-success" style="font-size: 0.85rem;"></i>
+                        </span>
+                        <input type="number" class="form-control" placeholder="Monto" [(ngModel)]="rentAmmount">
+                      </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                      <label class="form-label fw-bold small">Tipo de Pago</label>
+                      <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-light">
+                          <i class="bi bi-credit-card text-primary" style="font-size: 0.85rem;"></i>
+                        </span>
+                        <select [(ngModel)]="paymentTypeId" class="form-select">
+                          <option *ngFor="let option of tipoPagoList" [value]="option.value">
+                            {{ option.name }}
+                          </option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                      <label class="form-label fw-bold small">Notas</label>
+                      <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-light">
+                          <i class="bi bi-card-text text-secondary" style="font-size: 0.85rem;"></i>
+                        </span>
+                        <input type="text" class="form-control" placeholder="Notas" [(ngModel)]="notas">
+                      </div>
+                    </div>
+                    <div class="col-12">
+                      <div class="d-flex gap-2">
+                        <button class="btn btn-primary btn-sm" (click)="ValidateEnteredAmount()">
+                          <i class="bi bi-check-circle me-1"></i>Agregar
+                        </button>
+                        <button class="btn btn-secondary btn-sm" (click)="cancelAddPayment()">
+                          <i class="bi bi-x-circle me-1"></i>Cancelar
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div *ngIf="mostrarConfirmacion" class="alert alert-info mt-3">
+                    <div class="text-center">
+                      <p class="mb-2">¿Confirmas agregar este pago de {{ rentAmmount | currency:'MXN'}} para la empresa {{ this.selectedCompany?.name }}?</p>
+                      <div class="d-flex gap-2 justify-content-center">
+                        <button class="btn btn-success btn-sm" (click)="addConfirmedPayment();">
+                          <i class="bi bi-check-circle me-1"></i>Sí
+                        </button>
+                        <button class="btn btn-danger btn-sm" (click)="mostrarConfirmacion = false">
+                          <i class="bi bi-x-circle me-1"></i>No
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Upgrade Section -->
+              <div *ngIf="showUpgradeSection" class="card shadow-sm mb-3">
+                <div class="card-header bg-warning text-white py-1">
+                  <h6 class="mb-0 d-flex align-items-center small">
+                    <i class="bi bi-arrow-up-circle me-1 fs-6"></i>Actualizar Licencia
+                  </h6>
+                </div>
+                <div class="card-body p-3">
+                  <div class="row g-2">
+                    <div class="col-12 col-md-6">
+                      <label class="form-label fw-bold small">Seleccionar Licencia</label>
+                      <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-light">
+                          <i class="bi bi-shield-check text-warning" style="font-size: 0.85rem;"></i>
+                        </span>
+                        <select [(ngModel)]="licenseId" class="form-select">
+                          <option value="0" selected>Selecciona Licencia</option>
+                          <option *ngFor="let option of licenseList" [value]="option.id">
+                            {{ option.name }}
+                          </option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-12 col-md-6 d-flex align-items-end">
+                      <div class="d-flex gap-2">
+                        <button class="btn btn-success btn-sm" (click)="upgradeLicense()">
+                          <i class="bi bi-check-circle me-1"></i>Actualizar
+                        </button>
+                        <button class="btn btn-secondary btn-sm" (click)="cancelUpgrade()">
+                          <i class="bi bi-x-circle me-1"></i>Cancelar
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Payment History -->
+              <div class="card shadow-sm" *ngIf="this.userState.roleId >= rol.Admin && this.selectedCompany?.statusId != cStatus.Free && this.selectedCompany?.planId != 1">
+                <div class="card-header bg-secondary text-white py-1">
+                  <h6 class="mb-0 d-flex align-items-center small">
+                    <i class="bi bi-clock-history me-1 fs-6"></i>Historial de Pagos
+                  </h6>
+                </div>
+                <div class="card-body p-3">
+                  <div class="table-responsive">
+                    <table class="table table-sm">
+                      <thead class="table-light">
+                        <tr>
+                          <th class="small">Id</th>
+                          <th class="small">Fecha</th>
+                          <th class="small">Monto</th>
+                          <th class="small">Descripción</th>
+                          <th class="small">Ingresó</th>
+                          <th class="small">Expira</th>
+                          <th class="small">Notas</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let pago of paymentHistory">
+                          <td class="small">{{pago.id}}</td>
+                          <td class="small">{{pago.referenceDate | date:'mediumDate' }}</td>
+                          <td class="small">{{pago.amount | currency:'MXN'}}</td>
+                          <td class="small">{{pago.statusIdUI}}</td>
+                          <td class="small">{{pago.byUserName}}</td>
+                          <td class="small">{{pago.expirationDate | date:'mediumDate' }}</td>
+                          <td class="small">{{pago.notas}}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div class="tab-pane" [class.active]="activeTab === 'tabSettings'" id="tabSettings">
+              <app-settings #settingsComponent></app-settings>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

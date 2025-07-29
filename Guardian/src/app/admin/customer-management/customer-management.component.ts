@@ -7,13 +7,12 @@ import { UserStateService } from '../../services/user-state.service';
 import { customerDto } from '../../dto/customerDto';
 import { first } from 'rxjs';
 import { NavigationService } from '../../services/navigation.service';
-import { NgClass, NgFor, NgIf } from '@angular/common';
-import { AlertLevel, Roles } from '../../Enums/enums';
-import { environment } from '../../environments/enviroment';
+import { NgFor, NgIf } from '@angular/common';
+import { AlertLevel } from '../../Enums/enums';
 
 @Component({
     selector: 'app-customer-management',
-    imports: [ReactiveFormsModule, FormsModule, NgFor, NgIf, NgClass],
+    imports: [ReactiveFormsModule, FormsModule, NgFor, NgIf],
     templateUrl: './customer-management.component.html',
     styleUrl: './customer-management.component.css'
 })

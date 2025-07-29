@@ -15,7 +15,23 @@
   <script src="assets/js/qz-tray.js" onload="window.qzReady = true;"></script>
   <script src="assets/js/jsrsasign-all-min.js"></script>
   <script src="assets/js/sign-message.js"></script>
-  
+  <style>
+    /* Responsive fix for sb-nav-fixed class */
+    @media (max-width: 991.98px) {
+      body.sb-nav-fixed {
+        padding-left: 0 !important;
+      }
+      
+      body.sb-nav-fixed #layoutSidenav {
+        padding-left: 0 !important;
+      }
+      
+      body.sb-nav-fixed #layoutSidenav_content {
+        margin-left: 0 !important;
+        padding-left: 0 !important;
+      }
+    }
+  </style>
 </head>
 <body class="sb-nav-fixed mat-typography">
   <app-root></app-root>
