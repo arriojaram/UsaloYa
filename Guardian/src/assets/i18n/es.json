@@ -56,6 +56,10 @@
     "no_product_registration": "No hay registro de productos para la venta seleccionada",
     "no_register_sale": "No hay registro de ventas entre las fechas"
   },
+  "company_settings": {
+    "save_success": "Configuracion guardada"
+
+  },
   "emails": {
     "email_send_error": "Error al enviar el correo electronico, por favor contactenos",
     "email_send_ok": "Usuario registrado y correos enviados correctamente."
