@@ -15,51 +15,6 @@ namespace UsaloYa.Library.Migrations
                 name: "FK_Questions_Users_IdUser",
                 table: "Questions");
 
-            migrationBuilder.AlterColumn<int>(
-                name: "Folio",
-                table: "Sales",
-                type: "int",
-                nullable: true,
-                oldClrType: typeof(string),
-                oldType: "varchar(11)",
-                oldUnicode: false,
-                oldMaxLength: 11,
-                oldNullable: true);
-
-            migrationBuilder.AlterColumn<decimal>(
-                name: "Quantity",
-                table: "SaleDetails",
-                type: "decimal(10,2)",
-                nullable: false,
-                oldClrType: typeof(int),
-                oldType: "int");
-
-            migrationBuilder.AlterColumn<decimal>(
-                name: "UnitsInStock",
-                table: "Products",
-                type: "decimal(10,2)",
-                nullable: false,
-                oldClrType: typeof(int),
-                oldType: "int");
-
-            migrationBuilder.AlterColumn<decimal>(
-                name: "InVentario",
-                table: "Products",
-                type: "decimal(18,2)",
-                nullable: true,
-                comment: "Valor utilizado para guardar informacion temporal del inventario del producto",
-                oldClrType: typeof(int),
-                oldType: "int",
-                oldNullable: true,
-                oldComment: "Valor utilizado para guardar informacion temporal del inventario del producto");
-
-            migrationBuilder.AddColumn<int>(
-                name: "Measure",
-                table: "Products",
-                type: "int",
-                nullable: false,
-                defaultValueSql: "((1))");
-
             migrationBuilder.CreateTable(
                 name: "CashCount",
                 columns: table => new
