@@ -21,6 +21,16 @@ namespace UsaloYa.Dto.Utils
                 .Select(s => s[_random.Next(s.Length)]).ToArray());
         }
 
+        public static double? differenceOfDays(DateTime? dateTimeSale, int maxDaysToRefund)
+        {
+            if (dateTimeSale == null)
+                return 0; 
+
+            var daysAfterSale = Utils.GetMxDateTime() - dateTimeSale.Value; 
+            return maxDaysToRefund - daysAfterSale.TotalDays;
+        }
+
+
         public static string EncryptPassword(string password)
         {
             using (var sha256 = SHA256.Create())

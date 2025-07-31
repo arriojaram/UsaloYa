@@ -282,5 +282,24 @@ namespace UsaloYa.Services
             return true;
         }
 
+        
+
+        public async Task<int> GetMaxDaysToRefund(int companyId)
+        {
+            var company = await _dBContext.Companies.FindAsync(companyId);
+            return company?.MaxDaysToRefund ?? 0;
+        }
+
+        public async Task<bool> UpdateMaxDaysToRefund(int companyId, int days)
+        {
+            var company = await _dBContext.Companies.FindAsync(companyId);
+            if (company == null) return false;
+
+            company.MaxDaysToRefund = days;
+            _dBContext.Entry(company).State = EntityState.Modified;
+            await _dBContext.SaveChangesAsync();
+            return true;
+        }
+
     }
 }

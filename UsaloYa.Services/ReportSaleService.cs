@@ -1,19 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using UsaloYa.Dto;
 using UsaloYa.Library.Models;
 using UsaloYa.Services.interfaces;
 
 namespace UsaloYa.Services
 {
-    public class ReportService : IReportService
+    public class ReportSaleService : IReportSaleService
     {
         private readonly DBContext _dBContext;
 
-        public ReportService(DBContext dBContext)
+        public ReportSaleService(DBContext dBContext)
         {
             _dBContext = dBContext;
         }
@@ -75,6 +71,6 @@ namespace UsaloYa.Services
                     r.Sale.Status
                 })
                 .ToListAsync();
-        }
+        }     
     }
 }

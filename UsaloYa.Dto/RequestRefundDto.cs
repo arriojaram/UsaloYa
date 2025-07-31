@@ -1,0 +1,13 @@
+﻿namespace UsaloYa.Dto
+{
+    public class RequestRefundDto
+    {
+        public int SaleId { get; set; }
+        public int UserId { get; set; }
+        public string RefundMethod { get; set; }
+        public DateTime SaleDate { get; set; }
+        
+        public List<ProductRefundDto> ProductRefundList { get; set; }
+
+    }
+}

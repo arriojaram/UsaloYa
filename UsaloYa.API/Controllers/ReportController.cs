@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using UsaloYa.API.Security;
 using UsaloYa.Library.Models;
 using UsaloYa.Services.interfaces;
@@ -12,10 +11,10 @@ namespace UsaloYa.API.Controllers
     public class ReportController : ControllerBase
     {
         private readonly ILogger<ReportController> _logger;
-        private readonly IReportService _reportService;
+        private readonly IReportSaleService _reportService;
         private readonly DBContext _dBContext;
 
-        public ReportController(DBContext dBContext, IReportService reportService, ILogger<ReportController> logger)
+        public ReportController(DBContext dBContext, IReportSaleService reportService, ILogger<ReportController> logger)
         {
             _logger = logger;
             _reportService = reportService;
