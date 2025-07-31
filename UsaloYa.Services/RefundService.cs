@@ -9,24 +9,41 @@ namespace UsaloYa.Services
     {
         private readonly DBContext _dBContext;
         private readonly ICompanyService _companyService;
+        private readonly IProductService _productService;
 
-        public RefundService(DBContext dBContext, ICompanyService companyService)
+        public RefundService(DBContext dBContext, ICompanyService companyService, IProductService productService)
         {
             _dBContext = dBContext;
-            _companyService = companyService;        
+            _companyService = companyService; 
+            _productService = productService;
         }
 
         public async Task<bool> ManageRefund(RequestRefundDto requestRefundDto, int companyId)
         {
-            
             var canRefund = await this.CanSaleBeRefund(requestRefundDto.SaleDate, companyId);
 
-            if (canRefund)
-                return await this.AddRefund(requestRefundDto);
-            else
+            if (!canRefund)
                 return false;
 
+            var added = await this.AddRefund(requestRefundDto);
+
+            if (!added)
+                return false;
+
+            var productsToAdd = requestRefundDto.ProductRefundList
+                .Select(item => new SetStockDto
+                {
+                    ProductId = item.ProductId,
+                    UnitsInStock = item.Quantity,
+                    IsHardReset = false,
+                })
+                .ToList();
+
+            await _productService.AddUnitsInStockByProductId(productsToAdd, companyId);
+
+            return true;
         }
+
 
         public async Task<bool> CanSaleBeRefund(DateTime? SaleDate, int companyId)
         {

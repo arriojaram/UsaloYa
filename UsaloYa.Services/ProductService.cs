@@ -666,5 +666,30 @@ namespace UsaloYa.Services
             return -1;
         }
 
+
+        public async Task<bool> AddUnitsInStockByProductId(List<SetStockDto> productsToAdd, int companyId)
+        {
+            bool anyUpdated = false;
+
+            foreach (var item in productsToAdd)
+            {
+                var product = await _dBContext.Products
+                    .FirstOrDefaultAsync(p => p.ProductId == item.ProductId && p.CompanyId == companyId);
+
+                if (product != null)
+                {
+                    product.UnitsInStock += item.UnitsInStock;
+                    _dBContext.Entry(product).State = EntityState.Modified;
+                    anyUpdated = true;
+                }
+            }
+
+            if (anyUpdated)
+                await _dBContext.SaveChangesAsync();
+
+            return anyUpdated;
+        }
+
+
     }
 }

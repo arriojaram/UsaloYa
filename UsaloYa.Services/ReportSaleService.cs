@@ -52,6 +52,7 @@ namespace UsaloYa.Services
                 .Select(r => new
                 {
                     Barcode = r.Product.Barcode,
+                    ProductId = r.Product.ProductId,
                     ProductName = r.Product.Name,
                     Quantity = r.Quantity,
                     Measure = r.Product.Measure,

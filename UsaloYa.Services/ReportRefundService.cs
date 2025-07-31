@@ -14,63 +14,74 @@ namespace UsaloYa.Services
             _dBContext = dBContext;
         }
 
-        public async Task<IEnumerable<object>> GetRefundsReport(DateTime fromDate, DateTime toDate, int companyId, int userId)
+        public async Task<IEnumerable<RefundReportDto>> GetRefundsReport(DateTime fromDate, DateTime toDate, int companyId, int userId)
         {
-            toDate = toDate.AddDays(1);
+            var toDateInclusive = toDate.Date.AddDays(1);
 
-            return await _dBContext.Sales
-                .Include(s => s.User)
-                .Include(c => c.Customer)
-                .Where(s => s.CompanyId == companyId
-                    && (s.User.UserId == userId || userId == 0)
-                    && s.SaleDate >= fromDate.Date && s.SaleDate <= toDate.Date)
-                .Select(r => new
+            return await _dBContext.Refunds
+                .Where(r => r.Sale.CompanyId == companyId &&
+                            r.RefundDate >= fromDate.Date &&
+                            r.RefundDate < toDateInclusive)
+                .GroupBy(r => new
                 {
-
-                    SaleID = r.SaleId,
-                    Folio = r.Folio,
-                    SaleDate = r.SaleDate,
-                    UserId = r.UserId,
-                    UserName = r.User.UserName,
-                    FullName = r.User.FirstName + ' ' + r.User.LastName,
-                    CustomerName = r.Customer == null ? "" : r.Customer.FirstName + ' ' + r.Customer.LastName1,
-                    Notes = r.Notes,
-                    Payment = r.PaymentMethod,
-                    Status = r.Status,
-                    TotalSale = r.TotalSale
+                    r.SaleId,
+                    r.UserId,
+                    r.User.FirstName,
+                    r.RefundDate.Date,
+                    r.RefundMethod
+                })
+                .Select(g => new RefundReportDto
+                {
+                    SaleId = g.Key.SaleId,
+                    UserId = g.Key.UserId,
+                    Name = g.Key.FirstName,
+                    RefundDate = g.Key.Date,
+                    RefundMethod = g.Key.RefundMethod,
+                    RefundAmountTotal = g.Sum(x => x.RefundAmount)
                 })
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<object>> GetRefundDetails(int saleId, int companyId)
+
+        public async Task<RefundReportDto> GetRefundDetails(int saleId, int companyId)
         {
-            return await _dBContext.SaleDetails
-                .Include(d => d.Product)
-                .Include(d => d.Sale)
-                .Include(d => d.Sale.User)
-                .Where(s => s.SaleId == saleId && s.Sale.CompanyId == companyId)
-                .Select(r => new
+            var refundReport = await _dBContext.Refunds
+                .Include(r => r.Sale)
+                .Include(r => r.User)
+                .Include(r => r.Product)
+                .Where(r => r.SaleId == saleId && r.Sale.CompanyId == companyId)
+                .GroupBy(r => new
                 {
-                    Barcode = r.Product.Barcode,
-                    ProductName = r.Product.Name,
-                    Quantity = r.Quantity,
-                    Measure = r.Product.Measure,
-                    BuyPrice = r.Product.BuyPrice,
-                    SoldPrice = r.UnitPrice,
-                    ProductPrice1 = r.Product.UnitPrice1,
-                    ProductPrice2 = r.Product.UnitPrice2,
-                    ProductPrice3 = r.Product.UnitPrice3,
-                    TotalPrice = r.TotalPrice,
-                    SaleID = r.SaleId,
-                    SaleDate = r.Sale.SaleDate,
-                    TotalSale = r.Sale.TotalSale,
-                    UserId = r.Sale.UserId,
-                    UserName = r.Sale.User.UserName,
-                    FullName = r.Sale.User.FirstName + ' ' + r.Sale.User.LastName,
-                    PriceLevel = r.PriceLevel ?? 0,
-                    r.Sale.Status
+                    r.SaleId,
+                    r.UserId,
+                    r.User.FirstName,
+                    r.User.LastName,
+                    r.RefundDate,
+                    r.RefundMethod
                 })
-                .ToListAsync();
+                .Select(g => new RefundReportDto
+                {
+                    SaleId = g.Key.SaleId,
+                    UserId = g.Key.UserId,
+                    Name = $"{g.Key.FirstName} {g.Key.LastName}",
+                    RefundDate = g.Key.RefundDate,
+                    RefundMethod = g.Key.RefundMethod,
+                    RefundAmountTotal = g.Sum(x => x.RefundAmount),
+
+                    Products = g.Select(r => new RefundProductDto
+                    {
+                        Barcode = r.Barcode,
+                        ProductName = r.Product.Name,
+                        Reason = r.Reason,
+                        Measure = r.Measure,
+                        Quantity = r.Quantity,
+                        UnitPriceRefund = r.UnitPriceRefund,
+                        RefundAmount = r.RefundAmount
+                    }).ToList()
+                })
+                .FirstOrDefaultAsync();
+
+            return refundReport;
         }
     }
 }

@@ -13,6 +13,7 @@ namespace UsaloYa.Library.Models
         public int UserId { get; set; }
         public DateTime RefundDate { get; set; }
         public string RefundMethod { get; set; }
+        public int ProductId { get; set; }
         public string Barcode { get; set; }
         public string Reason { get; set; }
         public int Measure { get; set; }
@@ -23,5 +24,7 @@ namespace UsaloYa.Library.Models
         public virtual Sale Sale { get; set; }
 
         public virtual User User { get; set; }
+
+        public virtual Product Product { get; set; }
     }
 }

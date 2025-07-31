@@ -13,7 +13,10 @@ namespace UsaloYa.Dto
         public string Name { get; set; }
         public DateTime RefundDate { get; set; }
         public string RefundMethod { get; set; }
-        public decimal RefundAmount { get; set; }
+        public decimal RefundAmountTotal { get; set; }
+
+        public List<RefundProductDto>? Products { get; set; }
+
     }
 
 }
