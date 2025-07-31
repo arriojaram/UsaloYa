@@ -276,28 +276,14 @@
          style="transition: margin-left 0.3s ease; background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);">
         
         <!-- Modern Main Content -->
-        <main class="flex-grow-1">
-          
-            
-            <!-- Content Container -->
-            <div class="content-container">
-                <div class="container-fluid px-4 py-2">
-                    <!-- Loading Spinner -->
-                    <div class="loading-overlay d-flex align-items-center justify-content-center" 
-                         *ngIf="loading_i$ | async"
-                         style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 9999; backdrop-filter: blur(5px);">
-                        <div class="loading-content text-center">
-                            <div class="custom-spinner mb-3" 
-                                 style="width: 50px; height: 50px; border: 4px solid #f3f3f3; border-top: 4px solid #667eea; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-                            <p class="text-muted fw-medium">Cargando...</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Router Outlet Container -->
-                    <div class="router-content" style="min-height: 60vh;">
-                        <router-outlet></router-outlet>
-                    </div>
-                </div>
+        <main>
+            <div class="container-fluid px-4">
+                <h1 class="mt-1">{{ this.currentPath }}</h1>
+                
+                <div class="card-body">
+                    <mat-spinner *ngIf="loading_i$ | async" class="loading-spinner"></mat-spinner>
+                    <router-outlet></router-outlet>
+                </div>    
             </div>
         </main>
         
