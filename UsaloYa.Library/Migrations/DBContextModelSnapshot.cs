@@ -55,6 +55,95 @@ namespace UsaloYa.Library.Migrations
                     b.ToTable("Groups");
                 });
 
+            modelBuilder.Entity("UsaloYa.Library.Models.CashCount", b =>
+                {
+                    b.Property<long>("CashCountId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("CashCountId"));
+
+                    b.Property<decimal>("Cash")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<decimal?>("CashOutputTotal")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<decimal?>("CredictCard")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<string>("FinalCash")
+                        .HasMaxLength(10)
+                        .HasColumnType("nchar(10)")
+                        .IsFixedLength();
+
+                    b.Property<decimal>("InitialBalance")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<DateTime>("ReferenceDate")
+                        .HasColumnType("datetime");
+
+                    b.Property<decimal?>("Spei")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<int>("StatusId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CashCountId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("CashCount", (string)null);
+                });
+
+            modelBuilder.Entity("UsaloYa.Library.Models.CashOutput", b =>
+                {
+                    b.Property<int>("OutputId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OutputId"));
+
+                    b.Property<decimal>("Balance")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<long>("CashCountId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsCashCount")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<DateTime>("ReferenceDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasDefaultValueSql("(getdate())");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("OutputId");
+
+                    b.HasIndex("CashCountId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("CashOutput", (string)null);
+                });
+
             modelBuilder.Entity("UsaloYa.Library.Models.Company", b =>
                 {
                     b.Property<int>("CompanyId")
@@ -292,12 +381,17 @@ namespace UsaloYa.Library.Migrations
                         .IsUnicode(false)
                         .HasColumnType("varchar(250)");
 
-                    b.Property<int?>("InVentario")
-                        .HasColumnType("int")
+                    b.Property<decimal?>("InVentario")
+                        .HasColumnType("decimal(18, 2)")
                         .HasComment("Valor utilizado para guardar informacion temporal del inventario del producto");
 
                     b.Property<bool?>("IsInVentarioUpdated")
                         .HasColumnType("bit");
+
+                    b.Property<int>("Measure")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValueSql("((1))");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -331,8 +425,8 @@ namespace UsaloYa.Library.Migrations
                     b.Property<decimal?>("UnitPrice3")
                         .HasColumnType("decimal(10, 2)");
 
-                    b.Property<int>("UnitsInStock")
-                        .HasColumnType("int");
+                    b.Property<decimal>("UnitsInStock")
+                        .HasColumnType("decimal(10, 2)");
 
                     b.Property<decimal?>("Weight")
                         .HasColumnType("decimal(10, 2)");
@@ -466,10 +560,8 @@ namespace UsaloYa.Library.Migrations
                     b.Property<int?>("CustomerId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Folio")
-                        .HasMaxLength(11)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(11)");
+                    b.Property<int?>("Folio")
+                        .HasColumnType("int");
 
                     b.Property<string>("Notes")
                         .HasMaxLength(500)
@@ -529,8 +621,8 @@ namespace UsaloYa.Library.Migrations
                     b.Property<int?>("PriceLevel")
                         .HasColumnType("int");
 
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
+                    b.Property<decimal>("Quantity")
+                        .HasColumnType("decimal(10, 2)");
 
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("decimal(10, 2)");
@@ -655,6 +747,36 @@ namespace UsaloYa.Library.Migrations
                     b.Navigation("Company");
                 });
 
+            modelBuilder.Entity("UsaloYa.Library.Models.CashCount", b =>
+                {
+                    b.HasOne("UsaloYa.Library.Models.User", "User")
+                        .WithMany("CashCount")
+                        .HasForeignKey("UserId")
+                        .IsRequired()
+                        .HasConstraintName("FK_User_CashCount");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("UsaloYa.Library.Models.CashOutput", b =>
+                {
+                    b.HasOne("UsaloYa.Library.Models.CashCount", "CashCount")
+                        .WithMany("CashOutput")
+                        .HasForeignKey("CashCountId")
+                        .IsRequired()
+                        .HasConstraintName("FK_CashCount_CashOutput");
+
+                    b.HasOne("UsaloYa.Library.Models.User", "User")
+                        .WithMany("CashOutputs")
+                        .HasForeignKey("UserId")
+                        .IsRequired()
+                        .HasConstraintName("FK_User_CashOutput");
+
+                    b.Navigation("CashCount");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("UsaloYa.Library.Models.Company", b =>
                 {
                     b.HasOne("UsaloYa.Library.Models.User", "CreatedByNavigation")
@@ -720,9 +842,9 @@ namespace UsaloYa.Library.Migrations
             modelBuilder.Entity("UsaloYa.Library.Models.Question", b =>
                 {
                     b.HasOne("UsaloYa.Library.Models.User", "User")
-                        .WithMany()
+                        .WithMany("Questions")
                         .HasForeignKey("IdUser")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("User");
                 });
@@ -828,6 +950,11 @@ namespace UsaloYa.Library.Migrations
                     b.Navigation("Users");
                 });
 
+            modelBuilder.Entity("UsaloYa.Library.Models.CashCount", b =>
+                {
+                    b.Navigation("CashOutput");
+                });
+
             modelBuilder.Entity("UsaloYa.Library.Models.Company", b =>
                 {
                     b.Navigation("Customers");
@@ -872,6 +999,10 @@ namespace UsaloYa.Library.Migrations
 
             modelBuilder.Entity("UsaloYa.Library.Models.User", b =>
                 {
+                    b.Navigation("CashCount");
+
+                    b.Navigation("CashOutputs");
+
                     b.Navigation("CompanyCreatedByNavigations");
 
                     b.Navigation("CompanyLastUpdateByNavigations");
@@ -879,6 +1010,8 @@ namespace UsaloYa.Library.Migrations
                     b.Navigation("InverseCreatedByNavigation");
 
                     b.Navigation("InverseLastUpdateByNavigation");
+
+                    b.Navigation("Questions");
 
                     b.Navigation("Renta");
 

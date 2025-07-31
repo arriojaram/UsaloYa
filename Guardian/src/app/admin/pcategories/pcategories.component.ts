@@ -3,17 +3,16 @@ import { FormGroup, FormBuilder, Validators, FormsModule, ReactiveFormsModule } 
 import { ActivatedRoute } from '@angular/router';
 import { first } from 'rxjs'
 import { userDto } from '../../dto/userDto';
-import { AlertLevel, Roles } from '../../Enums/enums';
+import { AlertLevel } from '../../Enums/enums';
 import { NavigationService } from '../../services/navigation.service';
 import { UserStateService } from '../../services/user-state.service';
 import { productCategoryDto } from '../../dto/productCategoryDto';
-import { NgClass, NgFor, NgIf } from '@angular/common';
+import { NgFor, NgIf } from '@angular/common';
 import { ProductCategoryService } from '../../services/product-category.service';
-import { environment } from '../../environments/enviroment';
 
 @Component({
   selector: 'app-pcategories',
-  imports: [ReactiveFormsModule, FormsModule, NgFor, NgIf, NgClass],
+  imports: [ReactiveFormsModule, FormsModule, NgFor, NgIf],
   templateUrl: './pcategories.component.html',
   styleUrl: './pcategories.component.css'
 })

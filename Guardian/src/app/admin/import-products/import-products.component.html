@@ -1,87 +1,221 @@
-<!-- productos-csv.component.html -->
-<div class="container mt-5">
-    <div class="row justify-content-center">
-      <div class="col-md-8" *ngIf="isAutorized">
-        <div class="mb-4 card-title">
-          En este modulo puedes realizar una carga masiva de productos a partir de una base de datos creada en un archivo .csv
-          <div class="my-2 download-container">
-            <a href="assets/templates/plantilla_carga.csv" download>Descargar Archivo Plantilla CSV</a>
-          </div>
-          
-          Una vez editado tu archivo, seleccionalo utilizando el botón seleccionar archivo y después utiliza el botón "Importar Productos" para iniciar el proceso de carga de productos al sistema. 
-        </div>
-        <div *ngIf="isRunning" [ngClass]="alertClass" role="alert">
-          {{ user_message }}
-        </div>
-        <div class="input-group mb-3">
-          <input type="file"  #fileInput  class="form-control" (change)="onFileSelected($event)" accept=".csv">
-          <button class="btn btn-primary" (click)="importProducts()" [disabled]="!selectedFile">Importar Productos</button>
-        </div>
-        <div class="input-group">
-          <label>
-            <input type="checkbox" [(ngModel)]="updateExistingProducts" [disabled]="this.userState.companyStatusId == cStatus.Free" name="updateExistingProds" />
-            Actualizar Productos existentes
-          </label>
-        </div>
-        <div class="d-flex flex-wrap mt-2" *ngIf="updateExistingProducts">
-          <div class="form-check form-check-inline">
-            <label>
-              <input type="checkbox" [(ngModel)]="checkboxes.updateNombre" name="nombre" />
-              Actualizar Nombre
-            </label>
-          </div>
-          <div class="form-check form-check-inline">
-            <label>
-              <input type="checkbox" [(ngModel)]="checkboxes.updateCategoria" name="categoria" />
-              Actualizar Categoria
-            </label>
-          </div>
-          <div class="form-check form-check-inline">
-            <label>
-              <input type="checkbox" [(ngModel)]="checkboxes.updatePrecioUnitario" name="precioUnitario" />
-              Actualizar Precio Unitario
-            </label>
-          </div>
-          <div class="form-check form-check-inline">
-            <label>
-              <input type="checkbox" [(ngModel)]="checkboxes.updatePrecio1" name="precio1" />
-              Actualizar Precio-1
-            </label>
-          </div>
-          <div class="form-check form-check-inline">
-            <label>
-              <input type="checkbox" [(ngModel)]="checkboxes.updatePrecio2" name="precio2" />
-              Actualizar Precio-2
-            </label>
-          </div>
-          <div class="form-check form-check-inline">
-            <label>
-              <input type="checkbox" [(ngModel)]="checkboxes.updatePrecio3" name="precio3" />
-              Actualizar Precio-3
-            </label>
-          </div>
-          <div class="form-check form-check-inline">
-            <label>
-              <input type="checkbox" [(ngModel)]="checkboxes.updateStock" name="stock" />
-              Actualizar Existencias
-            </label>
-          </div>
-          <div class="form-check form-check-inline">
-            <label>
-              <input type="checkbox" [(ngModel)]="checkboxes.updateAlertaExistencias" name="stock" />
-              Actualizar Alerta Existencias
-            </label>
+<!-- Import Products Section -->
+<div class="container-fluid px-0">
+  <!-- Professional Toolbar Header -->
+  <div class="bg-white border-bottom shadow-sm mb-3">
+    <div class="container-fluid">
+      <div class="d-flex align-items-center justify-content-between py-3">
+        <div class="d-flex align-items-center">
+          <div class="toolbar-title-group">
+            <h5 class="mb-0 fw-bold text-dark d-flex align-items-center">
+              <i class="bi bi-upload me-2 text-usalo-primary"></i>
+              Importar Productos
+              <span class="ms-2 badge bg-usalo-primary-10 text-usalo-primary rounded-pill small">
+                Carga Masiva
+              </span>
+            </h5>
           </div>
         </div>
-        <hr>
-        <p class="mt-3 d-flex flex-column">Productos Procesados: {{ productsProcessed }}</p>
-        <p class="d-flex flex-column">Productos Fallidos: {{ productsFailed }}</p>
-        <div class="console mt-3">
-          <div *ngFor="let message of messages">
-            {{ message }}
+
+        <div class="toolbar-actions d-flex align-items-center gap-2">
+          <a href="assets/templates/plantilla_carga.csv" download class="btn btn-outline-usalo-primary btn-sm">
+            <i class="bi bi-download me-1"></i>
+            <span class="d-none d-sm-inline">Descargar Plantilla</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Section -->
+  <div class="row g-2" *ngIf="isAutorized">
+    <div class="col-12">
+      <!-- Unified Content Card -->
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+          <!-- Information Section -->
+          <div class="row g-3 mb-4">
+            <div class="col-12">
+              <div class="alert alert-usalo-info border-0" role="alert">
+                <div class="d-flex align-items-start">
+                  <i class="bi bi-info-circle-fill me-3 mt-1" style="font-size: 1.2rem;"></i>
+                  <div>
+                    <h6 class="alert-heading mb-2">Información del Módulo</h6>
+                    <p class="mb-2">
+                      En este módulo puedes realizar una carga masiva de productos a partir de una base de datos creada en un archivo .csv
+                    </p>
+                    <p class="mb-0 small text-muted">
+                      Una vez editado tu archivo, selecciónalo utilizando el botón "Seleccionar Archivo" y después utiliza el botón "Importar Productos" para iniciar el proceso de carga.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- File Upload Section -->
+          <div class="row g-3 mb-4">
+            <div class="col-12">
+              <h6 class="fw-bold text-dark mb-3 d-flex align-items-center">
+                <i class="bi bi-file-earmark-arrow-up me-2 text-usalo-success"></i>
+                Cargar Archivo CSV
+              </h6>
+              <div class="input-group input-group-lg">
+                <span class="input-group-text bg-usalo-success-10">
+                  <i class="bi bi-file-earmark-text text-usalo-success"></i>
+                </span>
+                <input type="file" #fileInput class="form-control" (change)="onFileSelected($event)" accept=".csv" 
+                  placeholder="Seleccionar archivo CSV">
+                <button class="btn btn-usalo-success" (click)="importProducts()" [disabled]="!selectedFile">
+                  <i class="bi bi-upload me-1"></i>Importar Productos
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Alert Messages -->
+          <div *ngIf="isRunning" class="alert alert-usalo-primary border-0 mb-4" role="alert">
+            <div class="d-flex align-items-center">
+              <div class="spinner-border spinner-border-sm me-3" role="status">
+                <span class="visually-hidden">Cargando...</span>
+              </div>
+              <span>{{ user_message }}</span>
+            </div>
+          </div>
+
+          <!-- Update Options Section -->
+          <div class="row g-3 mb-4">
+            <div class="col-12">
+              <h6 class="fw-bold text-dark mb-3 d-flex align-items-center">
+                <i class="bi bi-gear me-2 text-usalo-warning"></i>
+                Opciones de Actualización
+              </h6>
+              <div class="bg-usalo-warning-10 rounded p-3 mb-3">
+                <div class="form-check form-switch mb-3">
+                  <input type="checkbox" class="form-check-input" [(ngModel)]="updateExistingProducts" 
+                    [disabled]="this.userState.companyStatusId == cStatus.Free" name="updateExistingProds" id="updateExisting">
+                  <label class="form-check-label fw-semibold" for="updateExisting">
+                    <span [class.text-muted]="this.userState.companyStatusId == cStatus.Free">
+                      <i class="bi bi-arrow-repeat me-2"></i>Actualizar Productos Existentes
+                    </span>
+                  </label>
+                </div>
+
+                <!-- Update Options Grid -->
+                <div class="row g-3" *ngIf="updateExistingProducts">
+                  <div class="col-12">
+                    <label class="form-label fw-bold text-muted small">CAMPOS A ACTUALIZAR</label>
+                  </div>
+                
+                  <div class="col-12 col-md-6 col-lg-4">
+                    <div class="form-check">
+                      <input type="checkbox" class="form-check-input" [(ngModel)]="checkboxes.updateNombre" name="nombre" id="updateNombre">
+                      <label class="form-check-label" for="updateNombre">
+                        <i class="bi bi-tag text-usalo-success me-2"></i>Nombre
+                      </label>
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-md-6 col-lg-4">
+                    <div class="form-check">
+                      <input type="checkbox" class="form-check-input" [(ngModel)]="checkboxes.updateCategoria" name="categoria" id="updateCategoria">
+                      <label class="form-check-label" for="updateCategoria">
+                        <i class="bi bi-collection text-usalo-info me-2"></i>Categoría
+                      </label>
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-md-6 col-lg-4">
+                    <div class="form-check">
+                      <input type="checkbox" class="form-check-input" [(ngModel)]="checkboxes.updatePrecio1" name="precio1" id="updatePrecio1">
+                      <label class="form-check-label" for="updatePrecio1">
+                        <i class="bi bi-person text-usalo-primary me-2"></i>Precio Cliente 1
+                      </label>
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-md-6 col-lg-4">
+                    <div class="form-check">
+                      <input type="checkbox" class="form-check-input" [(ngModel)]="checkboxes.updatePrecio2" name="precio2" id="updatePrecio2">
+                      <label class="form-check-label" for="updatePrecio2">
+                        <i class="bi bi-person text-usalo-primary me-2"></i>Precio Cliente 2
+                      </label>
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-md-6 col-lg-4">
+                    <div class="form-check">
+                      <input type="checkbox" class="form-check-input" [(ngModel)]="checkboxes.updatePrecio3" name="precio3" id="updatePrecio3">
+                      <label class="form-check-label" for="updatePrecio3">
+                        <i class="bi bi-person text-usalo-primary me-2"></i>Precio Cliente 3
+                      </label>
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-md-6 col-lg-4">
+                    <div class="form-check">
+                      <input type="checkbox" class="form-check-input" [(ngModel)]="checkboxes.updateStock" name="stock" id="updateStock">
+                      <label class="form-check-label" for="updateStock">
+                        <i class="bi bi-box text-usalo-warning me-2"></i>Existencias
+                      </label>
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-md-6 col-lg-4">
+                    <div class="form-check">
+                      <input type="checkbox" class="form-check-input" [(ngModel)]="checkboxes.updateAlertaExistencias" name="alertaStock" id="updateAlertaStock">
+                      <label class="form-check-label" for="updateAlertaStock">
+                        <i class="bi bi-exclamation-triangle text-usalo-danger me-2"></i>Alerta Existencias
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Results Section -->
+          <div class="row g-3 mb-4" *ngIf="productsProcessed > 0 || productsFailed > 0">
+            <div class="col-12">
+              <h6 class="fw-bold text-dark mb-3 d-flex align-items-center">
+                <i class="bi bi-graph-up me-2 text-usalo-secondary"></i>
+                Resultados del Proceso
+              </h6>
+              <div class="row g-3">
+                <div class="col-12 col-md-6">
+                  <div class="bg-usalo-success-10 rounded p-3 text-center">
+                    <i class="bi bi-check-circle-fill text-usalo-success mb-2 d-block" style="font-size: 2rem;"></i>
+                    <div class="fw-bold text-usalo-success">{{ productsProcessed }}</div>
+                    <small class="text-muted">Productos Procesados</small>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="bg-usalo-danger-10 rounded p-3 text-center">
+                    <i class="bi bi-x-circle-fill text-usalo-danger mb-2 d-block" style="font-size: 2rem;"></i>
+                    <div class="fw-bold text-usalo-danger">{{ productsFailed }}</div>
+                    <small class="text-muted">Productos Fallidos</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Console Log Section -->
+          <div class="row g-3" *ngIf="messages.length > 0">
+            <div class="col-12">
+              <h6 class="fw-bold text-dark mb-3 d-flex align-items-center">
+                <i class="bi bi-terminal me-2 text-usalo-secondary"></i>
+                Log del Proceso
+              </h6>
+              <div class="bg-dark rounded p-3" style="max-height: 300px; overflow-y: auto;">
+                <div *ngFor="let message of messages" class="text-light small mb-1 font-monospace">
+                  <i class="bi bi-chevron-right text-success me-2"></i>{{ message }}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+</div>
   

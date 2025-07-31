@@ -1,10 +1,10 @@
 <div class="card shadow-sm mb-3">
-  <div class="card-header bg-success text-white py-2">
+  <div class="card-header bg-usalo-secondary-gradient text-white py-2">
     <h6 class="mb-0 d-flex align-items-center justify-content-between">
       <span>
         <i class="bi bi-cart3 me-2"></i>Lista de Venta
       </span>
-      <span class="badge bg-light text-success fs-6">
+      <span class="badge badge-usalo-success fs-6">
         {{ ventaService.totalProductos }} productos
       </span>
     </h6>
@@ -37,12 +37,12 @@
               <div class="fw-semibold text-dark">{{ producto.name }}</div>
               <div class="d-md-none small text-muted mt-1">
                 <span class="me-2">{{ producto.unitPrice | currency :'MXN'}}</span>
-                <span class="badge bg-secondary">{{ getMeasureName(producto.measure) }}</span>
+                <span class="badge badge-usalo-secondary">{{ getMeasureName(producto.measure) }}</span>
               </div>
               <div class="d-none d-md-block d-lg-none small text-muted">{{ producto.description }}</div>
             </td>
             <td class="d-none d-md-table-cell">
-              <span *ngIf="!selectedCustomer" class="fw-bold text-success">
+              <span *ngIf="!selectedCustomer" class="fw-bold text-usalo-success">
                 {{ producto.unitPrice | currency :'MXN'}}
               </span>
               <select *ngIf="selectedCustomer" (change)="onSelectPrice($event, producto.productId)" 
@@ -57,7 +57,7 @@
               <div class="d-flex align-items-center justify-content-center">
                 <span *ngIf="!producto.editing; else editInput" 
                       (click)="enableEditing(producto)" 
-                      class="badge bg-primary fs-6 px-2 py-1" 
+                      class="badge badge-usalo-primary fs-6 px-2 py-1" 
                       style="cursor: pointer; min-width: 40px;">
                   {{ producto.count }}
                 </span>
@@ -180,7 +180,7 @@
   <!-- Payment Information Card -->
   <div class="col-12 col-lg-6">
     <div class="card shadow-sm border-success h-100">
-      <div class="card-header bg-success text-white py-2">
+      <div class="card-header bg-usalo-success-gradient text-white py-2">
         <h6 class="mb-0 d-flex align-items-center">
           <i class="bi bi-cash-stack me-2"></i>Información de Pago
         </h6>

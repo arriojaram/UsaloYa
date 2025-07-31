@@ -1,11 +1,13 @@
+/* Import Unified Color System */
+@import './app/shared/styles/colors.css';
+
 .required-input{
-  border: solid 1px red;
+  border: solid 1px var(--usalo-danger);
 }
 
 .card-title {
-  color: #343a40;
+  color: var(--usalo-text-dark);
 }
-
 
 .hamburger-menu {
   cursor: pointer;
@@ -15,12 +17,12 @@
 .hamburger-menu div {
   width: 25px;
   height: 3px;
-  background-color: #333;
+  background-color: var(--usalo-dark);
   margin: 4px 0;
 }
 
 @media (max-width: 768px) {
-  .col-md-4 {
+  .col-md-4:not(footer .col-md-4) {
     display: none;
   }
   .hamburger-menu {

@@ -6,36 +6,424 @@
     z-index: 1000;
   }
   
+/* Custom Spinner Animation */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.custom-spinner {
+    animation: spin 1s linear infinite;
+}
+
+/* Enhanced Alert Styles */
 .alert {
-  position: fixed;
-  z-index: 1080;
-  top: 55px; /* Adjust this value based on the actual height of your navbar */
-  
-  width: 100%;
-  padding-top: 0px;
+    position: fixed;
+    z-index: 1080;
+    top: 70px; /* Adjusted for modern navbar height */
+    width: 100%;
+    padding-top: 0px;
+    backdrop-filter: blur(10px);
+    border: none;
+    border-radius: 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 .alert .btn-close {
-  top: 50%;  /* Centers the button vertically */
-  right: 0; /* Positions the button at the right edge */
-  transform: translateY(-50%); /* Adjusts the button to be perfectly centered */
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
 }
 
-.btn-outline-whatsapp {
-  color: #25D366;
-  border: 1px solid #fff;
-  background-color: transparent;
-  border-radius: 0.25rem;
-  padding: 0.1rem 0.7rem;
-  transition: background-color 0.3s, color 0.3s;
-  display: inline-flex;
-  align-items: center;
-  text-decoration: none;
+/* ===== NAVBAR ENHANCEMENTS ===== */
+
+/* Sidebar Toggle Button */
+#sidebarToggle {
+    transition: all 0.3s ease;
 }
-.btn-outline-whatsapp:hover,
-.btn-outline-whatsapp:focus,
-.btn-outline-whatsapp:active {
-  background-color: #25D366;
-  color: #fff;
-  text-decoration: none;
+
+#sidebarToggle:hover {
+    background: rgba(255,255,255,0.2) !important;
+    border-color: rgba(255,255,255,0.5) !important;
+    transform: scale(1.05);
+}
+
+#sidebarToggle.sidebar-open {
+    background: rgba(255,255,255,0.2) !important;
+}
+
+/* User Dropdown Enhancements */
+.navbar .dropdown-toggle:hover {
+    background: rgba(255,255,255,0.2) !important;
+    transform: translateY(-1px);
+}
+
+.dropdown-menu {
+    animation: fadeInDown 0.3s ease;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Mobile Navbar Enhancements */
+@media (max-width: 768px) {
+    #sidebarToggle {
+        width: 40px !important;
+        height: 40px !important;
+        padding: 0.5rem !important;
+        border-radius: 8px !important;
+        margin-right: 0.5rem !important;
+    }
+    
+    .sb-topnav .navbar-brand {
+        flex-shrink: 0 !important;
+        max-width: 180px !important; /* Increased from 150px */
+        min-width: 120px !important; /* Added minimum width */
+    }
+    
+    .sb-topnav .navbar-brand img {
+        height: 30px !important;
+        width: 30px !important;
+        object-fit: contain !important; /* Ensure image maintains aspect ratio */
+    }
+    
+    .sb-topnav .flex-grow-1 {
+        flex: 1 !important;
+        min-width: 0 !important;
+    }
+    
+    .sb-topnav .nav-link {
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+    
+    /* Ensure dropdown doesn't overflow */
+    .sb-topnav .dropdown-menu {
+        max-height: calc(100vh - 60px) !important;
+        overflow-y: auto !important;
+    }
+    
+    /* Improve touch targets */
+    .sb-topnav .nav-link,
+    .sb-topnav .btn {
+        min-height: 44px !important;
+        min-width: 44px !important;
+    }
+}
+
+/* ===== SIDEBAR ENHANCEMENTS ===== */
+
+/* Responsive Sidebar */
+#layoutSidenav_nav {
+    width: 280px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 1040;
+    transition: transform 0.3s ease;
+}
+
+/* Sidebar Responsive Behavior */
+@media (max-width: 991.98px) {
+    #layoutSidenav_nav {
+        transform: translateX(-100%);
+    }
+    
+    #layoutSidenav_nav.d-block {
+        transform: translateX(0);
+    }
+    
+    #layoutSidenav_content {
+        margin-left: 0 !important;
+    }
+    
+    #layoutSidenav_content.sidebar-open::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 1039;
+    }
+}
+
+@media (min-width: 992px) {
+    #layoutSidenav_nav {
+        transform: translateX(0);
+    }
+    
+    #layoutSidenav_content {
+        margin-left: 280px;
+        transition: margin-left 0.3s ease;
+    }
+}
+
+/* Modern Navigation Links */
+.modern-nav-link {
+    border: none;
+    margin: 2px 0;
+}
+
+.modern-nav-link:hover {
+    background: var(--usalo-primary-10) !important;
+    color: var(--usalo-text-primary) !important;
+    transform: translateX(5px);
+    box-shadow: 0 2px 8px var(--usalo-shadow-primary);
+}
+
+.modern-nav-link:active,
+.modern-nav-link.active {
+    background: var(--usalo-primary-gradient) !important;
+    color: white !important;
+    box-shadow: 0 4px 12px var(--usalo-shadow-primary);
+}
+
+.modern-nav-link .nav-icon {
+    transition: all 0.3s ease;
+}
+
+.modern-nav-link:hover .nav-icon {
+    transform: scale(1.1);
+}
+
+/* Submenu Styles */
+.submenu-link:hover {
+    background: var(--usalo-primary-10) !important;
+    color: var(--usalo-text-primary) !important;
+    transform: translateX(8px);
+}
+
+/* Chevron Animation */
+.collapsed .transition-transform {
+    transform: rotate(0deg);
+}
+
+.transition-transform {
+    transform: rotate(180deg);
+}
+
+/* ===== FOOTER ENHANCEMENTS ===== */
+
+/* Footer Links Hover Effects */
+.hover-link:hover {
+    color: #667eea !important;
+    transform: translateY(-1px);
+}
+
+/* Footer WhatsApp Button */
+footer .btn-success:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4) !important;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+/* Mobile Optimizations */
+@media (max-width: 576px) {
+    .footer .row {
+        text-align: center !important;
+    }
+    
+    .footer .col-md-4 {
+        margin-bottom: 1rem;
+    }
+    
+    /* Navbar Mobile Fixes */
+    .sb-topnav {
+        height: 60px !important;
+        min-height: 60px !important;
+        max-height: 60px !important;
+        overflow: hidden !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 1039 !important;
+    }
+    
+    .sb-topnav .d-flex {
+        height: 100% !important;
+        align-items: center !important;
+        padding: 0 0.5rem !important;
+    }
+    
+    .sb-topnav .navbar-brand {
+        max-width: 180px !important; /* Increased from 150px */
+        min-width: 120px !important; /* Added minimum width */
+        overflow: visible !important; /* Changed from hidden to visible */
+        flex-shrink: 0 !important;
+    }
+    
+    .sb-topnav .navbar-brand .brand-text {
+        display: none !important;
+    }
+    
+    .sb-topnav .navbar-nav {
+        height: 100% !important;
+        align-items: center !important;
+    }
+    
+    .sb-topnav .nav-item {
+        height: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+    
+    .sb-topnav .nav-link {
+        height: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        padding: 0.5rem !important;
+        font-size: 0.9rem !important;
+    }
+    
+    /* Fixed user-avatar styles for perfect circle */
+    .sb-topnav .user-avatar {
+        width: 32px !important; /* Increased from 28px */
+        height: 32px !important; /* Increased from 28px */
+        font-size: 0.9rem !important; /* Increased from 0.8rem */
+        border-radius: 50% !important; /* Ensure perfect circle */
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-shrink: 0 !important; /* Prevent shrinking */
+        min-width: 32px !important; /* Ensure minimum width */
+        min-height: 32px !important; /* Ensure minimum height */
+    }
+    
+    .sb-topnav .dropdown-menu {
+        position: fixed !important;
+        top: 60px !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+        border-top: 1px solid rgba(0,0,0,0.1) !important;
+    }
+}
+
+/* Tablet Optimizations */
+@media (max-width: 768px) {
+    .navbar-brand .brand-text {
+        display: none;
+    }
+    
+    .user-info {
+        display: none !important;
+    }
+    
+    /* Navbar Tablet Fixes */
+    .sb-topnav {
+        height: 56px !important;
+        min-height: 56px !important;
+        max-height: 56px !important;
+        overflow: hidden !important;
+    }
+    
+    .sb-topnav .d-flex {
+        height: 100% !important;
+        align-items: center !important;
+        padding: 0 1rem !important;
+    }
+    
+    .sb-topnav .navbar-brand {
+        max-width: 200px !important;
+        overflow: visible !important; /* Changed from hidden to visible */
+        min-width: 140px !important; /* Added minimum width */
+    }
+    
+    .sb-topnav .navbar-nav {
+        height: 100% !important;
+        align-items: center !important;
+    }
+    
+    .sb-topnav .nav-item {
+        height: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+    
+    .sb-topnav .nav-link {
+        height: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        padding: 0.75rem !important;
+    }
+    
+    /* Fixed user-avatar styles for tablet */
+    .sb-topnav .user-avatar {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 0.9rem !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-shrink: 0 !important;
+        min-width: 32px !important;
+        min-height: 32px !important;
+    }
+}
+
+/* Mobile Content Adjustments */
+@media (max-width: 768px) {
+    /* Ensure content doesn't overlap with fixed navbar */
+    main {
+        padding-top: 0 !important;
+    }
+    
+    .content-container {
+        padding-top: 0 !important;
+    }
+    
+    .container-fluid {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+    
+    /* Ensure alerts don't overlap with navbar */
+    .alert {
+        top: 60px !important;
+        margin-top: 0 !important;
+    }
+    
+    /* Improve loading overlay positioning */
+    .loading-overlay {
+        top: 60px !important;
+        height: calc(100vh - 60px) !important;
+    }
+}
+
+/* ===== ACCESSIBILITY ENHANCEMENTS ===== */
+
+/* Focus States */
+.modern-nav-link:focus,
+.btn:focus,
+a:focus {
+    outline: 2px solid var(--usalo-primary);
+    outline-offset: 2px;
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
 }

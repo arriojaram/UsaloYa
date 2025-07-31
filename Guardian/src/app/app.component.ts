@@ -42,6 +42,7 @@ export class AppComponent implements OnInit, OnDestroy {
   environmentClass: string = environment.production ? "bg-success" : "bg-primary";
 
   public showPaymentAlert: boolean = false;
+  public sidebarVisible: boolean = false;
 
   constructor(
     private connectionService: ConnectionService,
@@ -179,6 +180,10 @@ setUserDetailsUI() {
 
   closeAlert() {
     this.showPaymentAlert = false; // Función para cerrar la alerta
+  }
+
+  toggleSidebar() {
+    this.sidebarVisible = !this.sidebarVisible;
   }
 
   initMigrationService() {

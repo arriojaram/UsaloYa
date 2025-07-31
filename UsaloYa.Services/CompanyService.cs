@@ -228,9 +228,6 @@ namespace UsaloYa.Services
             switch (typeId)
             {
                 case RentTypeId.Mensualidad:
-                    var numMonths = rentAmount / company.Plan.Price;
-                    expirationDate = expirationDate.AddMonths((int)numMonths);
-                    break;
                 case RentTypeId.Condonacion:
                 case RentTypeId.Extension:
                     int costDay = (int)(company.Plan.Price / 31);
