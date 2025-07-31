@@ -66,7 +66,7 @@ namespace UsaloYa.Library.Migrations
                     b.Property<decimal>("Cash")
                         .HasColumnType("decimal(18, 2)");
 
-                    b.Property<decimal?>("CashOutput")
+                    b.Property<decimal?>("CashOutputTotal")
                         .HasColumnType("decimal(18, 2)");
 
                     b.Property<decimal?>("CredictCard")
@@ -98,6 +98,8 @@ namespace UsaloYa.Library.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("CashCountId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("CashCount", (string)null);
                 });
@@ -134,6 +136,8 @@ namespace UsaloYa.Library.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("OutputId");
+
+                    b.HasIndex("CashCountId");
 
                     b.HasIndex("UserId");
 
@@ -743,13 +747,32 @@ namespace UsaloYa.Library.Migrations
                     b.Navigation("Company");
                 });
 
+            modelBuilder.Entity("UsaloYa.Library.Models.CashCount", b =>
+                {
+                    b.HasOne("UsaloYa.Library.Models.User", "User")
+                        .WithMany("CashCount")
+                        .HasForeignKey("UserId")
+                        .IsRequired()
+                        .HasConstraintName("FK_User_CashCount");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("UsaloYa.Library.Models.CashOutput", b =>
                 {
+                    b.HasOne("UsaloYa.Library.Models.CashCount", "CashCount")
+                        .WithMany("CashOutput")
+                        .HasForeignKey("CashCountId")
+                        .IsRequired()
+                        .HasConstraintName("FK_CashCount_CashOutput");
+
                     b.HasOne("UsaloYa.Library.Models.User", "User")
                         .WithMany("CashOutputs")
                         .HasForeignKey("UserId")
                         .IsRequired()
-                        .HasConstraintName("FK_CashOutput_CashCount");
+                        .HasConstraintName("FK_User_CashOutput");
+
+                    b.Navigation("CashCount");
 
                     b.Navigation("User");
                 });
@@ -927,6 +950,11 @@ namespace UsaloYa.Library.Migrations
                     b.Navigation("Users");
                 });
 
+            modelBuilder.Entity("UsaloYa.Library.Models.CashCount", b =>
+                {
+                    b.Navigation("CashOutput");
+                });
+
             modelBuilder.Entity("UsaloYa.Library.Models.Company", b =>
                 {
                     b.Navigation("Customers");
@@ -971,6 +999,8 @@ namespace UsaloYa.Library.Migrations
 
             modelBuilder.Entity("UsaloYa.Library.Models.User", b =>
                 {
+                    b.Navigation("CashCount");
+
                     b.Navigation("CashOutputs");
 
                     b.Navigation("CompanyCreatedByNavigations");

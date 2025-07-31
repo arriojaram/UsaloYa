@@ -19,5 +19,6 @@ public partial class CashOutput
 
     public long CashCountId { get; set; }
 
+    public virtual CashCount CashCount { get; set; } = null!;
     public virtual User User { get; set; } = null!;
 }

@@ -21,9 +21,12 @@ public partial class CashCount
 
     public decimal? Spei { get; set; }
 
-    public decimal? CashOutput { get; set; }
+    public decimal? CashOutputTotal { get; set; }
 
     public string? Notes { get; set; }
 
     public string? FinalCash { get; set; }
+
+    public virtual ICollection<CashOutput> CashOutput { get; set; } = null!;
+    public virtual User User { get; set; } = null!;
 }

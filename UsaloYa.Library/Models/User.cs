@@ -43,6 +43,7 @@ public partial class User
     public string? Email { get; set; }
 
     public virtual ICollection<CashOutput> CashOutputs { get; set; } = new List<CashOutput>();
+    public virtual ICollection<CashCount> CashCount { get; set; } = new List<CashCount>();
     public virtual ICollection<Company> CompanyCreatedByNavigations { get; set; } = new List<Company>();
 
     public virtual ICollection<Company> CompanyLastUpdateByNavigations { get; set; } = new List<Company>();

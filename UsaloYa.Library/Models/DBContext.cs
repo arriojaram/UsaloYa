@@ -51,7 +51,7 @@ public partial class DBContext : DbContext
             entity.ToTable("CashCount");
 
             entity.Property(e => e.Cash).HasColumnType("decimal(18, 2)");
-            entity.Property(e => e.CashOutput).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.CashOutputTotal).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.CredictCard).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.FinalCash)
                 .HasMaxLength(10)
@@ -62,6 +62,11 @@ public partial class DBContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.ReferenceDate).HasColumnType("datetime");
             entity.Property(e => e.Spei).HasColumnType("decimal(18, 2)");
+
+            entity.HasOne(d => d.User).WithMany(p => p.CashCount)
+              .HasForeignKey(d => d.UserId)
+              .OnDelete(DeleteBehavior.ClientSetNull)
+              .HasConstraintName("FK_User_CashCount");
         });
 
         modelBuilder.Entity<CashOutput>(entity =>
@@ -78,10 +83,15 @@ public partial class DBContext : DbContext
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
 
+            entity.HasOne(d => d.CashCount).WithMany(p => p.CashOutput)
+              .HasForeignKey(d => d.CashCountId)
+              .OnDelete(DeleteBehavior.ClientSetNull)
+              .HasConstraintName("FK_CashCount_CashOutput");
+
             entity.HasOne(d => d.User).WithMany(p => p.CashOutputs)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_CashOutput_CashCount");
+                .HasConstraintName("FK_User_CashOutput");
         });
 
         modelBuilder.Entity<Company>(entity =>
