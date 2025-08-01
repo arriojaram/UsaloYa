@@ -60,6 +60,15 @@
     "save_success": "Configuracion guardada"
 
   },
+
+  "returns": {
+    "error_return": "Verifica que todos los productos seleccionados tengan motivo y cantidad válida.",
+    "quantity_not_valid": "La cantidad no es válida.",
+     "invalid_quantity_unit": "No puedes devolver más unidades de las que se vendieron.",
+    "invalid_quantity_weight": "No puedes devolver más peso del que se vendió.",
+    "select_all": "Seleccionaste Todos los productos",
+    "no_product_sale": "No hay productos para la venta especificada."
+  },
   "emails": {
     "email_send_error": "Error al enviar el correo electronico, por favor contactenos",
     "email_send_ok": "Usuario registrado y correos enviados correctamente."

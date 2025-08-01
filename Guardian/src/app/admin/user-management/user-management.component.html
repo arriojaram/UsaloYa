@@ -212,6 +212,8 @@
                 </div>
               </div>
 
+      
+
               <!-- Name and Last Name -->
               <div class="col-12 col-md-6">
                 <label for="firstName" class="form-label fw-bold small">Nombre *</label>
@@ -299,6 +301,22 @@
                   <i class="bi bi-exclamation-circle me-1"></i>El Rol es obligatorio.
                 </div>
               </div>
+                        <div class="col-12 col-md-4">
+                <label class="form-label fw-bold small">Permitir Realizar Devoluciones</label>
+                <div class="form-check form-switch mt-1">
+                  <input id="isEnabled" type="checkbox" class="form-check-input" formControlName="isEnabled">
+                  <label class="form-check-label small" for="isEnabled">
+                    <span *ngIf="userForm.get('isEnabled')?.value" class="text-success">
+                      <i class="bi bi-check-circle me-1" style="font-size: 0.8rem;"></i>Habilitado
+                    </span>
+                    <span *ngIf="!userForm.get('isEnabled')?.value" class="text-warning">
+                      <i class="bi bi-exclamation-triangle me-1" style="font-size: 0.8rem;"></i>Deshabilitado
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              
             </div>
           </div>
         </div>
