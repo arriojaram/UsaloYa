@@ -60,6 +60,8 @@ public partial class Product
 
     public bool? IsInVentarioUpdated { get; set; }
 
+    public bool? CanRefunded { get; set; }
+
     public virtual ProductCategory? Category { get; set; }
 
     [JsonIgnore]

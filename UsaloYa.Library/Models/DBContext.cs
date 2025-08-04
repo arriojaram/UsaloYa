@@ -6,7 +6,7 @@ public partial class DBContext : DbContext
 {
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-       => optionsBuilder.UseSqlServer("Data Source=DESKTOP-PL9432I\\MSSQLSERVER01;Initial Catalog=UsaloYa;Integrated Security=True;TrustServerCertificate=True;");
+       => optionsBuilder.UseSqlServer("Data Source=JURAMENTADA\\MSSQLSERVER01;Initial Catalog=UsaloYa;Integrated Security=True;TrustServerCertificate=True;");
 
     public DBContext()
     {
@@ -42,6 +42,9 @@ public partial class DBContext : DbContext
     public virtual DbSet<SaleDetail> SaleDetails { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
+
+    public virtual DbSet<Refund> Refunds { get; set; }
+
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -121,6 +124,7 @@ public partial class DBContext : DbContext
             entity.Property(e => e.PhoneNumber)
                 .HasMaxLength(10)
                 .IsUnicode(false);
+            entity.Property(e => e.MaxDaysToRefund).HasColumnType("int");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.CompanyCreatedByNavigations).HasForeignKey(d => d.CreatedBy);
 
@@ -259,6 +263,8 @@ public partial class DBContext : DbContext
             entity.Property(e => e.UnitPrice3).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.UnitsInStock).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.Weight).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.CanRefunded)
+                .HasDefaultValueSql("(CONVERT([bit],(0)))");
 
             entity.HasOne(d => d.Category).WithMany(p => p.Products)
                 .HasForeignKey(d => d.CategoryId)
@@ -321,6 +327,8 @@ public partial class DBContext : DbContext
                 .HasConstraintName("FK_Rentas_Company");
         });
 
+
+
         modelBuilder.Entity<Sale>(entity =>
         {
             entity.HasIndex(e => e.CompanyId, "IX_Sales_CompanyId");
@@ -360,6 +368,55 @@ public partial class DBContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Sales_Users");
         });
+
+        modelBuilder.Entity<Refund>(entity =>
+        {
+            entity.ToTable("Refunds");
+
+            entity.HasKey(e => new { e.SaleId, e.ProductId });
+
+            entity.Property(e => e.UserId).HasColumnType("int");
+
+            entity.Property(e => e.ProductId).HasColumnType("int");
+
+            entity.Property(e => e.RefundDate).HasColumnType("datetime");
+
+            entity.Property(e => e.RefundMethod)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+
+            entity.Property(e => e.Barcode)
+                .HasMaxLength(50);
+
+            entity.Property(e => e.Reason)
+                .HasColumnType("text")
+                .IsUnicode(false);
+
+            entity.Property(e => e.Measure)
+                .HasColumnType("int");
+
+            entity.Property(e => e.Quantity)
+                .HasColumnType("decimal(10,2)");
+
+            entity.Property(e => e.UnitPriceRefund)
+                .HasColumnType("decimal(10,2)");
+
+            entity.Property(e => e.RefundAmount)
+                .HasColumnType("decimal(10,2)");
+
+            entity.HasOne(e => e.Sale)
+                .WithMany(s => s.Refunds)
+                .HasForeignKey(e => e.SaleId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Refunds_Sales");
+
+            entity.HasOne(e => e.Product)
+                .WithMany()
+                .HasForeignKey(e => e.ProductId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Refunds_Products");
+        });
+
 
         modelBuilder.Entity<SaleDetail>(entity =>
         {
