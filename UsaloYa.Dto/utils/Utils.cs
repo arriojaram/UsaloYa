@@ -21,7 +21,7 @@ namespace UsaloYa.Dto.Utils
                 .Select(s => s[_random.Next(s.Length)]).ToArray());
         }
 
-        public static double? differenceOfDays(DateTime? dateTimeSale, int maxDaysToRefund)
+        public static double? DifferenceOfDays(DateTime? dateTimeSale, int maxDaysToRefund)
         {
             if (dateTimeSale == null)
                 return 0; 

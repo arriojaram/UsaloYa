@@ -50,7 +50,7 @@ namespace UsaloYa.Services
             if (SaleDate is null) return false;
 
             var maxDaysToRefund = await _companyService.GetMaxDaysToRefund(companyId);
-            var days = Utils.differenceOfDays(SaleDate, maxDaysToRefund);
+            var days = Utils.DifferenceOfDays(SaleDate, maxDaysToRefund);
 
             var response = days > 0 ?  true :  false;
             return response;
@@ -72,6 +72,7 @@ namespace UsaloYa.Services
                     UserId = requestRefundDto.UserId,
                     RefundDate = Utils.GetMxDateTime(),
                     RefundMethod = requestRefundDto.RefundMethod,
+                    ProductId = refundItem.ProductId,
                     Barcode = refundItem.Barcode,
                     Reason = refundItem.Reason,
                     Measure = refundItem.Measure,

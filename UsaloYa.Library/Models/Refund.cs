@@ -22,9 +22,9 @@ namespace UsaloYa.Library.Models
         public decimal RefundAmount { get; set; }
         [JsonIgnore]
         public virtual Sale Sale { get; set; }
-
+        [JsonIgnore]
         public virtual User User { get; set; }
-
+        [JsonIgnore]
         public virtual Product Product { get; set; }
     }
 }

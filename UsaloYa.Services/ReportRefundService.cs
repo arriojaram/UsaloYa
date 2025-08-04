@@ -14,7 +14,7 @@ namespace UsaloYa.Services
             _dBContext = dBContext;
         }
 
-        public async Task<IEnumerable<RefundReportDto>> GetRefundsReport(DateTime fromDate, DateTime toDate, int companyId, int userId)
+        public async Task<IEnumerable<RefundReportDto>> GetRefundsReport(DateTime fromDate, DateTime toDate, int companyId)
         {
             var toDateInclusive = toDate.Date.AddDays(1);
 
@@ -26,15 +26,17 @@ namespace UsaloYa.Services
                 {
                     r.SaleId,
                     r.UserId,
-                    r.User.FirstName,
+                    r.Sale.Folio,
+                    r.User.UserName,                    
                     r.RefundDate.Date,
                     r.RefundMethod
                 })
                 .Select(g => new RefundReportDto
                 {
                     SaleId = g.Key.SaleId,
+                    Folio = g.Key.Folio,
                     UserId = g.Key.UserId,
-                    Name = g.Key.FirstName,
+                    Name = g.Key.UserName,
                     RefundDate = g.Key.Date,
                     RefundMethod = g.Key.RefundMethod,
                     RefundAmountTotal = g.Sum(x => x.RefundAmount)
@@ -54,8 +56,7 @@ namespace UsaloYa.Services
                 {
                     r.SaleId,
                     r.UserId,
-                    r.User.FirstName,
-                    r.User.LastName,
+                    r.User.UserName,
                     r.RefundDate,
                     r.RefundMethod
                 })
@@ -63,7 +64,7 @@ namespace UsaloYa.Services
                 {
                     SaleId = g.Key.SaleId,
                     UserId = g.Key.UserId,
-                    Name = $"{g.Key.FirstName} {g.Key.LastName}",
+                    Name = g.Key.UserName,
                     RefundDate = g.Key.RefundDate,
                     RefundMethod = g.Key.RefundMethod,
                     RefundAmountTotal = g.Sum(x => x.RefundAmount),
