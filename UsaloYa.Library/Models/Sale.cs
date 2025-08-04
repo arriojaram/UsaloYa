@@ -33,4 +33,6 @@ public partial class Sale
     public virtual ICollection<SaleDetail> SaleDetails { get; set; } = new List<SaleDetail>();
 
     public virtual User User { get; set; } = null!;
+
+    public virtual ICollection<Refund?> Refunds { get; set; }
 }

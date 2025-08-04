@@ -68,4 +68,7 @@
     <None Include="StoredProcedures\DeleteInactiveCompanies.sql" />
     <None Include="InitScripts\AddMeasureColAndAdjustStock.sql" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="InitScripts\Create_Tables.sql" />
+  </ItemGroup>
 </Project>

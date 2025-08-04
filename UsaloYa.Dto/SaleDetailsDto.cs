@@ -9,6 +9,6 @@
         public decimal UnitPrice { get; set; }
         public decimal TotalPrice { get; set; }
 
-        public int PriceLevel { get; set; }
+        public int PriceLevel { get; set; }    
     }
 }

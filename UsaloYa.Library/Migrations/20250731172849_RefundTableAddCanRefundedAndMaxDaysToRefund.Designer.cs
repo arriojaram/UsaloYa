@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using UsaloYa.Library.Models;
 
@@ -11,9 +12,11 @@ using UsaloYa.Library.Models;
 namespace UsaloYa.Library.Migrations
 {
     [DbContext(typeof(DBContext))]
-    partial class DBContextModelSnapshot : ModelSnapshot
+    [Migration("20250731172849_RefundTableAddCanRefundedAndMaxDaysToRefund")]
+    partial class RefundTableAddCanRefundedAndMaxDaysToRefund
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -514,9 +517,6 @@ namespace UsaloYa.Library.Migrations
                     b.Property<int>("SaleId")
                         .HasColumnType("int");
 
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Barcode")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -551,9 +551,7 @@ namespace UsaloYa.Library.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.HasKey("SaleId", "ProductId");
-
-                    b.HasIndex("ProductId");
+                    b.HasKey("SaleId");
 
                     b.HasIndex("UserId");
 
@@ -910,12 +908,6 @@ namespace UsaloYa.Library.Migrations
 
             modelBuilder.Entity("UsaloYa.Library.Models.Refund", b =>
                 {
-                    b.HasOne("UsaloYa.Library.Models.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .IsRequired()
-                        .HasConstraintName("FK_Refunds_Products");
-
                     b.HasOne("UsaloYa.Library.Models.Sale", "Sale")
                         .WithMany("Refunds")
                         .HasForeignKey("SaleId")
@@ -927,8 +919,6 @@ namespace UsaloYa.Library.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Product");
 
                     b.Navigation("Sale");
 

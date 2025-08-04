@@ -42,6 +42,8 @@ public partial class User
     public bool? IsVerifiedCode { get; set; }
     public string? Email { get; set; }
 
+    public virtual ICollection<CashOutput> CashOutputs { get; set; } = new List<CashOutput>();
+    public virtual ICollection<CashCount> CashCount { get; set; } = new List<CashCount>();
     public virtual ICollection<Company> CompanyCreatedByNavigations { get; set; } = new List<Company>();
 
     public virtual ICollection<Company> CompanyLastUpdateByNavigations { get; set; } = new List<Company>();
@@ -55,6 +57,8 @@ public partial class User
     public virtual ICollection<User> InverseLastUpdateByNavigation { get; set; } = new List<User>();
 
     public virtual User? LastUpdateByNavigation { get; set; }
+
+    public virtual ICollection<Question> Questions { get; set; } = new List<Question>();
 
     public virtual ICollection<Renta> Renta { get; set; } = new List<Renta>();
 
