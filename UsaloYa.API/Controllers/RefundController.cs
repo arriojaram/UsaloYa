@@ -33,7 +33,7 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var requestor = await HeaderValidatorService.ValidateRequestorSameCompany(RequestorId, Role.Admin, companyId,  _dBContext);
+                var requestor = await HeaderValidatorService.ValidateRequestorSameCompany(RequestorId, Role.User, companyId,  _dBContext);
                 if (requestor.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
                 var result = await _refundService.CanSaleBeRefund(dateTimeSale, companyId);
@@ -53,7 +53,7 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var requestor = await HeaderValidatorService.ValidateRequestorSameCompany(RequestorId, Role.Admin, companyId, _dBContext);
+                var requestor = await HeaderValidatorService.ValidateRequestorSameCompany(RequestorId, Role.User, companyId, _dBContext);
                 if (requestor.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
                 var result = await _refundService.ManageRefund(requestRefundDto, companyId);

@@ -262,9 +262,8 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var requestor = await HeaderValidatorService.ValidateRequestorSameCompanyOrTopRol(RequestorId, companyId, Role.Admin, _dBContext);
-                if (requestor.UserId <= 0)
-                    return Unauthorized(AppConfig.NO_AUTORIZADO);
+                var requestor = await HeaderValidatorService.ValidateRequestorSameCompany(RequestorId, Role.User, companyId, _dBContext);
+                return Unauthorized(AppConfig.NO_AUTORIZADO);
 
                 var result = await _companyService.GetMaxDaysToRefund(companyId);
                 return Ok(result);

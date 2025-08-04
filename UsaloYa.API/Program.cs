@@ -64,7 +64,7 @@ builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IQuestionnaireService, QuestionnaireService>();
 builder.Services.AddScoped<IRefundService, RefundService>();
-
+builder.Services.AddScoped<IReportRefundService, ReportRefundService>();
 
 var app = builder.Build();
 
