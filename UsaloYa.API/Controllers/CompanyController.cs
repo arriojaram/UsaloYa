@@ -259,5 +259,23 @@ namespace UsaloYa.API.Controllers
             }
         }
 
+        [HttpGet("GetMaxDaysToRefund")]
+        public async Task<IActionResult> GetMaxDaysToRefund([FromHeader] string RequestorId, int companyId)
+        {
+            try
+            {
+                var requestor = await _headerValidatorService.ValidateRequestorSameCompany(RequestorId, Role.User, companyId);
+                return Unauthorized(AppConfig.NO_AUTORIZADO);
+
+                var result = await _companyService.GetMaxDaysToRefund(companyId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "GetMaxDaysToRefund.ApiError");
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
+            }
+        }
+
     }
 }

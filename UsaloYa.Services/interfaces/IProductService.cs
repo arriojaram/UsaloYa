@@ -27,5 +27,6 @@ namespace UsaloYa.Services.Interfaces
         Task<bool> ResetAllInVentario(int companyId);
         Task<decimal> SetUnitsInStockByProductId(int productId, int companyId);
         Task<decimal> SetUnitsInStock(int productId, decimal unitsInStock, bool isHardReset, int companyId);
+        Task<bool> AddUnitsInStockByProductId(List<SetStockDto> productsToAdd, int companyId);
     }
 }

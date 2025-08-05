@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using UsaloYa.Library.Models;
 
@@ -11,9 +12,11 @@ using UsaloYa.Library.Models;
 namespace UsaloYa.Library.Migrations
 {
     [DbContext(typeof(DBContext))]
-    partial class DBContextModelSnapshot : ModelSnapshot
+    [Migration("20250731183617_AddProductIdColumnInRefunds")]
+    partial class AddProductIdColumnInRefunds
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -72,8 +75,10 @@ namespace UsaloYa.Library.Migrations
                     b.Property<decimal?>("CredictCard")
                         .HasColumnType("decimal(18, 2)");
 
-                    b.Property<decimal?>("FinalCash")
-                        .HasColumnType("decimal(18, 2)");
+                    b.Property<string>("FinalCash")
+                        .HasMaxLength(10)
+                        .HasColumnType("nchar(10)")
+                        .IsFixedLength();
 
                     b.Property<decimal>("InitialBalance")
                         .HasColumnType("decimal(18, 2)");
