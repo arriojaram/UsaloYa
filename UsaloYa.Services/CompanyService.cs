@@ -9,7 +9,7 @@ using UsaloYa.Dto.Enums;
 using UsaloYa.Dto.Utils;
 using UsaloYa.Dto;
 using UsaloYa.Library.Models;
-using UsaloYa.Services.interfaces;
+using UsaloYa.Services.Interfaces;
 using Microsoft.Extensions.Configuration;
 
 namespace UsaloYa.Services
@@ -46,7 +46,10 @@ namespace UsaloYa.Services
                                                     .Include(c => c.Plan)
                                                     .FirstOrDefaultAsync(u => u.CompanyId == companyId);
 
-            return company == null ? null : new CompanyDto
+            if (company == null)
+                return null;
+            
+            return new CompanyDto
             {
                 CompanyId = company.CompanyId,
                 Name = company.Name,

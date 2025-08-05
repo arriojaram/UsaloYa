@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using UsaloYa.API.Security;
 using UsaloYa.Dto.Enums;
 using UsaloYa.Dto;
-using UsaloYa.Services.interfaces;
+using UsaloYa.Services.Interfaces;
 
 namespace UsaloYa.API.Controllers
 {

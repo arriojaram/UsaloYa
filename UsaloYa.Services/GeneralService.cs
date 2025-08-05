@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UsaloYa.Dto;
 using UsaloYa.Library.Models;
-using UsaloYa.Services.interfaces;
+using UsaloYa.Services.Interfaces;
 
 namespace UsaloYa.Services
 {

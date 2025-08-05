@@ -13,7 +13,7 @@ using UsaloYa.Dto.Enums;
 using UsaloYa.Dto.Utils;
 using UsaloYa.Library.Config;
 using UsaloYa.Library.Models;
-using UsaloYa.Services.interfaces;
+using UsaloYa.Services.Interfaces;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 
@@ -126,6 +126,9 @@ namespace UsaloYa.Services
                 : await _dBContext.Users
                     .Include(c => c.Company)
                     .FirstOrDefaultAsync(u => u.UserId == userId);
+            
+            if (user == null)
+                return new UserResponseDto() { UserId = 0 };
 
             return new UserResponseDto
             {

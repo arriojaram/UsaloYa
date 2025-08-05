@@ -53,9 +53,7 @@ public partial class DBContext : DbContext
             entity.Property(e => e.Cash).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.CashOutputTotal).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.CredictCard).HasColumnType("decimal(18, 2)");
-            entity.Property(e => e.FinalCash)
-                .HasMaxLength(10)
-                .IsFixedLength();
+            entity.Property(e => e.FinalCash).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.InitialBalance).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.Notes)
                 .HasMaxLength(500)

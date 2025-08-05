@@ -1,10 +1,10 @@
-using System.Text.Json;
+
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using UsaloYa.API.Security;
 using UsaloYa.Library.Config;
 using UsaloYa.Services;
-using UsaloYa.Services.interfaces;
+using UsaloYa.Services.Interfaces;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -51,8 +51,9 @@ builder.Services.AddDbContext<UsaloYa.Library.Models.DBContext>(
 
 
 builder.Services.AddSingleton<AppConfig>();
-builder.Services.AddScoped<ProductCategoryService>();
+builder.Services.AddScoped<HeaderValidatorService>();
 builder.Services.AddScoped<AccessValidationFilter>();
+
 builder.Services.AddScoped<IProductCategoryService, ProductCategoryService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ISaleService, SaleService>();
@@ -63,6 +64,7 @@ builder.Services.AddScoped<IGeneralService, GeneralService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IQuestionnaireService, QuestionnaireService>();
+builder.Services.AddScoped<ICashCounter, CashCountService>();
 
 
 var app = builder.Build();

@@ -6,7 +6,7 @@ using UsaloYa.Dto.Enums;
 using UsaloYa.Library.Config;
 using UsaloYa.Library.Models;
 using UsaloYa.Services;
-using UsaloYa.Services.interfaces;
+using UsaloYa.Services.Interfaces;
 
 
 namespace UsaloYa.API.Controllers

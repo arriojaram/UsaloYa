@@ -7,7 +7,7 @@ using System.Text;
 using UsaloYa.Dto;
 using UsaloYa.Dto.Utils;
 using UsaloYa.Library.Models;
-using UsaloYa.Services.interfaces;
+using UsaloYa.Services.Interfaces;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using static Org.BouncyCastle.Math.EC.ECCurve;
 namespace UsaloYa.Services

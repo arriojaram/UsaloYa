@@ -1,18 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing.Template;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.Design;
 using UsaloYa.API.Security;
 using UsaloYa.Dto;
 using UsaloYa.Dto.Enums;
 using UsaloYa.Library.Config;
 using UsaloYa.Library.Models;
 using UsaloYa.Services;
-using UsaloYa.Services.interfaces;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using UsaloYa.Services.Interfaces;
 
 namespace UsaloYa.API.Controllers
 {
@@ -27,8 +22,15 @@ namespace UsaloYa.API.Controllers
         private readonly AppConfig _settings;
         private readonly IWebHostEnvironment _env;
         private readonly IConfiguration _config;
-
-        public UserController(DBContext dBContext, IUserService userService, ILogger<UserController> logger, AppConfig settings, IEmailService emailService, IWebHostEnvironment env, IConfiguration config)
+        private readonly HeaderValidatorService _validationService;
+        public UserController(DBContext dBContext, 
+            IUserService userService, 
+            ILogger<UserController> logger, 
+            AppConfig settings, IEmailService 
+            emailService, 
+            IWebHostEnvironment env, 
+            IConfiguration config,
+            HeaderValidatorService validationService)
         {
             _logger = logger;
             _userService = userService;
@@ -37,6 +39,7 @@ namespace UsaloYa.API.Controllers
             _emailService = emailService;
             _env = env;
             _config = config;
+            _validationService = validationService;
         }
 
         [HttpGet("HelloWorld")]
@@ -47,7 +50,7 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var user = await HeaderValidatorService.ValidateRequestor(RequestorId, Role.Admin, _dBContext);
+                var user = await _validationService.ValidateRequestor(RequestorId, Role.Admin);
                 if (user.UserId <= 0) return Unauthorized(AppConfig.NO_AUTORIZADO);
 
                 var savedUser = await _userService.SaveUser(userDto);
@@ -77,7 +80,7 @@ namespace UsaloYa.API.Controllers
                 var user = await _dBContext.Users.FirstOrDefaultAsync(u => u.UserName == token.UserName);
                 if (user == null) return NotFound();
 
-                var requestor = await HeaderValidatorService.ValidateRequestorSameCompanyOrTopRol(RequestorId, user.CompanyId, Role.Ventas, _dBContext);
+                var requestor = await _validationService.ValidateRequestorSameCompanyOrTopRol(RequestorId, user.CompanyId, Role.Ventas);
                 if (requestor.UserId <= 0) return Unauthorized(AppConfig.NO_AUTORIZADO);
 
                 var updated = await _userService.SetToken(token.UserName, token.Token);
@@ -102,7 +105,7 @@ namespace UsaloYa.API.Controllers
 
                 if (!isLogin)
                 {
-                    var requestor = await HeaderValidatorService.ValidateRequestorSameCompanyOrTopRol(RequestorId, user.CompanyId, Role.Ventas, _dBContext);
+                    var requestor = await _validationService.ValidateRequestorSameCompanyOrTopRol(RequestorId, user.CompanyId, Role.Ventas);
                     if (requestor.UserId <= 0) return Unauthorized(AppConfig.NO_AUTORIZADO);
                 }
 
@@ -135,7 +138,7 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var requestor = await HeaderValidatorService.ValidateRequestorSameCompanyOrTopRol(RequestorId, companyId, Role.User, _dBContext);
+                var requestor = await _validationService.ValidateRequestorSameCompanyOrTopRol(RequestorId, companyId, Role.User);
                 if (requestor.UserId <= 0) return Unauthorized(AppConfig.NO_AUTORIZADO);
 
                 if (companyId == 0 && requestor.RoleId < (int)Role.SysAdmin)
@@ -314,7 +317,7 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var user = await HeaderValidatorService.ValidateRequestor(RequestorId, Role.Admin, _dBContext);
+                var user = await _validationService.ValidateRequestor(RequestorId, Role.Admin);
                 if (user.UserId <= 0) return Unauthorized(AppConfig.NO_AUTORIZADO);
 
 

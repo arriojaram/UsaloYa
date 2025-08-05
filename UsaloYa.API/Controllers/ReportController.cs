@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using UsaloYa.API.Security;
 using UsaloYa.Library.Models;
-using UsaloYa.Services.interfaces;
+using UsaloYa.Services.Interfaces;
 
 namespace UsaloYa.API.Controllers
 {

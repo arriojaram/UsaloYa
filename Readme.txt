@@ -2,7 +2,9 @@ Scaffold-DbContext "Data Source=DESKTOP-PL9432I\MSSQLSERVER01;Initial Catalog=Us
 
 // Commands to do the code first in VS and start working with the DB in PostgreSql
 dotnet ef migrations add InitialMigration
+
 dotnet ef database update
+
 
 // To remove an existing migration - run this only during development.
 dotnet ef migrations remove
@@ -24,3 +26,8 @@ dotnet ef dbcontext scaf
 npm install -g http-server
 http-server -p 8082
  serve -s .\dist\guardian\browser\ 
+
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+      => optionsBuilder.UseSqlServer("Data Source=DESKTOP-PL9432I\\MSSQLSERVER01;Initial Catalog=UsaloYa;Integrated Security=True;TrustServerCertificate=True;");
