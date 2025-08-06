@@ -275,5 +275,50 @@ namespace UsaloYa.API.Controllers
             }
         }
 
+        [HttpGet("UpdateMaxDaysToRefund")]
+        public async Task<IActionResult> UpdateMaxDaysToRefund([FromHeader] string RequestorId, int companyId, int days)
+        {
+            try
+            {
+                var requestor = await HeaderValidatorService.ValidateRequestorSameCompany(RequestorId, Role.User, companyId, _dBContext);
+                return Unauthorized(AppConfig.NO_AUTORIZADO);
+
+                var result = await _companyService.UpdateMaxDaysToRefund(companyId, days);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "GetMaxDaysToRefund.ApiError");
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
+            }
+        }
+
+
+        [HttpPost("DeleteInactiveCompanies")]
+        public async Task<IActionResult> DeleteInactiveCompanies([FromHeader] string RequestorId, int companyId, int days)
+        {
+            try
+            {
+                var requestor = await HeaderValidatorService.ValidateRequestorSameCompanyOrTopRol(
+                    RequestorId, companyId, Role.SysAdmin, _dBContext
+                );
+
+                if (requestor.UserId == 0)
+                    return Unauthorized(AppConfig.NO_AUTORIZADO);
+
+                if (days <= 0)
+                    return BadRequest(new { message = "$_Invalid_Value." });
+
+                var result = await _companyService.DeleteInactiveCompanies(days);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "DeleteInactiveCompanies.ApiError");
+                return StatusCode(500, new { message = "$_Database_Excepcion" });
+            }
+        }
+
+
     }
 }

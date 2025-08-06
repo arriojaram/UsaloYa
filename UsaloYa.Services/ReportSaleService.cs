@@ -80,7 +80,7 @@ namespace UsaloYa.Services
                         .Where(f => f.SaleId == r.SaleId && f.ProductId == r.ProductId)
                         .Sum(f => (decimal?)f.Quantity) ?? 0m,
 
-                    RefundoAmount = _dBContext.Refunds
+                    RefundAmount = _dBContext.Refunds
                         .Where(f => f.SaleId == r.SaleId && f.ProductId == r.ProductId)
                         .Sum(f => (decimal?)f.RefundAmount) ?? 0m
                 })

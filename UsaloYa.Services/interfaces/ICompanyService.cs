@@ -24,6 +24,8 @@ namespace UsaloYa.Services.interfaces
         Task<DateTime> CalculateExpirationDate(Company company, decimal rentAmount, RentTypeId typeId);
         Task<bool> IsCompanyUnique(string companyName);
         Task<int> GetMaxDaysToRefund(int companyId);
+        Task<bool> UpdateMaxDaysToRefund(int companyId, int days);
+        Task<bool> DeleteInactiveCompanies(int days);
 
     }
 }

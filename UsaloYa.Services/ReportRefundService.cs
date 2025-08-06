@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using UsaloYa.Dto;
+using UsaloYa.Dto.Utils;
 using UsaloYa.Library.Models;
 using UsaloYa.Services.interfaces;
 
@@ -37,7 +38,7 @@ namespace UsaloYa.Services
                     Folio = g.Key.Folio,
                     UserId = g.Key.UserId,
                     Name = g.Key.UserName,
-                    RefundDate = g.Key.Date,
+                    RefundDate = g.Max(x => x.RefundDate),
                     RefundMethod = g.Key.RefundMethod,
                     RefundAmountTotal = g.Sum(x => x.RefundAmount)
                 })
@@ -56,6 +57,7 @@ namespace UsaloYa.Services
                 {
                     r.SaleId,
                     r.UserId,
+                    r.Sale.Folio,
                     r.User.UserName,
                     r.RefundDate,
                     r.RefundMethod
@@ -63,9 +65,10 @@ namespace UsaloYa.Services
                 .Select(g => new RefundReportDto
                 {
                     SaleId = g.Key.SaleId,
+                    Folio = g.Key.Folio,
                     UserId = g.Key.UserId,
                     Name = g.Key.UserName,
-                    RefundDate = g.Key.RefundDate,
+                    RefundDate = g.Max(x => x.RefundDate),
                     RefundMethod = g.Key.RefundMethod,
                     RefundAmountTotal = g.Sum(x => x.RefundAmount),
 
