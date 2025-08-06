@@ -90,7 +90,7 @@ namespace UsaloYa.API.Controllers
         }
 
         [HttpGet("GetCompaniesReport")]
-        public async Task<IActionResult> GetCompaniesReport([FromHeader] string RequestorId ,int companyId, int InactiveDays, int status, string company = "-1")
+        public async Task<IActionResult> GetCompaniesReport([FromHeader] string RequestorId ,int companyId, int InactiveDays, CompanyStatus status, string company = "-1")
         {
             try
             {

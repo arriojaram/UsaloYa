@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using UsaloYa.Dto;
+using UsaloYa.Dto.Enums;
 using UsaloYa.Library.Models;
 using UsaloYa.Services.interfaces;
 
@@ -14,7 +15,7 @@ namespace UsaloYa.Services
             _dBContext = dBContext;
         }
 
-        public async Task<IEnumerable<CompanyReportDto>> GetCompaniesReport(int InactiveDays, int status, string company)
+        public async Task<IEnumerable<CompanyReportDto>> GetCompaniesReport(int InactiveDays, CompanyStatus status, string company)
         {
             var cutoffDate = DateTime.UtcNow.AddDays(-InactiveDays);
 
@@ -23,19 +24,19 @@ namespace UsaloYa.Services
                 .Include(c => c.Products)
                 .Include(c => c.Users)
                 .Where(c =>
-                    (status == 0 ? c.StatusId == 0 : c.StatusId != 0) &&
+                    (status == CompanyStatus.Inactive ? c.StatusId.Equals(CompanyStatus.Inactive) : !c.StatusId.Equals(CompanyStatus.Inactive)) &&
                     (company == "-1" || c.Name.Contains(company)) &&
                     ((c.Users.Any() ? c.Users.Max(u => u.LastAccess) : c.CreationDate) <= cutoffDate)
                 )
                 .OrderByDescending(c => c.Users.Any() ? c.Users.Max(u => u.LastAccess) : c.CreationDate)
                 .Select(r => new CompanyReportDto
                 {
-                    UsersNumer = r.Users.Count(),
+                    NumberOfUsers = r.Users.Count(),
                     CompanyName = r.Name,
-                    LastAcces = r.Users.Any() ? r.Users.Max(u => u.LastAccess) : r.CreationDate,
+                    LastAccess = r.Users.Any() ? r.Users.Max(u => u.LastAccess) : r.CreationDate,
                     Phone = r.PhoneNumber,
-                    ProductsNumber = r.Products.Count(),
-                    SalesNumber = r.Sales.Count(),
+                    NumberOfProducts = r.Products.Count(),
+                    NumberOfSales = r.Sales.Count(),
                 })
                 .ToListAsync();
         }

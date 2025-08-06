@@ -302,12 +302,13 @@ namespace UsaloYa.Services
 
         public async Task<bool> DeleteInactiveCompanies(int days)
         {
+            if (days <= 0)
+                throw new ArgumentException("$_Invalid_Value.", nameof(days));
+
             var result = await _dBContext.Database.ExecuteSqlInterpolatedAsync(
                 $"EXEC DeleteInactiveCompanies @Days = {days}");
 
             return result > 0;
         }
-
-
     }
 }
