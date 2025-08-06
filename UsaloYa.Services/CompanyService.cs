@@ -287,6 +287,7 @@ namespace UsaloYa.Services
             return company?.MaxDaysToRefund ?? 0;
         }
 
+
         public async Task<bool> UpdateMaxDaysToRefund(int companyId, int days)
         {
             var company = await _dBContext.Companies.FindAsync(companyId);
@@ -297,6 +298,16 @@ namespace UsaloYa.Services
             await _dBContext.SaveChangesAsync();
             return true;
         }
+
+
+        public async Task<bool> DeleteInactiveCompanies(int days)
+        {
+            var result = await _dBContext.Database.ExecuteSqlInterpolatedAsync(
+                $"EXEC DeleteInactiveCompanies @Days = {days}");
+
+            return result > 0;
+        }
+
 
     }
 }
