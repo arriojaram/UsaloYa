@@ -43,7 +43,7 @@
               <span class="input-group-text bg-light">
                 <i class="bi bi-search text-info" style="font-size: 0.85rem;"></i>
               </span>
-              <input type="text" class="form-control form-control-sm" placeholder="Escribe el nombre aqui..." 
+              <input type="text" class="form-control form-control-sm" placeholder="Escribe el nombre aqui..."
                 (input)="searchUsers($event)" autocomplete="off">
               <button class="btn btn-outline-info btn-sm" type="button" (click)="searchUsers($event)">
                 <i class="bi bi-search" style="font-size: 0.8rem;"></i>
@@ -71,79 +71,75 @@
                   </div>
                   <i class="bi bi-buildings" style="font-size: 0.9rem;"></i>
                 </div>
-                
+
                 <!-- Sub-users list -->
-                <div *ngIf="expandedCompanyIds.includes(company.companyId)" 
-                     class="mt-2 position-relative">
-                  
+                <div *ngIf="expandedCompanyIds.includes(company.companyId)" class="mt-2 position-relative">
+
                   <!-- Visual connection line -->
-                  <div class="position-absolute start-0 top-0 bottom-0" 
-                       style="width: 3px; margin-left: 12px;"
-                       [ngStyle]="{'background-color': getCompanyColor(company.companyId)}">
+                  <div class="position-absolute start-0 top-0 bottom-0" style="width: 3px; margin-left: 12px;"
+                    [ngStyle]="{'background-color': getCompanyColor(company.companyId)}">
                   </div>
-                  
+
                   <!-- Users container -->
                   <div class="ms-4 ps-2">
                     <!-- Header for sub-users -->
-                    <div class="d-flex align-items-center mb-2 px-2 py-1 rounded" 
-                         [ngStyle]="{'background-color': getCompanyColor(company.companyId) + '15'}">
-                      <i class="bi bi-people-fill me-2" 
-                         [ngStyle]="{'color': getCompanyColor(company.companyId)}"
-                         style="font-size: 0.9rem;"></i>
+                    <div class="d-flex align-items-center mb-2 px-2 py-1 rounded"
+                      [ngStyle]="{'background-color': getCompanyColor(company.companyId) + '15'}">
+                      <i class="bi bi-people-fill me-2" [ngStyle]="{'color': getCompanyColor(company.companyId)}"
+                        style="font-size: 0.9rem;"></i>
                       <span class="fw-bold small text-muted">Usuarios de {{ company.name }}</span>
-                      <span class="badge rounded-pill ms-auto" 
-                            [ngStyle]="{'background-color': getCompanyColor(company.companyId)}"
-                            style="font-size: 0.65rem;">
+                      <span class="badge rounded-pill ms-auto"
+                        [ngStyle]="{'background-color': getCompanyColor(company.companyId)}"
+                        style="font-size: 0.65rem;">
                         {{ (userListsByCompany[company.companyId] || []).length }}
                       </span>
                     </div>
-                    
+
                     <!-- Users list -->
-                    <div class="border rounded bg-white shadow-sm" 
-                         style="border-left: 3px solid !important;"
-                         [ngStyle]="{'border-left-color': getCompanyColor(company.companyId)}">
-                      
-                      <div *ngFor="let user of userListsByCompany[company.companyId] || []; let j = index; let isLast = last"
-                           class="position-relative"
-                           [class.border-bottom]="!isLast"
-                           style="border-color: #f8f9fa !important;">
-                        
-                        
-                        
+                    <div class="border rounded bg-white shadow-sm" style="border-left: 3px solid !important;"
+                      [ngStyle]="{'border-left-color': getCompanyColor(company.companyId)}">
+
+                      <div
+                        *ngFor="let user of userListsByCompany[company.companyId] || []; let j = index; let isLast = last"
+                        class="position-relative" [class.border-bottom]="!isLast"
+                        style="border-color: #f8f9fa !important;">
+
+
+
                         <!-- User item -->
                         <div class="list-group-item list-group-item-action border-0 py-2 px-3"
-                             [class.bg-primary]="this.selectedUser?.userId == user.userId"
-                             [class.text-white]="this.selectedUser?.userId == user.userId"
-                             [class.bg-light]="this.selectedUser?.userId != user.userId && j % 2 === 0"
-                             (click)="selectUser(user.userId); $event.stopPropagation()" 
-                             style="cursor: pointer; transition: all 0.2s ease;">
-                          
+                          [class.bg-primary]="this.selectedUser?.userId == user.userId"
+                          [class.text-white]="this.selectedUser?.userId == user.userId"
+                          [class.bg-light]="this.selectedUser?.userId != user.userId && j % 2 === 0"
+                          (click)="selectUser(user.userId); $event.stopPropagation()"
+                          style="cursor: pointer; transition: all 0.2s ease;">
+
                           <div class="d-flex justify-content-between align-items-center">
                             <div class="d-flex align-items-center">
-                             
+
                               <!-- User info -->
                               <div>
                                 <div class="fw-bold" style="font-size: 0.9rem; line-height: 1.2;">
                                   {{ user.firstName + ' ' + user.lastName }}
                                 </div>
                                 <div class="d-flex align-items-center mt-1">
-                                  <i class="bi bi-at me-1" 
-                                     [class.text-white-50]="this.selectedUser?.userId == user.userId"
-                                     [class.text-muted]="this.selectedUser?.userId != user.userId"
-                                     style="font-size: 0.7rem;"></i>
+                                  <i class="bi bi-at me-1"
+                                    [class.text-white-50]="this.selectedUser?.userId == user.userId"
+                                    [class.text-muted]="this.selectedUser?.userId != user.userId"
+                                    style="font-size: 0.7rem;"></i>
                                   <small [class.text-white-50]="this.selectedUser?.userId == user.userId"
-                                         [class.text-muted]="this.selectedUser?.userId != user.userId"
-                                         style="font-size: 0.75rem;">{{ user.userName }}</small>
+                                    [class.text-muted]="this.selectedUser?.userId != user.userId"
+                                    style="font-size: 0.75rem;">{{ user.userName }}</small>
                                 </div>
                               </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                      
+
                       <!-- Empty state for company with no users -->
-                      <div *ngIf="(userListsByCompany[company.companyId] || []).length === 0" 
-                           class="text-center py-4 text-muted">
+                      <div *ngIf="(userListsByCompany[company.companyId] || []).length === 0"
+                        class="text-center py-4 text-muted">
                         <i class="bi bi-person-x fs-3 mb-2 d-block opacity-50"></i>
                         <div class="small fw-bold">Sin usuarios</div>
                         <small style="font-size: 0.7rem;">Esta empresa no tiene usuarios asignados</small>
@@ -185,8 +181,8 @@
                   <span class="input-group-text bg-light">
                     <i class="bi bi-person-badge text-success" style="font-size: 0.85rem;"></i>
                   </span>
-                  <input *ngIf="userForm.get('userId')?.value === 0" id="userName" class="form-control" 
-                         formControlName="userName" placeholder="Nombre de usuario">
+                  <input *ngIf="userForm.get('userId')?.value === 0" id="userName" class="form-control"
+                    formControlName="userName" placeholder="Nombre de usuario">
                   <label *ngIf="userForm.get('userId')?.value > 0" class="form-control opacity-50 fw-bold">
                     {{userForm.get('userName')?.value}}
                   </label>
@@ -197,7 +193,7 @@
                 </div>
               </div>
 
-              <div class="col-12 col-md-4">
+              <div class="col-12 col-md-2">
                 <label class="form-label fw-bold small">Estado</label>
                 <div class="form-check form-switch mt-1">
                   <input id="isEnabled" type="checkbox" class="form-check-input" formControlName="isEnabled">
@@ -212,7 +208,7 @@
                 </div>
               </div>
 
-      
+
 
               <!-- Name and Last Name -->
               <div class="col-12 col-md-6">
@@ -296,27 +292,29 @@
                     </option>
                   </select>
                 </div>
-                <div *ngIf="userForm.get('roleId')?.value === 0"
-                  class="text-danger mt-1" style="font-size: 0.75rem;">
+                <div *ngIf="userForm.get('roleId')?.value === 0" class="text-danger mt-1" style="font-size: 0.75rem;">
                   <i class="bi bi-exclamation-circle me-1"></i>El Rol es obligatorio.
                 </div>
               </div>
-                        <div class="col-12 col-md-4">
+
+              <!-- Permitir Realizar Devoluciones -->
+              <div class="col-12 col-md-2">
                 <label class="form-label fw-bold small">Permitir Realizar Devoluciones</label>
                 <div class="form-check form-switch mt-1">
-                  <input id="isEnabled" type="checkbox" class="form-check-input" formControlName="isEnabled">
-                  <label class="form-check-label small" for="isEnabled">
-                    <span *ngIf="userForm.get('isEnabled')?.value" class="text-success">
-                      <i class="bi bi-check-circle me-1" style="font-size: 0.8rem;"></i>Habilitado
+                  <input id="canMakeReturns" type="checkbox" class="form-check-input" formControlName="canMakeReturns">
+                  <label class="form-check-label small" for="canMakeReturns">
+                    <span *ngIf="userForm.get('canMakeReturns')?.value" class="text-success">
+                      <i class="bi bi-check-circle me-1" style="font-size: 0.8rem;"></i>Permitido
                     </span>
-                    <span *ngIf="!userForm.get('isEnabled')?.value" class="text-warning">
-                      <i class="bi bi-exclamation-triangle me-1" style="font-size: 0.8rem;"></i>Deshabilitado
+                    <span *ngIf="!userForm.get('canMakeReturns')?.value" class="text-warning">
+                      <i class="bi bi-exclamation-triangle me-1" style="font-size: 0.8rem;"></i>Denegado
                     </span>
                   </label>
                 </div>
               </div>
 
-              
+
+
             </div>
           </div>
         </div>
@@ -399,8 +397,8 @@
                     <span class="input-group-text bg-light">
                       <i class="bi bi-lock text-warning" style="font-size: 0.85rem;"></i>
                     </span>
-                    <input formControlName="password" [type]="passwordVisible ? 'text' : 'password'" 
-                           class="form-control" placeholder="Nueva contraseña">
+                    <input formControlName="password" [type]="passwordVisible ? 'text' : 'password'"
+                      class="form-control" placeholder="Nueva contraseña">
                     <button class="btn btn-outline-secondary" type="button" (click)="togglePasswordVisibility()">
                       <i class="bi" [ngClass]="{'bi-eye': passwordVisible, 'bi-eye-slash': !passwordVisible}"></i>
                     </button>
@@ -410,7 +408,8 @@
                     <i class="bi bi-exclamation-circle me-1"></i>
                     <div *ngIf="passwordForm.get('password')?.errors?.['required']">La contraseña es obligatoria.</div>
                     <div *ngIf="passwordForm.get('password')?.errors?.['minlength']">
-                      La contraseña debe tener al menos {{ passwordForm.get('password')?.errors?.['minlength'].requiredLength }} caracteres.
+                      La contraseña debe tener al menos {{
+                      passwordForm.get('password')?.errors?.['minlength'].requiredLength }} caracteres.
                     </div>
                   </div>
                 </div>
@@ -421,20 +420,22 @@
                     <span class="input-group-text bg-light">
                       <i class="bi bi-lock text-warning" style="font-size: 0.85rem;"></i>
                     </span>
-                    <input formControlName="passwordConfirmation" [type]="passwordVisible ? 'text' : 'password'" 
-                           class="form-control" placeholder="Confirmar contraseña">
+                    <input formControlName="passwordConfirmation" [type]="passwordVisible ? 'text' : 'password'"
+                      class="form-control" placeholder="Confirmar contraseña">
                     <button class="btn btn-outline-secondary" type="button" (click)="togglePasswordVisibility()">
                       <i class="bi" [ngClass]="{'bi-eye': passwordVisible, 'bi-eye-slash': !passwordVisible}"></i>
                     </button>
                   </div>
-                  <div *ngIf="passwordForm.get('passwordConfirmation')?.invalid && passwordForm.get('passwordConfirmation')?.touched"
+                  <div
+                    *ngIf="passwordForm.get('passwordConfirmation')?.invalid && passwordForm.get('passwordConfirmation')?.touched"
                     class="text-danger mt-1" style="font-size: 0.75rem;">
                     <i class="bi bi-exclamation-circle me-1"></i>La confirmación de la contraseña es obligatoria.
                   </div>
                 </div>
 
                 <div class="col-12">
-                  <div *ngIf="passwordForm.errors?.['mismatch'] && (passwordForm.get('passwordConfirmation')?.dirty || passwordForm.get('passwordConfirmation')?.touched)"
+                  <div
+                    *ngIf="passwordForm.errors?.['mismatch'] && (passwordForm.get('passwordConfirmation')?.dirty || passwordForm.get('passwordConfirmation')?.touched)"
                     class="text-danger mt-1" style="font-size: 0.75rem;">
                     <i class="bi bi-exclamation-circle me-1"></i>Las contraseñas no coinciden.
                   </div>
@@ -453,14 +454,13 @@
                 <i class="bi bi-plus-circle me-1" style="font-size: 0.9rem;"></i>
                 <span class="small">Nuevo Usuario</span>
               </button>
-              <button type="button" class="btn btn-success" (click)="saveUser()" 
-                [disabled]="this.userForm.get('roleId')?.value === rol.Root" 
-                *ngIf="this.userState.roleId > rol.User">
+              <button type="button" class="btn btn-success" (click)="saveUser()"
+                [disabled]="this.userForm.get('roleId')?.value === rol.Root" *ngIf="this.userState.roleId > rol.User">
                 <i class="bi bi-save me-1" style="font-size: 0.9rem;"></i>
                 <span class="small">Guardar Usuario</span>
               </button>
-              <button type="button" class="btn btn-warning" (click)="setPassword()" 
-                [disabled]="passwordForm.invalid" *ngIf="this.userState.roleId > rol.User">
+              <button type="button" class="btn btn-warning" (click)="setPassword()" [disabled]="passwordForm.invalid"
+                *ngIf="this.userState.roleId > rol.User">
                 <i class="bi bi-key me-1" style="font-size: 0.9rem;"></i>
                 <span class="small">Actualizar Password</span>
               </button>

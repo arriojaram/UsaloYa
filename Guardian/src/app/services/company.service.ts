@@ -8,6 +8,7 @@ import { setStatusDto } from '../dto/setStatusDto';
 import { AdminCompanyDto } from '../dto/adminCompanyDto';
 import { companySettingsDto, pairSettingsDto } from '../dto/companySettingsDto';
 import { setValueDto } from '../dto/setValueDto';
+import { UserStateService  } from './user-state.service';
 
 @Injectable({
   providedIn: 'root'
@@ -21,7 +22,8 @@ export class CompanyService {
   
   constructor(
     private http: HttpClient,
-    private httpBackend: HttpBackend
+    private httpBackend: HttpBackend,
+    private UserStateService : UserStateService
   ) 
   { 
     this.rawHttp = new HttpClient(httpBackend);
@@ -137,6 +139,26 @@ export class CompanyService {
     })
   );
 }
+
+// company.service.ts
+getMaxDaysToRefund(companyId: number): Observable<number> {
+const url = `${this.baseUrl}/GetMaxDaysToRefund`;
+  const headers = new HttpHeaders({
+    RequestorId: this.UserStateService.getUserStateLocalStorage().userId.toString()
+  });
+
+  return this.http.get<number>(url, {
+    params: { companyId },
+    headers
+  }).pipe(
+    catchError(error => {
+      console.error('getMaxDaysToRefund() | ', error);
+      throw error;
+    })
+  );
+}
+
+
 
 
 }

@@ -10,6 +10,10 @@ import { TranslateService } from '@ngx-translate/core';
 import { NavigationService } from '../../services/navigation.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { RefundService } from '../../services/refund.service';
+import { RequestRefundDto } from '../../dto/requestRefundDto';
+import { RefundProduct } from '../../dto/refundProductDto';
+import { CompanyService } from '../../services/company.service';
 
 @Component({
   selector: 'app-returns',
@@ -32,6 +36,9 @@ export class ReturnsComponent implements OnInit, OnDestroy {
   selectAllChecked: boolean = false;
   globalReason: string = '';
   globalCustomReason: string = '';
+  canReturn: boolean = false;
+
+  maxDaysToRefund: number = 0; // <-- Límite de días para devoluciones
 
   private destroy$ = new Subject<void>();
 
@@ -40,7 +47,9 @@ export class ReturnsComponent implements OnInit, OnDestroy {
     private reportService: ReportsService,
     private userStateService: UserStateService,
     private navigationService: NavigationService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private refundService: RefundService,
+    private companyService: CompanyService
   ) {
     this.form = this.fb.group({
       ticketNumber: ['', Validators.required],
@@ -50,22 +59,50 @@ export class ReturnsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.userState = this.userStateService.getUserStateLocalStorage();
+    this.canReturn = this.userState.canMakeReturns === true;
 
-    const fromDateIso = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-    const toDateIso = new Date().toISOString();
+    // Obtener configuración días máximos para devolución antes de cargar ventas
+    this.companyService.getMaxDaysToRefund(this.userState.companyId).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (days) => {
+        this.maxDaysToRefund = days;
 
-    this.reportService.getSales(fromDateIso, toDateIso, this.userState.companyId, 0)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (sales) => {
-          this.sales = [...sales];
-          this.filteredSales = [...this.sales];
-        },
-        error: (err) => console.error('Error al cargar ventas:', err)
-      });
+        // Ahora sí cargar ventas
+        const fromDateIso = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+        const toDateIso = new Date().toISOString();
+
+        this.reportService.getSales(fromDateIso, toDateIso, this.userState.companyId, 0)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+            next: (sales) => {
+              this.sales = [...sales];
+              this.filteredSales = [...this.sales];
+            },
+            error: (err) => console.error('Error al cargar ventas:', err)
+          });
+      },
+      error: (err) => {
+        this.navigationService.showUIMessage('No se pudo cargar configuración de días para devolución', AlertLevel.Error);
+        this.maxDaysToRefund = 0; // Default en caso de error
+      }
+    });
+  }
+
+  // Método para saber si la venta aún puede devolverse según días máximos
+  canReturnSale(sale: any): boolean {
+    if (!sale || !sale.saleDate) return false;
+    const saleDate = new Date(sale.saleDate);
+    const today = new Date();
+    const limitDate = new Date();
+    limitDate.setDate(today.getDate() - this.maxDaysToRefund);
+    return saleDate >= limitDate;
   }
 
   showReturnForm(saleId: number, folio: number, total: number): void {
+    if (!this.canReturnSale({ saleDate: this.sales.find(s => s.saleID === saleId)?.saleDate })) {
+      this.navigationService.showUIMessage(this.translate.instant('returns.days_exceeded'), AlertLevel.Warning);
+      return;
+    }
+
     this.selectedFolio = folio;
     this.selectedSaleTotal = total;
     this.showMainView = false;
@@ -104,12 +141,14 @@ export class ReturnsComponent implements OnInit, OnDestroy {
   getMeasureName(measure: number): string {
     return MeasureType[measure];
   }
+
   //Regresa a la vista principal y limpia datos relacionados con la devolución.
   goBack(): void {
     this.showMainView = true;
     this.saleProducts = [];
     this.selectedFolio = null;
   }
+
   // Calcula el total a devolver sumando las cantidades seleccionadas y su precio.
   calculateTotalReturn(): number {
     return this.saleProducts
@@ -119,45 +158,62 @@ export class ReturnsComponent implements OnInit, OnDestroy {
 
   //Valida el formulario y, si es válido, prepara y envía los datos de la devolución. (No funciona aun )
   confirmReturn(): void {
+    const faltanMotivos = this.saleProducts.some(p =>
+      p.selected && p.reason === 'Otro' && (!p.customReason || !p.customReason.trim())
+    );
+
+    if (faltanMotivos) {
+      this.navigationService.showUIMessage(this.translate.instant('returns.invalid_reason'), AlertLevel.Warning);
+      return;
+    }
+
     if (!this.isReturnFormValid()) {
       this.navigationService.showUIMessage(this.translate.instant('returns.error_return'), AlertLevel.Warning);
       return;
     }
 
-    const returnData = {
+    const confirmed = confirm('¿Estás seguro de realizar la devolución?');
+    if (!confirmed) return;
+
+    // Preparar DTO para enviar
+    const productsToRefund: RefundProduct[] = this.saleProducts
+      .filter(p => p.selected && p.returnable && p.returnQuantity > 0)
+      .map(p => ({
+        productId: p.productId,
+        barcode: p.barcode,
+        productName: p.name,
+        reason: p.reason === 'Otro' ? p.customReason : p.reason,
+        measure: p.measure.toString(),
+        quantity: p.returnQuantity,
+        unitPriceRefund: p.unitPrice,
+        refundAmount: p.returnQuantity * p.unitPrice,
+      }));
+
+    const refundDto: RequestRefundDto = {
       saleId: this.form.value.ticketNumber,
+      userId: this.userState.userId,
+      saleDate: this.currentDate.toISOString(),
       refundMethod: this.form.value.refundMethod,
-      user: this.userState.userName,
-      date: this.currentDate,
-      products: this.saleProducts
-        .filter(p => p.selected && p.returnable && p.returnQuantity > 0)
-        .map(p => ({
-          code: p.barcode,
-          productId: p.productId,
-          quantity: p.returnQuantity,
-          reason: p.reason,
-          unitPrice: p.unitPrice,
-        }))
+      productRefundList: productsToRefund
     };
 
-    console.log('Datos preparados para envío:', returnData);
-
-    /*
-    this.reportService.registerReturn(returnData)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: () => {
-          alert('Devolución registrada correctamente.');
+    this.refundService.manageRefund(refundDto, this.userState.companyId, this.userState.userId).subscribe({
+      next: success => {
+        if (success) {
+          this.navigationService.showUIMessage(this.translate.instant('returns.success_return'), AlertLevel.Sucess);
           this.resetForm();
           this.goBack();
-        },
-        error: (err) => {
-          alert('Error al registrar la devolución.');
+        } else {
+          this.navigationService.showUIMessage(this.translate.instant('returns.not_allowed'), AlertLevel.Warning);
         }
-      });
-    */
+      },
+      error: err => {
+        this.navigationService.showUIMessage(this.translate.instant('returns.server_error'), AlertLevel.Error);
+        console.error('Error en devolución:', err);
+      }
+    });
   }
-  //Cancela la devolución actual, pregunta confirmación y limpia el formulario.
+
   cancel(): void {
     if (confirm('¿Seguro que quieres cancelar la devolución?')) {
       this.resetForm();
@@ -180,19 +236,18 @@ export class ReturnsComponent implements OnInit, OnDestroy {
   }
   // Validación del formulario de devolución
   isReturnFormValid(): boolean {
-    const selected = this.saleProducts.filter(p => p.selected && p.returnable);
-    if (selected.length === 0) return false;
+    const invalidItems = this.saleProducts.filter(p =>
+      p.selected && p.returnable && (
+        !p.returnQuantity || p.returnQuantity <= 0 || p.returnQuantity > p.quantity ||
+        !p.reason || p.reason.trim() === ''
+      )
+    );
 
-    for (let item of selected) {
-      if (!item.returnQuantity || item.returnQuantity <= 0 || item.returnQuantity > item.quantity) {
-        return false;
-      }
-      if (!item.reason || item.reason.trim() === '') {
-        return false;
-      }
-    }
-    return this.form.valid;
+    if (invalidItems.length > 0) return false;
+
+    return this.form.valid && this.saleProducts.some(p => p.selected && p.returnable);
   }
+
 
   //Al seleccionar o deseleccionar un producto, ajusta cantidad y motivo.
   onSelectItem(item: any): void {
@@ -242,13 +297,16 @@ export class ReturnsComponent implements OnInit, OnDestroy {
   }
 
   applyReasonToSelected(): void {
+    const finalReason = this.globalReason === 'Otro' ? this.globalCustomReason : this.globalReason;
+
     this.saleProducts.forEach(p => {
       if (p.selected) {
-        p.reason = this.globalReason;
-        p.customReason = this.globalCustomReason;
+        p.reason = finalReason;
+        p.customReason = this.globalReason === 'Otro' ? this.globalCustomReason : null;
       }
     });
   }
+
 
   ngOnDestroy(): void {
     this.destroy$.next();

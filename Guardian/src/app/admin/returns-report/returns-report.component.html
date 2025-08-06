@@ -1,0 +1,189 @@
+<div class="container-fluid px-0">
+    <!-- Header -->
+    <div class="bg-white border-bottom shadow-sm mb-3">
+        <div class="container-fluid">
+            <div class="d-flex align-items-center justify-content-between py-3">
+                <h5 class="mb-0 fw-bold text-dark d-flex align-items-center">
+                    <i class="bi bi-arrow-repeat me-2 text-usalo-danger"></i>Reporte de Devoluciones
+                </h5>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-2">
+        <!-- Vista principal del reporte -->
+        <div class="col-12" *ngIf="showMainReport && isAutorized">
+            <!-- Filtros -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-usalo-info-gradient text-white py-1">
+                    <h6 class="mb-0 d-flex align-items-center small">
+                        <i class="bi bi-funnel me-1 fs-6"></i>Filtros del Reporte
+                    </h6>
+                </div>
+                <div class="card-body p-3">
+                    <form [formGroup]="reportForm">
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold small">Fecha Desde</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-light"><i
+                                            class="bi bi-calendar-date text-primary"></i></span>
+                                    <input type="date" class="form-control" formControlName="dateFrom">
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold small">Fecha Hasta</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-light"><i
+                                            class="bi bi-calendar-date text-primary"></i></span>
+                                    <input type="date" class="form-control" formControlName="dateTo">
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold small">Usuario</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-light"><i
+                                            class="bi bi-person text-info"></i></span>
+                                    <select class="form-select" formControlName="userId">
+                                        <option *ngIf="userState.roleId > rol.User" value="0">Todos</option>
+                                        <option *ngFor="let user of companyUsers" [value]="user.userId">{{ user.userName
+                                            }}</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3 d-flex align-items-end">
+                                <button type="button" class="btn btn-success btn-sm w-100" (click)="getRefunds()">
+                                    <i class="bi bi-file-bar-graph me-1"></i>Generar Reporte
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Filtro búsqueda -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-usalo-warning-gradient text-white py-1">
+                    <h6 class="mb-0 d-flex align-items-center small">
+                        <i class="bi bi-search me-1 fs-6"></i>Buscar Devoluciones
+                    </h6>
+                </div>
+                <div class="card-body p-3">
+                    <input type="text" class="form-control form-control-sm"
+                        placeholder="Buscar por nombre, folio o método..." (keyup)="filterRefunds($event)">
+                </div>
+            </div>
+
+            <!-- Tabla -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-usalo-secondary-gradient text-white py-1">
+                    <h6 class="mb-0 d-flex align-items-center small">
+                        <i class="bi bi-table me-1 fs-6"></i>Lista de Devoluciones
+                    </h6>
+                </div>
+                <div class="card-body p-3 table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="small">Fecha</th>
+                                <th class="small">Folio</th>
+                                <th class="small">Usuario</th>
+                                <th class="small">Método</th>
+                                <th class="small">Total</th>
+                                <th class="small">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let r of filteredRefunds" class="align-middle">
+                                <td class="small">{{ r.refundDate | date:'short' }}</td>
+                                <td class="small">{{ r.folio }}</td>
+                                <td class="small">{{ r.name }}</td>
+                                <td class="small">{{ r.refundMethod }}</td>
+                                <td class="small fw-bold">{{ r.refundAmountTotal | currency:'MXN' }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary" (click)="getRefundDetails(r)">
+                                        <i class="bi bi-eye me-1"></i>Ver Detalle
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer text-end small text-muted">
+                    <strong>Total Devuelto:</strong> {{ totalAmount | currency:'MXN' }}
+                </div>
+            </div>
+        </div>
+        <!-- Resumen de Devoluciones -->
+        <div class="card shadow-sm mb-3" *ngIf="filteredRefunds.length > 0">
+            <div class="card-header bg-usalo-success-gradient text-white py-1">
+                <h6 class="mb-0 d-flex align-items-center small">
+                    <i class="bi bi-calculator me-1 fs-6"></i>Resumen de Devoluciones
+                </h6>
+            </div>
+            <div class="card-body p-3">
+                <div class="row g-2">
+                    <div class="col-12 col-md-4">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-arrow-counterclockwise text-warning me-2" style="font-size: 1.2rem;"></i>
+                            <div>
+                                <span class="fw-bold small">Total Devuelto:</span>
+                                <div class="fs-5 fw-bold text-warning">{{ totalAmount | currency:'MXN' }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Detalle de devolución -->
+        <div class="col-12" *ngIf="!showMainReport">
+            <div class="card shadow-sm mb-3">
+                <div
+                    class="card-header bg-usalo-danger-gradient text-white py-2 d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 small">
+                        <i class="bi bi-arrow-left-right me-2"></i>Detalle de Devolución
+                    </h6>
+                    <button class="btn btn-light btn-sm" (click)="goBack()">
+                        <i class="bi bi-arrow-left me-1"></i>Regresar
+                    </button>
+                </div>
+                <div class="card-body p-3 table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="small">Código</th>
+                                <th class="small">Producto</th>
+                                <th class="small">Motivo</th>
+                                <th class="small">Cantidad</th>
+                                <th class="small">Medida</th>
+                                <th class="small">Precio</th>
+                                <th class="small">$ Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let p of selectedProducts" class="align-middle">
+                                <td class="small">{{ p.barcode }}</td>
+                                <td class="small">{{ p.productName }}</td>
+                                <td class="small">{{ p.reason }}</td>
+                                <td class="small">{{ p.quantity }}</td>
+                                <td class="small">{{ getMeasureName(+p.measure) }}</td>
+                                <td class="small">{{ p.unitPriceRefund | currency:'MXN' }}</td>
+                                <td class="small fw-bold">{{ p.refundAmount | currency:'MXN' }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer text-end text-muted small">
+                    <strong>Total Devolución:</strong> {{ selectedRefund?.refundAmountTotal | currency:'MXN' }} |
+                    <strong>Folio:</strong> {{ selectedFolio }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

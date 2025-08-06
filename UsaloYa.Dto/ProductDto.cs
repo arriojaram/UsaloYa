@@ -17,7 +17,8 @@
 
         public decimal UnitsInStock { get; set; }
         public bool Discontinued { get; set; }
-       
+        public bool CanRefunded { get; set; }
+
         public string? SKU { get; set; }
         public string Barcode { get; set; }
         

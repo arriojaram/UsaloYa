@@ -63,7 +63,8 @@
                     <i class="bi bi-person text-info" style="font-size: 0.85rem;"></i>
                   </span>
                   <select formControlName="userId" id="userId" class="form-select">
-                    <option *ngIf="(this.userState?.roleId?? 0) > rol.User && (this.userState?.companyStatusId?? 0) != cStatus.Free" 
+                    <option
+                      *ngIf="(this.userState?.roleId?? 0) > rol.User && (this.userState?.companyStatusId?? 0) != cStatus.Free"
                       value="0" selected>Todos los Usuarios</option>
                     <option *ngFor="let option of companyUsers" [value]="option.userId">
                       {{ option.userName }}
@@ -93,13 +94,14 @@
         <div class="card-body p-3">
           <div class="row g-2">
             <div class="col-12">
-              <label class="form-label fw-bold small">Filtrar por: Ticket de Venta (ID), Nombre de Usuario, Nombre del Cliente ó Total de la venta</label>
+              <label class="form-label fw-bold small">Filtrar por: Ticket de Venta (ID), Nombre de Usuario, Nombre del
+                Cliente ó Total de la venta</label>
               <div class="input-group input-group-sm">
                 <span class="input-group-text bg-light">
                   <i class="bi bi-funnel text-warning" style="font-size: 0.85rem;"></i>
                 </span>
                 <input type="text" [value]="filterText" (keyup)="filterSales($event)"
-                  [disabled]="this.userState.companyStatusId == cStatus.Free" class="form-control" 
+                  [disabled]="this.userState.companyStatusId == cStatus.Free" class="form-control"
                   placeholder="Filtrar ventas...">
               </div>
             </div>
@@ -119,16 +121,21 @@
             <table class="table table-sm table-hover">
               <thead class="table-light">
                 <tr>
-                  <th class="small d-none d-md-table-cell" [ngClass]="{'d-none d-md-table-cell': !showColumns}">Fecha</th>
-                  <th class="small d-none d-md-table-cell" [ngClass]="{'d-none d-md-table-cell': !showColumns}">Folio</th>
+                  <th class="small d-none d-md-table-cell" [ngClass]="{'d-none d-md-table-cell': !showColumns}">Fecha
+                  </th>
+                  <th class="small d-none d-md-table-cell" [ngClass]="{'d-none d-md-table-cell': !showColumns}">Folio
+                  </th>
                   <th class="small">Cliente</th>
-                  <th class="small d-none d-md-table-cell" [ngClass]="{'d-none d-md-table-cell': !showColumns}">Notas</th>
-                  <th class="small d-none d-md-table-cell" [ngClass]="{'d-none d-md-table-cell': !showColumns}">Pago</th>
+                  <th class="small d-none d-md-table-cell" [ngClass]="{'d-none d-md-table-cell': !showColumns}">Notas
+                  </th>
+                  <th class="small d-none d-md-table-cell" [ngClass]="{'d-none d-md-table-cell': !showColumns}">Pago
+                  </th>
                   <th class="small">Estatus</th>
                   <th class="small">Total</th>
-                  <th class="small d-none d-md-table-cell" [ngClass]="{'d-none d-md-table-cell': !showColumns}">Vendedor</th>
+                  <th class="small d-none d-md-table-cell" [ngClass]="{'d-none d-md-table-cell': !showColumns}">Vendedor
+                  </th>
                   <th class="small">
-                    <button class="btn btn-outline-secondary btn-sm d-md-none" (click)="toggleColumns()"> 
+                    <button class="btn btn-outline-secondary btn-sm d-md-none" (click)="toggleColumns()">
                       <i class="bi bi-columns" *ngIf="!this.showColumns"></i>
                       <i class="bi bi-columns-gap" *ngIf="this.showColumns"></i>
                     </button>
@@ -151,11 +158,12 @@
                     {{ sale.payment }}
                   </td>
                   <td>
-                    <div class="form-check form-switch" 
+                    <div class="form-check form-switch"
                       [ngClass]="{'toggle-completado': sale.status === 'Completada', 'toggle-cancelado': sale.status === 'Cancelada', 'toggle-pending': sale.status === 'Abierta'}">
-                      <input class="form-check-input" type="checkbox" id="sale{{sale.saleID}}" 
-                        (change)="this.updateSaleStatus(sale.saleID, sale.status)" [checked]="sale.status === 'Completada'">
-                      <label class="form-check-label small" for="sale{{sale.saleID}}" [title]="sale.status" 
+                      <input class="form-check-input" type="checkbox" id="sale{{sale.saleID}}"
+                        (change)="this.updateSaleStatus(sale.saleID, sale.status)"
+                        [checked]="sale.status === 'Completada'">
+                      <label class="form-check-label small" for="sale{{sale.saleID}}" [title]="sale.status"
                         data-bs-toggle="tooltip" data-bs-placement="top">
                         <i *ngIf="sale.status === 'Completada'" class="bi bi-cart-check text-success"></i>
                         <i *ngIf="sale.status === 'Abierta'" class="bi bi-clock text-warning"></i>
@@ -168,8 +176,7 @@
                     {{ sale.fullName }} ({{sale.userName}})
                   </td>
                   <td>
-                    <button class="btn btn-primary btn-sm" 
-                      [disabled]="this.userState.companyStatusId == cStatus.Free"
+                    <button class="btn btn-primary btn-sm" [disabled]="this.userState.companyStatusId == cStatus.Free"
                       (click)="redirectToDetails(sale.saleID, sale.folio)">
                       <i class="bi bi-eye me-1"></i>Ver Detalle
                     </button>
@@ -201,6 +208,15 @@
             </div>
             <div class="col-12 col-md-4">
               <div class="d-flex align-items-center">
+                <i class="bi bi-arrow-counterclockwise text-warning me-2" style="font-size: 1.2rem;"></i>
+                <div>
+                  <span class="fw-bold small">Total Devoluciones:</span>
+                  <div class="fs-5 fw-bold text-warning">{{ this.totalDevuelto | currency:'MXN' }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-md-4">
+              <div class="d-flex align-items-center">
                 <i class="bi bi-x-circle text-danger me-2" style="font-size: 1.2rem;"></i>
                 <div>
                   <span class="fw-bold small">Total Canceladas:</span>
@@ -208,6 +224,7 @@
                 </div>
               </div>
             </div>
+
             <div class="col-12 col-md-4">
               <div class="d-flex align-items-center">
                 <i class="bi bi-calculator text-primary me-2" style="font-size: 1.2rem;"></i>
@@ -244,8 +261,8 @@
                 <span class="input-group-text bg-light">
                   <i class="bi bi-search text-info" style="font-size: 0.85rem;"></i>
                 </span>
-                <input type="text" [value]="filterText" (keyup)="filterProducts($event)" 
-                  class="form-control" placeholder="Filtrar productos...">
+                <input type="text" [value]="filterText" (keyup)="filterProducts($event)" class="form-control"
+                  placeholder="Filtrar productos...">
               </div>
             </div>
           </div>
@@ -263,6 +280,8 @@
                   <th class="small">P. Venta</th>
                   <th class="small">Fecha Venta</th>
                   <th class="small">$ Total</th>
+                  <th class="small">Devuelto</th>
+                  <th class="small">$ Devolución</th>
                 </tr>
               </thead>
               <tbody>
@@ -271,6 +290,7 @@
                   <td class="small fw-bold">{{ sale.productName }}</td>
                   <td class="small">{{ sale.buyPrice | currency:'MXN' }}</td>
                   <td class="small">{{ sale.quantity }}</td>
+
                   <td class="small">{{ getMeasureName(sale.measure) }}</td>
                   <td class="small">
                     {{ sale.soldPrice | currency:'MXN' }}
@@ -278,35 +298,53 @@
                   </td>
                   <td class="small">{{ sale.saleDate | date:'medium' }}</td>
                   <td class="small fw-bold">{{ sale.totalPrice | currency:'MXN' }}</td>
+                  <td class="small text-danger fw-bold">{{ sale.refundProducts ?? 0 }}</td>
+                  <td class="small text-warning fw-bold">
+                    {{ (sale.refundProducts ?? 0) * sale.soldPrice | currency:'MXN' }}
+                  </td>
+
                 </tr>
               </tbody>
             </table>
           </div>
 
           <!-- Sale Summary -->
+          <!-- Sale Summary -->
           <div class="row g-2 mt-3">
-            <div class="col-12 col-md-4">
+            <div class="col-12 col-md-3">
               <div class="d-flex align-items-center">
                 <i class="bi bi-receipt text-primary me-2"></i>
                 <span class="fw-bold small">Venta-{{selectedSaleId}}</span>
               </div>
             </div>
-            <div class="col-12 col-md-4">
+            <div class="col-12 col-md-3">
               <div class="d-flex align-items-center">
                 <i class="bi bi-file-text text-info me-2"></i>
                 <span class="fw-bold small">Folio-{{selectedFolio}}</span>
               </div>
             </div>
-            <div class="col-12 col-md-4">
+            <div class="col-12 col-md-2">
               <div class="d-flex align-items-center">
-                <i class="bi bi-calculator text-success me-2"></i>
-                <span class="fw-bold small">Total {{ selectedSaleTotal | currency:'MXN'}}</span>
+                <i class="bi bi-arrow-counterclockwise text-warning me-2"></i>
+                <span class="fw-bold small">Devuelto: {{ selectedSaleReturned | currency:'MXN'}}</span>
+              </div>
+            </div>
+            <div class="col-12 col-md-2">
+              <div class="d-flex align-items-center">
+                <i class="bi bi-calculator text-secondary me-2"></i>
+                <span class="fw-bold small">Subtotal: {{ selectedSaleTotal | currency:'MXN' }}</span>
+              </div>
+            </div>
+            <div class="col-12 col-md-2">
+              <div class="d-flex align-items-center">
+                <i class="bi bi-check2-circle text-success me-2"></i>
+                <span class="fw-bold small">Total: {{ selectedSaleFinalTotal | currency:'MXN' }}</span>
               </div>
             </div>
           </div>
+
         </div>
       </div>
     </div>
   </div>
 </div>
-

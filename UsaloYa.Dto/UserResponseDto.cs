@@ -13,6 +13,7 @@
         public string? CodeVerification { get; set; }
         public string? Email { get; set; }
         public bool? IsVerifiedCode { get; set; }
+        public bool CanMakeReturns { get; set; }
 
         public int GroupId { get; set; }
         public int StatusId { get; set; }

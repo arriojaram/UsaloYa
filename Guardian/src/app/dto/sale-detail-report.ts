@@ -9,6 +9,7 @@ export interface SaleDetailReport {
   status: string;
   totalSale: number;
   payment: string;
+  refundAmountTotal?: number; // total $ de devoluciones
 
   customerName: string;
 }
@@ -20,7 +21,7 @@ export interface ProductSaleDetailReport {
   productName: string;
   quantity: number;
   measure: number;
-   canRefunded: boolean;
+  canRefunded: boolean;
   totalPrice: number;
   saleID: number;
   saleDate: Date;
@@ -33,4 +34,6 @@ export interface ProductSaleDetailReport {
   userName: string;
   fullName: string;
   priceLevel: number;
+  refundProducts?: number;
+  refundoAmount?: number;
 }

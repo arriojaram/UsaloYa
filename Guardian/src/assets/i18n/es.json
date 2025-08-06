@@ -67,7 +67,8 @@
      "invalid_quantity_unit": "No puedes devolver más unidades de las que se vendieron.",
     "invalid_quantity_weight": "No puedes devolver más peso del que se vendió.",
     "select_all": "Seleccionaste Todos los productos",
-    "no_product_sale": "No hay productos para la venta especificada."
+    "no_product_sale": "No hay productos para la venta especificada.",
+    "invlid_reason": "Por favor, especifica todos los motivos personalizados."
   },
   "emails": {
     "email_send_error": "Error al enviar el correo electronico, por favor contactenos",

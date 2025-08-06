@@ -2,6 +2,7 @@ export interface companySettingsDto
 {
     companyId: number;
     settings: pairSettingsDto[]
+    
 }
 
 export interface pairSettingsDto

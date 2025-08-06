@@ -9,7 +9,7 @@ public partial class Product
     public int ProductId { get; set; }
 
     public string Name { get; set; } = null!;
-    public int Measure { get;set; }
+    public int Measure { get; set; }
 
     public string? Description { get; set; }
 
@@ -22,6 +22,8 @@ public partial class Product
     public decimal UnitsInStock { get; set; }
 
     public bool Discontinued { get; set; }
+
+    public bool CanRefunded { get; set; }
 
     public string? ImgUrl { get; set; }
 
@@ -60,7 +62,7 @@ public partial class Product
 
     public bool? IsInVentarioUpdated { get; set; }
 
-    public bool? CanRefunded { get; set; }
+
 
     public virtual ProductCategory? Category { get; set; }
 

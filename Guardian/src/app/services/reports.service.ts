@@ -4,20 +4,17 @@ import { environment } from '../environments/enviroment';
 import { catchError, Observable } from 'rxjs';
 import { ProductSaleDetailReport, SaleDetailReport } from '../dto/sale-detail-report';
 
+import { RefundReportDto } from '../dto/refundReportDto';
 @Injectable({
   providedIn: 'root'
 })
 export class ReportsService {
   private baseUrl = environment.apiUrlBase + '/api/Report';
 
-  constructor(private httpClient: HttpClient) 
-  { 
-
-  }
+  constructor(private httpClient: HttpClient) {}
 
   getSales(fromDate: string, toDate: string, companyId: number, userId: number): Observable<SaleDetailReport[]> {
     const apiUrl =`${this.baseUrl}/GetSalesReport?fromDate=${fromDate}&toDate=${toDate}&companyId=${companyId}&userId=${userId}`;
-
     return this.httpClient.get<SaleDetailReport[]>(apiUrl).pipe(
       catchError(error => {
         console.error('getSales() | ', error);
@@ -28,10 +25,30 @@ export class ReportsService {
 
   getProductSalesDetails(saleId: number, companyId: number): Observable<ProductSaleDetailReport[]> {
     const apiUrl =`${this.baseUrl}/GetSaleDetails?companyId=${companyId}&saleId=${saleId}`;
-
     return this.httpClient.get<ProductSaleDetailReport[]>(apiUrl).pipe(
       catchError(error => {
         console.error('getProductSalesDetails() | ', error);
+        throw error;
+      })
+    );
+  }
+
+  // Aquí agregas el método para reportes de devoluciones
+  getRefundsReport(fromDate: string, toDate: string, companyId: number): Observable<RefundReportDto[]> {
+    const apiUrl = `${this.baseUrl}/GetRefundsReport?fromDate=${fromDate}&toDate=${toDate}&companyId=${companyId}`;
+    return this.httpClient.get<RefundReportDto[]>(apiUrl).pipe(
+      catchError(error => {
+        console.error('getRefundsReport() | ', error);
+        throw error;
+      })
+    );
+  }
+
+  getRefundDetails(saleId: number, companyId: number): Observable<RefundReportDto> {
+    const apiUrl = `${this.baseUrl}/GetRefundDetails?saleId=${saleId}&companyId=${companyId}`;
+    return this.httpClient.get<RefundReportDto>(apiUrl).pipe(
+      catchError(error => {
+        console.error('getRefundDetails() | ', error);
         throw error;
       })
     );

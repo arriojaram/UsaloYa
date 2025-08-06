@@ -61,6 +61,7 @@ namespace UsaloYa.Services
                     ProductName = r.Product.Name,
                     Quantity = r.Quantity,
                     Measure = r.Product.Measure,
+                    CanRefunded = r.Product.CanRefunded,
                     BuyPrice = r.Product.BuyPrice,
                     SoldPrice = r.UnitPrice,
                     ProductPrice1 = r.Product.UnitPrice1,

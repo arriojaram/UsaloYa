@@ -1,0 +1,144 @@
+.no-permission-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  padding: 1rem;
+}
+
+.no-permission-card {
+  width: 100%;
+  max-width: 480px;
+  padding: 2rem;
+  background: white;
+  box-shadow: 0 0.5rem 1rem rgb(0 0 0 / 0.15);
+  border-radius: 1rem;
+  text-align: center;
+  transition: all 0.3s ease-in-out;
+}
+
+.no-permission-icon-wrapper {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1rem;
+  background-color: rgba(255, 193, 7, 0.25);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.no-permission-icon {
+  font-size: 3rem;
+  color: #ffc107;
+  animation: swing 2s ease-in-out infinite;
+}
+
+.no-permission-title {
+  font-weight: 600;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.no-permission-text {
+  color: #6c757d;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  line-height: 1.5;
+}
+
+.no-permission-btn {
+  padding: 0.75rem 2rem;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+/* Animación */
+@keyframes swing {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  15% {
+    transform: rotate(15deg);
+  }
+
+  30% {
+    transform: rotate(-10deg);
+  }
+
+  45% {
+    transform: rotate(15deg);
+  }
+
+  60% {
+    transform: rotate(-10deg);
+  }
+
+  75% {
+    transform: rotate(15deg);
+  }
+
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+/* Responsivo para tablets y arriba */
+@media (min-width: 576px) {
+  .no-permission-card {
+    max-width: 540px;
+    padding: 3rem;
+  }
+
+  .no-permission-icon-wrapper {
+    width: 100px;
+    height: 100px;
+  }
+
+  .no-permission-icon {
+    font-size: 4rem;
+  }
+
+  .no-permission-title {
+    font-size: 1.75rem;
+  }
+
+  .no-permission-text {
+    font-size: 1.25rem;
+  }
+
+  .no-permission-btn {
+    font-size: 1.25rem;
+  }
+}
+
+/* Pantallas grandes */
+@media (min-width: 768px) {
+  .no-permission-card {
+    max-width: 600px;
+    padding: 4rem;
+  }
+
+  .no-permission-icon-wrapper {
+    width: 120px;
+    height: 120px;
+  }
+
+  .no-permission-icon {
+    font-size: 5rem;
+  }
+
+  .no-permission-title {
+    font-size: 2rem;
+  }
+
+  .no-permission-text {
+    font-size: 1.3rem;
+  }
+
+  .no-permission-btn {
+    font-size: 1.3rem;
+  }
+}

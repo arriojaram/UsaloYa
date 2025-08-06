@@ -159,6 +159,7 @@ namespace UsaloYa.Services
                 CompanyId = product.CompanyId,
                 Description = product.Description ?? "",
                 Discontinued = product.Discontinued,
+                CanRefunded = product.CanRefunded,
                 Name = product.Name,
                 ProductId = product.ProductId,
                 SKU = product.Sku,
@@ -221,10 +222,9 @@ namespace UsaloYa.Services
                     UnitPrice2 = productDto.UnitPrice2 == 0 ? null : productDto.UnitPrice2,
                     UnitPrice3 = productDto.UnitPrice3 == 0 ? null : productDto.UnitPrice3,
                     UnitsInStock = productDto.UnitsInStock,
-
                     Measure = productDto.Measure,
-
                     Discontinued = productDto.Discontinued,
+                    CanRefunded = productDto.CanRefunded,
                     DateModified = Utils.GetMxDateTime(),
                     Sku = string.IsNullOrEmpty(productDto.SKU) ? null : productDto.SKU,
                     Barcode = productDto.Barcode,
@@ -309,6 +309,7 @@ namespace UsaloYa.Services
                     UnitsInStock = productDto.UnitsInStock,
                     Measure = productDto.Measure,
                     Discontinued = productDto.Discontinued,
+                    CanRefunded = productDto.CanRefunded,
                     DateModified = Utils.GetMxDateTime(),
                     Sku = string.IsNullOrEmpty(productDto.SKU) ? null : productDto.SKU,
                     Barcode = productDto.Barcode,
@@ -334,10 +335,9 @@ namespace UsaloYa.Services
                 existingProduct.UnitPrice2 = productDto.UnitPrice2;
                 existingProduct.UnitPrice3 = productDto.UnitPrice3;
                 existingProduct.UnitsInStock = productDto.UnitsInStock;
-
                 existingProduct.Measure = productDto.Measure;
-
                 existingProduct.Discontinued = productDto.Discontinued;
+                existingProduct.CanRefunded = productDto.CanRefunded;
                 existingProduct.DateModified = Utils.GetMxDateTime();
                 existingProduct.Sku = string.IsNullOrEmpty(productDto.SKU) ? null : productDto.SKU;
                 existingProduct.Barcode = productDto.Barcode;
@@ -589,11 +589,12 @@ namespace UsaloYa.Services
                 if (quantity == -1)
                 {
                     product.InVentario = (product.InVentario ?? 0) + 1;
-                }else
+                }
+                else
                 {
-                    if (quantity >=0)
-                    product.InVentario = quantity;
-                }              
+                    if (quantity >= 0)
+                        product.InVentario = quantity;
+                }
 
                 product.IsInVentarioUpdated = true;
 

@@ -225,7 +225,7 @@
                                     <span>Reporte de Ventas</span>
                                 </a>
                                     <a class="nav-link submenu-link d-flex align-items-center px-3 py-2 mb-1 rounded-2"
-                                    href="reportedevoluciones"
+                                    href="reportedevoluciones" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Admin"
                                     style="transition: all 0.3s ease; color: #6c757d; font-size: 0.9rem;">
                                     <i class="bi bi-arrow-right-short me-2" style="font-size: 1rem;"></i>
                                     <span>Reporte Devoluciones</span>
@@ -241,16 +241,15 @@
                     </div>
 
                     <!-- Returns Section -->
-                    <div class="nav-section mt-3" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Admin">
+                    <div class="nav-section mt-3" >
                         <div class="nav-section-header px-3 py-2 mb-2">
                             <small class="text-muted fw-semibold text-uppercase ls-1"
                                 style="font-size: 0.75rem; letter-spacing: 1px;">
-                                <i class="bi bi-gear me-2"></i>Devoluciones
+                                <i class="bi bi-arrow-counterclockwise me-2"></i>Devoluciones
                             </small>
                         </div>
                         <!-- Returns -->
                        <a class="nav-link modern-nav-link d-flex align-items-center px-3 py-2 mb-1 rounded-3" href="devoluciones"
-
                         style="transition: all 0.3s ease; color: #495057;">
                         <div class="nav-icon me-3 d-flex align-items-center justify-content-center rounded-2"
                            style="width: 32px; height: 32px; background: linear-gradient(135deg, #ffc107, #fd7e14); color: white;">
