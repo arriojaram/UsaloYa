@@ -16,6 +16,31 @@ BEGIN
     LEFT JOIN Users u ON u.CompanyId = c.CompanyId
     GROUP BY c.CompanyId, c.CreationDate;
 
+
+     DELETE FROM Refunds
+    WHERE SaleId IN (
+        SELECT SaleId
+        FROM Sales
+        WHERE CompanyId IN (
+            SELECT CompanyId
+            FROM #CompaniasParaEliminar
+            WHERE DiasInactiva > @DiasInactividad
+        )
+    );
+    
+    
+    DELETE FROM Questions
+    WHERE IdUser IN (
+        SELECT UserId
+        FROM Users
+        WHERE CompanyId IN (
+            SELECT CompanyId
+            FROM #CompaniasParaEliminar
+            WHERE DiasInactiva > @DiasInactividad
+            )
+    );
+
+
    
     DELETE FROM SaleDetails
     WHERE SaleId IN (
