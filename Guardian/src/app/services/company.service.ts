@@ -138,26 +138,4 @@ export class CompanyService {
       })
     );
   }
-getMaxDaysToRefund(companyId: number): Observable<number> {
-  const url = `${this.baseUrl}/GetMaxDaysToRefund`;
-  return this.http.get<number>(url, { params: { companyId: companyId.toString() } });
-}
-
-updateMaxDaysToRefund(companyId: number, days: number): Observable<boolean> {
-  const url = `${this.baseUrl}/UpdateMaxDaysToRefund`;
-  return this.http.post<boolean>(url, {}, {
-    params: {
-      companyId: companyId.toString(),
-      days: days.toString()
-    }
-  }).pipe(
-    catchError(error => {
-      console.error('updateMaxDaysToRefund() | ', error);
-      throw error;
-    })
-  );
-}
-
-
-
 }

@@ -18,6 +18,7 @@ import { ReturnReason, getReturnReasonLabel } from '../../Enums/enums';
 import { ReturnableProduct } from '../../dto/ReturnableProduct';
 import { SaleSummary } from '../../dto/saleSummaryDto';
 import { StatusVentaEnum } from '../../Enums/enums';
+import { environment } from '../../environments/enviroment';
 @Component({
   selector: 'app-returns',
   templateUrl: './returns.component.html',
@@ -57,6 +58,7 @@ export class ReturnsComponent implements OnInit, OnDestroy {
     this.form = this.fb.group({
       ticketNumber: ['', Validators.required],
       refundMethod: ['cash', Validators.required],
+      maxDaysToRefund: [],
     });
 
   }
@@ -66,9 +68,18 @@ export class ReturnsComponent implements OnInit, OnDestroy {
 
 
     // Obtener configuración días máximos para devolución antes de cargar ventas
-    this.companyService.getMaxDaysToRefund(this.userState.companyId).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (days) => {
-        this.maxDaysToRefund = days;
+    this.companyService.getCompanySettings(this.userState.companyId).subscribe({
+      next: (settings) => {
+        if (settings && settings.length > 0) {
+          for (let index = 0; index < settings.length; index++) {
+            const s = settings[index];
+            if (s.key == environment.PAIRSETT_DIAS_DE_DEVOLUCION) {
+              const days = Number(s.value) || 0; this.form.get('maxDaysToRefund')?.setValue(s.value);
+              this.maxDaysToRefund = days;
+            }
+
+          }
+        }
         const fromDateIso = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
         const toDateIso = new Date().toISOString();
 
@@ -336,7 +347,7 @@ export class ReturnsComponent implements OnInit, OnDestroy {
       return;
     }
     if (sale.status === StatusVentaEnum.Reembolsado) {
-      this.navigationService.showUIMessage(this.translate.instant('returns.ticket_already_refunded'),AlertLevel.Warning
+      this.navigationService.showUIMessage(this.translate.instant('returns.ticket_already_refunded'), AlertLevel.Warning
       );
       return;
     }
