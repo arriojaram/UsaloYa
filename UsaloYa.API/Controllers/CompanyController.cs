@@ -257,43 +257,6 @@ namespace UsaloYa.API.Controllers
             }
         }
 
-        [HttpGet("GetMaxDaysToRefund")]
-        public async Task<IActionResult> GetMaxDaysToRefund([FromHeader] string RequestorId, int companyId)
-        {
-            try
-            {
-                var user = await HeaderValidatorService.ValidateRequestorSameCompany(RequestorId, Role.User, companyId, _dBContext);
-                if (user.UserId <= 0)
-                    return Unauthorized(AppConfig.NO_AUTORIZADO);
-
-                var result = await _companyService.GetMaxDaysToRefund(companyId);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "GetMaxDaysToRefund.ApiError");
-                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
-            }
-        }
-
-        [HttpPost("UpdateMaxDaysToRefund")]
-        public async Task<IActionResult> UpdateMaxDaysToRefund([FromHeader] string RequestorId, int companyId, int days)
-        {
-            try
-            {
-                var user = await HeaderValidatorService.ValidateRequestorSameCompany(RequestorId, Role.User, companyId, _dBContext);
-                if (user.UserId <= 0)
-                    return Unauthorized(AppConfig.NO_AUTORIZADO);
-
-                var result = await _companyService.UpdateMaxDaysToRefund(companyId, days);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "GetMaxDaysToRefund.ApiError");
-                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
-            }
-        }
 
 
         [HttpPost("DeleteInactiveCompanies")]

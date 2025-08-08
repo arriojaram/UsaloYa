@@ -1,7 +1,10 @@
-﻿using UsaloYa.Dto;
+﻿using System.Xml.Linq;
+using UsaloYa.Dto;
+using UsaloYa.Dto.Enums;
 using UsaloYa.Dto.Utils;
 using UsaloYa.Library.Models;
 using UsaloYa.Services.interfaces;
+using System.Xml.Linq;
 
 namespace UsaloYa.Services
 {
@@ -10,12 +13,14 @@ namespace UsaloYa.Services
         private readonly DBContext _dBContext;
         private readonly ICompanyService _companyService;
         private readonly IProductService _productService;
+        private readonly ISaleService _saleService;
 
-        public RefundService(DBContext dBContext, ICompanyService companyService, IProductService productService)
+        public RefundService(DBContext dBContext, ICompanyService companyService, IProductService productService, ISaleService saleService)
         {
             _dBContext = dBContext;
             _companyService = companyService; 
             _productService = productService;
+            _saleService = saleService;
         }
 
         public async Task<bool> ManageRefund(RequestRefundDto requestRefundDto, int companyId)
@@ -39,6 +44,8 @@ namespace UsaloYa.Services
                 })
                 .ToList();
 
+            await _saleService.UpdateSaleStatus(requestRefundDto.SaleId, SaleStatus.Reembolsado);
+
             await _productService.AddUnitsInStockByProductId(productsToAdd, companyId);
 
             return true;
@@ -49,14 +56,20 @@ namespace UsaloYa.Services
         {
             if (SaleDate is null) return false;
 
-            var maxDaysToRefund = await _companyService.GetMaxDaysToRefund(companyId);
+            var settings = await _companyService.GetSettings(companyId);
+            int? maxDaysToRefund = int.TryParse(
+                XDocument.Parse(settings)
+                .Descendants("PairSettingsDto")
+                .FirstOrDefault(x => (string)x.Element("Key") == "maxDaysToRefund")
+                ?.Element("Value")?.Value,
+            out var val) ? val : (int?)null;
+
             var days = Utils.DifferenceOfDays(SaleDate, maxDaysToRefund);
 
             var response = days > 0 ?  true :  false;
             return response;
         }
-
-        
+  
 
         public async Task<bool> AddRefund(RequestRefundDto requestRefundDto)
         {
@@ -88,6 +101,7 @@ namespace UsaloYa.Services
 
             await _dBContext.Refunds.AddRangeAsync(refundsToAdd);
             await _dBContext.SaveChangesAsync();
+
 
             return true;
         }
