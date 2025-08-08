@@ -56,13 +56,14 @@ namespace UsaloYa.Services
         {
             if (SaleDate is null) return false;
 
-            var settings = await _companyService.GetSettings(companyId);
-            int? maxDaysToRefund = int.TryParse(
-                XDocument.Parse(settings)
-                .Descendants("PairSettingsDto")
-                .FirstOrDefault(x => (string)x.Element("Key") == "maxDaysToRefund")
-                ?.Element("Value")?.Value,
-            out var val) ? val : (int?)null;
+            var settingsXml = await _companyService.GetSettings(companyId);  
+            var settingsList = Utils.DeserializeSettings(settingsXml);  
+
+            int? maxDaysToRefund = settingsList
+                .Where(s => s.Key == "maxDaysToRefund")
+                .Select(s => int.TryParse(s.Value, out var val) ? val : (int?)null)
+                .FirstOrDefault();
+
 
             var days = Utils.DifferenceOfDays(SaleDate, maxDaysToRefund);
 
