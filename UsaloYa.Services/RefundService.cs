@@ -1,4 +1,5 @@
 ﻿using UsaloYa.Dto;
+using UsaloYa.Dto.Enums;
 using UsaloYa.Dto.Utils;
 using UsaloYa.Library.Models;
 using UsaloYa.Services.interfaces;
@@ -10,12 +11,15 @@ namespace UsaloYa.Services
         private readonly DBContext _dBContext;
         private readonly ICompanyService _companyService;
         private readonly IProductService _productService;
+        private readonly ISaleService _saleService;
 
-        public RefundService(DBContext dBContext, ICompanyService companyService, IProductService productService)
+        public RefundService(DBContext dBContext, ICompanyService companyService, IProductService productService,ISaleService saleService)
         {
             _dBContext = dBContext;
             _companyService = companyService; 
             _productService = productService;
+            _saleService = saleService;
+
         }
 
         public async Task<bool> ManageRefund(RequestRefundDto requestRefundDto, int companyId)
@@ -38,6 +42,8 @@ namespace UsaloYa.Services
                     IsHardReset = false,
                 })
                 .ToList();
+
+            await _saleService.UpdateSaleStatus(requestRefundDto.SaleId, SaleStatus.Reembolsado);
 
             await _productService.AddUnitsInStockByProductId(productsToAdd, companyId);
 

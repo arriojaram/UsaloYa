@@ -1,7 +1,7 @@
 export const environment =
 {
     production: false,
-    apiUrlBase: 'http://localhost:89/UsaloYaApi',
+    apiUrlBase: 'https://localhost:7290',
     apiToken: 'e3b0c-44298-fc1c149afbf4c8996-fb92427ae41e4649b93-4ca495991b7852b-85547DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
     sessionDurationMinutes: 300,
     databaseName: 'DbOfflinev1',
@@ -12,6 +12,7 @@ export const environment =
     paymentPendingMsg: 'El pago de tu membresia esta próximo a vencer, contacta a tu vendedor para renovar tu membresia y continuar disfrutando de tu acceso.',
     PAIRSETT_ACTIVAR_IMPRESORA: "activarImpresionWeb",
     PAIRSETT_NOMBRE_IMPRESORA: "impresoraWeb",
+    PAIRSETT_DIAS_DE_DEVOLUCION: "maxDaysToRefund",
     freeLicenseMessage: 'La versión gratuita está limitada en funciones. Actualiza a Premium para desbloquear y potenciar tu experiencia.',
     whatsNumber: 'https://api.whatsapp.com/send?phone=2481569632',
 }

@@ -2,6 +2,7 @@ export interface companySettingsDto
 {
     companyId: number;
     settings: pairSettingsDto[]
+    
 }
 
 export interface pairSettingsDto
@@ -14,4 +15,5 @@ export interface settingsDto
 {
     activarImpresionWeb: boolean;
     impresoraWeb: string;
+    maxDaysToRefund: number;
 }

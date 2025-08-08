@@ -14,10 +14,10 @@ import { environment } from '../../environments/enviroment';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
-    selector: 'app-sales-report',
-    imports: [CommonModule, ReactiveFormsModule, FormsModule],
-    templateUrl: './sales-report.component.html',
-    styleUrl: './sales-report.component.css'
+  selector: 'app-sales-report',
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  templateUrl: './sales-report.component.html',
+  styleUrl: './sales-report.component.css'
 })
 export class SalesReportComponent implements OnInit, OnDestroy {
   sales: SaleDetailReport[] = [];
@@ -31,6 +31,7 @@ export class SalesReportComponent implements OnInit, OnDestroy {
   totalFinal: number | undefined;
   totalCompletadas: number = 0;
   totalCanceladas: number = 0;
+  totalDevuelto: number = 0;
 
   isAutorized: boolean = false;
   selectedSaleTotal: number = 0;
@@ -42,9 +43,11 @@ export class SalesReportComponent implements OnInit, OnDestroy {
   rol = Roles;
   cStatus = CompanyStatus;
   mearureType = MeasureType;
-  
+  selectedSaleReturned: number = 0;
+  selectedSaleFinalTotal: number = 0;
+
   private unsubscribe$: Subject<void> = new Subject();
-  
+
   constructor(private fb: FormBuilder,
     private salesService: SaleService,
     private reportService: ReportsService,
@@ -52,20 +55,19 @@ export class SalesReportComponent implements OnInit, OnDestroy {
     private userStateService: UserStateService,
     private userService: UserService,
     private translate: TranslateService
-  ) 
-  {
+  ) {
     this.userState = userStateService.getUserStateLocalStorage();
     this.showMainReport = true;
     this.reportForm = this.initForm();
   }
 
   ngOnInit(): void {
-    if(this.userState.roleId < Roles.User)
+    if (this.userState.roleId < Roles.User)
       this.navigationService.showUIMessage(this.translate.instant('Sales_report.request_incorrect'));
     else
       this.isAutorized = true;
-    
-    this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId?? 0);
+
+    this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId ?? 0);
 
     this.reportForm.get('dateFrom')?.valueChanges.pipe(takeUntil(this.unsubscribe$)
     ).subscribe(newDate => {
@@ -95,25 +97,24 @@ export class SalesReportComponent implements OnInit, OnDestroy {
     return this.fb.group({
       dateFrom: [today, [Validators.required]],
       dateTo: [tomorrow, [Validators.required]],
-      filterText:[''],
-      userId:[this.userState.userId]
+      filterText: [''],
+      userId: [this.userState.userId]
     });
   }
 
-  loadCompanyUsers()
-  {
+  loadCompanyUsers() {
     this.userService.getAllUser(this.userState.companyId, '-1').pipe(first())
-    .subscribe({
-      next: (users) => {
-        this.companyUsers = users.sort((a,b) => (a.firstName?? '').localeCompare((b.firstName?? '')));
-      },
-      error: (e) => {
-        this.navigationService.showUIMessage(e.error);
-      }
-    });
+      .subscribe({
+        next: (users) => {
+          this.companyUsers = users.sort((a, b) => (a.firstName ?? '').localeCompare((b.firstName ?? '')));
+        },
+        error: (e) => {
+          this.navigationService.showUIMessage(e.error);
+        }
+      });
   }
-  
-  redirectToDetails(saleId: number, folio : number) {
+
+  redirectToDetails(saleId: number, folio: number) {
     this.getSale(saleId, folio);
     this.showMainReport = false;
     this.selectedSaleId = 0;
@@ -124,28 +125,24 @@ export class SalesReportComponent implements OnInit, OnDestroy {
     this.showMainReport = true;
   }
 
-  private resolveSaleStatus(status: string): string
-  {
-    if(status === StatusVentaEnum[StatusVentaEnum.Completada])
-    {
+  private resolveSaleStatus(status: string): string {
+    if (status === StatusVentaEnum[StatusVentaEnum.Completada]) {
       return StatusVentaEnum[StatusVentaEnum.Cancelada];
     }
     return StatusVentaEnum[StatusVentaEnum.Completada];
   }
 
-  updateSaleStatus(saleId: number, status: string)
-  {
+  updateSaleStatus(saleId: number, status: string) {
     const newStatus = this.resolveSaleStatus(status);
-    if( newStatus == StatusVentaEnum[StatusVentaEnum.Cancelada])
-    {
-      if (!confirm('La venta será marcada como cancelada ¿Estás seguro de que quieres continuar con esta acción?')) 
+    if (newStatus == StatusVentaEnum[StatusVentaEnum.Cancelada]) {
+      if (!confirm('La venta será marcada como cancelada ¿Estás seguro de que quieres continuar con esta acción?'))
         return;
     }
 
     this.salesService.updateSaleStatus(saleId, newStatus, this.userState.companyId).pipe(
       first()
     ).subscribe({
-      complete:() => {
+      complete: () => {
         this.getSales();
       },
       error: (err) => {
@@ -162,53 +159,59 @@ export class SalesReportComponent implements OnInit, OnDestroy {
     this.selectedSaleTotal = 0;
     this.selectedSaleId = saleId;
     this.reportService.getProductSalesDetails(saleId, this.userState.companyId).pipe(first())
-    .subscribe({
-      next:(data) => {
-        if(data.length > 0)
-        {
-          data.forEach(item => {
-            switch (item.priceLevel) {
-              case PriceLevel.UnitPrice1:
-                item.soldPrice = item.productPrice1;
-                break;
-              case PriceLevel.UnitPrice2:
-                item.soldPrice = item.productPrice2;
-                break;
-              case PriceLevel.UnitPrice3:
-                item.soldPrice = item.productPrice3;
-                break;
-          
-              default:
-                break;
-            }
-          });
+      .subscribe({
+        next: (data) => {
+          if (data.length > 0) {
+            data.forEach(item => {
+              // Asignar el precio vendido según nivel
+              switch (item.priceLevel) {
+                case PriceLevel.UnitPrice1:
+                  item.soldPrice = item.productPrice1;
+                  break;
+                case PriceLevel.UnitPrice2:
+                  item.soldPrice = item.productPrice2;
+                  break;
+                case PriceLevel.UnitPrice3:
+                  item.soldPrice = item.productPrice3;
+                  break;
+              }
 
-          this.saleProducts = data;
-          this.filteredProducts = data;
-          this.selectedSaleTotal = data.reduce((a, i) => a + i.totalPrice, 0 );
-          this.selectedSaleId = saleId;
-          this.selectedFolio = folio;
-        }
-        else
-        {
-          this.navigationService.showUIMessage(this.translate.instant('Sales_report.no_product_registration'));
-        }
-      },
-      error:(err) => {
-        this.navigationService.showUIMessage(err.message);
-      },
-    });
+
+            });
+
+            this.saleProducts = data;
+            this.filteredProducts = data;
+            // Total de venta (subtotal)
+            this.selectedSaleTotal = data.reduce((a, i) => a + i.totalPrice, 0);
+
+            // Total devuelto 
+            this.selectedSaleReturned = data.reduce((a, i) => a + (i.refundAmount ?? 0), 0);
+
+            // Total final 
+            this.selectedSaleFinalTotal = this.selectedSaleTotal - this.selectedSaleReturned;
+            // Total venta sin devoluciones
+            this.selectedSaleTotal = data.reduce((a, i) => a + i.totalPrice, 0);
+            this.selectedSaleId = saleId;
+            this.selectedFolio = folio;
+          }
+          else {
+            this.navigationService.showUIMessage(this.translate.instant('Sales_report.no_product_registration'));
+          }
+        },
+        error: (err) => {
+          this.navigationService.showUIMessage(err.message);
+        },
+      });
   }
-  
+
   filterProducts(event: Event): void {
-    const inputElement = event.target as HTMLInputElement; 
-    const value = inputElement.value; 
-    
-    if(value != null)
-    {
+    const inputElement = event.target as HTMLInputElement;
+    const value = inputElement.value;
+
+    if (value != null) {
       this.filterText = value;
-      
-      this.filteredProducts = this.saleProducts.filter(sale => 
+
+      this.filteredProducts = this.saleProducts.filter(sale =>
         sale.barcode.includes(this.filterText) ||
         sale.productName.includes(this.filterText)
       );
@@ -218,33 +221,29 @@ export class SalesReportComponent implements OnInit, OnDestroy {
   getSales(): void {
     if (this.reportForm.invalid) {
       this.reportForm.markAllAsTouched();
-      
       return;
     }
 
-   
     this.sales = [];
     this.filteredSales = [];
     this.setTotalsToZero();
     this.filteredProducts = [];
-    
 
     let fromDate = this.reportForm.get('dateFrom')?.value ?? new Date();
     const fromDateInput = this.reportForm.get('dateFrom')?.value;
     const fromDate2 = fromDateInput ? new Date(fromDateInput) : new Date();
     const toDate = this.reportForm.get('dateTo')?.value ?? new Date();
     let userId = this.reportForm.get('userId')?.value ?? 0;
-    if(this.userState.roleId == this.rol.User)
+    if (this.userState.roleId == this.rol.User)
       userId = this.userState.userId;
 
-    if(this.userState.companyStatusId == CompanyStatus.Free)
-    {
-      this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId?? 0);
+    if (this.userState.companyStatusId == CompanyStatus.Free) {
+      this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId ?? 0);
       const currentDate = new Date();
-            
+
       const diffTime = currentDate.getTime() - fromDate2.getTime();
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-      
+
       if (diffDays >= 7) {
         const adjustedDate = new Date(currentDate);
         adjustedDate.setDate(currentDate.getDate() - 7);
@@ -254,58 +253,55 @@ export class SalesReportComponent implements OnInit, OnDestroy {
     }
 
     this.reportService.getSales(fromDate, toDate, this.userState.companyId, userId).pipe(first())
-    .subscribe({
-      next:(data: SaleDetailReport[]) => {
-        if(data.length > 0)
-        {
-          this.sales = data;
-          this.filteredSales = data;
-          this.totalCompletadas = data.reduce((acumulado, newItem) => acumulado + newItem.totalSale, 0);
+      .subscribe({
+        next: (data: SaleDetailReport[]) => {
+          if (data.length > 0) {
+            this.sales = data;
+            this.filteredSales = data;
 
-          for (let index = 0; index < data.length; index++) {
-            const saleItem = data[index];
-            
-            if(saleItem.status == StatusVentaEnum[StatusVentaEnum.Cancelada])
-            {
-              this.totalCanceladas += saleItem.totalSale;
-            }
+            this.totalCompletadas = data.reduce((acumulado, newItem) => acumulado + newItem.totalSale, 0);
+
+            this.totalCanceladas = 0;
+            data.forEach(saleItem => {
+              if (saleItem.status == StatusVentaEnum[StatusVentaEnum.Cancelada]) {
+                this.totalCanceladas += saleItem.totalSale;
+              }
+            });
+
+            this.totalDevuelto = data.reduce((acc, item) => acc + (item.refundAmountTotal ?? 0), 0);
+
+            this.totalFinal = this.totalCompletadas - this.totalCanceladas - this.totalDevuelto;
+          } else {
+            this.setTotalsToZero();
+            this.navigationService.showUIMessage(this.translate.instant('Sales_report.no_register_sale') + ' ' + fromDate.toString() + ' - ' + toDate.toString());
           }
-          this.totalFinal = this.totalCompletadas - this.totalCanceladas;
-        }
-        else
-        {
+        },
+        error: (err) => {
           this.setTotalsToZero();
-          this.navigationService.showUIMessage(this.translate.instant('Sales_report.no_register_sale') + ' ' + fromDate.toString() + ' - ' + toDate.toString() ); 
-        }
-      },
-      error:(err) => {
-        this.setTotalsToZero();
-        this.navigationService.showUIMessage(err.message);
-      },
-    });
+          this.navigationService.showUIMessage(err.message);
+        },
+      });
   }
-  
-  setTotalsToZero()
-  {
+  setTotalsToZero() {
     this.totalCanceladas = 0;
+    this.totalDevuelto = 0;
     this.totalCompletadas = 0;
     this.totalFinal = 0;
   }
 
   filterSales(event: Event): void {
-    const inputElement = event.target as HTMLInputElement; 
-    const value = inputElement.value; 
-    
-    if(value != null)
-    {
+    const inputElement = event.target as HTMLInputElement;
+    const value = inputElement.value;
+
+    if (value != null) {
       this.filterText = value;
-      
-      this.filteredSales = this.sales.filter(sale => 
+
+      this.filteredSales = this.sales.filter(sale =>
         sale.saleID.toString().includes(this.filterText) ||
         sale.userName.includes(this.filterText) ||
         sale.fullName.includes(this.filterText) ||
         sale.status.includes(this.filterText) ||
-        sale.totalSale.toString().includes(this.filterText) 
+        sale.totalSale.toString().includes(this.filterText)
       );
     }
   }
@@ -313,5 +309,4 @@ export class SalesReportComponent implements OnInit, OnDestroy {
   getMeasureName(measure: number): string {
     return MeasureType[measure];
   }
- 
 }

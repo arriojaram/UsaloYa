@@ -19,5 +19,7 @@
         public string? CodeVerification { get; set; }
         public bool? IsVerifiedCode { get; set; }
         public string? Email { get; set; }
+
+        public bool CanMakeReturns { get; set; }
     }
 }

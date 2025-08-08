@@ -1,23 +1,22 @@
 <!-- Modern Professional Navbar -->
-<nav class="sb-topnav navbar navbar-expand-md" [ngClass]="environmentClass" 
-     style="background: var(--usalo-primary-gradient); border-bottom: 3px solid rgba(255,255,255,0.1);">
+<nav class="sb-topnav navbar navbar-expand-md" [ngClass]="environmentClass"
+    style="background: var(--usalo-primary-gradient); border-bottom: 3px solid rgba(255,255,255,0.1);">
     <div class="d-flex w-100 align-items-center">
         <!-- Enhanced Sidebar Toggle -->
-        <button class="btn btn-outline-light btn-sm me-3 rounded-3 shadow-sm" 
-                id="sidebarToggle" 
-                (click)="toggleSidebar()"
-                [class.sidebar-open]="sidebarVisible"
-                style="transition: all 0.3s ease; border: 2px solid rgba(255,255,255,0.3);">
+        <button class="btn btn-outline-light btn-sm me-3 rounded-3 shadow-sm" id="sidebarToggle"
+            (click)="toggleSidebar()" [class.sidebar-open]="sidebarVisible"
+            style="transition: all 0.3s ease; border: 2px solid rgba(255,255,255,0.3);">
             <i class="fas fa-bars" style="font-size: 1.1rem;"></i>
         </button>
-        
+
         <!-- Enhanced Navbar Brand -->
         <a class="navbar-brand d-flex align-items-center text-decoration-none" href="main">
             <div class="logo-container me-2 p-1 rounded-circle bg-white shadow-sm">
                 <picture>
                     <source srcset="assets/icons/logos/logo.png" media="(max-width: 320px)">
                     <source srcset="assets/icons/logos/logo-192x192.png" media="(max-width: 480px)">
-                    <img src="assets/icons/logos/logo-512x512.png" alt="Logo" style="height: 35px; width: 35px; object-fit: contain;">
+                    <img src="assets/icons/logos/logo-512x512.png" alt="Logo"
+                        style="height: 35px; width: 35px; object-fit: contain;">
                 </picture>
             </div>
             <div class="brand-text">
@@ -28,40 +27,45 @@
 
         <!-- Spacer -->
         <div class="flex-grow-1"></div>
-        
+
         <div class="navbar-nav" *ngIf="this.userStateUI?.statusId === uStatus.Conectado">
             <div class="nav-item dropdown">
-                <a class="nav-link d-flex align-items-center text-white text-decoration-none px-3 py-2 rounded-3" 
-                   href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
-                   style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); transition: all 0.3s ease;">
-        
-                    <i class="bi bi-stars me-2 text-warning" 
-                       *ngIf="this.userStateUI?.companyStatusId != cStatus.Free"
-                       style="font-size: 1.1rem;"></i>
-                    
-                    <div id="user-avatar" class="user-avatar me-2 rounded-circle bg-white d-flex align-items-center justify-content-center" 
-                         style="width: 32px; height: 32px; font-size: 0.9rem; color: var(--usalo-primary); font-weight: bold;">
-                        {{ (this.userStateUI?.firstName?.charAt(0) || '') + (this.userStateUI?.lastName?.charAt(0) || '') }}
+                <a class="nav-link d-flex align-items-center text-white text-decoration-none px-3 py-2 rounded-3"
+                    href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                    style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); transition: all 0.3s ease;">
+
+                    <i class="bi bi-stars me-2 text-warning" *ngIf="this.userStateUI?.companyStatusId != cStatus.Free"
+                        style="font-size: 1.1rem;"></i>
+
+                    <div id="user-avatar"
+                        class="user-avatar me-2 rounded-circle bg-white d-flex align-items-center justify-content-center"
+                        style="width: 32px; height: 32px; font-size: 0.9rem; color: var(--usalo-primary); font-weight: bold;">
+                        {{ (this.userStateUI?.firstName?.charAt(0) || '') + (this.userStateUI?.lastName?.charAt(0) ||
+                        '') }}
                     </div>
-                    
+
                     <div class="user-info d-none d-md-block text-start">
-                        <div class="fw-semibold" style="font-size: 0.9rem; line-height: 1.2;">{{ this.userStateUI?.userName }}</div>
-                        <small class="text-white-75" style="font-size: 0.75rem;">{{ this.userStateUI?.companyName }}</small>
+                        <div class="fw-semibold" style="font-size: 0.9rem; line-height: 1.2;">{{
+                            this.userStateUI?.userName }}</div>
+                        <small class="text-white-75" style="font-size: 0.75rem;">{{ this.userStateUI?.companyName
+                            }}</small>
                     </div>
-                    
+
                     <i class="bi bi-chevron-down ms-2" style="font-size: 0.8rem;"></i>
                 </a>
-                
-                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0" 
+
+                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0"
                     style="background: rgba(255,255,255,0.95); backdrop-filter: blur(15px); border-radius: 12px; min-width: 280px;">
                     <li class="px-3 py-2 border-bottom">
                         <div class="d-flex align-items-center">
-                            <div class="user-avatar me-3 rounded-circle bg-primary d-flex align-items-center justify-content-center" 
-                                 style="width: 40px; height: 40px; font-size: 1rem; color: white; font-weight: bold;">
-                                {{ (this.userStateUI?.firstName?.charAt(0) || '') + (this.userStateUI?.lastName?.charAt(0) || '') }}
+                            <div class="user-avatar me-3 rounded-circle bg-primary d-flex align-items-center justify-content-center"
+                                style="width: 40px; height: 40px; font-size: 1rem; color: white; font-weight: bold;">
+                                {{ (this.userStateUI?.firstName?.charAt(0) || '') +
+                                (this.userStateUI?.lastName?.charAt(0) || '') }}
                             </div>
                             <div>
-                                <div class="fw-bold text-dark">{{ this.userStateUI?.firstName + ' ' + this.userStateUI?.lastName }}</div>
+                                <div class="fw-bold text-dark">{{ this.userStateUI?.firstName + ' ' +
+                                    this.userStateUI?.lastName }}</div>
                                 <small class="text-muted">{{ this.userStateUI?.userName }}</small>
                             </div>
                         </div>
@@ -84,76 +88,72 @@
     </div>
 </nav>
 
-<div *ngIf="this.showPaymentAlert"
-     class="alert alert-warning alert-dismissible fade show" role="alert">
+<div *ngIf="this.showPaymentAlert" class="alert alert-warning alert-dismissible fade show" role="alert">
     {{ paymentMsg }}
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" (click)="closeAlert()"></button>
 </div>
 
-<div id="layoutSidenav" class="position-relative">    
-    <div id="layoutSidenav_nav" 
-         *ngIf="this.userStateUI?.statusId === uStatus.Conectado"
-         [class]="'d-lg-block ' + (sidebarVisible ? 'd-block' : 'd-none')"
-         style="background: var(--usalo-bg-gray); border-right: 1px solid var(--usalo-gray); box-shadow: 2px 0 10px var(--usalo-shadow-light);"
-         >
-        
+<div id="layoutSidenav" class="position-relative">
+    <div id="layoutSidenav_nav" *ngIf="this.userStateUI?.statusId === uStatus.Conectado"
+        [class]="'d-lg-block ' + (sidebarVisible ? 'd-block' : 'd-none')"
+        style="background: var(--usalo-bg-gray); border-right: 1px solid var(--usalo-gray); box-shadow: 2px 0 10px var(--usalo-shadow-light);">
+
         <nav class="sb-sidenav accordion" id="sidenavAccordion" style="background: transparent; border: none;">
             <!-- Navigation Menu -->
             <div class="sb-sidenav-menu p-2">
                 <div class="nav flex-column">
                     <!-- Main Section Header -->
                     <div class="nav-section-header px-3 py-2 mb-2">
-                        <small class="text-muted fw-semibold text-uppercase ls-1" style="font-size: 0.75rem; letter-spacing: 1px;">
+                        <small class="text-muted fw-semibold text-uppercase ls-1"
+                            style="font-size: 0.75rem; letter-spacing: 1px;">
                             <i class="bi bi-grid-3x3-gap me-2"></i>Panel Principal
                         </small>
                     </div>
-                  
+
                     <!-- Point of Sale -->
-                    <a class="nav-link modern-nav-link d-flex align-items-center px-3 py-2 mb-1 rounded-3" 
-                       href="main" 
-                       *ngIf="(this.userStateUI?.roleId ?? 0) > rol.Unknown"
-                       style="transition: all 0.3s ease; color: #495057;">
-                        <div class="nav-icon me-3 d-flex align-items-center justify-content-center rounded-2" 
-                             style="width: 32px; height: 32px; background: linear-gradient(135deg, #28a745, #20c997); color: white;">
+                    <a class="nav-link modern-nav-link d-flex align-items-center px-3 py-2 mb-1 rounded-3" href="main"
+                        *ngIf="(this.userStateUI?.roleId ?? 0) > rol.Unknown"
+                        style="transition: all 0.3s ease; color: #495057;">
+                        <div class="nav-icon me-3 d-flex align-items-center justify-content-center rounded-2"
+                            style="width: 32px; height: 32px; background: linear-gradient(135deg, #28a745, #20c997); color: white;">
                             <i class="bi bi-cash-stack" style="font-size: 0.9rem;"></i>
                         </div>
                         <span class="fw-medium">Punto de Venta</span>
                     </a>
-                  
+
                     <!-- Products Section -->
                     <div class="nav-section mt-3">
                         <div class="nav-section-header px-3 py-2 mb-2">
-                            <small class="text-muted fw-semibold text-uppercase ls-1" style="font-size: 0.75rem; letter-spacing: 1px;">
+                            <small class="text-muted fw-semibold text-uppercase ls-1"
+                                style="font-size: 0.75rem; letter-spacing: 1px;">
                                 <i class="bi bi-box-seam me-2"></i>Inventario
                             </small>
                         </div>
-                        
+
                         <!-- Products Submenu -->
-                        <a class="nav-link modern-nav-link collapsed d-flex align-items-center px-3 py-2 mb-1 rounded-3" 
-                           href="#" data-bs-toggle="collapse" data-bs-target="#submenuProd" 
-                           aria-expanded="false" aria-controls="submenuProd"
-                           style="transition: all 0.3s ease; color: #495057;">
-                            <div class="nav-icon me-3 d-flex align-items-center justify-content-center rounded-2" 
-                                 style="width: 32px; height: 32px; background: linear-gradient(135deg, #007bff, #6610f2); color: white;">
+                        <a class="nav-link modern-nav-link collapsed d-flex align-items-center px-3 py-2 mb-1 rounded-3"
+                            href="#" data-bs-toggle="collapse" data-bs-target="#submenuProd" aria-expanded="false"
+                            aria-controls="submenuProd" style="transition: all 0.3s ease; color: #495057;">
+                            <div class="nav-icon me-3 d-flex align-items-center justify-content-center rounded-2"
+                                style="width: 32px; height: 32px; background: linear-gradient(135deg, #007bff, #6610f2); color: white;">
                                 <i class="bi bi-box-seam" style="font-size: 0.9rem;"></i>
                             </div>
                             <span class="fw-medium flex-grow-1">Productos</span>
-                            <i class="bi bi-chevron-down transition-transform" style="font-size: 0.8rem; transition: transform 0.3s ease;"></i>
+                            <i class="bi bi-chevron-down transition-transform"
+                                style="font-size: 0.8rem; transition: transform 0.3s ease;"></i>
                         </a>
-                        
+
                         <div class="collapse" id="submenuProd" data-bs-parent="#sidenavAccordion">
                             <div class="submenu-container ps-4 pe-3">
-                                <a class="nav-link submenu-link d-flex align-items-center px-3 py-2 mb-1 rounded-2" 
-                                   href="productos" 
-                                   *ngIf="(this.userStateUI?.roleId?? 0) > rol.Unknown"
-                                   style="transition: all 0.3s ease; color: #6c757d; font-size: 0.9rem;">
+                                <a class="nav-link submenu-link d-flex align-items-center px-3 py-2 mb-1 rounded-2"
+                                    href="productos" *ngIf="(this.userStateUI?.roleId?? 0) > rol.Unknown"
+                                    style="transition: all 0.3s ease; color: #6c757d; font-size: 0.9rem;">
                                     <i class="bi bi-arrow-right-short me-2" style="font-size: 1rem;"></i>
                                     <span>Gestión de Productos</span>
                                 </a>
-                                <a class="nav-link submenu-link d-flex align-items-center px-3 py-2 mb-1 rounded-2" 
-                                   href="categorias" 
-                                   *ngIf="(this.userStateUI?.roleId?? 0) > rol.User"
-                                   style="transition: all 0.3s ease; color: #6c757d; font-size: 0.9rem;">
+                                <a class="nav-link submenu-link d-flex align-items-center px-3 py-2 mb-1 rounded-2"
+                                    href="categorias" *ngIf="(this.userStateUI?.roleId?? 0) > rol.User"
+                                    style="transition: all 0.3s ease; color: #6c757d; font-size: 0.9rem;">
                                     <i class="bi bi-arrow-right-short me-2" style="font-size: 1rem;"></i>
                                     <span>Categorías</span>
                                 </a>
@@ -164,102 +164,124 @@
                     <!-- Management Section -->
                     <div class="nav-section mt-3">
                         <div class="nav-section-header px-3 py-2 mb-2">
-                            <small class="text-muted fw-semibold text-uppercase ls-1" style="font-size: 0.75rem; letter-spacing: 1px;">
+                            <small class="text-muted fw-semibold text-uppercase ls-1"
+                                style="font-size: 0.75rem; letter-spacing: 1px;">
                                 <i class="bi bi-people me-2"></i>Gestión
                             </small>
                         </div>
-                        
+
                         <!-- Users -->
-                        <a class="nav-link modern-nav-link d-flex align-items-center px-3 py-2 mb-1 rounded-3" 
-                           href="usuarios" 
-                           *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Admin"
-                           style="transition: all 0.3s ease; color: #495057;">
-                            <div class="nav-icon me-3 d-flex align-items-center justify-content-center rounded-2" 
-                                 style="width: 32px; height: 32px; background: linear-gradient(135deg, #fd7e14, #e83e8c); color: white;">
+                        <a class="nav-link modern-nav-link d-flex align-items-center px-3 py-2 mb-1 rounded-3"
+                            href="usuarios" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Admin"
+                            style="transition: all 0.3s ease; color: #495057;">
+                            <div class="nav-icon me-3 d-flex align-items-center justify-content-center rounded-2"
+                                style="width: 32px; height: 32px; background: linear-gradient(135deg, #fd7e14, #e83e8c); color: white;">
                                 <i class="bi bi-people" style="font-size: 0.9rem;"></i>
                             </div>
-                            <span class="fw-medium">{{ this.userStateUI?.roleId == rol.Admin ? "Miembros" : "Usuarios" }}</span>
+                            <span class="fw-medium">{{ this.userStateUI?.roleId == rol.Admin ? "Miembros" : "Usuarios"
+                                }}</span>
                         </a>
-                        
+
                         <!-- Clients -->
-                        <a class="nav-link modern-nav-link d-flex align-items-center px-3 py-2 mb-1 rounded-3" 
-                           href="clientes" 
-                           *ngIf="(this.userStateUI?.roleId?? 0) > rol.Unknown"
-                           style="transition: all 0.3s ease; color: #495057;">
-                            <div class="nav-icon me-3 d-flex align-items-center justify-content-center rounded-2" 
-                                 style="width: 32px; height: 32px; background: linear-gradient(135deg, #17a2b8, #6f42c1); color: white;">
+                        <a class="nav-link modern-nav-link d-flex align-items-center px-3 py-2 mb-1 rounded-3"
+                            href="clientes" *ngIf="(this.userStateUI?.roleId?? 0) > rol.Unknown"
+                            style="transition: all 0.3s ease; color: #495057;">
+                            <div class="nav-icon me-3 d-flex align-items-center justify-content-center rounded-2"
+                                style="width: 32px; height: 32px; background: linear-gradient(135deg, #17a2b8, #6f42c1); color: white;">
                                 <i class="bi bi-person-circle" style="font-size: 0.9rem;"></i>
                             </div>
                             <span class="fw-medium">Clientes</span>
                         </a>
                     </div>
-                    
+
                     <!-- Reports Section -->
                     <div class="nav-section mt-3">
                         <div class="nav-section-header px-3 py-2 mb-2">
-                            <small class="text-muted fw-semibold text-uppercase ls-1" style="font-size: 0.75rem; letter-spacing: 1px;">
+                            <small class="text-muted fw-semibold text-uppercase ls-1"
+                                style="font-size: 0.75rem; letter-spacing: 1px;">
                                 <i class="bi bi-graph-up me-2"></i>Reportes
                             </small>
                         </div>
-                        
+
                         <!-- Reports Submenu -->
-                        <a class="nav-link modern-nav-link collapsed d-flex align-items-center px-3 py-2 mb-1 rounded-3" 
-                           href="#" data-bs-toggle="collapse" data-bs-target="#submenuReports" 
-                           aria-expanded="false" aria-controls="submenuReports"
-                           style="transition: all 0.3s ease; color: #495057;">
-                            <div class="nav-icon me-3 d-flex align-items-center justify-content-center rounded-2" 
-                                 style="width: 32px; height: 32px; background: linear-gradient(135deg, #dc3545, #fd7e14); color: white;">
+                        <a class="nav-link modern-nav-link collapsed d-flex align-items-center px-3 py-2 mb-1 rounded-3"
+                            href="#" data-bs-toggle="collapse" data-bs-target="#submenuReports" aria-expanded="false"
+                            aria-controls="submenuReports" style="transition: all 0.3s ease; color: #495057;">
+                            <div class="nav-icon me-3 d-flex align-items-center justify-content-center rounded-2"
+                                style="width: 32px; height: 32px; background: linear-gradient(135deg, #dc3545, #fd7e14); color: white;">
                                 <i class="bi bi-graph-up" style="font-size: 0.9rem;"></i>
                             </div>
                             <span class="fw-medium flex-grow-1">Reportes</span>
-                            <i class="bi bi-chevron-down transition-transform" style="font-size: 0.8rem; transition: transform 0.3s ease;"></i>
+                            <i class="bi bi-chevron-down transition-transform"
+                                style="font-size: 0.8rem; transition: transform 0.3s ease;"></i>
                         </a>
-                        
+
                         <div class="collapse" id="submenuReports" data-bs-parent="#sidenavAccordion">
                             <div class="submenu-container ps-4 pe-3">
-                                <a class="nav-link submenu-link d-flex align-items-center px-3 py-2 mb-1 rounded-2" 
-                                   href="reporteventas" 
-                                   *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Admin"
-                                   style="transition: all 0.3s ease; color: #6c757d; font-size: 0.9rem;">
+                                <a class="nav-link submenu-link d-flex align-items-center px-3 py-2 mb-1 rounded-2"
+                                    href="reporteventas" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Admin"
+                                    style="transition: all 0.3s ease; color: #6c757d; font-size: 0.9rem;">
                                     <i class="bi bi-arrow-right-short me-2" style="font-size: 1rem;"></i>
                                     <span>Reporte de Ventas</span>
                                 </a>
-                                <a class="nav-link submenu-link d-flex align-items-center px-3 py-2 mb-1 rounded-2" 
-                                   href="reporteinventario" 
-                                   *ngIf="(this.userStateUI?.roleId?? 0) >= rol.User"
-                                   style="transition: all 0.3s ease; color: #6c757d; font-size: 0.9rem;">
+                                    <a class="nav-link submenu-link d-flex align-items-center px-3 py-2 mb-1 rounded-2"
+                                    href="reportedevoluciones" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Admin"
+                                    style="transition: all 0.3s ease; color: #6c757d; font-size: 0.9rem;">
+                                    <i class="bi bi-arrow-right-short me-2" style="font-size: 1rem;"></i>
+                                    <span>Reporte Devoluciones</span>
+                                </a>
+                                <a class="nav-link submenu-link d-flex align-items-center px-3 py-2 mb-1 rounded-2"
+                                    href="reporteinventario" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.User"
+                                    style="transition: all 0.3s ease; color: #6c757d; font-size: 0.9rem;">
                                     <i class="bi bi-arrow-right-short me-2" style="font-size: 1rem;"></i>
                                     <span>Inventario</span>
                                 </a>
                             </div>
                         </div>
                     </div>
-                    
+
+                    <!-- Returns Section -->
+                    <div class="nav-section mt-3" >
+                        <div class="nav-section-header px-3 py-2 mb-2">
+                            <small class="text-muted fw-semibold text-uppercase ls-1"
+                                style="font-size: 0.75rem; letter-spacing: 1px;">
+                                <i class="bi bi-arrow-counterclockwise me-2"></i>Devoluciones
+                            </small>
+                        </div>
+                        <!-- Returns -->
+                       <a class="nav-link modern-nav-link d-flex align-items-center px-3 py-2 mb-1 rounded-3" href="devoluciones"
+                        style="transition: all 0.3s ease; color: #495057;">
+                        <div class="nav-icon me-3 d-flex align-items-center justify-content-center rounded-2"
+                           style="width: 32px; height: 32px; background: linear-gradient(135deg, #ffc107, #fd7e14); color: white;">
+                            <i class="bi bi-arrow-counterclockwise" style="font-size: 0.9rem;"></i>
+                        </div>
+                        <span class="fw-medium">Devoluciones</span>
+                    </a>
+                    </div>
                     <!-- Admin Section -->
                     <div class="nav-section mt-3" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.Admin">
                         <div class="nav-section-header px-3 py-2 mb-2">
-                            <small class="text-muted fw-semibold text-uppercase ls-1" style="font-size: 0.75rem; letter-spacing: 1px;">
+                            <small class="text-muted fw-semibold text-uppercase ls-1"
+                                style="font-size: 0.75rem; letter-spacing: 1px;">
                                 <i class="bi bi-gear me-2"></i>Administración
                             </small>
                         </div>
-                        
+
                         <!-- Company Management -->
-                        <a class="nav-link modern-nav-link d-flex align-items-center px-3 py-2 mb-1 rounded-3" 
-                           href="companies"
-                           style="transition: all 0.3s ease; color: #495057;">
-                            <div class="nav-icon me-3 d-flex align-items-center justify-content-center rounded-2" 
-                                 style="width: 32px; height: 32px; background: linear-gradient(135deg, #6c757d, #495057); color: white;">
+                        <a class="nav-link modern-nav-link d-flex align-items-center px-3 py-2 mb-1 rounded-3"
+                            href="companies" style="transition: all 0.3s ease; color: #495057;">
+                            <div class="nav-icon me-3 d-flex align-items-center justify-content-center rounded-2"
+                                style="width: 32px; height: 32px; background: linear-gradient(135deg, #6c757d, #495057); color: white;">
                                 <i class="bi bi-briefcase-fill" style="font-size: 0.9rem;"></i>
                             </div>
                             <span class="fw-medium">Empresa</span>
                         </a>
-                        
+
                         <!-- Import Products -->
-                        <a class="nav-link modern-nav-link d-flex align-items-center px-3 py-2 mb-1 rounded-3" 
-                           href="importar"
-                           style="transition: all 0.3s ease; color: #495057;">
-                            <div class="nav-icon me-3 d-flex align-items-center justify-content-center rounded-2" 
-                                 style="width: 32px; height: 32px; background: linear-gradient(135deg, #198754, #20c997); color: white;">
+                        <a class="nav-link modern-nav-link d-flex align-items-center px-3 py-2 mb-1 rounded-3"
+                            href="importar" style="transition: all 0.3s ease; color: #495057;">
+                            <div class="nav-icon me-3 d-flex align-items-center justify-content-center rounded-2"
+                                style="width: 32px; height: 32px; background: linear-gradient(135deg, #198754, #20c997); color: white;">
                                 <i class="bi bi-file-earmark-arrow-up" style="font-size: 0.9rem;"></i>
                             </div>
                             <span class="fw-medium">Importar Productos</span>
@@ -267,14 +289,14 @@
                     </div>
                 </div>
             </div>
-           
-           
+
+
         </nav>
     </div>
     <!-- Enhanced Main Content Area -->
-    <div id="layoutSidenav_content" [class.sidebar-open]="sidebarVisible" 
-         style="transition: margin-left 0.3s ease; background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);">
-        
+    <div id="layoutSidenav_content" [class.sidebar-open]="sidebarVisible"
+        style="transition: margin-left 0.3s ease; background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);">
+
         <!-- Modern Main Content -->
         <main>
             <div class="container-fluid px-4">
@@ -286,53 +308,54 @@
                 </div>    
             </div>
         </main>
-        
+
         <!-- Enhanced Professional Footer -->
-        <footer class="mt-auto" 
-                style="background: var(--usalo-bg-dark); color: white; border-top: 3px solid var(--usalo-primary);">
+        <footer class="mt-auto"
+            style="background: var(--usalo-bg-dark); color: white; border-top: 3px solid var(--usalo-primary);">
             <div class="container-fluid px-4 py-2">
                 <div class="row align-items-center">
                     <!-- Copyright Section -->
                     <div class="col-12 col-md-4 text-center text-md-start mb-3 mb-md-0">
                         <div class="d-flex align-items-center justify-content-center justify-content-md-start">
-                           
+
                             <div>
                                 <div class="fw-bold" style="font-size: 0.9rem;">UsaloYa</div>
-                                <small class="text-white-50" style="font-size: 0.75rem;">© 2024 Todos los derechos reservados</small>
+                                <small class="text-white-50" style="font-size: 0.75rem;">© 2024 Todos los derechos
+                                    reservados</small>
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Links Section -->
                     <div class="col-12 col-md-4 text-center mb-3 mb-md-0">
                         <div class="footer-links d-flex justify-content-center gap-3">
-                            <a href="policy" target="_blank" rel="noopener noreferrer" 
-                               class="text-white-75 text-decoration-none hover-link" 
-                               style="font-size: 0.85rem; transition: color 0.3s ease;">
+                            <a href="policy" target="_blank" rel="noopener noreferrer"
+                                class="text-white-75 text-decoration-none hover-link"
+                                style="font-size: 0.85rem; transition: color 0.3s ease;">
                                 <i class="bi bi-shield-check me-1"></i>Privacidad
                             </a>
                             <span class="text-white-50">•</span>
-                            <a href="agreements" target="_blank" rel="noopener noreferrer" 
-                               class="text-white-75 text-decoration-none hover-link" 
-                               style="font-size: 0.85rem; transition: color 0.3s ease;">
+                            <a href="agreements" target="_blank" rel="noopener noreferrer"
+                                class="text-white-75 text-decoration-none hover-link"
+                                style="font-size: 0.85rem; transition: color 0.3s ease;">
                                 <i class="bi bi-file-text me-1"></i>Términos
                             </a>
                         </div>
                     </div>
-                    
+
                     <!-- Support Section -->
                     <div class="col-12 col-md-4 text-center text-md-end">
                         <div class="support-section" *ngIf="(userStateUI?.userId ?? 0) > 0">
-                            <a [href]="whatsAppUrl" target="_blank" 
-                               class="btn btn-success btn-sm d-inline-flex align-items-center rounded-pill px-3 py-2" 
-                               style="background: linear-gradient(135deg, #25d366, #128c7e); border: none; font-size: 0.85rem; transition: all 0.3s ease;">
+                            <a [href]="whatsAppUrl" target="_blank"
+                                class="btn btn-success btn-sm d-inline-flex align-items-center rounded-pill px-3 py-2"
+                                style="background: linear-gradient(135deg, #25d366, #128c7e); border: none; font-size: 0.85rem; transition: all 0.3s ease;">
                                 <i class="bi bi-whatsapp me-2" style="font-size: 1rem;"></i>
                                 <span class="fw-medium">Soporte WhatsApp</span>
                             </a>
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Footer Bottom -->
                 <div class="row mt-3 pt-3  border-top border-secondary">
                     <div class="col-12 text-center">

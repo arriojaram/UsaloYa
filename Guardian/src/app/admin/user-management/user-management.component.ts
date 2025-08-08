@@ -140,7 +140,8 @@ export class UserManagementComponent {
       createdByUserName: [''],
       lastUpdatedByUserName: [''],
       creationDateUI: [''],
-      roleId: [0]
+      roleId: [0],
+      canMakeReturns: [this.selectedUser?.canMakeReturns ?? false],
     });
   }
 
@@ -172,7 +173,7 @@ export class UserManagementComponent {
   newUser(): void {
     this.selectedUser = null;
     this.userForm.reset();
-    this.userForm.patchValue({userId:0, userName:'', roleId:1, firstName:'', lastName:'', groupId:0, isEnabled:true, password:''});
+    this.userForm.patchValue({userId:0, userName:'', roleId:1, firstName:'', lastName:'', groupId:0, isEnabled:true, password:'', canMakeReturns: false});
   }
 
   selectUser(userId: number): void {

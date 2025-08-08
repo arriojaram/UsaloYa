@@ -46,6 +46,7 @@ export class SettingsComponent implements OnInit {
     return this.settingsForm = this.fb.group({
       activarImpresionWeb: [false],
       impresoraWeb: [''],
+      maxDaysToRefund:[] ,
       selectSelectedPrinter: ['']
     });
   }
@@ -76,6 +77,8 @@ export class SettingsComponent implements OnInit {
                 this.settingsForm.get(environment.PAIRSETT_ACTIVAR_IMPRESORA)?.setValue(s.value);
               if(s.key == environment.PAIRSETT_NOMBRE_IMPRESORA)
                 this.settingsForm.get(environment.PAIRSETT_NOMBRE_IMPRESORA)?.setValue(s.value);
+              if(s.key == environment.PAIRSETT_DIAS_DE_DEVOLUCION)
+                this.settingsForm.get(environment.PAIRSETT_DIAS_DE_DEVOLUCION)?.setValue(s.value);
             }
           }
           else
@@ -99,6 +102,7 @@ export class SettingsComponent implements OnInit {
       let pairSettings: pairSettingsDto[] = [];
       pairSettings.push({key:environment.PAIRSETT_ACTIVAR_IMPRESORA, value: settings.activarImpresionWeb.toString() });
       pairSettings.push({key:environment.PAIRSETT_NOMBRE_IMPRESORA, value: settings.impresoraWeb });
+      pairSettings.push({key:environment.PAIRSETT_DIAS_DE_DEVOLUCION, value: settings.maxDaysToRefund.toString() });
 
       let companySettings: companySettingsDto = {companyId: this.companyService.selectedCompanyId, settings:pairSettings};
       this.companyService.setCompanySettings(companySettings)
