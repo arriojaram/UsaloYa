@@ -142,3 +142,8 @@
     font-size: 1.3rem;
   }
 }
+.disabled-button {
+  pointer-events: auto; /* para que pueda recibir click */
+  opacity: 0.5;
+  cursor: not-allowed;
+}

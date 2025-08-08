@@ -61,7 +61,8 @@ export enum UserStatus
 
 export enum StatusVentaEnum {
     Completada,
-    Cancelada 
+    Cancelada ,
+    Reembolsado
 }
 
 export enum MeasureType {

@@ -6,4 +6,5 @@ export interface SaleSummary {
     returned?: boolean;
     fullName: string;
     userName: string;
+    status?: number;
 }

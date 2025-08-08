@@ -68,12 +68,20 @@
                   <td>{{ sale.totalSale | currency:'MXN' }}</td>
                   <td>{{ sale.fullName }}({{sale.userName}})</td>
                   <td>
-                    <button class="btn btn-sm" [disabled]=" sale.returned || !canReturnSale(sale) || !canReturn"
-                      [ngClass]="{'btn-outline-danger': !sale.returned && canReturnSale(sale) && canReturn,'btn-secondary': sale.returned || !canReturnSale(sale) || !canReturn }"
-                      (click)="showReturnForm(sale.saleID, sale.folio, sale.totalSale)"
-                      title="{{ sale.returned ? 'Ticket ya fue devuelto' : !canReturnSale(sale)? 'Tiempo para devolución expirado': '' }} ">
-                      <i class="bi bi-arrow-counterclockwise"></i> Devolver
-                    </button>
+                 <button class="btn btn-sm"
+  [ngClass]="{
+    'btn-outline-danger': canReturnSale(sale) && sale.status !== StatusVentaEnum.Reembolsado,
+    'btn-secondary': !canReturnSale(sale) || sale.status === StatusVentaEnum.Reembolsado,
+    'disabled-button': !canReturnSale(sale)  || sale.status === StatusVentaEnum.Reembolsado
+  }"
+  (click)="onReturnClick(sale)"
+  [title]="
+    sale.status === StatusVentaEnum.Reembolsado ? 'Ticket ya fue devuelto' :
+    !canReturnSale(sale) ? 'Tiempo para devolución expirado' : ''
+  "
+>
+  <i class="bi bi-arrow-counterclockwise"></i> Devolver
+</button>
 
                   </td>
                 </tr>
@@ -172,7 +180,7 @@
                       </div>
                     </td>
 
-                    <td class="text-center d-none d-md-table-cell">
+                    <td class="text-center d-none d-md-table-cell"> 
                       <span class="badge bg-secondary">{{ getMeasureName(item.measure) }}</span>
                     </td>
 

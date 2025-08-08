@@ -14,9 +14,10 @@ import { RefundService } from '../../services/refund.service';
 import { RequestRefundDto } from '../../dto/requestRefundDto';
 import { RefundProduct } from '../../dto/refundProductDto';
 import { CompanyService } from '../../services/company.service';
-import{ReturnReason, getReturnReasonLabel} from '../../Enums/enums';
+import { ReturnReason, getReturnReasonLabel } from '../../Enums/enums';
 import { ReturnableProduct } from '../../dto/ReturnableProduct';
 import { SaleSummary } from '../../dto/saleSummaryDto';
+import { StatusVentaEnum } from '../../Enums/enums';
 @Component({
   selector: 'app-returns',
   templateUrl: './returns.component.html',
@@ -39,7 +40,8 @@ export class ReturnsComponent implements OnInit, OnDestroy {
   globalReason: string = '';
   globalCustomReason: string = '';
   canReturn: boolean = false;
-  maxDaysToRefund: number = 0; 
+  maxDaysToRefund: number = 0;
+  StatusVentaEnum = StatusVentaEnum;
 
   private destroy$ = new Subject<void>();
 
@@ -56,12 +58,12 @@ export class ReturnsComponent implements OnInit, OnDestroy {
       ticketNumber: ['', Validators.required],
       refundMethod: ['cash', Validators.required],
     });
-    
+
   }
   returnReasons: { value: number, label: string }[] = [];
   ngOnInit(): void {
     this.userState = this.userStateService.getUserStateLocalStorage();
-   
+
 
     // Obtener configuración días máximos para devolución antes de cargar ventas
     this.companyService.getMaxDaysToRefund(this.userState.companyId).pipe(takeUntil(this.destroy$)).subscribe({
@@ -70,22 +72,26 @@ export class ReturnsComponent implements OnInit, OnDestroy {
         const fromDateIso = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
         const toDateIso = new Date().toISOString();
 
-this.reportService.getSales(fromDateIso, toDateIso, this.userState.companyId, 0)
-  .pipe(takeUntil(this.destroy$))
-  .subscribe({
-    next: (sales) => {
-      this.sales = sales.map(sale => ({
-        saleID: sale.saleID,
-        folio: sale.folio,
-        saleDate: new Date(sale.saleDate).toISOString(),
-        totalSale: sale.totalSale,
-        fullName: sale.fullName ?? '',
-        userName: sale.userName ?? ''
-      }));
-      this.filteredSales = [...this.sales];
-    },
-    error: (err) => console.error('Error al cargar ventas:', err)
-  });
+        this.reportService.getSales(fromDateIso, toDateIso, this.userState.companyId, 0)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+            next: (sales) => {
+              this.sales = sales.map(sale => ({
+                saleID: sale.saleID,
+                folio: sale.folio,
+                saleDate: new Date(sale.saleDate).toISOString(),
+                totalSale: sale.totalSale,
+                fullName: sale.fullName ?? '',
+                userName: sale.userName ?? '',
+                status: sale.status === 'Completada' ? StatusVentaEnum.Completada :
+                  sale.status === 'Cancelada' ? StatusVentaEnum.Cancelada :
+                    sale.status === 'Reembolsado' ? StatusVentaEnum.Reembolsado :
+                      StatusVentaEnum.Completada
+              }));
+              this.filteredSales = [...this.sales];
+            },
+            error: (err) => console.error('Error al cargar ventas:', err)
+          });
 
       },
       error: (err) => {
@@ -93,8 +99,8 @@ this.reportService.getSales(fromDateIso, toDateIso, this.userState.companyId, 0)
         this.maxDaysToRefund = 0; // Default en caso de error
       }
     });
- this.canReturn = this.userState.canMakeReturns === true;
-     this.returnReasons = Object.values(ReturnReason)
+    this.canReturn = this.userState.canMakeReturns === true;
+    this.returnReasons = Object.values(ReturnReason)
       .filter(value => typeof value === 'number')
       .map(value => ({
         value: value as number,
@@ -141,6 +147,7 @@ this.reportService.getSales(fromDateIso, toDateIso, this.userState.companyId, 0)
             returnQuantity: p.quantity,
             editing: false,
             cuestomReason: '',
+            StatusVentaEnum: StatusVentaEnum
           }));
           this.selectAllChecked = false;
           this.globalReason = '';
@@ -195,7 +202,7 @@ this.reportService.getSales(fromDateIso, toDateIso, this.userState.companyId, 0)
         productId: p.productId,
         barcode: p.barcode,
         productName: p.name,
-       reason: p.reason === 'Otro' ? (p.customReason ?? '') : (p.reason ?? ''),
+        reason: p.reason === 'Otro' ? (p.customReason ?? '') : (p.reason ?? ''),
         measure: p.measure.toString(),
         quantity: p.returnQuantity,
         unitPriceRefund: p.unitPrice,
@@ -213,6 +220,10 @@ this.reportService.getSales(fromDateIso, toDateIso, this.userState.companyId, 0)
     this.refundService.manageRefund(refundDto, this.userState.companyId, this.userState.userId).subscribe({
       next: success => {
         if (success) {
+          const saleIndex = this.sales.findIndex(s => s.saleID === refundDto.saleId);
+          if (saleIndex !== -1) {
+            this.sales[saleIndex].status = StatusVentaEnum.Reembolsado;
+          }
           this.navigationService.showUIMessage(this.translate.instant('returns.success_return'), AlertLevel.Sucess);
           this.resetForm();
           this.goBack();
@@ -317,6 +328,19 @@ this.reportService.getSales(fromDateIso, toDateIso, this.userState.companyId, 0)
         p.customReason = this.globalReason === 'Otro' ? this.globalCustomReason : null;
       }
     });
+  }
+  onReturnClick(sale: SaleSummary): void {
+    if (!this.canReturnSale(sale)) {
+      this.navigationService.showUIMessage(this.translate.instant('returns.time_expired'), AlertLevel.Warning
+      );
+      return;
+    }
+    if (sale.status === StatusVentaEnum.Reembolsado) {
+      this.navigationService.showUIMessage(this.translate.instant('returns.ticket_already_refunded'),AlertLevel.Warning
+      );
+      return;
+    }
+    this.showReturnForm(sale.saleID, sale.folio, sale.totalSale);
   }
 
 

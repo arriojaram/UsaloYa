@@ -35,5 +35,5 @@ export interface ProductSaleDetailReport {
   fullName: string;
   priceLevel: number;
   refundProducts?: number;
-  refundoAmount?: number;
+  refundAmount?: number;
 }

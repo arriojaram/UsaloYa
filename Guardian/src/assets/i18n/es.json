@@ -73,7 +73,9 @@
     "invalid_reason": "Por favor, especifica un motivo válido.",
     "success_return": "Devolución realizada correctamente.",
     "not_allowed": "No se puede devolver más de los productos que se vendieron.",
-    "server_error": "Error al procesar la solicitud. Servidor no disponible."
+    "server_error": "Error al procesar la solicitud. Servidor no disponible.",
+    "time_expired": "Tiempo para devolución expirado",
+    "ticket_already_refunded": "Ticket ya fue devuelto"
   },
   "emails": {
     "email_send_error": "Error al enviar el correo electronico, por favor contactenos",
