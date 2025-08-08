@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders ,HttpBackend} from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpBackend } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../environments/enviroment';
 import { Observable, catchError } from 'rxjs';
@@ -8,24 +8,23 @@ import { setStatusDto } from '../dto/setStatusDto';
 import { AdminCompanyDto } from '../dto/adminCompanyDto';
 import { companySettingsDto, pairSettingsDto } from '../dto/companySettingsDto';
 import { setValueDto } from '../dto/setValueDto';
-import { UserStateService  } from './user-state.service';
+import { UserStateService } from './user-state.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CompanyService {
-  
+
   private rawHttp: HttpClient;
 
   private baseUrl = environment.apiUrlBase + '/api/Company';
   selectedCompanyId: number = 0;
-  
+
   constructor(
     private http: HttpClient,
     private httpBackend: HttpBackend,
-    private UserStateService : UserStateService
-  ) 
-  { 
+    private UserStateService: UserStateService
+  ) {
     this.rawHttp = new HttpClient(httpBackend);
   }
 
@@ -50,7 +49,7 @@ export class CompanyService {
       })
     );
   }
-  
+
   getCompanySettings(companyId: number): Observable<pairSettingsDto[]> {
     const apiUrl = `${this.baseUrl}/GetSettings?companyId=${companyId}`;
 
@@ -97,7 +96,7 @@ export class CompanyService {
 
   getCompany(companyId: number): Observable<companyDto> {
     const apiUrl = `${this.baseUrl}/GetCompany?companyId=${companyId}`;
-    
+
     return this.http.get<companyDto>(apiUrl).pipe(
       catchError(error => {
         console.error('getCompany() | ', error);
@@ -107,8 +106,8 @@ export class CompanyService {
   }
 
   getPaymentHistory(companyId: number): Observable<rentRequestDto[]> {
-    const apiUrl =`${this.baseUrl}/GetPaymentHistory?companyId=${companyId}`;
-    
+    const apiUrl = `${this.baseUrl}/GetPaymentHistory?companyId=${companyId}`;
+
     return this.http.get<rentRequestDto[]>(apiUrl).pipe(
       catchError(error => {
         console.error('getPaymentHistory() | ', error);
@@ -117,47 +116,47 @@ export class CompanyService {
     );
   }
 
-  getAll4List(companyId: number, name:string): Observable<AdminCompanyDto[]> {
-      const apiUrl =`${this.baseUrl}/GetAll4List?name=${name}&companyId=${companyId}`;
-      
-      return this.http.get<AdminCompanyDto[]>(apiUrl).pipe(
-        catchError(error => {
-          console.error('getCompanies() | ', error);
-          throw error;
-        })
-      );
-    }
-  
- checkCompanyUnique(name: string): Observable<boolean> {
-  const apiUrl = `${this.baseUrl}/IsCompanyUnique`;
-  return this.rawHttp.post<boolean>(apiUrl, JSON.stringify(name), {
-    headers: { 'Content-Type': 'application/json' }
-  }).pipe(
-    catchError(error => {
-      console.error('checkCompanyUnique() | ', error);
-      throw error;
-    })
-  );
-}
+  getAll4List(companyId: number, name: string): Observable<AdminCompanyDto[]> {
+    const apiUrl = `${this.baseUrl}/GetAll4List?name=${name}&companyId=${companyId}`;
 
-// company.service.ts
+    return this.http.get<AdminCompanyDto[]>(apiUrl).pipe(
+      catchError(error => {
+        console.error('getCompanies() | ', error);
+        throw error;
+      })
+    );
+  }
+
+  checkCompanyUnique(name: string): Observable<boolean> {
+    const apiUrl = `${this.baseUrl}/IsCompanyUnique`;
+    return this.rawHttp.post<boolean>(apiUrl, JSON.stringify(name), {
+      headers: { 'Content-Type': 'application/json' }
+    }).pipe(
+      catchError(error => {
+        console.error('checkCompanyUnique() | ', error);
+        throw error;
+      })
+    );
+  }
 getMaxDaysToRefund(companyId: number): Observable<number> {
-const url = `${this.baseUrl}/GetMaxDaysToRefund`;
-  const headers = new HttpHeaders({
-    RequestorId: this.UserStateService.getUserStateLocalStorage().userId.toString()
-  });
+  const url = `${this.baseUrl}/GetMaxDaysToRefund`;
+  return this.http.get<number>(url, { params: { companyId: companyId.toString() } });
+}
 
-  return this.http.get<number>(url, {
-    params: { companyId },
-    headers
+updateMaxDaysToRefund(companyId: number, days: number): Observable<boolean> {
+  const url = `${this.baseUrl}/UpdateMaxDaysToRefund`;
+  return this.http.post<boolean>(url, {}, {
+    params: {
+      companyId: companyId.toString(),
+      days: days.toString()
+    }
   }).pipe(
     catchError(error => {
-      console.error('getMaxDaysToRefund() | ', error);
+      console.error('updateMaxDaysToRefund() | ', error);
       throw error;
     })
   );
 }
-
 
 
 

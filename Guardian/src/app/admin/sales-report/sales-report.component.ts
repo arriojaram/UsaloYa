@@ -187,7 +187,7 @@ export class SalesReportComponent implements OnInit, OnDestroy {
             // Total devuelto 
             this.selectedSaleReturned = data.reduce((a, i) => a + (i.refundoAmount ?? 0), 0);
 
-            // Total final (subtotal - devuelto)
+            // Total final 
             this.selectedSaleFinalTotal = this.selectedSaleTotal - this.selectedSaleReturned;
             // Total venta sin devoluciones
             this.selectedSaleTotal = data.reduce((a, i) => a + i.totalPrice, 0);

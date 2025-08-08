@@ -34,11 +34,20 @@ export class SettingsComponent implements OnInit {
     this.settingsForm = this.initSettingsForm();
   }
 
-  ngOnInit(): void {
-    this.settingsForm = this.initSettingsForm();
-    this.loadSettings(this.companyService.selectedCompanyId);
-    this.loadMaxDaysToRefund(this.companyService.selectedCompanyId);
+ngOnInit(): void {
+  this.settingsForm = this.initSettingsForm();
+
+  const user = this.userStateService.getUserStateLocalStorage();
+
+  if (user && user.companyId && user.companyId > 0) {
+    this.companyService.selectedCompanyId = user.companyId;
+    this.loadSettings(user.companyId);
+    this.loadMaxDaysToRefund(user.companyId);
+  } else {
+    this.navigationService.showUIMessage('No se pudo obtener la compañía del usuario.');
   }
+}
+
 
   private initSettingsForm(): FormGroup {
     return this.fb.group({
@@ -101,7 +110,24 @@ export class SettingsComponent implements OnInit {
           this.navigationService.showUIMessage("No se pudo cargar la configuración de días de devolución.");
         }
       });
-  }
+  } 
+  private saveMaxDaysToRefund(companyId: number, days: number): void {
+  this.companyService.updateMaxDaysToRefund(companyId, days,)
+    .pipe(first())
+    .subscribe({
+      next: (success) => {
+        if (success) {
+          this.navigationService.showUIMessage('Días máximos de devolución actualizados', AlertLevel.Sucess);
+        } else {
+          this.navigationService.showUIMessage('No se pudo actualizar los días máximos de devolución', AlertLevel.Warning);
+        }
+      },
+      error: (err: any) => {
+        console.error('Error actualizando días máximos:', err);
+        this.navigationService.showUIMessage('Error al actualizar los días máximos de devolución', AlertLevel.Error);
+      }
+    });
+}
 
   onSave(): void {
     if (this.settingsForm.valid) {
@@ -118,6 +144,7 @@ export class SettingsComponent implements OnInit {
         .subscribe({
           next: () => {
             this.navigationService.showUIMessage("Configuración guardada", AlertLevel.Sucess);
+             this.saveMaxDaysToRefund(this.companyService.selectedCompanyId, settings.maxDaysToRefund);
           },
           error: (err: any) => {
             const m1 = err.error?.message;

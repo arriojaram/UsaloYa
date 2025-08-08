@@ -159,7 +159,7 @@ namespace UsaloYa.Services
                 CompanyId = product.CompanyId,
                 Description = product.Description ?? "",
                 Discontinued = product.Discontinued,
-                CanRefunded = product.CanRefunded,
+                CanBeRefunded = product.CanBeRefunded,
                 Name = product.Name,
                 ProductId = product.ProductId,
                 SKU = product.Sku,
@@ -224,7 +224,7 @@ namespace UsaloYa.Services
                     UnitsInStock = productDto.UnitsInStock,
                     Measure = productDto.Measure,
                     Discontinued = productDto.Discontinued,
-                    CanRefunded = productDto.CanRefunded,
+                    CanBeRefunded = productDto.CanBeRefunded,
                     DateModified = Utils.GetMxDateTime(),
                     Sku = string.IsNullOrEmpty(productDto.SKU) ? null : productDto.SKU,
                     Barcode = productDto.Barcode,
@@ -309,7 +309,7 @@ namespace UsaloYa.Services
                     UnitsInStock = productDto.UnitsInStock,
                     Measure = productDto.Measure,
                     Discontinued = productDto.Discontinued,
-                    CanRefunded = productDto.CanRefunded,
+                    CanBeRefunded = productDto.CanBeRefunded,
                     DateModified = Utils.GetMxDateTime(),
                     Sku = string.IsNullOrEmpty(productDto.SKU) ? null : productDto.SKU,
                     Barcode = productDto.Barcode,
@@ -337,7 +337,7 @@ namespace UsaloYa.Services
                 existingProduct.UnitsInStock = productDto.UnitsInStock;
                 existingProduct.Measure = productDto.Measure;
                 existingProduct.Discontinued = productDto.Discontinued;
-                existingProduct.CanRefunded = productDto.CanRefunded;
+                existingProduct.CanBeRefunded = productDto.CanBeRefunded;
                 existingProduct.DateModified = Utils.GetMxDateTime();
                 existingProduct.Sku = string.IsNullOrEmpty(productDto.SKU) ? null : productDto.SKU;
                 existingProduct.Barcode = productDto.Barcode;

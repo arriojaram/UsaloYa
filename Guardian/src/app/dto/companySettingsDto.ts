@@ -15,4 +15,5 @@ export interface settingsDto
 {
     activarImpresionWeb: boolean;
     impresoraWeb: string;
+    maxDaysToRefund: number;
 }

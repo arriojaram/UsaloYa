@@ -14,7 +14,9 @@ import { RefundService } from '../../services/refund.service';
 import { RequestRefundDto } from '../../dto/requestRefundDto';
 import { RefundProduct } from '../../dto/refundProductDto';
 import { CompanyService } from '../../services/company.service';
-
+import{ReturnReason, getReturnReasonLabel} from '../../Enums/enums';
+import { ReturnableProduct } from '../../dto/ReturnableProduct';
+import { SaleSummary } from '../../dto/saleSummaryDto';
 @Component({
   selector: 'app-returns',
   templateUrl: './returns.component.html',
@@ -23,11 +25,11 @@ import { CompanyService } from '../../services/company.service';
 })
 export class ReturnsComponent implements OnInit, OnDestroy {
   form: FormGroup;
-  saleProducts: any[] = [];
+  saleProducts: ReturnableProduct[] = [];
   currentDate = new Date();
   showMainView = true;
-  sales: any[] = [];
-  filteredSales: any[] = [];
+  sales: SaleSummary[] = [];
+  filteredSales: SaleSummary[] = [];
   selectedFolio: number | null = null;
   selectedSaleTotal: number = 0;
   filterText: string = '';
@@ -37,8 +39,7 @@ export class ReturnsComponent implements OnInit, OnDestroy {
   globalReason: string = '';
   globalCustomReason: string = '';
   canReturn: boolean = false;
-
-  maxDaysToRefund: number = 0; // <-- Límite de días para devoluciones
+  maxDaysToRefund: number = 0; 
 
   private destroy$ = new Subject<void>();
 
@@ -55,36 +56,50 @@ export class ReturnsComponent implements OnInit, OnDestroy {
       ticketNumber: ['', Validators.required],
       refundMethod: ['cash', Validators.required],
     });
+    
   }
-
+  returnReasons: { value: number, label: string }[] = [];
   ngOnInit(): void {
     this.userState = this.userStateService.getUserStateLocalStorage();
-    this.canReturn = this.userState.canMakeReturns === true;
+   
 
     // Obtener configuración días máximos para devolución antes de cargar ventas
     this.companyService.getMaxDaysToRefund(this.userState.companyId).pipe(takeUntil(this.destroy$)).subscribe({
       next: (days) => {
         this.maxDaysToRefund = days;
-
-        // Ahora sí cargar ventas
         const fromDateIso = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
         const toDateIso = new Date().toISOString();
 
-        this.reportService.getSales(fromDateIso, toDateIso, this.userState.companyId, 0)
-          .pipe(takeUntil(this.destroy$))
-          .subscribe({
-            next: (sales) => {
-              this.sales = [...sales];
-              this.filteredSales = [...this.sales];
-            },
-            error: (err) => console.error('Error al cargar ventas:', err)
-          });
+this.reportService.getSales(fromDateIso, toDateIso, this.userState.companyId, 0)
+  .pipe(takeUntil(this.destroy$))
+  .subscribe({
+    next: (sales) => {
+      this.sales = sales.map(sale => ({
+        saleID: sale.saleID,
+        folio: sale.folio,
+        saleDate: new Date(sale.saleDate).toISOString(),
+        totalSale: sale.totalSale,
+        fullName: sale.fullName ?? '',
+        userName: sale.userName ?? ''
+      }));
+      this.filteredSales = [...this.sales];
+    },
+    error: (err) => console.error('Error al cargar ventas:', err)
+  });
+
       },
       error: (err) => {
-        this.navigationService.showUIMessage('No se pudo cargar configuración de días para devolución', AlertLevel.Error);
+        this.navigationService.showUIMessage(this.translate.instant('returns.error_days'), AlertLevel.Error);
         this.maxDaysToRefund = 0; // Default en caso de error
       }
     });
+ this.canReturn = this.userState.canMakeReturns === true;
+     this.returnReasons = Object.values(ReturnReason)
+      .filter(value => typeof value === 'number')
+      .map(value => ({
+        value: value as number,
+        label: getReturnReasonLabel(value as ReturnReason)
+      }));
   }
 
   // Método para saber si la venta aún puede devolverse según días máximos
@@ -121,8 +136,8 @@ export class ReturnsComponent implements OnInit, OnDestroy {
             measure: p.measure,
             totalPrice: p.totalPrice,
             reason: '',
-            select: false,
-            returnable: p.canRefunded ?? true,
+            selected: false,
+            returnable: p.canBeRefunded ?? true,
             returnQuantity: p.quantity,
             editing: false,
             cuestomReason: '',
@@ -156,7 +171,6 @@ export class ReturnsComponent implements OnInit, OnDestroy {
       .reduce((sum, p) => sum + (p.returnQuantity * p.unitPrice), 0);
   }
 
-  //Valida el formulario y, si es válido, prepara y envía los datos de la devolución. (No funciona aun )
   confirmReturn(): void {
     const faltanMotivos = this.saleProducts.some(p =>
       p.selected && p.reason === 'Otro' && (!p.customReason || !p.customReason.trim())
@@ -175,14 +189,13 @@ export class ReturnsComponent implements OnInit, OnDestroy {
     const confirmed = confirm('¿Estás seguro de realizar la devolución?');
     if (!confirmed) return;
 
-    // Preparar DTO para enviar
     const productsToRefund: RefundProduct[] = this.saleProducts
       .filter(p => p.selected && p.returnable && p.returnQuantity > 0)
       .map(p => ({
         productId: p.productId,
         barcode: p.barcode,
         productName: p.name,
-        reason: p.reason === 'Otro' ? p.customReason : p.reason,
+       reason: p.reason === 'Otro' ? (p.customReason ?? '') : (p.reason ?? ''),
         measure: p.measure.toString(),
         quantity: p.returnQuantity,
         unitPriceRefund: p.unitPrice,
@@ -220,7 +233,6 @@ export class ReturnsComponent implements OnInit, OnDestroy {
       this.goBack();
     }
   }
-  // Resetea el formulario y variables relacionadas con la devolución.
   private resetForm(): void {
     this.form.reset({ refundMethod: 'cash' });
     this.saleProducts = [];
@@ -250,7 +262,7 @@ export class ReturnsComponent implements OnInit, OnDestroy {
 
 
   //Al seleccionar o deseleccionar un producto, ajusta cantidad y motivo.
-  onSelectItem(item: any): void {
+  onSelectItem(item: ReturnableProduct): void {
     if (item.selected) {
       item.returnQuantity = item.quantity;
     } else {
@@ -260,13 +272,13 @@ export class ReturnsComponent implements OnInit, OnDestroy {
     }
   }
   //Validar cantidad de devolución
-  isValidQuantity(item: any): boolean {
+  isValidQuantity(item: ReturnableProduct): boolean {
     const value = item.returnQuantity ?? item.quantity;
     return value > 0 && value <= item.quantity;
   }
   //Ajusta cantidades inválidas y redondea si es unidad.
-  onBlurCantidad(item: any): void {
-    let qty = parseFloat(item.returnQuantity);
+  onBlurCantidad(item: ReturnableProduct): void {
+    let qty = item.returnQuantity;
 
     if (isNaN(qty) || qty < 1) {
       qty = 1;

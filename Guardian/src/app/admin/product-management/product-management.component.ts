@@ -76,7 +76,7 @@ export class ProductManagementComponent implements OnInit {
       lowInventoryStart: [0],
       addToInventoryVal: [0],
       measure: [MeasureType.Ud, Validators.required],
-      canRefunded: [true, Validators.required]
+      canBeRefunded: [true, Validators.required]
     });
   }
 
@@ -301,7 +301,7 @@ export class ProductManagementComponent implements OnInit {
   newProduct(): void {
     this.selectedProduct = null;
     this.productForm.reset();
-    this.productForm.patchValue({ productId: 0, companyId: this.userState.companyId, unitsInStock: 0, discontinued: false ,canRefunded:true });
+    this.productForm.patchValue({ productId: 0, companyId: this.userState.companyId, unitsInStock: 0, discontinued: false ,canBeRefunded:true });
     window.scrollTo(0, 0);
   }
 

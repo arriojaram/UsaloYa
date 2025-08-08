@@ -10,5 +10,5 @@ export interface RefundReportDto {
   refundDate: string; 
   refundMethod: string;
   refundAmountTotal: number;
-  products?: RefundProduct[]; // Puede venir nulo
+  products?: RefundProduct[]; 
 }

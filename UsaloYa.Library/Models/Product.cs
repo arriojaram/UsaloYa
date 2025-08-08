@@ -23,7 +23,7 @@ public partial class Product
 
     public bool Discontinued { get; set; }
 
-    public bool CanRefunded { get; set; }
+    public bool CanBeRefunded { get; set; }
 
     public string? ImgUrl { get; set; }
 

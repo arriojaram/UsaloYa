@@ -33,7 +33,6 @@ export class ReportsService {
     );
   }
 
-  // Aquí agregas el método para reportes de devoluciones
   getRefundsReport(fromDate: string, toDate: string, companyId: number): Observable<RefundReportDto[]> {
     const apiUrl = `${this.baseUrl}/GetRefundsReport?fromDate=${fromDate}&toDate=${toDate}&companyId=${companyId}`;
     return this.httpClient.get<RefundReportDto[]>(apiUrl).pipe(

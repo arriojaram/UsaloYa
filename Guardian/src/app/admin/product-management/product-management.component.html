@@ -165,12 +165,12 @@
               <div class="col-12 col-md-2">
                 <label class="form-label fw-bold small">Permitir Devoluciones</label>
                 <div class="form-check form-switch mt-1">
-                  <input id="canRefunded" type="checkbox" class="form-check-input" formControlName="canRefunded">
-                  <label class="form-check-label small" for="canRefunded">
-                    <span *ngIf="productForm.get('canRefunded')?.value" class="text-success">
+                  <input id="canBeRefunded" type="checkbox" class="form-check-input" formControlName="canBeRefunded">
+                  <label class="form-check-label small" for="canBeRefunded">
+                    <span *ngIf="productForm.get('canBeRefunded')?.value" class="text-success">
                       <i class="bi bi-check-circle me-1" style="font-size: 0.8rem;"></i>Permitido
                     </span>
-                    <span *ngIf="!productForm.get('canRefunded')?.value" class="text-danger">
+                    <span *ngIf="!productForm.get('canBeRefunded')?.value" class="text-danger">
                       <i class="bi bi-x-circle me-1" style="font-size: 0.8rem;"></i>No permitido
                     </span>
                   </label>
