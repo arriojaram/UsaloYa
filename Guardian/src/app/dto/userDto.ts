@@ -19,5 +19,6 @@ export interface userDto{
     creationDate?: Date,
     creationDateUI?: string,
     roleId: number,
-    companyStatusId?: number
+    companyStatusId?: number,
+    canMakeReturns?: boolean
 }

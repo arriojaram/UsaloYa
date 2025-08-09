@@ -13,7 +13,7 @@
     {
         Completada = 0,
         Cancelada = 1,
-        Reembolsado = 2
+        Reembolsado = 2,
     }
     public enum RentTypeId
     { 

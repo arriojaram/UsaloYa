@@ -61,7 +61,8 @@ namespace UsaloYa.Services
                         StatusId = (int)UserStatus.Desconocido,
                         CreationDate = Utils.GetMxDateTime(),
                         RoleId = userDto.RoleId,
-                        CodeVerification = userDto.CodeVerification
+                        CodeVerification = userDto.CodeVerification,
+                        CanMakeReturns = userDto.CanMakeReturns
                     };
                 if (userDto.LastUpdatedBy == 0 || userDto.CreatedBy == 0 || userDto.GroupId == 0)
                 {
@@ -94,8 +95,9 @@ namespace UsaloYa.Services
                     userToSave.LastAccess = userDto.LastAccess;
                     userToSave.LastUpdateBy = userDto.LastUpdatedBy;
                     userToSave.RoleId = userDto.RoleId;
+                    userToSave.CanMakeReturns = userDto.CanMakeReturns;
 
-                    _dBContext.Entry(userToSave).State = EntityState.Modified;
+                _dBContext.Entry(userToSave).State = EntityState.Modified;
                     
                 }
                 await _dBContext.SaveChangesAsync();
@@ -143,7 +145,8 @@ namespace UsaloYa.Services
                 CreatedByUserName = user.CreatedByNavigation?.UserName ?? "",
                 LastUpdatedByUserName = user.LastUpdateByNavigation?.UserName ?? "",
                 CompanyName = user.Company.Name,
-                CompanyStatusId = user.Company.StatusId
+                CompanyStatusId = user.Company.StatusId,
+                CanMakeReturns = user.CanMakeReturns
             };
         }
 

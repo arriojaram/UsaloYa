@@ -146,7 +146,7 @@
               </div>
 
               <!-- Discontinued Status -->
-              <div class="col-12 col-md-4">
+              <div class="col-12 col-md-2">
                 <label class="form-label fw-bold small">Estado</label>
                 <div class="form-check form-switch mt-1">
                   <input id="discontinued" type="checkbox" class="form-check-input" formControlName="discontinued">
@@ -160,6 +160,23 @@
                   </label>
                 </div>
               </div>
+
+              <!-- can return -->
+              <div class="col-12 col-md-2">
+                <label class="form-label fw-bold small">Permitir Devoluciones</label>
+                <div class="form-check form-switch mt-1">
+                  <input id="canBeRefunded" type="checkbox" class="form-check-input" formControlName="canBeRefunded">
+                  <label class="form-check-label small" for="canBeRefunded">
+                    <span *ngIf="productForm.get('canBeRefunded')?.value" class="text-success">
+                      <i class="bi bi-check-circle me-1" style="font-size: 0.8rem;"></i>Permitido
+                    </span>
+                    <span *ngIf="!productForm.get('canBeRefunded')?.value" class="text-danger">
+                      <i class="bi bi-x-circle me-1" style="font-size: 0.8rem;"></i>No permitido
+                    </span>
+                  </label>
+                </div>
+              </div>
+
 
               <!-- SKU and Barcode -->
               <div class="col-12 col-md-6">

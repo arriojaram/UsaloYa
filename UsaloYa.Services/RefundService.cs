@@ -15,12 +15,13 @@ namespace UsaloYa.Services
         private readonly IProductService _productService;
         private readonly ISaleService _saleService;
 
-        public RefundService(DBContext dBContext, ICompanyService companyService, IProductService productService, ISaleService saleService)
+        public RefundService(DBContext dBContext, ICompanyService companyService, IProductService productService,ISaleService saleService)
         {
             _dBContext = dBContext;
             _companyService = companyService; 
             _productService = productService;
             _saleService = saleService;
+
         }
 
         public async Task<bool> ManageRefund(RequestRefundDto requestRefundDto, int companyId)

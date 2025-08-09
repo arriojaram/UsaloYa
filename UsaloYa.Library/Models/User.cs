@@ -24,6 +24,8 @@ public partial class User
     public bool? IsEnabled { get; set; }
 
     public int StatusId { get; set; }
+    public bool CanMakeReturns { get; set; } = false; 
+
 
     public int? CreatedBy { get; set; }
 
