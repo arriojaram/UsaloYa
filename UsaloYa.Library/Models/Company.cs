@@ -30,7 +30,6 @@ public partial class Company
     public string? OwnerInfo { get; set; }
 
     public int? PlanId { get; set; }
-    public int? MaxDaysToRefund { get; set; }
 
     public virtual User? CreatedByNavigation { get; set; }
 

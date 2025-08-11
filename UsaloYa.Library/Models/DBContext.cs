@@ -125,7 +125,6 @@ public partial class DBContext : DbContext
             entity.Property(e => e.PhoneNumber)
                 .HasMaxLength(10)
                 .IsUnicode(false);
-            entity.Property(e => e.MaxDaysToRefund).HasColumnType("int");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.CompanyCreatedByNavigations).HasForeignKey(d => d.CreatedBy);
 

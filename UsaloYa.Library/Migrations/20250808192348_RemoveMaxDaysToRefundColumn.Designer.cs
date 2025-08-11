@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using UsaloYa.Library.Models;
 
@@ -11,9 +12,11 @@ using UsaloYa.Library.Models;
 namespace UsaloYa.Library.Migrations
 {
     [DbContext(typeof(DBContext))]
-    partial class DBContextModelSnapshot : ModelSnapshot
+    [Migration("20250808192348_RemoveMaxDaysToRefundColumn")]
+    partial class RemoveMaxDaysToRefundColumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -347,7 +350,7 @@ namespace UsaloYa.Library.Migrations
                     b.Property<decimal?>("BuyPrice")
                         .HasColumnType("decimal(10, 2)");
 
-                    b.Property<bool>("CanBeRefunded")
+                    b.Property<bool?>("CanRefunded")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValueSql("(CONVERT([bit],(0)))");
@@ -700,9 +703,6 @@ namespace UsaloYa.Library.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
-
-                    b.Property<bool>("CanMakeReturns")
-                        .HasColumnType("bit");
 
                     b.Property<string>("CodeVerification")
                         .HasMaxLength(10)

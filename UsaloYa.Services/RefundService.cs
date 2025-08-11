@@ -1,8 +1,10 @@
-﻿using UsaloYa.Dto;
+﻿using System.Xml.Linq;
+using UsaloYa.Dto;
 using UsaloYa.Dto.Enums;
 using UsaloYa.Dto.Utils;
 using UsaloYa.Library.Models;
 using UsaloYa.Services.interfaces;
+using System.Xml.Linq;
 
 namespace UsaloYa.Services
 {
@@ -55,14 +57,21 @@ namespace UsaloYa.Services
         {
             if (SaleDate is null) return false;
 
-            var maxDaysToRefund = await _companyService.GetMaxDaysToRefund(companyId);
+            var settingsXml = await _companyService.GetSettings(companyId);  
+            var settingsList = Utils.DeserializeSettings(settingsXml);  
+
+            int? maxDaysToRefund = settingsList
+                .Where(s => s.Key == "maxDaysToRefund")
+                .Select(s => int.TryParse(s.Value, out var val) ? val : (int?)null)
+                .FirstOrDefault();
+
+
             var days = Utils.DifferenceOfDays(SaleDate, maxDaysToRefund);
 
             var response = days > 0 ?  true :  false;
             return response;
         }
-
-        
+  
 
         public async Task<bool> AddRefund(RequestRefundDto requestRefundDto)
         {
@@ -94,6 +103,7 @@ namespace UsaloYa.Services
 
             await _dBContext.Refunds.AddRangeAsync(refundsToAdd);
             await _dBContext.SaveChangesAsync();
+
 
             return true;
         }
