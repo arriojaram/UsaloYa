@@ -1,15 +1,16 @@
-﻿using Azure.Core;
-    using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Azure.Core;
+    using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using UsaloYa.Dto;
 using UsaloYa.Dto.Enums;
+using UsaloYa.Dto.UsaloYa.Dto;
 using UsaloYa.Dto.Utils;
 using UsaloYa.Library.Config;
 using UsaloYa.Library.Models;
@@ -362,7 +363,12 @@ namespace UsaloYa.Services
         public async Task<UserResponseDto> RegisterNewUserAndCompany(RegisterUserQuestionnaireAndCompanyDto request)
         {
             // 1. Crear la compañía
+            var settings = new List<PairSettingsDto>
+            { new PairSettingsDto { Key = "maxDaysToRefund", Value = "0"} };
+
             var company = await _CompanyService.SaveCompany(request.CompanyDto);
+            var config = Utils.XmlSerializeSettings(settings);
+            var companyInfo = await _CompanyService.UpdateSettings(company.CompanyId, config);
             if (company.CompanyId == 0)
                 throw new InvalidOperationException("La compañía no fue creada correctamente.");
 
@@ -467,6 +473,18 @@ namespace UsaloYa.Services
                 CompanyId = u.CompanyId,
 
             });
+        }
+
+        public async Task<bool> UpdateRefundPermissionStatus(RefundPermissionDto permission)
+        {
+            var user = await _dBContext.Users.FindAsync(permission.UserId);
+            if (user == null) return false;
+
+            user.CanMakeReturns = permission.CanMakeReturns;
+            _dBContext.Entry(user).State = EntityState.Modified;
+            await _dBContext.SaveChangesAsync();
+
+            return true;
         }
     }
 }

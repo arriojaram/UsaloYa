@@ -77,6 +77,17 @@
     "time_expired": "Tiempo para devolución expirado",
     "ticket_already_refunded": "Ticket ya fue devuelto"
   },
+
+  "user": {
+    "request_incorrect":"Petición incorrecta.",
+    "user_saved":"Usuario guardado.",
+    "password_updated":"Password actualizado.",
+    "no_autorirization":"No autorizado.",
+    "update_perrmissions_success":"Permiso de devoluciones actualizado.",
+    "error_update_permissions":"Error al actualizar permiso de devoluciones."
+  
+  },
+
   "emails": {
     "email_send_error": "Error al enviar el correo electronico, por favor contactenos",
     "email_send_ok": "Usuario registrado y correos enviados correctamente."

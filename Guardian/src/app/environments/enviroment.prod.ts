@@ -1,4 +1,4 @@
-export const environment = 
+export const environment =
 {
     production: true,
     apiUrlBase: 'https://api.guardian.usaloya.xyz',
@@ -12,6 +12,7 @@ export const environment =
     paymentPendingMsg: 'El pago de tu membresia esta próximo a vencer, contacta a tu vendedor para renovar tu membresia y continuar disfrutando de tu acceso.',
     PAIRSETT_ACTIVAR_IMPRESORA: "activarImpresionWeb",
     PAIRSETT_NOMBRE_IMPRESORA: "impresoraWeb",
+    PAIRSETT_DIAS_DE_DEVOLUCION: "maxDaysToRefund",
     freeLicenseMessage: 'La versión gratuita está limitada en funciones. Actualiza a Premium para desbloquear y potenciar tu experiencia.',
     whatsNumber: 'https://api.whatsapp.com/send?phone=2481569632',
 }

@@ -31,9 +31,14 @@
                     <i class="bi bi-receipt-cutoff text-warning"></i>
                   </span>
                   <input type="text" class="form-control" [(ngModel)]="filterText" name="searchInput"
-                    [ngModelOptions]="{standalone: true}" (keyup)="filterSales()"
+                    [ngModelOptions]="{standalone: true}" 
                     placeholder="Buscar por folio o ID de venta">
                 </div>
+              </div>
+              <div class="col-auto">
+                <button type="button" class="btn btn-sm btn-primary" (click)="filterSales()">
+                  Buscar
+                </button>
               </div>
             </div>
           </form>
@@ -68,20 +73,16 @@
                   <td>{{ sale.totalSale | currency:'MXN' }}</td>
                   <td>{{ sale.fullName }}({{sale.userName}})</td>
                   <td>
-                 <button class="btn btn-sm"
-  [ngClass]="{
+                    <button class="btn btn-sm" [ngClass]="{
     'btn-outline-danger': canReturnSale(sale) && sale.status !== StatusVentaEnum.Reembolsado,
     'btn-secondary': !canReturnSale(sale) || sale.status === StatusVentaEnum.Reembolsado,
     'disabled-button': !canReturnSale(sale)  || sale.status === StatusVentaEnum.Reembolsado
-  }"
-  (click)="onReturnClick(sale)"
-  [title]="
+  }" (click)="onReturnClick(sale)" [title]="
     sale.status === StatusVentaEnum.Reembolsado ? 'Ticket ya fue devuelto' :
     !canReturnSale(sale) ? 'Tiempo para devolución expirado' : ''
-  "
->
-  <i class="bi bi-arrow-counterclockwise"></i> Devolver
-</button>
+  ">
+                      <i class="bi bi-arrow-counterclockwise"></i> Devolver
+                    </button>
 
                   </td>
                 </tr>
@@ -180,7 +181,7 @@
                       </div>
                     </td>
 
-                    <td class="text-center d-none d-md-table-cell"> 
+                    <td class="text-center d-none d-md-table-cell">
                       <span class="badge bg-secondary">{{ getMeasureName(item.measure) }}</span>
                     </td>
 
