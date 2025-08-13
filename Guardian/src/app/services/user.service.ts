@@ -198,6 +198,16 @@ checkEmailUnique(email: string): Observable<boolean> {
   );
 }
 
+updateRefundPermissionStatus(permission: { userId: number; canMakeReturns: boolean }) {
+  const apiUrl = `${this.baseUrl}/UpdateRefundPermissionStatus`;
+  return this.http.post<userDto>(apiUrl, permission).pipe(
+    catchError(error => {
+      console.error('updateRefundPermissionStatus() | ', error);
+      throw error;
+    })
+  );
+}
+
 
 }
 

@@ -87,7 +87,8 @@ export class ReturnsComponent implements OnInit, OnDestroy {
           .pipe(takeUntil(this.destroy$))
           .subscribe({
             next: (sales) => {
-              this.sales = sales.map(sale => ({
+               const filteredByDate = sales.filter(sale => this.canReturnSale(sale));
+              this.sales = filteredByDate.map(sale => ({
                 saleID: sale.saleID,
                 folio: sale.folio,
                 saleDate: new Date(sale.saleDate).toISOString(),
@@ -98,7 +99,8 @@ export class ReturnsComponent implements OnInit, OnDestroy {
                   sale.status === 'Cancelada' ? StatusVentaEnum.Cancelada :
                     sale.status === 'Reembolsado' ? StatusVentaEnum.Reembolsado :
                       StatusVentaEnum.Completada
-              }));
+              }))
+               .sort((a, b) => new Date(b.saleDate).getTime() - new Date(a.saleDate).getTime());
               this.filteredSales = [...this.sales];
             },
             error: (err) => console.error('Error al cargar ventas:', err)
