@@ -19,8 +19,8 @@ export interface companyDto
     
     expirationDate?: Date,
     expirationDateUI?: string,
-    phoneNumber?: string,
-    cellphoneNumber?: string,
+    telNumber?: string,
+    celNumber?: string,
     email?: string,
     ownerInfo?: string,
 

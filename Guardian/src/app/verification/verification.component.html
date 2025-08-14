@@ -1,6 +1,150 @@
 <div class="form-container">
   <h2 class="title">Código de Verificación</h2>
+  <!-- Professional Instructions Section with Multimedia -->
+  <div class="instructions-container">
+    <div class="instructions-header">
+      <div class="header-icon">
+        <i class="bi bi-envelope-check-fill"></i>
+      </div>
+      <h3 class="instructions-title">Sigue estos pasos para verificar tu cuenta</h3>
+      <p class="instructions-subtitle">Te hemos enviado un código de verificación por correo electrónico</p>
+    </div>
 
+    <div class="steps-container">
+      <!-- Step 1: Email Sent -->
+      <div class="instruction-step">
+        <div class="step-number">
+          <span>1</span>
+        </div>
+        <div class="step-content">
+          <div class="step-header">
+            <i class="bi bi-send-fill step-icon"></i>
+            <h4 class="step-title">Correo Enviado</h4>
+          </div>
+          <p class="step-description">
+            Se ha enviado un correo electrónico a la dirección que proporcionaste durante el registro.
+          </p>
+          <div class="step-visual">
+            <div class="email-mockup">
+              <div class="email-header">
+                <i class="bi bi-envelope-fill"></i>
+                <span>Guardian - Código de Verificación</span>
+              </div>
+              <div class="email-body">
+                <div class="verification-code-preview">
+                  <span>Tu código: </span>
+                  <code class="code-preview">ABC123</code>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Check Inbox -->
+      <div class="instruction-step">
+        <div class="step-number">
+          <span>2</span>
+        </div>
+        <div class="step-content">
+          <div class="step-header">
+            <i class="bi bi-inbox-fill step-icon"></i>
+            <h4 class="step-title">Revisa tu Bandeja de Entrada</h4>
+          </div>
+          <p class="step-description">
+            Abre tu cliente de correo y busca el mensaje de Guardian con tu código de verificación.
+          </p>
+          <div class="step-visual">
+            <div class="inbox-mockup">
+              <div class="inbox-item active">
+                <div class="sender">Guardian</div>
+                <div class="subject">Código de Verificación - Completa tu registro</div>
+                <div class="time">Hace 1 min</div>
+              </div>
+              <div class="inbox-item">
+                <div class="sender">Otro remitente</div>
+                <div class="subject">Otro mensaje...</div>
+                <div class="time">Hace 2 horas</div>
+              </div>
+            </div>
+          </div>
+          <div class="step-tip">
+            <i class="bi bi-lightbulb-fill"></i>
+            <span>El correo puede tardar hasta 5 minutos en llegar</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Enter Code -->
+      <div class="instruction-step">
+        <div class="step-number">
+          <span>3</span>
+        </div>
+        <div class="step-content">
+          <div class="step-header">
+            <i class="bi bi-key-fill step-icon"></i>
+            <h4 class="step-title">Ingresa el Código</h4>
+          </div>
+          <p class="step-description">
+            Copia el código de 6 dígitos del correo e ingrésalo en el campo de abajo junto con tu email.
+          </p>
+          <div class="step-visual">
+            <div class="code-input-demo">
+              <div class="demo-label">Código de verificación:</div>
+              <div class="demo-input">
+                <input type="text" placeholder="ABC123" readonly>
+                <i class="bi bi-arrow-down-circle-fill demo-arrow"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: Troubleshooting -->
+      <div class="instruction-step troubleshooting">
+        <div class="step-number warning">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+        </div>
+        <div class="step-content">
+          <div class="step-header">
+            <i class="bi bi-question-circle-fill step-icon"></i>
+            <h4 class="step-title">¿No recibiste el correo?</h4>
+          </div>
+          <div class="troubleshooting-options">
+            <div class="trouble-option">
+              <i class="bi bi-shield-exclamation"></i>
+              <div>
+                <strong>Revisa tu carpeta de Spam</strong>
+                <p>El correo podría estar en correo no deseado</p>
+              </div>
+            </div>
+            <div class="trouble-option">
+              <i class="bi bi-clock-fill"></i>
+              <div>
+                <strong>Espera unos minutos</strong>
+                <p>Los correos pueden tardar hasta 5 minutos</p>
+              </div>
+            </div>
+            <div class="trouble-option">
+              <i class="bi bi-arrow-clockwise"></i>
+              <div>
+                <strong>Solicitar nuevo código</strong>
+                <p>Si no llega, puedes pedir otro código</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress Indicator -->
+    <div class="progress-container">
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 75%"></div>
+      </div>
+      <span class="progress-text">Paso 3 de 4 - Verificación de cuenta</span>
+    </div>
+  </div>
   <form [formGroup]="verificationForm" (ngSubmit)="onSubmit()" class="form">
 
     <div class="form-group">

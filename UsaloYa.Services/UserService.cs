@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-using Azure.Core;
-    using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using UsaloYa.Dto;
 using UsaloYa.Dto.Enums;
@@ -15,7 +7,6 @@ using UsaloYa.Dto.Utils;
 using UsaloYa.Library.Config;
 using UsaloYa.Library.Models;
 using UsaloYa.Services.Interfaces;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 
 namespace UsaloYa.Services

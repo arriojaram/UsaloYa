@@ -4,6 +4,7 @@ using UsaloYa.API.Security;
 using UsaloYa.Dto.Enums;
 using UsaloYa.Library.Config;
 using UsaloYa.Library.Models;
+using UsaloYa.Services;
 using UsaloYa.Services.Interfaces;
 
 namespace UsaloYa.API.Controllers
@@ -17,15 +18,17 @@ namespace UsaloYa.API.Controllers
         private readonly IReportSaleService _reportService;
         private readonly IReportRefundService _reportRefundService;
         private readonly IReportCompanyService _reportCompanyService;
+        private readonly HeaderValidatorService _headerValidatorService;
         private readonly DBContext _dBContext;
 
-        public ReportController(DBContext dBContext, IReportSaleService reportService, ILogger<ReportController> logger, IReportRefundService reportRefundService, IReportCompanyService reportCompanyService)
+        public ReportController(DBContext dBContext, IReportSaleService reportService, ILogger<ReportController> logger, IReportRefundService reportRefundService, IReportCompanyService reportCompanyService, HeaderValidatorService headerValidatorService)
         {
             _logger = logger;
             _reportService = reportService;
             _dBContext = dBContext;
             _reportRefundService = reportRefundService;
             _reportCompanyService = reportCompanyService;
+            _headerValidatorService = headerValidatorService;
         }
 
         [HttpGet("GetSalesReport")]
@@ -93,7 +96,7 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var user = await HeaderValidatorService.ValidateRequestorSameCompanyOrTopRol(RequestorId, companyId, Role.Ventas, _dBContext);
+                var user = await _headerValidatorService.ValidateRequestorSameCompanyOrTopRol(RequestorId, companyId, Role.Ventas);
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 

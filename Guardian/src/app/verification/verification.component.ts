@@ -71,6 +71,11 @@ export class VerifyCodeComponent implements OnInit, OnDestroy {
 
   this.loading = true;
 
+  if(!this.deviceId || this.deviceId === '')
+  {
+    this.loadDeviceId();
+  }
+
   const request: RequestVerificationCodeDto = {
     Code: this.verificationForm.value.Code,
     Email: this.verificationForm.value.Email,

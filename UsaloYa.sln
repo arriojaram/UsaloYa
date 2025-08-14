@@ -15,6 +15,27 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UsaloYa.Services", "UsaloYa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Android Wrapper", "Android Wrapper\Android Wrapper.csproj", "{AD1C0D94-9F45-4817-BFE0-22A718C0CFBB}"
 EndProject
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "WebPage", "WebPage\", "{CBB07DE0-34FF-CC09-60DB-000E1ADA96B7}"
+	ProjectSection(WebsiteProperties) = preProject
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.8.1"
+		Debug.AspNetCompiler.VirtualPath = "/localhost_63107"
+		Debug.AspNetCompiler.PhysicalPath = "WebPage\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_63107\"
+		Debug.AspNetCompiler.Updateable = "true"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/localhost_63107"
+		Release.AspNetCompiler.PhysicalPath = "WebPage\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_63107\"
+		Release.AspNetCompiler.Updateable = "true"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
+		VWDPort = "63107"
+		SlnRelativePath = "WebPage\"
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +68,10 @@ Global
 		{AD1C0D94-9F45-4817-BFE0-22A718C0CFBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AD1C0D94-9F45-4817-BFE0-22A718C0CFBB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{AD1C0D94-9F45-4817-BFE0-22A718C0CFBB}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{CBB07DE0-34FF-CC09-60DB-000E1ADA96B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBB07DE0-34FF-CC09-60DB-000E1ADA96B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBB07DE0-34FF-CC09-60DB-000E1ADA96B7}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBB07DE0-34FF-CC09-60DB-000E1ADA96B7}.Release|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

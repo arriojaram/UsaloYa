@@ -1,16 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using UsaloYa.Dto;
 using UsaloYa.Dto.Enums;
 using UsaloYa.Dto.Utils;
-using UsaloYa.Dto;
 using UsaloYa.Library.Models;
 using UsaloYa.Services.Interfaces;
-using Microsoft.Extensions.Configuration;
 
 namespace UsaloYa.Services
 {
