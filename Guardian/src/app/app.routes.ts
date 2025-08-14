@@ -17,22 +17,27 @@ import { RegisterComponent } from './register/register.component';
 import { VerifyCodeComponent } from './verification/verification.component';
 import { QuestionsComponent } from './questions/questions.component';
 import { FormNavigatorComponent } from './forms-navigator/forms-navigator.component';
+import { ReturnsComponent } from './admin/returns/returns.component';
+import { ReturnsReportComponent } from './admin/returns-report/returns-report.component';
 
 
 export const routes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },
     { path: 'login', component: LoginComponent },
     { path: 'verification', component: VerifyCodeComponent },
-    
-    {path: 'forms-navigator',component: FormNavigatorComponent,
+
+    {
+        path: 'forms-navigator', component: FormNavigatorComponent,
         children: [
             { path: 'register', component: RegisterComponent },
-            { path: 'register-company',component:RegisterCompanyComponent },
-            {path: 'questions', component: QuestionsComponent}
+            { path: 'register-company', component: RegisterCompanyComponent },
+            { path: 'questions', component: QuestionsComponent }
         ]
     },
     { path: 'reporteinventario', component: InventarioReportComponent, canActivate: [AuthGuard] },
+    { path: 'reportedevoluciones', component: ReturnsReportComponent, canActivate: [AuthGuard] },
     { path: 'reporteventas', component: SalesReportComponent, canActivate: [AuthGuard] },
+    { path: 'devoluciones', component: ReturnsComponent, canActivate: [AuthGuard] },
     { path: 'importar', component: ImportProductsComponent, canActivate: [AuthGuard] },
     { path: 'companies', component: CompanyManagementComponent, canActivate: [AuthGuard] },
     { path: 'productos', component: ProductManagementComponent, canActivate: [AuthGuard] },

@@ -29,4 +29,13 @@
   background-color: #efef21 !important; /* Rojo */
 }
 
+.toggle-reembolsado .form-check-input {
+  background-color: #fcc37e !important; /* Naranja */
+}
+.toggle-reembolsado .form-check-input:checked:disabled {
+    background-color: #fd7e14;
+    border: #fd7e14;
+    opacity: 1;
+    cursor: not-allowed;
   
+  }

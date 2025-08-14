@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using UsaloYa.API.Security;
 using UsaloYa.Dto;
 using UsaloYa.Dto.Enums;
+using UsaloYa.Dto.UsaloYa.Dto;
 using UsaloYa.Library.Config;
 using UsaloYa.Library.Models;
 using UsaloYa.Services;
@@ -323,6 +324,26 @@ namespace UsaloYa.API.Controllers
 
                 var users = await _userService.GetUsersByCompany(companyId);
                 return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "GetAll.ApiError");
+                return StatusCode(500, new { message = "$_Excepcion_Ocurrida" });
+            }
+
+        }
+
+        [HttpPost("UpdateRefundPermissionStatus")]
+        public async Task<IActionResult> UpdateRefundPermissionStatus([FromHeader] string RequestorId, [FromBody] RefundPermissionDto permission)
+        {
+            try
+            {
+                var user = await HeaderValidatorService.ValidateRequestor(RequestorId, Role.Admin, _dBContext);
+                if (user.UserId <= 0) return Unauthorized(AppConfig.NO_AUTORIZADO);
+
+
+                var result = await _userService.UpdateRefundPermissionStatus(permission);
+                return Ok(result);
             }
             catch (Exception ex)
             {

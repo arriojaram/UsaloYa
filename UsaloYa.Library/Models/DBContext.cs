@@ -122,7 +122,6 @@ public partial class DBContext : DbContext
             entity.Property(e => e.PhoneNumber)
                 .HasMaxLength(10)
                 .IsUnicode(false);
-            entity.Property(e => e.MaxDaysToRefund).HasColumnType("int");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.CompanyCreatedByNavigations).HasForeignKey(d => d.CreatedBy);
 
@@ -261,7 +260,7 @@ public partial class DBContext : DbContext
             entity.Property(e => e.UnitPrice3).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.UnitsInStock).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.Weight).HasColumnType("decimal(10, 2)");
-            entity.Property(e => e.CanRefunded)
+            entity.Property(e => e.CanBeRefunded)
                 .HasDefaultValueSql("(CONVERT([bit],(0)))");
 
             entity.HasOne(d => d.Category).WithMany(p => p.Products)

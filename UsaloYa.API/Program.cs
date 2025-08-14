@@ -66,6 +66,7 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IQuestionnaireService, QuestionnaireService>();
 builder.Services.AddScoped<IRefundService, RefundService>();
 builder.Services.AddScoped<IReportRefundService, ReportRefundService>();
+builder.Services.AddScoped<IReportCompanyService, ReportCompanyService>();
 builder.Services.AddScoped<ICashCounter, CashCountService>();
 
 

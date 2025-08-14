@@ -61,7 +61,8 @@ export enum UserStatus
 
 export enum StatusVentaEnum {
     Completada,
-    Cancelada 
+    Cancelada ,
+    Reembolsado
 }
 
 export enum MeasureType {
@@ -69,6 +70,29 @@ export enum MeasureType {
     Ud = 1,
     Kg = 2
 }
+export enum ReturnReason {
+  Defectuoso = 1,
+  Caducado = 2,
+  ErrorVenta = 3,
+  ClienteNoQuiso = 4,
+  Otro = 5
+}
+
+export function getReturnReasonLabel(reason: ReturnReason): string {
+  switch (reason) {
+    case ReturnReason.Defectuoso:
+      return 'Producto defectuoso';
+    case ReturnReason.Caducado:
+      return 'Caducado';
+    case ReturnReason.ErrorVenta:
+      return 'Error en la venta';
+    case ReturnReason.ClienteNoQuiso:
+      return 'Cliente no lo quiso';
+    case ReturnReason.Otro:
+      return 'Otro';
+  }
+}
+
 
 export function getCompanyStatusEnumName(value: number): string {
     const name = CompanyStatus[value];

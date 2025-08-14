@@ -43,7 +43,8 @@ getUserStateLocalStorage(): userDto {
       companyId: 0,
       groupId: 0,
       statusId: 0,
-      companyName: ''
+      companyName: '',
+     
     };
   }
 }

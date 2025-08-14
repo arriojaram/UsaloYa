@@ -13,6 +13,7 @@ import { AdminCompanyDto } from '../../dto/adminCompanyDto';
 import { AlertLevel, CompanyStatus, getUserStatusEnumName, Roles } from '../../Enums/enums';
 import { CompanyService } from '../../services/company.service';
 import { environment } from '../../environments/enviroment';
+import { TranslateService } from '@ngx-translate/core';
 
 
 @Component({
@@ -49,7 +50,8 @@ export class UserManagementComponent {
     private companyService: CompanyService,
     private userStateService: UserStateService,
     private route: ActivatedRoute,
-    public navigationService: NavigationService
+    public navigationService: NavigationService,
+    private translate: TranslateService
   ) 
   {
     this.userState = userStateService.getUserStateLocalStorage();
@@ -69,7 +71,7 @@ export class UserManagementComponent {
 
     if(this.userState.roleId < Roles.Admin)
     {
-      this.navigationService.showUIMessage("Petición incorrecta.");
+      this.navigationService.showUIMessage("this.translate.instant('user.request_incorrect')");
       return;
     }
     else
@@ -85,7 +87,12 @@ export class UserManagementComponent {
       });
 
     this.initRoles();
-    this.navigationService.showFreeLicenseMsg(this.userState.companyStatusId?? 0);
+
+     this.userForm.get('canMakeReturns')?.valueChanges.subscribe((newValue: boolean) => {
+    if(this.selectedUser) {
+      this.saveCanMakeReturnsChange(newValue);
+    }
+  });
   }
 
   private initRoles()
@@ -140,7 +147,8 @@ export class UserManagementComponent {
       createdByUserName: [''],
       lastUpdatedByUserName: [''],
       creationDateUI: [''],
-      roleId: [0]
+      roleId: [0],
+      canMakeReturns: [this.selectedUser?.canMakeReturns ?? false],
     });
   }
 
@@ -172,7 +180,7 @@ export class UserManagementComponent {
   newUser(): void {
     this.selectedUser = null;
     this.userForm.reset();
-    this.userForm.patchValue({userId:0, userName:'', roleId:1, firstName:'', lastName:'', groupId:0, isEnabled:true, password:''});
+    this.userForm.patchValue({userId:0, userName:'', roleId:1, firstName:'', lastName:'', groupId:0, isEnabled:true, password:'', canMakeReturns: false});
   }
 
   selectUser(userId: number): void {
@@ -267,7 +275,7 @@ export class UserManagementComponent {
               next: (users) => {
                 this.userListsByCompany[companyId] = users.sort((a,b) => (a.firstName?? '').localeCompare((b.firstName?? '')));              
                 this.selectUser(result.userId);
-                this.navigationService.showUIMessage("Usuario guardado (" + result.userName + ")", AlertLevel.Sucess);
+                this.navigationService.showUIMessage(this.translate.instant('user.user_saved') + " (" + result.userName + ")", AlertLevel.Sucess);
               },
               error: (e) => {
                 this.navigationService.showUIMessage(e.error);
@@ -293,7 +301,7 @@ export class UserManagementComponent {
 
       this.userService.setPassword(username, this.passwordForm.value.password).pipe(first())
       .subscribe(result => {
-        this.navigationService.showUIMessage("Password actualizado.", AlertLevel.Sucess);
+        this.navigationService.showUIMessage(this.translate.instant('user.password_updated'), AlertLevel.Sucess);
       });
     } 
   }
@@ -373,7 +381,7 @@ export class UserManagementComponent {
             else
             {
               if(error.status == 401)
-                this.navigationService.showUIMessage('No autorizado');
+                this.navigationService.showUIMessage(this.translate.instant('user.no_autorirization'));
             }          
           }
       });
@@ -384,5 +392,29 @@ export class UserManagementComponent {
     const colors = ['#FF6B6B', '#6BCB77', '#4D96FF', '#FFD93D', '#FF6EC7', '#9B59B6', '#E67E22', '#1ABC9C'];
     return colors[companyId % colors.length];
   }
+
+saveCanMakeReturnsChange(newValue: boolean): void {
+  if (!this.selectedUser) return;
+
+  if (this.selectedUser.canMakeReturns !== newValue) {
+    const payload = {
+      userId: this.selectedUser.userId,
+      canMakeReturns: newValue
+    };
+
+    this.userService.updateRefundPermissionStatus(payload).subscribe({
+      next: (updatedUser) => {
+        this.selectedUser!.canMakeReturns = updatedUser.canMakeReturns;
+        this.navigationService.showUIMessage(this.translate.instant('user.update_perrmissions_success'), AlertLevel.Sucess);
+      },
+      error: () => {
+        this.navigationService.showUIMessage(this.translate.instant('user.error_update_permissions'), AlertLevel.Error);
+        this.userForm.get('canMakeReturns')?.setValue(this.selectedUser!.canMakeReturns, { emitEvent: false });
+      }
+    });
+  }
+}
+
+
 
 }

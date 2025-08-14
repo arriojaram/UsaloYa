@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UsaloYa.Dto;
 using UsaloYa.Dto.Enums;
+using UsaloYa.Dto.UsaloYa.Dto;
 using UsaloYa.Library.Models;
 
 namespace UsaloYa.Services.Interfaces
@@ -25,6 +26,7 @@ namespace UsaloYa.Services.Interfaces
 
         Task<(bool isValid, string message, int userId)> RequestVerificationCodeEmail(RequestVerificationCodeDto data, string deviceId);
         Task<IEnumerable<UserResponseDto>> GetUsersByCompany(int companyId);
+        Task<bool> UpdateRefundPermissionStatus(RefundPermissionDto permission);
 
     }
 }

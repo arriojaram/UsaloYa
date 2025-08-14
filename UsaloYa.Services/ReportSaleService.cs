@@ -61,6 +61,7 @@ namespace UsaloYa.Services
                     ProductName = r.Product.Name,
                     Quantity = r.Quantity,
                     Measure = r.Product.Measure,
+                    CanBeRefunded = r.Product.CanBeRefunded,
                     BuyPrice = r.Product.BuyPrice,
                     SoldPrice = r.UnitPrice,
                     ProductPrice1 = r.Product.UnitPrice1,
@@ -80,7 +81,7 @@ namespace UsaloYa.Services
                         .Where(f => f.SaleId == r.SaleId && f.ProductId == r.ProductId)
                         .Sum(f => (decimal?)f.Quantity) ?? 0m,
 
-                    RefundoAmount = _dBContext.Refunds
+                    RefundAmount = _dBContext.Refunds
                         .Where(f => f.SaleId == r.SaleId && f.ProductId == r.ProductId)
                         .Sum(f => (decimal?)f.RefundAmount) ?? 0m
                 })

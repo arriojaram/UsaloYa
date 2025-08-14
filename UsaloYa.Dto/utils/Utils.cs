@@ -21,10 +21,10 @@ namespace UsaloYa.Dto.Utils
                 .Select(s => s[_random.Next(s.Length)]).ToArray());
         }
 
-        public static double? DifferenceOfDays(DateTime? dateTimeSale, int maxDaysToRefund)
+        public static double? DifferenceOfDays(DateTime? dateTimeSale, int? maxDaysToRefund)
         {
-            if (dateTimeSale == null)
-                return 0; 
+            if (dateTimeSale is null || maxDaysToRefund is null)
+                return -1; 
 
             var daysAfterSale = Utils.GetMxDateTime() - dateTimeSale.Value; 
             return maxDaysToRefund - daysAfterSale.TotalDays;

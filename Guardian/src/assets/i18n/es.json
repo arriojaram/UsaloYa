@@ -56,6 +56,38 @@
     "no_product_registration": "No hay registro de productos para la venta seleccionada",
     "no_register_sale": "No hay registro de ventas entre las fechas"
   },
+  "company_settings": {
+    "save_success": "Configuracion guardada"
+
+  },
+
+  "returns": {
+    "error_return": "Verifica que todos los productos seleccionados tengan motivo y cantidad válida.",
+     "invalid_quantity_unit": "No puedes devolver más unidades de las que se vendieron.",
+    "invalid_quantity_weight": "No puedes devolver más peso del que se vendió.",
+    "select_all": "Seleccionaste Todos los productos",
+    "no_product_sale": "No hay productos para la venta especificada.",
+    "invlid_reason": "Por favor, especifica todos los motivos personalizados.",
+    "error_days": "No se pudo cargar configuración de días para devolución",
+    "days_exceeded": "La devolución excede los días máximos de devolución.",
+    "invalid_reason": "Por favor, especifica un motivo válido.",
+    "success_return": "Devolución realizada correctamente.",
+    "not_allowed": "No se puede devolver más de los productos que se vendieron.",
+    "server_error": "Error al procesar la solicitud. Servidor no disponible.",
+    "time_expired": "Tiempo para devolución expirado",
+    "ticket_already_refunded": "Ticket ya fue devuelto"
+  },
+
+  "user": {
+    "request_incorrect":"Petición incorrecta.",
+    "user_saved":"Usuario guardado.",
+    "password_updated":"Password actualizado.",
+    "no_autorirization":"No autorizado.",
+    "update_perrmissions_success":"Permiso de devoluciones actualizado.",
+    "error_update_permissions":"Error al actualizar permiso de devoluciones."
+  
+  },
+
   "emails": {
     "email_send_error": "Error al enviar el correo electronico, por favor contactenos",
     "email_send_ok": "Usuario registrado y correos enviados correctamente."

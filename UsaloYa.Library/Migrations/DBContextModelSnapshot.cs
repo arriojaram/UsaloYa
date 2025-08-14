@@ -177,9 +177,6 @@ namespace UsaloYa.Library.Migrations
                     b.Property<int?>("LastUpdateBy")
                         .HasColumnType("int");
 
-                    b.Property<int?>("MaxDaysToRefund")
-                        .HasColumnType("int");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -348,7 +345,7 @@ namespace UsaloYa.Library.Migrations
                     b.Property<decimal?>("BuyPrice")
                         .HasColumnType("decimal(10, 2)");
 
-                    b.Property<bool?>("CanRefunded")
+                    b.Property<bool>("CanBeRefunded")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValueSql("(CONVERT([bit],(0)))");
@@ -701,6 +698,9 @@ namespace UsaloYa.Library.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
+
+                    b.Property<bool>("CanMakeReturns")
+                        .HasColumnType("bit");
 
                     b.Property<string>("CodeVerification")
                         .HasMaxLength(10)
