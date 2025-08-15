@@ -129,7 +129,7 @@ export class QuestionsComponent implements OnInit, OnDestroy {
             AlertLevel.Sucess
           );
           this.loadingService.hide();
-
+          this.registerDataService.RemoveTmpData()
           this.router.navigate(['/verification']);
         },
         error: (err) => {

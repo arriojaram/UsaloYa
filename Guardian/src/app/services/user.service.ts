@@ -190,7 +190,7 @@ checkEmailUnique(email: string): Observable<boolean> {
     'DeviceId': deviceId
   });
 
-  return this.http.post<VerificationResponseDto>(apiUrl, request, { headers }).pipe(
+  return this.rawHttp.post<VerificationResponseDto>(apiUrl, request, { headers: headers }).pipe(
     catchError(error => {
       console.error('requestVerificationCodeEmail() | ', error);
       throw error;
