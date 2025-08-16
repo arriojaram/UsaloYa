@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using UsaloYa.Services.interfaces;
+using UsaloYa.Services.Interfaces;
 using UsaloYa.Dto;
 using Azure.Identity;
 using UsaloYa.Dto.Utils;

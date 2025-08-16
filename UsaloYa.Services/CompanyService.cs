@@ -1,16 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using UsaloYa.Dto;
 using UsaloYa.Dto.Enums;
 using UsaloYa.Dto.Utils;
-using UsaloYa.Dto;
 using UsaloYa.Library.Models;
-using UsaloYa.Services.interfaces;
-using Microsoft.Extensions.Configuration;
+using UsaloYa.Services.Interfaces;
 
 namespace UsaloYa.Services
 {
@@ -46,7 +40,10 @@ namespace UsaloYa.Services
                                                     .Include(c => c.Plan)
                                                     .FirstOrDefaultAsync(u => u.CompanyId == companyId);
 
-            return company == null ? null : new CompanyDto
+            if (company == null)
+                return null;
+            
+            return new CompanyDto
             {
                 CompanyId = company.CompanyId,
                 Name = company.Name,

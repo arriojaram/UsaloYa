@@ -1,7 +1,7 @@
 ﻿using UsaloYa.Dto.Enums;
 using UsaloYa.Dto;
 
-namespace UsaloYa.Services.interfaces
+namespace UsaloYa.Services.Interfaces
 {
     public interface IRefundService
     {

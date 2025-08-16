@@ -106,7 +106,7 @@ export class LoadingInterceptor implements HttpInterceptor {
       shouldSkip = true;
     else if(request.url.includes('ping.json'))
       shouldSkip = true;
-
+    
     return shouldSkip;
   }
 }

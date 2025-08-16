@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using UsaloYa.Dto;
 using UsaloYa.Dto.Enums;
 
-namespace UsaloYa.Services.interfaces
+namespace UsaloYa.Services.Interfaces
 {
     public interface IReportCompanyService
     {

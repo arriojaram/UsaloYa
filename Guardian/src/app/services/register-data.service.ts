@@ -7,6 +7,12 @@ import { companyDto } from '../dto/companyDto';
   providedIn: 'root',
 })
 export class RegisterDataService {
+  
+  RemoveTmpData() {
+    this.userDataSource.next(null);
+    this.companyDataSource.next(null);
+  }
+
   private userDataSource = new BehaviorSubject<RequestRegisterNewUserDto | null>(null);
   userData$ = this.userDataSource.asObservable();
 

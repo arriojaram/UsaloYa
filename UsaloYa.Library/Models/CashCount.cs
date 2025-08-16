@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace UsaloYa.Library.Models;
+﻿namespace UsaloYa.Library.Models;
 
 public partial class CashCount
 {
@@ -25,7 +22,7 @@ public partial class CashCount
 
     public string? Notes { get; set; }
 
-    public string? FinalCash { get; set; }
+    public decimal? FinalCash { get; set; }
 
     public virtual ICollection<CashOutput> CashOutput { get; set; } = null!;
     public virtual User User { get; set; } = null!;

@@ -138,7 +138,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   manageLogoutUI() {
     if (this.userStateUI) {
-
+      
       this.userStateUI.statusId = this.uStatus.Desconectado;
       this.userStateUI.userId = 0;
       this.authService.clearStorageVariables();

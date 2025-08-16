@@ -7,12 +7,12 @@ import { AlertLevel } from '../Enums/enums';
 import { VerificationResponseDto } from '../dto/VerificationResponseDto';
 import { first, switchMap, catchError, of, Subject } from 'rxjs';
 import { CommonModule } from '@angular/common';
+import { AuthorizationService } from '../services/authorization.service';
 
 
 interface RequestVerificationCodeDto {
   Code: string;
   Email: string;
-  DeviceId: string;
 }
 
 @Component({
@@ -23,22 +23,20 @@ interface RequestVerificationCodeDto {
 })
 export class VerifyCodeComponent implements OnInit, OnDestroy {
   verificationForm!: FormGroup;
-  deviceId: string = '';
   private unsubscribe$ = new Subject<void>();
   loading = false;
+  
 
   constructor(
     private fb: FormBuilder,
     private userService: UserService,
-
+    private authService: AuthorizationService,
 
     private router: Router,
     private navigationService: NavigationService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
-    this.loadDeviceId();
-
     this.verificationForm = this.fb.group({
       Code: ['', Validators.required],
       Email: ['', [Validators.required, Validators.email]]
@@ -50,59 +48,46 @@ export class VerifyCodeComponent implements OnInit, OnDestroy {
     this.unsubscribe$.complete();
   }
 
-  private loadDeviceId(): void {
-    const deviceData = localStorage.getItem('deviceId');
-    try {
-      const parsed = deviceData ? JSON.parse(deviceData) : {};
-      this.deviceId = parsed.value || '';
-    } catch (e) {
-      console.error('Error al parsear deviceId del localStorage', e);
-      this.deviceId = '';
+  onSubmit(): void {
+    this.verificationForm.markAllAsTouched();
+
+    if (this.verificationForm.invalid) {
+      this.navigationService.showUIMessage('Por favor, complete todos los campos correctamente.', AlertLevel.Warning);
+      return;
     }
-  }
 
- onSubmit(): void {
-  this.verificationForm.markAllAsTouched();
+    this.loading = true;
 
-  if (this.verificationForm.invalid) {
-    this.navigationService.showUIMessage('Por favor, complete todos los campos correctamente.', AlertLevel.Warning);
-    return;
-  }
+    const requestParams: RequestVerificationCodeDto = {
+      Code: this.verificationForm.value.Code,
+      Email: this.verificationForm.value.Email
+    };
 
-  this.loading = true;
+    this.userService.requestVerificationCodeEmail(requestParams,
+      this.authService.generateDeviceId()
+    ).pipe(
+      first()
+    ).subscribe({
+      next: (res: VerificationResponseDto) => {
+        this.loading = false;
 
-  const request: RequestVerificationCodeDto = {
-    Code: this.verificationForm.value.Code,
-    Email: this.verificationForm.value.Email,
-    DeviceId: this.deviceId
-  };
+        if (!res.isValid || res.userId <= 0) {
+          this.navigationService.showUIMessage(res.message || 'Código incorrecto.', AlertLevel.Error);
+          return;
+        }
 
-  this.userService.requestVerificationCodeEmail(
-    { Code: request.Code, Email: request.Email },
-    this.deviceId
-  ).pipe(
-    first()
-  ).subscribe({
-    next: (res: VerificationResponseDto) => {
-      this.loading = false;
 
-      if (!res.isValid || res.userId <= 0) {
-        this.navigationService.showUIMessage(res.message || 'Código incorrecto.', AlertLevel.Error);
-        return;
+        this.navigationService.showUIMessage('Verificación exitosa. Inicie sesión.', AlertLevel.Sucess);
+        this.router.navigate(['/login']);
+      },
+      error: (error) => {
+        this.loading = false;
+        this.navigationService.showUIMessage('Error al verificar el código. Valida que la información que has introducido es correcta.', AlertLevel.Error);
+        console.error('Verification error:', error);
       }
-
-      
-      this.navigationService.showUIMessage('Verificación exitosa. Inicie sesión.', AlertLevel.Sucess);
-      this.router.navigate(['/login']);
-    },
-    error: (error) => {
-      this.loading = false;
-      this.navigationService.showUIMessage('Error al verificar el código.', AlertLevel.Error);
-      console.error('Verification error:', error);
-    }
-  });
-}
-
-
+    });
   }
+
+
+}
 

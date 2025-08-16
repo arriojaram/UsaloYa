@@ -1,46 +1,174 @@
-<div class="form-container">
-  <h2 class="title">Código de Verificación</h2>
+<div class="verification-page">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-11 col-sm-10 col-md-8 col-lg-6">
+        <!-- Instructions Section -->
+        <div class="card shadow-sm border-0 mb-4">
+          <div class="card-header bg-usalo-success-gradient text-white">
+            <div class="d-flex align-items-center">
+              <i class="bi bi-envelope-check-fill me-2"></i>
+              <h4 class="mb-0 fw-semibold">Instrucciones de Verificación</h4>
+            </div>
+          </div>
+          <div class="card-body p-4">
+            <div class="alert alert-usalo-primary border-0 mb-4">
+              <div class="d-flex align-items-center">
+                <i class="bi bi-send-check-fill me-3 text-usalo-primary"></i>
+                <div>
+                  <strong>Correo enviado exitosamente</strong><br>
+                  <small class="text-muted">Hemos enviado un código de verificación a tu dirección de correo electrónico</small>
+                </div>
+              </div>
+            </div>
+            
+            <div class="instructions-steps">
+              <div class="step-item d-flex align-items-start mb-3 p-3 bg-light rounded">
+                <div class="step-number bg-usalo-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 32px; height: 32px; min-width: 32px;">
+                  <small class="fw-bold">1</small>
+                </div>
+                <div>
+                  <h6 class="mb-1 fw-semibold">Revisa tu bandeja de entrada</h6>
+                  <small class="text-muted">Busca el correo de verificación de Usalo Ya en tu bandeja principal</small>
+                </div>
+              </div>
 
-  <form [formGroup]="verificationForm" (ngSubmit)="onSubmit()" class="form">
+              <div class="step-item d-flex align-items-start mb-3 p-3 bg-light rounded">
+                <div class="step-number bg-usalo-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 32px; height: 32px; min-width: 32px;">
+                  <small class="fw-bold">2</small>
+                </div>
+                <div>
+                  <h6 class="mb-1 fw-semibold">Copia el código de verificación</h6>
+                  <small class="text-muted">El código tiene 6 dígitos y aparece destacado en el correo</small>
+                </div>
+              </div>
 
-    <div class="form-group">
-      <label for="Code" class="form-label">Código</label>
-      <input type="text" id="Code" class="input" [class.input-error]="
-          verificationForm.get('Code')?.invalid &&
-          verificationForm.get('Code')?.touched
-        " formControlName="Code" placeholder="Ingresa el código" />
-      <div class="error-msg" *ngIf="
-          verificationForm.get('Code')?.hasError('required') &&
-          verificationForm.get('Code')?.touched
-        ">
-        El código es obligatorio.
+              <div class="step-item d-flex align-items-start mb-3 p-3 bg-light rounded">
+                <div class="step-number bg-usalo-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 32px; height: 32px; min-width: 32px;">
+                  <small class="fw-bold">3</small>
+                </div>
+                <div>
+                  <h6 class="mb-1 fw-semibold">Completa la verificación</h6>
+                  <small class="text-muted">Ingresa el código en el formulario de abajo junto con tu correo</small>
+                </div>
+              </div>
+
+              <div class="alert alert-usalo-warning border-0 mt-3">
+                <div class="d-flex align-items-start">
+                  <i class="bi bi-exclamation-triangle-fill me-2 text-usalo-warning"></i>
+                  <div>
+                    <small><strong>¿No encuentras el correo?</strong><br>
+                    Revisa tu carpeta de spam o correo no deseado. El remitente es <strong>donotreply&#64;usaloya.biz</strong></small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Verification Form -->
+        <div class="card shadow-lg border-0">
+          <div class="card-header bg-usalo-info-gradient text-white">
+            <div class="d-flex align-items-center justify-content-between">
+              <div class="d-flex align-items-center">
+                <i class="bi bi-key-fill me-2"></i>
+                <h4 class="mb-0 fw-semibold">Formulario de Verificación</h4>
+              </div>
+              <span class="badge bg-white text-usalo-info">Requerido</span>
+            </div>
+          </div>
+          <div class="card-body p-4">
+            <form [formGroup]="verificationForm" (ngSubmit)="onSubmit()" class="verification-form">
+              <div class="row g-3">
+                <div class="col-12">
+                  <label for="Code" class="form-label fw-semibold">
+                    <i class="bi bi-key-fill text-usalo-primary me-2"></i>
+                    Código de Verificación *
+                  </label>
+                  <div class="input-group input-group-lg">
+                    <span class="input-group-text bg-usalo-primary-10 border-usalo-primary">
+                      <i class="bi bi-shield-check text-usalo-primary"></i>
+                    </span>
+                    <input 
+                      type="text" 
+                      id="Code" 
+                      class="form-control border-usalo-primary" 
+                      [class.is-invalid]="verificationForm.get('Code')?.invalid && verificationForm.get('Code')?.touched" 
+                      formControlName="Code" 
+                      placeholder="Ingresa el código de 8 dígitos" 
+                      maxlength="8"
+                      style="font-size: 1.1rem; letter-spacing: 0.2em; text-align: center;"
+                    />
+                  </div>
+                  <div class="invalid-feedback d-block" *ngIf="verificationForm.get('Code')?.hasError('required') && verificationForm.get('Code')?.touched">
+                    <i class="bi bi-exclamation-circle me-1"></i>
+                    El código de verificación es obligatorio para activar tu cuenta.
+                  </div>
+                  <small class="form-text text-muted mt-1">
+                    <i class="bi bi-info-circle me-1"></i>
+                    El código se encuentra en el correo que te enviamos
+                  </small>
+                </div>
+
+                <div class="col-12">
+                  <label for="Email" class="form-label fw-semibold">
+                    <i class="bi bi-envelope-fill text-usalo-info me-2"></i>
+                    Correo Electrónico *
+                  </label>
+                  <div class="input-group input-group-lg">
+                    <span class="input-group-text bg-usalo-info-10 border-usalo-info">
+                      <i class="bi bi-at text-usalo-info"></i>
+                    </span>
+                    <input 
+                      type="email" 
+                      id="Email" 
+                      class="form-control border-usalo-info" 
+                      [class.is-invalid]="verificationForm.get('Email')?.invalid && verificationForm.get('Email')?.touched" 
+                      formControlName="Email" 
+                      placeholder="Confirma tu correo electrónico" 
+                    />
+                  </div>
+                  <div class="invalid-feedback d-block" *ngIf="verificationForm.get('Email')?.hasError('required') && verificationForm.get('Email')?.touched">
+                    <i class="bi bi-exclamation-circle me-1"></i>
+                    El correo electrónico es obligatorio para la verificación.
+                  </div>
+                  <div class="invalid-feedback d-block" *ngIf="verificationForm.get('Email')?.hasError('email') && verificationForm.get('Email')?.touched">
+                    <i class="bi bi-exclamation-circle me-1"></i>
+                    Por favor ingresa un correo electrónico válido.
+                  </div>
+                  <small class="form-text text-muted mt-1">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Debe coincidir con el correo donde recibiste el código
+                  </small>
+                </div>
+              </div>
+
+              <hr class="my-4">
+
+              <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-usalo-success btn-lg" [disabled]="verificationForm.invalid">
+                  <i class="bi bi-check-circle-fill me-2"></i>
+                  Verificar y Activar Cuenta
+                  <span class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
+                </button>
+                
+              
+              </div>
+
+              <div class="card bg-usalo-neutral-light border-0 mt-4">
+                <div class="card-body p-3 text-center">
+                  <p class="card-text small mb-2">
+                    ¿Necesitas ayuda?
+                  </p>
+                  <div class="d-flex gap-2 justify-content-center">
+                     <a href="https://wa.me/5212225725212" class="btn-cta whatsapp">
+                      <i class="bi bi-headset me-2"></i>WhatsApp Soporte
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
-
-
-    <div class="form-group">
-      <label for="Email" class="form-label">E-mail</label>
-      <input type="email" id="Email" class="input" [class.input-error]="
-          verificationForm.get('Email')?.invalid &&
-          verificationForm.get('Email')?.touched
-        " formControlName="Email" placeholder="Confirma tu e-mail" />
-      <div class="error-msg" *ngIf="
-          verificationForm.get('Email')?.hasError('required') &&
-          verificationForm.get('Email')?.touched
-        ">
-        El correo es obligatorio.
-      </div>
-      <div class="error-msg" *ngIf="
-          verificationForm.get('Email')?.hasError('email') &&
-          verificationForm.get('Email')?.touched
-        ">
-        El correo no es válido.
-      </div>
-    </div>
-
-
-    <button type="submit" class="submit" [disabled]="verificationForm.invalid">
-      Verificar
-    </button>
-  </form>
-</div>
+  </div>

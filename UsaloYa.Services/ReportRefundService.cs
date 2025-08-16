@@ -2,7 +2,7 @@
 using UsaloYa.Dto;
 using UsaloYa.Dto.Utils;
 using UsaloYa.Library.Models;
-using UsaloYa.Services.interfaces;
+using UsaloYa.Services.Interfaces;
 
 namespace UsaloYa.Services
 {

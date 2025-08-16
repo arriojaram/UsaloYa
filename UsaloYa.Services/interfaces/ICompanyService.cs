@@ -7,7 +7,7 @@ using UsaloYa.Dto;
 using UsaloYa.Dto.Enums;
 using UsaloYa.Library.Models;
 
-namespace UsaloYa.Services.interfaces
+namespace UsaloYa.Services.Interfaces
 {
     public interface ICompanyService
     {

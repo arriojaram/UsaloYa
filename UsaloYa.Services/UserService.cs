@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-using Azure.Core;
-    using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using UsaloYa.Dto;
 using UsaloYa.Dto.Enums;
@@ -14,8 +6,7 @@ using UsaloYa.Dto.UsaloYa.Dto;
 using UsaloYa.Dto.Utils;
 using UsaloYa.Library.Config;
 using UsaloYa.Library.Models;
-using UsaloYa.Services.interfaces;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using UsaloYa.Services.Interfaces;
 
 
 namespace UsaloYa.Services
@@ -129,6 +120,9 @@ namespace UsaloYa.Services
                 : await _dBContext.Users
                     .Include(c => c.Company)
                     .FirstOrDefaultAsync(u => u.UserId == userId);
+            
+            if (user == null)
+                return new UserResponseDto() { UserId = 0 };
 
             return new UserResponseDto
             {

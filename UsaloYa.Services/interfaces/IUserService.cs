@@ -8,7 +8,7 @@ using UsaloYa.Dto.Enums;
 using UsaloYa.Dto.UsaloYa.Dto;
 using UsaloYa.Library.Models;
 
-namespace UsaloYa.Services.interfaces
+namespace UsaloYa.Services.Interfaces
 {
     public interface IUserService
     {

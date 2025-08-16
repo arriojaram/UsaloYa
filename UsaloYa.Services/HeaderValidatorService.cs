@@ -7,11 +7,18 @@ using UsaloYa.Dto.Enums;
 using UsaloYa.Dto;
 using UsaloYa.Library.Models;
 using Microsoft.EntityFrameworkCore;
+using UsaloYa.Services.Interfaces;
 
 namespace UsaloYa.Services
 {
     public class HeaderValidatorService
     {
+        private readonly IUserService _userService;
+        public HeaderValidatorService(IUserService userService)
+        {
+            _userService = userService;
+        }
+
         /// <summary>
         /// Esta funcion valida si el Requestor es un usuario existente en la base de datos y si el topRol del requestor es igual o mayor.
         /// En caso de que el topRol no sea mayor, entonce se evalua si el requestor pertenece a la misma compañia
@@ -21,7 +28,7 @@ namespace UsaloYa.Services
         /// <param name="topRol"></param>
         /// <param name="_dBContext"></param>
         /// <returns>Retorna un objeto usuario(Id, UserName y RoleId) si el requestor es mayor al topRol</returns>
-        public async static Task<UserDto> ValidateRequestorSameCompanyOrTopRol(string requestor, int userCompanyId, Role topRol, DBContext _dBContext)
+        public async Task<UserDto> ValidateRequestorSameCompanyOrTopRol(string requestor, int userCompanyId, Role topRol)
         {
             int userId = 0;
             var user = new UserDto() { UserId = -1 };
@@ -32,8 +39,8 @@ namespace UsaloYa.Services
                 return user;
 
             //Validate user status and rol
-            var requestorInfo = await _dBContext.Users.FindAsync(userId);
-            if (requestorInfo == null)
+            var requestorInfo = await _userService.GetUser(userId, false);
+            if (requestorInfo.UserId == 0)
             {
                 return user;
             }
@@ -57,7 +64,7 @@ namespace UsaloYa.Services
         /// <param name="topRol"></param>
         /// <param name="_dBContext"></param>
         /// <returns>Retorna un objeto usuario(Id, UserName y RoleId) si el requestor es mayor al topRol</returns>
-        public async static Task<UserDto> ValidateRequestor(string requestor, Role topRol, DBContext _dBContext)
+        public async Task<UserDto> ValidateRequestor(string requestor, Role topRol)
         {
             int userId = 0;
             var user = new UserDto() { UserId = -1 };
@@ -67,14 +74,14 @@ namespace UsaloYa.Services
                 return user;
 
             //Validate user status and rol
-            var userDb = await _dBContext.Users.Include(c => c.Company).FirstOrDefaultAsync(u => u.UserId == userId);
-            if (userDb == null || user.RoleId < (int)topRol)
+            var userDb = await _userService.GetUser(userId, false);
+            if (userDb.UserId == 0 || user.RoleId < (int)topRol)
                 return user;
 
             user.UserId = userDb.UserId;
             user.UserName = userDb.UserName;
             user.RoleId = userDb.RoleId;
-            user.CompanyStatusId = userDb.Company.StatusId;
+            user.CompanyStatusId = userDb.CompanyStatusId;
 
             return user;
         }
@@ -86,7 +93,7 @@ namespace UsaloYa.Services
         /// <param name="topRol"></param>
         /// <param name="_dBContext"></param>
         /// <returns>Retorna un objeto usuario(Id, UserName y RoleId) si el requestor es mayor al topRol</returns>
-        public async static Task<UserDto> ValidateRequestorSameCompany(string requestor, Role topRol, int companyId, DBContext _dBContext)
+        public async Task<UserDto> ValidateRequestorSameCompany(string requestor, Role topRol, int companyId)
         {
             int userId = 0;
             var user = new UserDto() { UserId = -1 };
@@ -96,8 +103,9 @@ namespace UsaloYa.Services
                 return user;
 
             //Validate user status and rol
-            var userDb = await _dBContext.Users.FindAsync(userId);
-            if (userDb == null || userDb.RoleId < (int)topRol || userDb.CompanyId != companyId)
+            var userDb = await _userService.GetUser(userId, false);
+
+            if (userDb.UserId == 0 || userDb.RoleId < (int)topRol || userDb.CompanyId != companyId)
             {
                 return user;
             }

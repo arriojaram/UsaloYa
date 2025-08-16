@@ -4,7 +4,7 @@ using UsaloYa.Library.Config;
 using UsaloYa.API.Security;
 using UsaloYa.Dto.Enums;
 using UsaloYa.Library.Models;
-using UsaloYa.Services.interfaces;
+using UsaloYa.Services.Interfaces;
 using UsaloYa.Services;
 
 
@@ -18,12 +18,13 @@ namespace UsaloYa.API.Controllers
         private readonly ILogger<GeneralController> _logger;
         private readonly IGeneralService _generalService;
         private readonly DBContext _dBContext;
-
-        public GeneralController(DBContext dBContext, IGeneralService generalService, ILogger<GeneralController> logger)
+        private readonly HeaderValidatorService _headerValidatorService;
+        public GeneralController(DBContext dBContext, IGeneralService generalService, ILogger<GeneralController> logger, HeaderValidatorService headerValidatorService)
         {
             _logger = logger;
             _generalService = generalService;
             _dBContext = dBContext;
+            _headerValidatorService = headerValidatorService;
         }
 
         [HttpGet("GetLicenses")]
@@ -31,7 +32,7 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var requestor = await HeaderValidatorService.ValidateRequestor(RequestorId, Role.Ventas, _dBContext);
+                var requestor = await _headerValidatorService.ValidateRequestor(RequestorId, Role.Ventas);
                 if (requestor.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 

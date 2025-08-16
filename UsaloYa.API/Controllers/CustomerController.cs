@@ -7,7 +7,7 @@ using UsaloYa.Dto.Enums;
 using UsaloYa.Dto.Utils;
 using UsaloYa.Library.Models;
 using UsaloYa.Services;
-using UsaloYa.Services.interfaces;
+using UsaloYa.Services.Interfaces;
 
 
 namespace UsaloYa.API.Controllers
@@ -21,13 +21,14 @@ namespace UsaloYa.API.Controllers
         private readonly ICustomerService _customerService;
         private readonly DBContext _dBContext;
         private readonly IConfiguration _config;
-
-        public CustomerController(DBContext dBContext, ICustomerService customerService, ILogger<CustomerController> logger, IConfiguration config)
+        private readonly HeaderValidatorService _headerValidatorService;
+        public CustomerController(DBContext dBContext, ICustomerService customerService, ILogger<CustomerController> logger, IConfiguration config, HeaderValidatorService headerValidatorService)
         {
             _logger = logger;
             _customerService = customerService;
             _dBContext = dBContext;
             _config = config;
+            _headerValidatorService = headerValidatorService;
         }
 
         [HttpGet("GetAll")]
@@ -65,7 +66,7 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var user = await HeaderValidatorService.ValidateRequestor(RequestorId, Role.User, _dBContext);
+                var user = await _headerValidatorService.ValidateRequestor(RequestorId, Role.User);
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 

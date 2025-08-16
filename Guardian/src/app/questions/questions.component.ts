@@ -43,7 +43,7 @@ export class QuestionsComponent implements OnInit, OnDestroy {
     private translate: TranslateService,
     private loadingService: LoadingService,
     private validationService: FormValidationService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadQuestions();
@@ -69,7 +69,7 @@ export class QuestionsComponent implements OnInit, OnDestroy {
             this.translate.instant('questions.load_error'),
             AlertLevel.Error
           );
-          
+
         }
       });
   }
@@ -81,68 +81,64 @@ export class QuestionsComponent implements OnInit, OnDestroy {
     }
     this.form = this.fb.group(group);
     // Registrar validez inicial
-this.validationService.setFormValid('questions', this.form.valid);
-
-// Actualizar cada vez que el estado cambie
-this.form.statusChanges
-  .pipe(takeUntil(this.destroy$))
-  .subscribe(() => {
     this.validationService.setFormValid('questions', this.form.valid);
-  });
 
+    // Actualizar cada vez que el estado cambie para validar el formulario
+    this.form.statusChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.validationService.setFormValid('questions', this.form.valid);
+      });
   }
-  
 
   submitAnswers(): void {
- 
+    const userData = this.registerDataService.getUserData();
+    const companyData = this.registerDataService.getCompanyData();
 
-  const userData = this.registerDataService.getUserData();
-  const companyData = this.registerDataService.getCompanyData();
+    if (!userData || !companyData) {
+      this.navigationService.showUIMessage(
+        this.translate.instant('questions.missing_data'),
+        AlertLevel.Error
+      );
+      return;
+    }
 
-  if (!userData || !companyData) {
-    this.navigationService.showUIMessage(
-      this.translate.instant('questions.missing_data'),
-      AlertLevel.Error
-    );
-    return;
-  }
-
-  const answers: SaveQuestionDto[] = this.questions.map((question, index) => {
-    const respuesta = this.form.get(`respuesta${index}`)?.value;
-    return {
-      questionName: question,
-      reply: respuesta === 'si',
-      idUser: 0
-    };
-  });
-
-  const payload: RegisterUserQuestionnaireAndCompanyDto = {
-    requestRegisterNewUserDto: userData,
-    companyDto: companyData,
-    requestSaveQuestionnaireDto: answers
-  };
-
-  this.loadingService.show();
-
-  this.userService.registerNewUser(payload)
-    .pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (_) => {
-        this.navigationService.showUIMessage(
-          this.translate.instant('questions.sucess'),
-          AlertLevel.Sucess
-        );
-        this.loadingService.hide();
-
-        this.router.navigate(['/login']);
-      },
-      error: (err) => {
-        this.navigationService.showUIMessage(
-          this.translate.instant('questions.register_error') + err.message,
-          AlertLevel.Error
-        );
-        this.loadingService.hide();
-      }
+    const answers: SaveQuestionDto[] = this.questions.map((question, index) => {
+      const respuesta = this.form.get(`respuesta${index}`)?.value;
+      return {
+        questionName: question,
+        reply: respuesta === 'si',
+        idUser: 0
+      };
     });
-}
+
+    const payload: RegisterUserQuestionnaireAndCompanyDto = {
+      requestRegisterNewUserDto: userData,
+      companyDto: companyData,
+      requestSaveQuestionnaireDto: answers
+    };
+
+    this.loadingService.show();
+
+    this.userService.registerNewUser(payload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (_) => {
+          this.navigationService.showUIMessage(
+            this.translate.instant('questions.sucess'),
+            AlertLevel.Sucess
+          );
+          this.loadingService.hide();
+          this.registerDataService.RemoveTmpData()
+          this.router.navigate(['/verification']);
+        },
+        error: (err) => {
+          this.navigationService.showUIMessage(
+            this.translate.instant('questions.register_error') + err.message,
+            AlertLevel.Error
+          );
+          this.loadingService.hide();
+        }
+      });
+  }
 }

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UsaloYa.Dto;
 
-namespace UsaloYa.Services.interfaces
+namespace UsaloYa.Services.Interfaces
 {
     public interface IProductCategoryService
     {

@@ -40,8 +40,8 @@ export class RegisterCompanyComponent implements OnInit, OnDestroy {
     this.companyForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)], [this.nameValidator()]],
       address: [''],
-      phoneNumber: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(15)]],
-      cellphoneNumber: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(15)]],
+      telNumber: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(15)]],
+      celNumber: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(15)]],
       email: [{ value: '', disabled: true }, [Validators.email]],
       ownerInfo: [''],
     });
@@ -105,8 +105,8 @@ export class RegisterCompanyComponent implements OnInit, OnDestroy {
       companyId: 0,
       name: this.companyForm.value.name,
       address: this.companyForm.value.address,
-      phoneNumber: this.companyForm.value.phoneNumber,
-      cellphoneNumber: this.companyForm.value.cellphoneNumber,
+      telNumber: this.companyForm.value.telNumber,
+      celNumber: this.companyForm.value.celNumber,
       email: this.companyForm.getRawValue().email,
       ownerInfo: this.companyForm.value.ownerInfo,
       planId: 1,

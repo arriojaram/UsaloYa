@@ -7,7 +7,7 @@ using UsaloYa.Dto.Enums;
 using UsaloYa.Dto.Utils;
 using UsaloYa.Library.Models;
 using UsaloYa.Services;
-using UsaloYa.Services.interfaces;
+using UsaloYa.Services.Interfaces;
 
 namespace UsaloYa.API.Controllers
 {
@@ -20,13 +20,14 @@ namespace UsaloYa.API.Controllers
         private readonly ILogger<ProductController> _logger;
         private readonly IProductService _productService;
         private readonly DBContext _dbContext;
+        private readonly HeaderValidatorService _headerValidatorService;
 
-
-        public ProductController(IProductService productService, ILogger<ProductController> logger, DBContext dbContext)
+        public ProductController(IProductService productService, ILogger<ProductController> logger, DBContext dbContext, HeaderValidatorService headerValidatorService)
         {
             _logger = logger;
             _productService = productService;
             _dbContext = dbContext;
+            _headerValidatorService = headerValidatorService;
         }
 
 
@@ -159,7 +160,7 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var user = await HeaderValidatorService.ValidateRequestorSameCompany(RequestorId, Role.User, companyId, _dbContext);
+                var user = await _headerValidatorService.ValidateRequestorSameCompany(RequestorId, Role.User, companyId);
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 
@@ -182,7 +183,7 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var user = await HeaderValidatorService.ValidateRequestorSameCompany(RequestorId, Role.User, companyId, _dbContext);
+                var user = await _headerValidatorService.ValidateRequestorSameCompany(RequestorId, Role.User, companyId);
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
                
@@ -210,7 +211,7 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var user = await HeaderValidatorService.ValidateRequestorSameCompany(RequestorId, Role.User, companyId, _dbContext);
+                var user = await _headerValidatorService.ValidateRequestorSameCompany(RequestorId, Role.User, companyId);
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 
@@ -232,7 +233,7 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var user = await HeaderValidatorService.ValidateRequestorSameCompany(RequestorId, Role.User, companyId, _dbContext);
+                var user = await _headerValidatorService.ValidateRequestorSameCompany(RequestorId, Role.User, companyId);
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 
@@ -252,7 +253,7 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var user = await HeaderValidatorService.ValidateRequestorSameCompany(RequestorId, Role.Admin, companyId, _dbContext);
+                var user = await _headerValidatorService.ValidateRequestorSameCompany(RequestorId, Role.Admin, companyId);
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 
@@ -274,7 +275,7 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var user = await HeaderValidatorService.ValidateRequestorSameCompany(RequestorId, Role.Admin, company.Id, _dbContext);
+                var user = await _headerValidatorService.ValidateRequestorSameCompany(RequestorId, Role.Admin, company.Id);
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 
@@ -296,7 +297,7 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var user = await HeaderValidatorService.ValidateRequestorSameCompany(RequestorId, Role.Admin, company.Id, _dbContext);
+                var user = await _headerValidatorService.ValidateRequestorSameCompany(RequestorId, Role.Admin, company.Id);
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 
@@ -318,7 +319,7 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var user = await HeaderValidatorService.ValidateRequestorSameCompany(RequestorId, Role.Admin, companyId, _dbContext);
+                var user = await _headerValidatorService.ValidateRequestorSameCompany(RequestorId, Role.Admin, companyId);
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 
@@ -341,7 +342,7 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var user = await HeaderValidatorService.ValidateRequestorSameCompany(RequestorId, Role.Admin, companyId, _dbContext);
+                var user = await _headerValidatorService.ValidateRequestorSameCompany(RequestorId, Role.Admin, companyId);
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 

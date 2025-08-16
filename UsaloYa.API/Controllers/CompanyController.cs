@@ -7,7 +7,7 @@ using UsaloYa.Dto.Enums;
 using UsaloYa.Dto.Utils;
 using UsaloYa.Library.Models;
 using UsaloYa.Services;
-using UsaloYa.Services.interfaces;
+using UsaloYa.Services.Interfaces;
 
 namespace UsaloYa.API.Controllers
 {
@@ -19,12 +19,14 @@ namespace UsaloYa.API.Controllers
         private readonly ILogger<CompanyController> _logger;
         private readonly ICompanyService _companyService;
         private readonly DBContext _dBContext;
+        private readonly HeaderValidatorService _headerValidatorService;
 
-        public CompanyController(DBContext dBContext, ICompanyService companyService, ILogger<CompanyController> logger)
+        public CompanyController(DBContext dBContext, ICompanyService companyService, ILogger<CompanyController> logger, HeaderValidatorService headerValidatorService)
         {
             _logger = logger;
             _companyService = companyService;
             _dBContext = dBContext;
+            _headerValidatorService = headerValidatorService;
         }
 
         [HttpGet("GetAll4List")]
@@ -32,7 +34,7 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var requestor = await HeaderValidatorService.ValidateRequestorSameCompanyOrTopRol(RequestorId, companyId, Role.Admin, _dBContext);
+                var requestor = await _headerValidatorService.ValidateRequestorSameCompanyOrTopRol(RequestorId, companyId, Role.Admin);
                 if (requestor.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 
@@ -53,7 +55,7 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var user = await HeaderValidatorService.ValidateRequestor(RequestorId, Role.Admin, _dBContext);
+                var user = await _headerValidatorService.ValidateRequestor(RequestorId, Role.Admin);
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 
@@ -73,7 +75,7 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var user = await HeaderValidatorService.ValidateRequestor(RequestorId, Role.Ventas, _dBContext);
+                var user = await _headerValidatorService.ValidateRequestor(RequestorId, Role.Ventas);
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 
@@ -96,7 +98,7 @@ namespace UsaloYa.API.Controllers
                 if (settingsDto.CompanyId <= 0)
                     return NotFound();
 
-                var user = await HeaderValidatorService.ValidateRequestor(RequestorId, Role.Admin, _dBContext);
+                var user = await _headerValidatorService.ValidateRequestor(RequestorId, Role.Admin);
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 
@@ -120,7 +122,7 @@ namespace UsaloYa.API.Controllers
                 if (companyId <= 0)
                     return NotFound();
 
-                var user = await HeaderValidatorService.ValidateRequestor(RequestorId, Role.Admin, _dBContext);
+                var user = await _headerValidatorService.ValidateRequestor(RequestorId, Role.Admin);
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 
@@ -145,7 +147,7 @@ namespace UsaloYa.API.Controllers
                 if (statusDto.ObjectId <= 0)
                     return NotFound();
 
-                var user = await HeaderValidatorService.ValidateRequestor(RequestorId, Role.SysAdmin, _dBContext);
+                var user = await _headerValidatorService.ValidateRequestor(RequestorId, Role.SysAdmin);
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 
@@ -167,7 +169,7 @@ namespace UsaloYa.API.Controllers
                 if (valDto.ObjectId <= 0)
                     return NotFound();
 
-                var user = await HeaderValidatorService.ValidateRequestor(RequestorId, Role.SysAdmin, _dBContext);
+                var user = await _headerValidatorService.ValidateRequestor(RequestorId, Role.SysAdmin);
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 
@@ -208,7 +210,7 @@ namespace UsaloYa.API.Controllers
                 if (rentDto.Amount <= 0)
                     return BadRequest("$_El_monto_debe_ser_mayor_a_cero");
 
-                var user = await HeaderValidatorService.ValidateRequestor(RequestorId, Role.Ventas, _dBContext);
+                var user = await _headerValidatorService.ValidateRequestor(RequestorId, Role.Ventas);
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 
@@ -227,7 +229,7 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var user = await HeaderValidatorService.ValidateRequestorSameCompanyOrTopRol(RequestorId, companyId, Role.Admin, _dBContext);
+                var user = await _headerValidatorService.ValidateRequestorSameCompanyOrTopRol(RequestorId, companyId, Role.Admin);
                 if (user.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
 
@@ -264,12 +266,8 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var requestor = await HeaderValidatorService.ValidateRequestorSameCompanyOrTopRol(
-                    RequestorId, companyId, Role.SysAdmin, _dBContext
-                );
-
-                if (requestor.UserId == 0)
-                    return Unauthorized(AppConfig.NO_AUTORIZADO);
+                var requestor = await _headerValidatorService.ValidateRequestorSameCompany(RequestorId, Role.User, companyId);
+                return Unauthorized(AppConfig.NO_AUTORIZADO);
 
                 if (days <= 0)
                     return BadRequest(new { message = "$_Invalid_Value." });

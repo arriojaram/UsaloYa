@@ -72,10 +72,8 @@ namespace UsaloYa.Library.Migrations
                     b.Property<decimal?>("CredictCard")
                         .HasColumnType("decimal(18, 2)");
 
-                    b.Property<string>("FinalCash")
-                        .HasMaxLength(10)
-                        .HasColumnType("nchar(10)")
-                        .IsFixedLength();
+                    b.Property<decimal?>("FinalCash")
+                        .HasColumnType("decimal(18, 2)");
 
                     b.Property<decimal>("InitialBalance")
                         .HasColumnType("decimal(18, 2)");

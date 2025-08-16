@@ -1,17 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using UsaloYa.Dto;
 using UsaloYa.Dto.Enums;
 using UsaloYa.Dto.Utils;
-using UsaloYa.Library.Models;
 using UsaloYa.Library.Config;
-using UsaloYa.Services.interfaces;
-using Microsoft.SqlServer.Server;
+using UsaloYa.Library.Models;
+using UsaloYa.Services.Interfaces;
 
 namespace UsaloYa.Services
 {
@@ -20,17 +14,17 @@ namespace UsaloYa.Services
         private readonly DBContext _dBContext;
         private readonly IProductCategoryService _productCategoryService;
         private readonly AppConfig _settings;
+        private readonly HeaderValidatorService _headerValidatorService;
         int NORMAL = 3;
         int WARNING = 2;
         int CRITICAL = 1;
 
-        public ProductService(DBContext dBContext, IProductCategoryService productCategoryService, AppConfig settings)
+        public ProductService(DBContext dBContext, IProductCategoryService productCategoryService, AppConfig settings, HeaderValidatorService headerValidatorService)
         {
             _dBContext = dBContext;
             _productCategoryService = productCategoryService;
             _settings = settings;
-
-
+            _headerValidatorService = headerValidatorService;
         }
 
         public async Task<IEnumerable<Product4ListDto>> FilterProducts(int pageNumber, int categoryId, int companyId)
@@ -176,7 +170,7 @@ namespace UsaloYa.Services
 
         public async Task<bool> ImportProduct(string requestorId, ProductDto productDto, int companyId)
         {
-            var user = await HeaderValidatorService.ValidateRequestor(requestorId, Role.Admin, _dBContext);
+            var user = await _headerValidatorService.ValidateRequestor(requestorId, Role.Admin);
             if (user.UserId <= 0) return false;
 
             var productWithSameBarcodeAndSku = await _dBContext.Products
@@ -263,7 +257,7 @@ namespace UsaloYa.Services
 
         public async Task<Product?> AddProduct(string requestorId, ProductDto productDto, int companyId)
         {
-            var user = await HeaderValidatorService.ValidateRequestor(requestorId, Role.Admin, _dBContext);
+            var user = await _headerValidatorService.ValidateRequestor(requestorId, Role.Admin);
             if (user.UserId <= 0) return null;
 
 
@@ -623,15 +617,21 @@ namespace UsaloYa.Services
 
         public async Task<bool> SetAllUnitsStock(int companyId)
         {
-            string query = $"UPDATE [Products] SET UnitsInStock = InVentario, IsInVentarioUpdated=0 WHERE Discontinued = 0 AND IsInVentarioUpdated=1 AND CompanyId={companyId}";
-            await _dBContext.Database.ExecuteSqlRawAsync(query);
+            string query = @"UPDATE [Products] 
+                           SET UnitsInStock = InVentario, IsInVentarioUpdated = 0 
+                           WHERE Discontinued = 0 AND IsInVentarioUpdated = 1 AND CompanyId = @companyId";
+            
+            var parameters = new[] { new SqlParameter("@companyId", companyId) };
+            await _dBContext.Database.ExecuteSqlRawAsync(query, parameters);
             return true;
         }
 
         public async Task<bool> ResetAllInVentario(int companyId)
         {
-            string query = $"UPDATE [Products] SET InVentario = 0 WHERE CompanyId={companyId}";
-            await _dBContext.Database.ExecuteSqlRawAsync(query);
+            string query = "UPDATE [Products] SET InVentario = 0 WHERE CompanyId = @companyId";
+            
+            var parameters = new[] { new SqlParameter("@companyId", companyId) };
+            await _dBContext.Database.ExecuteSqlRawAsync(query, parameters);
             return true;
         }
 

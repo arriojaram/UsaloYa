@@ -6,7 +6,7 @@ using UsaloYa.Dto.Enums;
 using UsaloYa.Library.Config;
 using UsaloYa.Library.Models;
 using UsaloYa.Services;
-using UsaloYa.Services.interfaces;
+using UsaloYa.Services.Interfaces;
 
 namespace UsaloYa.API.Controllers
 {
@@ -18,14 +18,14 @@ namespace UsaloYa.API.Controllers
         private readonly ILogger<RefundController> _logger;
         private readonly IRefundService _refundService;
         private readonly DBContext _dBContext;
-        
+        private readonly HeaderValidatorService _headerValidatorService;
 
-        public RefundController(DBContext dBContext, IRefundService refundService, ILogger<RefundController> logger)
+        public RefundController(DBContext dBContext, IRefundService refundService, ILogger<RefundController> logger, HeaderValidatorService headerValidatorService)
         {
             _refundService = refundService;
             _dBContext = dBContext;
             _logger = logger;
-
+            _headerValidatorService = headerValidatorService;
         }
 
         [HttpGet("CanSaleBeRefund")]
@@ -33,7 +33,7 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var requestor = await HeaderValidatorService.ValidateRequestorSameCompany(RequestorId, Role.User, companyId,  _dBContext);
+                var requestor = await _headerValidatorService.ValidateRequestorSameCompany(RequestorId, Role.User, companyId);
                 if (requestor.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
                 var result = await _refundService.CanSaleBeRefund(dateTimeSale, companyId);
@@ -53,7 +53,7 @@ namespace UsaloYa.API.Controllers
         {
             try
             {
-                var requestor = await HeaderValidatorService.ValidateRequestorSameCompany(RequestorId, Role.User, companyId, _dBContext);
+                var requestor = await _headerValidatorService.ValidateRequestorSameCompany(RequestorId, Role.User, companyId);
                 if (requestor.UserId <= 0)
                     return Unauthorized(AppConfig.NO_AUTORIZADO);
                 var result = await _refundService.ManageRefund(requestRefundDto, companyId);
