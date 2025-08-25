@@ -19,6 +19,8 @@ import { QuestionsComponent } from './questions/questions.component';
 import { FormNavigatorComponent } from './forms-navigator/forms-navigator.component';
 import { ReturnsComponent } from './admin/returns/returns.component';
 import { ReturnsReportComponent } from './admin/returns-report/returns-report.component';
+import { CompanyReportComponent } from './admin/company-report/company-report.component';
+
 
 
 export const routes: Routes = [
@@ -37,6 +39,7 @@ export const routes: Routes = [
     { path: 'reporteinventario', component: InventarioReportComponent, canActivate: [AuthGuard] },
     { path: 'reportedevoluciones', component: ReturnsReportComponent, canActivate: [AuthGuard] },
     { path: 'reporteventas', component: SalesReportComponent, canActivate: [AuthGuard] },
+    { path: 'reporteCompanias', component: CompanyReportComponent, canActivate: [AuthGuard] },
     { path: 'devoluciones', component: ReturnsComponent, canActivate: [AuthGuard] },
     { path: 'importar', component: ImportProductsComponent, canActivate: [AuthGuard] },
     { path: 'companies', component: CompanyManagementComponent, canActivate: [AuthGuard] },

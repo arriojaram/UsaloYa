@@ -236,6 +236,12 @@
                                     <i class="bi bi-arrow-right-short me-2" style="font-size: 1rem;"></i>
                                     <span>Inventario</span>
                                 </a>
+                                <a class="nav-link submenu-link d-flex align-items-center px-3 py-2 mb-1 rounded-2"
+                                    href="reporteCompanias" *ngIf="(this.userStateUI?.roleId?? 0) >= rol.SysAdmin"
+                                    style="transition: all 0.3s ease; color: #6c757d; font-size: 0.9rem;">
+                                    <i class="bi bi-arrow-right-short me-2" style="font-size: 1rem;"></i>
+                                    <span>Compañías</span>
+                                </a>
                             </div>
                         </div>
                     </div>

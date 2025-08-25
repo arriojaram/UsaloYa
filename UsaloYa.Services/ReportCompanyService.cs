@@ -15,31 +15,59 @@ namespace UsaloYa.Services
             _dBContext = dBContext;
         }
 
-        public async Task<IEnumerable<CompanyReportDto>> GetCompaniesReport(int InactiveDays, CompanyStatus status, string company)
+        public async Task<IEnumerable<CompanyReportDto>> GetCompaniesReport(int inactiveDays, CompanyStatus status, string company)
         {
-            var cutoffDate = DateTime.UtcNow.AddDays(-InactiveDays);
+            var cutoffDate = DateTime.UtcNow.AddDays(-inactiveDays);
+            company = company?.Trim() ?? "-1";
 
-            return await _dBContext.Companies
+            // 1. Proyección intermedia: traemos solo lo necesario y calculamos LastAccess de forma segura
+            var query = _dBContext.Companies
                 .Include(c => c.Sales)
                 .Include(c => c.Products)
                 .Include(c => c.Users)
-                .Where(c =>
-                    (status == CompanyStatus.Inactive ? c.StatusId.Equals(CompanyStatus.Inactive) : !c.StatusId.Equals(CompanyStatus.Inactive)) &&
-                    (company == "-1" || c.Name.Contains(company)) &&
-                    ((c.Users.Any() ? c.Users.Max(u => u.LastAccess) : c.CreationDate) <= cutoffDate)
-                )
-                .OrderByDescending(c => c.Users.Any() ? c.Users.Max(u => u.LastAccess) : c.CreationDate)
-                .Select(r => new CompanyReportDto
+                .Select(c => new
                 {
-                    NumberOfUsers = r.Users.Count(),
-                    CompanyName = r.Name,
-                    LastAccess = r.Users.Any() ? r.Users.Max(u => u.LastAccess) : r.CreationDate,
-                    Phone = r.PhoneNumber,
-                    NumberOfProducts = r.Products.Count(),
-                    NumberOfSales = r.Sales.Count(),
+                    Company = c,
+                    LastAccess = (c.Users.Any()
+                        ? c.Users.Max(u => (DateTime?)u.LastAccess)
+                        : null
+                    ) ?? c.CreationDate
+                });
+
+            // 2. Filtro: si company = -1 → filtramos por estado e inactividad, si no → por nombre
+            if (company == "-1")
+            {
+                query = query.Where(x =>
+                    (status == CompanyStatus.Inactive
+                        ? x.Company.StatusId == (int)CompanyStatus.Inactive
+                        : x.Company.StatusId != (int)CompanyStatus.Inactive)
+                    &&
+                    x.LastAccess <= cutoffDate
+                );
+            }
+            else
+            {
+                query = query.Where(x => x.Company.Name.Contains(company));
+            }
+
+            // 3. Ordenar y mapear a DTO
+            var result = await query
+                .OrderByDescending(x => x.LastAccess)
+                .Select(x => new CompanyReportDto
+                {
+                    NumberOfUsers = x.Company.Users.Count,
+                    CompanyName = x.Company.Name,
+                    LastAccess = x.LastAccess,
+                    Phone = x.Company.PhoneNumber,
+                    NumberOfProducts = x.Company.Products.Count,
+                    NumberOfSales = x.Company.Sales.Count,
+                    Status = x.Company.StatusId
                 })
                 .ToListAsync();
+
+            return result;
         }
+
 
 
     }

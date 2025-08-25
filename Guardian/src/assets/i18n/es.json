@@ -13,8 +13,15 @@
   "questions": {
     "load_error": "Error al cargar las preguntas. Intenta más tarde.",
     "missing_data": "Faltan datos del usuario o de la empresa.",
-    "sucess": "Registro completo. Se ha enviado un email de verificación.",
-    "register_error": "Error al registrar: "
+    "sucess": "Registro completo. Se ha enviado un email de verificación."
+  },
+  "register_errors":{
+    "error_user_companyregister": "No se pudo registrar el usuario y compañía.",
+    "email_send_error_user": "Error al enviar el correo al nuevo usuario.",
+    "email_send_error_admins": "Error al notificar a los administradores.",
+    "email_send_error": "Error general en el envío de correos.",
+    "email_send_ok": "Se envió el correo de verificación correctamente.",
+    "internal_server_error": "Error inesperado en el servidor."
   },
   "product": {
     "invalid_quantity_unit": "El producto está configurado como 'Unidad' y no puede tener cantidad decimal.",
@@ -97,5 +104,10 @@
   },
   "form-navigator": {
     "missing_data": "Faltan campos obligatorios"
+  },
+
+
+  "Companies_report": {
+    "permission_denied": "Permiso denegado"
   }
 }
