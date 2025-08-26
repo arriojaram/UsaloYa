@@ -80,6 +80,14 @@ export enum ReturnReason {
   Otro = 5
 }
 
+export enum DaysForWeeks {
+  Week1 = 7,
+  Weeks2 = 14,
+  Weeks3 = 21,
+  Weeks4 = 28,
+  Weeks5 = 35
+}
+
 export function getReturnReasonLabel(reason: ReturnReason): string {
   switch (reason) {
     case ReturnReason.Defectuoso:
@@ -94,6 +102,22 @@ export function getReturnReasonLabel(reason: ReturnReason): string {
       return 'Otro';
   }
 }
+
+export function getDaysForWeeksLabel(week: DaysForWeeks): string {
+  switch (week) {
+    case DaysForWeeks.Week1:
+      return '1 semana';
+    case DaysForWeeks.Weeks2:
+      return '2 semanas';
+    case DaysForWeeks.Weeks3:
+      return '3 semanas';
+    case DaysForWeeks.Weeks4:
+      return '4 semanas';
+    case DaysForWeeks.Weeks5:
+      return '5 semanas';
+  }
+}
+
 
 
 export function getCompanyStatusEnumName(value: number): string {

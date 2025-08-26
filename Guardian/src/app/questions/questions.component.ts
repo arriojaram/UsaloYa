@@ -133,8 +133,9 @@ export class QuestionsComponent implements OnInit, OnDestroy {
           this.router.navigate(['/verification']);
         },
         error: (err) => {
+          let errorKey = err.error?.message || 'internal_server_error';
           this.navigationService.showUIMessage(
-            this.translate.instant('questions.register_error') + err.message,
+            this.translate.instant('register_errors.' + errorKey) ,
             AlertLevel.Error
           );
           this.loadingService.hide();
