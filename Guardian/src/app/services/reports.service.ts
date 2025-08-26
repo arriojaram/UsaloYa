@@ -3,8 +3,9 @@ import { Injectable } from '@angular/core';
 import { environment } from '../environments/enviroment';
 import { catchError, Observable } from 'rxjs';
 import { ProductSaleDetailReport, SaleDetailReport } from '../dto/sale-detail-report';
-
 import { RefundReportDto } from '../dto/refundReportDto';
+import {CompanyReportDto} from '../dto/CompanyReportDto';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -48,6 +49,16 @@ export class ReportsService {
     return this.httpClient.get<RefundReportDto>(apiUrl).pipe(
       catchError(error => {
         console.error('getRefundDetails() | ', error);
+        throw error;
+      })
+    );
+  }
+
+  getCompanyReport( companyId: number, inactiveDays: number, status: number, company: string,): Observable<CompanyReportDto[]> {
+    const apiUrl = `${this.baseUrl}/GetCompaniesReport?companyId=${companyId}&InactiveDays=${inactiveDays}&status=${status}&company=${company}`;
+    return this.httpClient.get<CompanyReportDto[]>(apiUrl).pipe(
+      catchError(error => {
+        console.error('getCompanyReport() | ', error);
         throw error;
       })
     );

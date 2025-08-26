@@ -200,58 +200,68 @@ namespace UsaloYa.API.Controllers
             {
                 var result = await _userService.RegisterNewUserAndCompany(request);
 
-                if (result.CodeVerification != null)
+                if (result.CodeVerification == null)
                 {
-                    try
+                    return BadRequest(new
                     {
-                        var templatePath = Path.Combine(_env.ContentRootPath, "Templates", "Notificacion.html");
-
-                        SendVerificationCodeDto data = new();
-                        data.Email = result.Email;
-                        data.FirstName = result.FirstName;
-                        data.CodeVerification = result.CodeVerification;
-
-                        try
-                        {
-                            var responseSendEmailNewUsers = await _emailService.SendEmailNewUsers(data, templatePath);
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.LogError(ex, "Error al enviar correo al nuevo usuario {Email}", result.Email);
-                            return StatusCode(500, new { message = "email_send_error" });
-                        }
-
-                        try
-                        {
-                            var responseSendEmailToAdmins = await _emailService.SendEmailToAdmins(result.FirstName, result.CompanyName, result.UserId, templatePath);
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.LogError(ex, "Error al notificar a los administradores sobre el nuevo usuario {Email}", result.Email);
-                            return StatusCode(500, new { message = "email_send_error" });
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Error general al procesar envío de correos para el usuario {Email}", result.Email);
-                        return StatusCode(500, new { message = "email_send_error" });
-                    }
-
-                    return Ok(new
-                    {
-                        message = "email_send_ok"
+                        success = false,
+                        message = "error_user_company_register"
                     });
                 }
 
-                return BadRequest(new { message = "error_register" });
+                var templatePath = Path.Combine(_env.ContentRootPath, "Templates", "Notificacion.html");
+
+                SendVerificationCodeDto data = new()
+                {
+                    Email = result.Email,
+                    FirstName = result.FirstName,
+                    CodeVerification = result.CodeVerification
+                };
+
+                
+                try
+                {
+                    var responseSendEmailNewUsers = await _emailService.SendEmailNewUsers(data, templatePath);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error al enviar correo al nuevo usuario {Email}", result.Email);
+                    return StatusCode(500, new
+                    {
+                        success = false,
+                        message = "email_send_error_user"
+                    });
+                }
+
+               
+                try
+                {
+                    var responseSendEmailToAdmins = await _emailService.SendEmailToAdmins(result.FirstName, result.CompanyName, result.UserId, templatePath);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error al notificar a los administradores sobre el nuevo usuario {Email}", result.Email);
+                    return StatusCode(500, new
+                    {
+                        success = false,
+                        message = "email_send_error_admins"
+                    });
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "email_send_ok"
+                });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error inesperado en RegisterNewUser.");
                 return StatusCode(500, new
                 {
-                    message = "internal_server_error",
-                    detail = ex.Message
+                    success = false,
+                    message = "internal_server_error"
+            
                 });
             }
         }
