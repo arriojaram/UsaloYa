@@ -4,9 +4,9 @@ namespace UsaloYa.Library.Models;
 
 public partial class DBContext : DbContext
 {
-//    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-//       => optionsBuilder.UseSqlServer("Data Source=.\\MSSQLSERVER01;Initial Catalog=UsaloYa;Integrated Security=True;TrustServerCertificate=True;");
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+       => optionsBuilder.UseSqlServer("Data Source=.\\MSSQLSERVER01;Initial Catalog=UsaloYa;Integrated Security=True;TrustServerCertificate=True;");
 
     public DBContext()
     {
@@ -107,11 +107,11 @@ public partial class DBContext : DbContext
                 .HasMaxLength(250)
                 .IsUnicode(false);
             entity.Property(e => e.CelphoneNumber)
-                .HasMaxLength(10)
+                .HasMaxLength(15)
                 .IsUnicode(false);
             entity.Property(e => e.CreationDate).HasColumnType("datetime");
             entity.Property(e => e.Email)
-                .HasMaxLength(30)
+                .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.ExpirationDate).HasColumnType("datetime");
             entity.Property(e => e.Name)
@@ -120,7 +120,7 @@ public partial class DBContext : DbContext
             entity.Property(e => e.OwnerInfo).HasMaxLength(500);
             entity.Property(e => e.PaymentsJson).HasColumnType("xml");
             entity.Property(e => e.PhoneNumber)
-                .HasMaxLength(10)
+                .HasMaxLength(15)
                 .IsUnicode(false);
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.CompanyCreatedByNavigations).HasForeignKey(d => d.CreatedBy);
@@ -283,7 +283,7 @@ public partial class DBContext : DbContext
                 .HasMaxLength(500)
                 .IsUnicode(false);
             entity.Property(e => e.Name)
-                .HasMaxLength(50)
+                .HasMaxLength(100)
                 .IsUnicode(false);
 
             entity.HasOne(d => d.Company).WithMany(p => p.ProductCategories)

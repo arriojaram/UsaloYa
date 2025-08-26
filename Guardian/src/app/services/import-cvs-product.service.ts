@@ -32,9 +32,11 @@ export class ImportCvsProductService {
 
     // Convierte el texto de la medida en la enumeración asignada
     const medidaMap: Record<string, MeasureType> = {
-      '': MeasureType.Desconocido,
       'Ud': MeasureType.Ud,
       'Kg': MeasureType.Kg,
+      'L': MeasureType.L,
+      'm': MeasureType.m,
+       '': MeasureType.Ud,
     };
 
     const medidaTexto = (row.Medida || '').trim();

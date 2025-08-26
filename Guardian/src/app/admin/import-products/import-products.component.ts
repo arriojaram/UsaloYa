@@ -124,7 +124,9 @@ export class ImportProductsComponent implements OnInit, OnDestroy {
           this.user_message = "El proceso de importación ha finalizado.";
           this.alertClass = "alert alert-info";
           this.clearFileInput();
-          console.log(`Procesados: ${this.productsProcessed}, Fallidos: ${this.productsFailed}`);
+          setTimeout(() => {
+            this.isRunning = false;
+          }, 3000);
         })
       ).subscribe({
         next: (response) => {

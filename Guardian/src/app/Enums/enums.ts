@@ -68,7 +68,9 @@ export enum StatusVentaEnum {
 export enum MeasureType {
     Desconocido = 0,
     Ud = 1,
-    Kg = 2
+    Kg = 2,
+    L = 3,
+    m = 4
 }
 export enum ReturnReason {
   Defectuoso = 1,
