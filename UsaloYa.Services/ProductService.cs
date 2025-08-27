@@ -226,6 +226,7 @@ namespace UsaloYa.Services
                     CompanyId = companyId,
                     AlertaStockNumProducts = productDto.LowInventoryStart ?? 0,
                     IsInVentarioUpdated = productDto.IsInventarioUpdated
+                    
                 };
 
                 _dBContext.Products.Add(newProduct);

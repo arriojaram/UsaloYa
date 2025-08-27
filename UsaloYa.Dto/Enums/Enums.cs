@@ -44,7 +44,9 @@
     public enum MeasureType
     {
         Ud = 1,
-        Kg = 2
+        Kg = 2,
+        L = 3,
+        m = 4
     }
 
     public static class EConverter

@@ -21,7 +21,7 @@ namespace UsaloYa.API.Controllers
         private readonly DBContext _dBContext;
         private readonly IProductCategoryService _productCategoryService;
         private readonly HeaderValidatorService _headerValidatorService;
-        public CategoryController(DBContext dBContext, ILogger<CategoryController> logger, ProductCategoryService prodCatService, HeaderValidatorService headerValidatorService)
+        public CategoryController(DBContext dBContext, ILogger<CategoryController> logger, IProductCategoryService prodCatService, HeaderValidatorService headerValidatorService)
         {
             _logger = logger;
             _dBContext = dBContext;
