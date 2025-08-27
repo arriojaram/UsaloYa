@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using System.Data;
 using UsaloYa.Dto;
 using UsaloYa.Dto.Enums;
 using UsaloYa.Dto.Utils;
@@ -274,18 +275,32 @@ namespace UsaloYa.Services
                 return false;
 
             return true;
-        }      
+        }
 
 
-        public async Task<bool> DeleteInactiveCompanies(int days)
+        public async Task<int> DeleteInactiveCompanies(int days)
         {
-            if (days <= 0)
-                throw new ArgumentException("$_Invalid_Value.", nameof(days));
+            await using var connection = _dBContext.Database.GetDbConnection();
+            await connection.OpenAsync();
 
-            var result = await _dBContext.Database.ExecuteSqlInterpolatedAsync(
-                $"EXEC DeleteInactiveCompanies @Days = {days}");
+            await using var command = connection.CreateCommand();
+            command.CommandText = "DeleteInactiveCompanies";
+            command.CommandType = CommandType.StoredProcedure;
 
-            return result > 0;
+            var paramDays = command.CreateParameter();
+            paramDays.ParameterName = "@DiasInactividad";
+            paramDays.Value = days;
+            command.Parameters.Add(paramDays);
+
+            var paramOut = command.CreateParameter();
+            paramOut.ParameterName = "@TotalEliminadas";
+            paramOut.DbType = DbType.Int32;
+            paramOut.Direction = ParameterDirection.Output;
+            command.Parameters.Add(paramOut);
+
+            await command.ExecuteNonQueryAsync();
+
+            return (int)paramOut.Value;
         }
     }
 }
