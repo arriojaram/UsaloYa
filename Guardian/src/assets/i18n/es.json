@@ -106,8 +106,13 @@
     "missing_data": "Faltan campos obligatorios"
   },
 
+  "companies": {
+    "permission_denied": "Permiso denegado",
+    "success_elimination": "compañías han sido eliminadas",
+    "number_invalid": " dias invalidos"
+  },
 
   "Companies_report": {
-    "permission_denied": "Permiso denegado"
+    "permission_denied": "Permiso denegado"   
   }
 }

@@ -138,4 +138,16 @@ export class CompanyService {
       })
     );
   }
+
+  deleteInactiveCompanies(days: number): Observable<number> {
+    const apiUrl = `${this.baseUrl}/DeleteInactiveCompanies`;
+
+    return this.http.post<number>(apiUrl, days).pipe(
+      catchError(error => {
+        console.error('deleteInactiveCompanies() | ', error);
+        throw error;
+      })
+    );
+  }
+
 }

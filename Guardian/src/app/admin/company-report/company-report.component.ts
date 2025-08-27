@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ReportsService } from '../../services/reports.service';
+import { CompanyService } from '../../services/company.service';
 import { CompanyReportDto } from '../../dto/CompanyReportDto';
 import { UserStateService } from '../../services/user-state.service';
 import { userDto } from '../../dto/userDto';
@@ -8,17 +9,15 @@ import { TranslateService } from '@ngx-translate/core';
 import { NavigationService } from '../../services/navigation.service';
 import { Roles, getCompanyStatusEnumName, MeasureType } from '../../Enums/enums';
 import { Subject, first, takeUntil } from 'rxjs';
-import { UserService } from '../../services/user.service';
-import { CurrencyPipe } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
-import { DaysForWeeks, getDaysForWeeksLabel } from '../../Enums/enums';
+import { DaysForWeeks, getDaysForWeeksLabel,AlertLevel } from '../../Enums/enums';
 
 
 @Component({
   selector: 'app-returns-report',
   standalone: true,
-  imports: [CommonModule, CurrencyPipe, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './company-report.component.html',
   styleUrls: ['./company-report.component.css']
 })
@@ -38,6 +37,7 @@ export class CompanyReportComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private reportService: ReportsService,
+    protected companyService: CompanyService,
     private userStateService: UserStateService,
     private navigationService: NavigationService,
     private translate: TranslateService,
@@ -139,6 +139,33 @@ export class CompanyReportComponent implements OnInit, OnDestroy {
           this.navigationService.showUIMessage(e.error);
         }
       });
+  }
+
+  confirmReturn(): void {
+    const confirmed = confirm('¿Estás seguro de eliminar las compañias con mas de '+ this.reportForm.get('inactiveDays')?.value + ' dias sin actividad?');
+    if (!confirmed) return;
+    
+    this.deleteInactiveCompanies();
+  };
+
+  deleteInactiveCompanies(): void {
+     const inactiveDays = parseInt(this.reportForm.get('inactiveDays')?.value);
+    if (inactiveDays >= DaysForWeeks.Week1) {
+
+      this.companyService.deleteInactiveCompanies(inactiveDays)
+      .pipe(first())
+      .subscribe({
+        next: (result) => {
+          this.companies = [];
+          this.navigationService.showUIMessage(result +' '+ this.translate.instant('companies.success_elimination'), AlertLevel.Sucess);        
+        },
+        error: (err) => {       
+          this.navigationService.showUIMessage(err.message);
+        }
+      });
+    }else{
+    this.navigationService.showUIMessage(this.translate.instant('companies.number_invalid'), AlertLevel.Warning);
+  }
   }
 }
 

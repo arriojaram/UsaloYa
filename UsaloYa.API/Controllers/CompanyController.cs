@@ -262,15 +262,17 @@ namespace UsaloYa.API.Controllers
 
 
         [HttpPost("DeleteInactiveCompanies")]
-        public async Task<IActionResult> DeleteInactiveCompanies([FromHeader] string RequestorId, int companyId, int days)
+        public async Task<IActionResult> DeleteInactiveCompanies([FromHeader] string RequestorId, [FromBody] int days)
         {
             try
             {
-                var requestor = await _headerValidatorService.ValidateRequestorSameCompany(RequestorId, Role.User, companyId);
-                return Unauthorized(AppConfig.NO_AUTORIZADO);
+                var user = await _headerValidatorService.ValidateRequestor(RequestorId, Role.SysAdmin);
+                if (user.UserId <= 0)
+                    return Unauthorized(AppConfig.NO_AUTORIZADO);
 
                 if (days <= 0)
                     return BadRequest(new { message = "$_Invalid_Value." });
+
 
                 var result = await _companyService.DeleteInactiveCompanies(days);
                 return Ok(result);

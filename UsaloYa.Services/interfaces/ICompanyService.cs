@@ -23,7 +23,7 @@ namespace UsaloYa.Services.Interfaces
         Task<List<RentDto>> GetPaymentHistory(int companyId);
         Task<DateTime> CalculateExpirationDate(Company company, decimal rentAmount, RentTypeId typeId);
         Task<bool> IsCompanyUnique(string companyName);
-        Task<bool> DeleteInactiveCompanies(int days);
+        Task<int> DeleteInactiveCompanies(int days);
 
     }
 }
