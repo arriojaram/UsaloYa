@@ -9,6 +9,8 @@ import { first } from 'rxjs';
 import { NavigationService } from '../../services/navigation.service';
 import { NgFor, NgIf } from '@angular/common';
 import { AlertLevel } from '../../Enums/enums';
+import { TranslateService } from '@ngx-translate/core';
+
 
 @Component({
     selector: 'app-customer-management',
@@ -28,7 +30,8 @@ export class CustomerManagementComponent implements OnInit{
     private customerService: CustomerService,
     private route: ActivatedRoute,
     private userService: UserStateService,
-    public navigationService: NavigationService
+    public navigationService: NavigationService,
+    private translate: TranslateService
   ) 
   {
     this.customerForm = this.initializeForm();
@@ -94,7 +97,7 @@ export class CustomerManagementComponent implements OnInit{
         },
         error: (e) => 
         {
-          this.navigationService.showUIMessage(e.error.message);
+          this.navigationService.showUIMessage(this.translate.instant('costumers.'+ e.error.message), AlertLevel.Warning);
         }
       });
     } else {

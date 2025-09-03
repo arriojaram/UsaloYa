@@ -76,12 +76,16 @@ namespace UsaloYa.Services
             if (customerDto.CustomerId == 0)
             {
                 var exists = await _dBContext.Customers.AnyAsync(c =>
+                c.CompanyId == customerDto.CompanyId &&
+                (
                     (c.CellPhoneNumber ?? "-0") == (customerDto.CellPhoneNumber ?? "-1") ||
                     (c.WorkPhoneNumber ?? "-0") == (customerDto.CellPhoneNumber ?? "-1") ||
                     (c.Email ?? "-0") == (customerDto.Email ?? "-1")
-                    && c.CompanyId == customerDto.CompanyId);
+                )
+                );
 
-                if (exists) throw new InvalidOperationException("$_Email_O_Telefono_Existente");
+
+                if (exists) throw new InvalidOperationException("email_or_phone_exist");
 
                 customer = new Customer
                 {
@@ -101,7 +105,7 @@ namespace UsaloYa.Services
             else
             {
                 customer = await _dBContext.Customers.FindAsync(customerDto.CustomerId);
-                if (customer == null) throw new KeyNotFoundException("Customer not found");
+                if (customer == null) throw new KeyNotFoundException("customer_not_found");
 
                 customer.FirstName = customerDto.FirstName;
                 customer.LastName1 = customerDto.LastName1;
@@ -116,6 +120,7 @@ namespace UsaloYa.Services
             }
 
             await _dBContext.SaveChangesAsync();
+            customerDto.CustomerId = customer.CustomerId;
             return customerDto;
         }
     }

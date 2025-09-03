@@ -75,7 +75,7 @@ namespace UsaloYa.API.Controllers
             }
             catch (InvalidOperationException ex)
             {
-                _logger.LogWarning(ex, "SaveCustomer.ValidationError");
+                _logger.LogWarning(ex, "save_error");
                 return Conflict(new { message = ex.Message });
             }
             catch (KeyNotFoundException)
