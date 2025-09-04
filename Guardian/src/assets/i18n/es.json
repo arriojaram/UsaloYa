@@ -114,5 +114,11 @@
 
   "Companies_report": {
     "permission_denied": "Permiso denegado"   
+  },
+
+   "costumers": {
+    "save_error": "Error al guardar usuario,",
+    "email_or_phone_exist": "Email  o telefono ya exitente",
+    "customer_not_found": "cliente no encontrado"
   }
 }

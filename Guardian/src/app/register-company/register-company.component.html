@@ -37,6 +37,7 @@
     class="input"
     formControlName="telNumber"
     aria-describedby="phoneHelp phoneError"
+    maxlength="10"
     [class.input-error]="companyForm.get('phoneNumber')?.invalid && companyForm.get('phoneNumber')?.touched"
   />
   <small id="phoneHelp" class="text-muted">Ejemplo: 5588776655</small>
@@ -54,6 +55,7 @@
     class="input"
     formControlName="celNumber"
     aria-describedby="cellHelp cellError"
+    maxlength="10"
     [class.input-error]="companyForm.get('cellphoneNumber')?.invalid && companyForm.get('cellphoneNumber')?.touched"
   />
   <small id="cellHelp" class="text-muted">Ejemplo: 5588776655</small>
