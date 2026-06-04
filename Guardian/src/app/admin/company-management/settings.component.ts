@@ -44,6 +44,7 @@ export class SettingsComponent implements OnInit {
 
   private initSettingsForm(): FormGroup {
     return this.settingsForm = this.fb.group({
+      activarImpresionMobile: [false],
       activarImpresionWeb: [false],
       impresoraWeb: [''],
       maxDaysToRefund:[] ,
@@ -73,8 +74,11 @@ export class SettingsComponent implements OnInit {
           {
             for (let index = 0; index < settings.length; index++) {
               const s = settings[index];
-              if(s.key == environment.PAIRSETT_ACTIVAR_IMPRESORA)
-                this.settingsForm.get(environment.PAIRSETT_ACTIVAR_IMPRESORA)?.setValue(s.value);
+
+               if(s.key == environment.PAIRSETT_ACTIVAR_IMPRESORA_MOBILE)
+                this.settingsForm.get(environment.PAIRSETT_ACTIVAR_IMPRESORA_MOBILE)?.setValue(s.value);
+              if(s.key == environment.PAIRSETT_ACTIVAR_IMPRESORA_WEB)
+                this.settingsForm.get(environment.PAIRSETT_ACTIVAR_IMPRESORA_WEB)?.setValue(s.value);
               if(s.key == environment.PAIRSETT_NOMBRE_IMPRESORA)
                 this.settingsForm.get(environment.PAIRSETT_NOMBRE_IMPRESORA)?.setValue(s.value);
               if(s.key == environment.PAIRSETT_DIAS_DE_DEVOLUCION)
@@ -100,7 +104,8 @@ export class SettingsComponent implements OnInit {
       this.isSearchingPrinters = false;
       let settings: settingsDto =  this.settingsForm.value;
       let pairSettings: pairSettingsDto[] = [];
-      pairSettings.push({key:environment.PAIRSETT_ACTIVAR_IMPRESORA, value: settings.activarImpresionWeb.toString() });
+      pairSettings.push({key:environment.PAIRSETT_ACTIVAR_IMPRESORA_MOBILE, value: settings.activarImpresionMobile.toString() });
+      pairSettings.push({key:environment.PAIRSETT_ACTIVAR_IMPRESORA_WEB, value: settings.activarImpresionWeb.toString() });
       pairSettings.push({key:environment.PAIRSETT_NOMBRE_IMPRESORA, value: settings.impresoraWeb });
       pairSettings.push({key:environment.PAIRSETT_DIAS_DE_DEVOLUCION, value: settings.maxDaysToRefund.toString() });
 

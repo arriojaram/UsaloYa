@@ -20,5 +20,6 @@ export interface userDto{
     creationDateUI?: string,
     roleId: number,
     companyStatusId?: number,
-    canMakeReturns?: boolean
+    canMakeReturns?: boolean,
+    notInHomePage?: boolean
 }

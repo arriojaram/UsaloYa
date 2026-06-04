@@ -1,46 +1,53 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Usalo-Ya</title>
-  <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <link rel="manifest" href="manifest.webmanifest">
-  
-  <meta name="theme-color" content="#1976d2">
+  <head>
+    <meta charset="utf-8">
+    <title>UsaloYa - Sistemas que trabajan para ti</title>
+    <link rel="icon" type="image/png" href="assets/images/Logo_200_194.png">
+    <link rel="shortcut icon" type="image/png" href="assets/images/Logo_200_194.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/Logo_200_194.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/Logo_200_194.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/images/Logo_200_194.png">
+    <meta name="msapplication-TileImage" content="assets/images/Logo_200_194.png">
+    <meta name="theme-color" content="#1E88E5">
 
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <base href="/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <script src="assets/js/qz-tray.js" onload="window.qzReady = true;"></script>
-  <script src="assets/js/jsrsasign-all-min.js"></script>
-  <script src="assets/js/sign-message.js"></script>
-  <style>
-    /* Responsive fix for sb-nav-fixed class */
-    @media (max-width: 991.98px) {
-      body.sb-nav-fixed {
-        padding-left: 0 !important;
+    <link rel="manifest" href="manifest.webmanifest">
+
+    <meta name="theme-color" content="#1976d2">
+  <link rel="stylesheet" href="../assets/css/bootstrap-icons.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="assets/js/qz-tray.js" onload="window.qzReady = true;"></script>
+    <script src="assets/js/jsrsasign-all-min.js"></script>
+    <script src="assets/js/sign-message.js"></script>
+    <style>
+      /* Responsive fix for sb-nav-fixed class */
+      @media (max-width: 991.98px) {
+        body.sb-nav-fixed {
+          padding-left: 0 !important;
+        }
+
+        body.sb-nav-fixed #layoutSidenav {
+          padding-left: 0 !important;
+        }
+
+        body.sb-nav-fixed #layoutSidenav_content {
+          margin-left: 0 !important;
+          padding-left: 0 !important;
+        }
       }
-      
-      body.sb-nav-fixed #layoutSidenav {
-        padding-left: 0 !important;
-      }
-      
-      body.sb-nav-fixed #layoutSidenav_content {
-        margin-left: 0 !important;
-        padding-left: 0 !important;
-      }
-    }
-  </style>
-</head>
-<body class="sb-nav-fixed mat-typography">
-  <app-root></app-root>
-  <noscript>Please enable JavaScript to continue using this application.</noscript>
-  
-  
-  <script src="assets/js/fontawesome-all.js"></script>
-</body>
-</html>
+    </style>
+  </head>
+  <body class="sb-nav-fixed mat-typography sb-sidenav-toggled">
+    <app-root></app-root>
+    <noscript>Please enable JavaScript to continue using this application.</noscript>
+
+
+    <script src="assets/js/fontawesome-all.js"></script>
+  </body>
+  </html>
 <script>
   qz.security.setCertificatePromise(function(resolve, reject) {
     fetch("assets/certs/c.txt", {cache: 'no-store', headers: {'Content-Type': 'text/plain'}})

@@ -5,7 +5,7 @@
     transform: translate(-50%, -50%);
     z-index: 1000;
   }
-  
+
 /* Custom Spinner Animation */
 @keyframes spin {
     0% { transform: rotate(0deg); }
@@ -82,36 +82,36 @@
         border-radius: 8px !important;
         margin-right: 0.5rem !important;
     }
-    
+
     .sb-topnav .navbar-brand {
         flex-shrink: 0 !important;
         max-width: 180px !important; /* Increased from 150px */
         min-width: 120px !important; /* Added minimum width */
     }
-    
+
     .sb-topnav .navbar-brand img {
         height: 30px !important;
         width: 30px !important;
         object-fit: contain !important; /* Ensure image maintains aspect ratio */
     }
-    
+
     .sb-topnav .flex-grow-1 {
         flex: 1 !important;
         min-width: 0 !important;
     }
-    
+
     .sb-topnav .nav-link {
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
     }
-    
+
     /* Ensure dropdown doesn't overflow */
     .sb-topnav .dropdown-menu {
         max-height: calc(100vh - 60px) !important;
         overflow-y: auto !important;
     }
-    
+
     /* Improve touch targets */
     .sb-topnav .nav-link,
     .sb-topnav .btn {
@@ -122,52 +122,23 @@
 
 /* ===== SIDEBAR ENHANCEMENTS ===== */
 
-/* Responsive Sidebar */
 #layoutSidenav_nav {
     width: 280px;
     position: fixed;
     top: 0;
     left: 0;
     height: 100vh;
-    z-index: 1040;
+    z-index: 1038;
     transition: transform 0.3s ease;
+    transform: translateX(-100%) !important;
 }
 
-/* Sidebar Responsive Behavior */
-@media (max-width: 991.98px) {
-    #layoutSidenav_nav {
-        transform: translateX(-100%);
-    }
-    
-    #layoutSidenav_nav.d-block {
-        transform: translateX(0);
-    }
-    
-    #layoutSidenav_content {
-        margin-left: 0 !important;
-    }
-    
-    #layoutSidenav_content.sidebar-open::before {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.5);
-        z-index: 1039;
-    }
+#layoutSidenav_nav.d-block {
+    transform: translateX(0) !important;
 }
 
-@media (min-width: 992px) {
-    #layoutSidenav_nav {
-        transform: translateX(0);
-    }
-    
-    #layoutSidenav_content {
-        margin-left: 280px;
-        transition: margin-left 0.3s ease;
-    }
+#layoutSidenav_content {
+    margin-left: 0 !important;
 }
 
 /* Modern Navigation Links */
@@ -235,11 +206,11 @@ footer .btn-success:hover {
     .footer .row {
         text-align: center !important;
     }
-    
+
     .footer .col-md-4 {
         margin-bottom: 1rem;
     }
-    
+
     /* Navbar Mobile Fixes */
     .sb-topnav {
         height: 60px !important;
@@ -252,35 +223,35 @@ footer .btn-success:hover {
         right: 0 !important;
         z-index: 1039 !important;
     }
-    
+
     .sb-topnav .d-flex {
         height: 100% !important;
         align-items: center !important;
         padding: 0 0.5rem !important;
     }
-    
+
     .sb-topnav .navbar-brand {
         max-width: 180px !important; /* Increased from 150px */
         min-width: 120px !important; /* Added minimum width */
         overflow: visible !important; /* Changed from hidden to visible */
         flex-shrink: 0 !important;
     }
-    
+
     .sb-topnav .navbar-brand .brand-text {
         display: none !important;
     }
-    
+
     .sb-topnav .navbar-nav {
         height: 100% !important;
         align-items: center !important;
     }
-    
+
     .sb-topnav .nav-item {
         height: 100% !important;
         display: flex !important;
         align-items: center !important;
     }
-    
+
     .sb-topnav .nav-link {
         height: 100% !important;
         display: flex !important;
@@ -288,7 +259,7 @@ footer .btn-success:hover {
         padding: 0.5rem !important;
         font-size: 0.9rem !important;
     }
-    
+
     /* Fixed user-avatar styles for perfect circle */
     .sb-topnav .user-avatar {
         width: 32px !important; /* Increased from 28px */
@@ -302,7 +273,7 @@ footer .btn-success:hover {
         min-width: 32px !important; /* Ensure minimum width */
         min-height: 32px !important; /* Ensure minimum height */
     }
-    
+
     .sb-topnav .dropdown-menu {
         position: fixed !important;
         top: 60px !important;
@@ -320,11 +291,11 @@ footer .btn-success:hover {
     .navbar-brand .brand-text {
         display: none;
     }
-    
+
     .user-info {
         display: none !important;
     }
-    
+
     /* Navbar Tablet Fixes */
     .sb-topnav {
         height: 56px !important;
@@ -332,37 +303,37 @@ footer .btn-success:hover {
         max-height: 56px !important;
         overflow: hidden !important;
     }
-    
+
     .sb-topnav .d-flex {
         height: 100% !important;
         align-items: center !important;
         padding: 0 1rem !important;
     }
-    
+
     .sb-topnav .navbar-brand {
         max-width: 200px !important;
         overflow: visible !important; /* Changed from hidden to visible */
         min-width: 140px !important; /* Added minimum width */
     }
-    
+
     .sb-topnav .navbar-nav {
         height: 100% !important;
         align-items: center !important;
     }
-    
+
     .sb-topnav .nav-item {
         height: 100% !important;
         display: flex !important;
         align-items: center !important;
     }
-    
+
     .sb-topnav .nav-link {
         height: 100% !important;
         display: flex !important;
         align-items: center !important;
         padding: 0.75rem !important;
     }
-    
+
     /* Fixed user-avatar styles for tablet */
     .sb-topnav .user-avatar {
         width: 32px !important;
@@ -384,22 +355,22 @@ footer .btn-success:hover {
     main {
         padding-top: 0 !important;
     }
-    
+
     .content-container {
         padding-top: 0 !important;
     }
-    
+
     .container-fluid {
         padding-left: 0.5rem !important;
         padding-right: 0.5rem !important;
     }
-    
+
     /* Ensure alerts don't overlap with navbar */
     .alert {
         top: 60px !important;
         margin-top: 0 !important;
     }
-    
+
     /* Improve loading overlay positioning */
     .loading-overlay {
         top: 60px !important;
@@ -426,4 +397,11 @@ a:focus {
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
     }
+}
+
+/* ===== HOME PAGE LAYOUT ===== */
+#layoutSidenav_content.on-home-page .container-fluid {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    max-width: 100%;
 }

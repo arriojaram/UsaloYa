@@ -1,5 +1,11 @@
 <form [formGroup]="settingsForm" (ngSubmit)="onSave()" class="container">
   <div class="form-group form-check">
+    <input type="checkbox" class="form-check-input" id="activarImpresionMobile" formControlName="activarImpresionMobile" />
+    <label class="form-check-label" for="activarImpresionMobile">
+      Activar Impresion M&oacute;vil
+    </label>
+  </div>
+  <div class="form-group form-check">
     <input type="checkbox" class="form-check-input" id="activarImpresionWeb" formControlName="activarImpresionWeb" />
     <label class="form-check-label" for="activarImpresionWeb">
       Activar Impresion Web

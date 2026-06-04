@@ -44,7 +44,8 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
 
   custButtonClass: string = 'btn btn-success';
   custButtonLabel: string = '+';
-  enableQz: boolean = false;
+  enableWebPrinter: boolean = false;
+  enableMobilePrinter: boolean = false;
   customerName: string = '';  // Almacena el texto ingresado
   selectedCustomer: customerDto | undefined;
   filteredCustomer: customerDto[] = [];
@@ -80,7 +81,7 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.enableQz)
+    if (this.enableWebPrinter)
       this.qzService.disconnectQZTray();
   }
 
@@ -100,20 +101,24 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
         .pipe(first())
         .subscribe({
           next: (settings) => {
-            let activarImpresora: boolean = false;
+            let activarImpresoraWeb: boolean = false;
+            
             let printerName: string = '';
             if (settings && settings.length > 0) {
               for (let index = 0; index < settings.length; index++) {
                 const s = settings[index];
 
-                if (s.key == environment.PAIRSETT_ACTIVAR_IMPRESORA)
-                  activarImpresora = s.value == 'true';
+                if (s.key == environment.PAIRSETT_ACTIVAR_IMPRESORA_MOBILE)
+                  this.enableMobilePrinter = s.value == 'true';
+                
+                if (s.key == environment.PAIRSETT_ACTIVAR_IMPRESORA_WEB)
+                  activarImpresoraWeb = s.value == 'true';
                 if (s.key == environment.PAIRSETT_NOMBRE_IMPRESORA)
                   printerName = s.value;
               }
-              if (activarImpresora && (printerName != undefined || printerName != '')) {
+              if (activarImpresoraWeb && (printerName != undefined || printerName != '')) {
                 this.selectedPrinterName = printerName;
-                this.enableQz = true;
+                this.enableWebPrinter = true;
                 this.qzService.retryConnect(0);
               }
             }
@@ -121,8 +126,6 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
         });
     }
   }
-
-
 
   onSelectPrice(event: Event, productId: number): void {
     const selectElement = event.target as HTMLSelectElement;
@@ -242,7 +245,7 @@ export class ListaVentaComponent implements OnInit, OnDestroy {
       this.printViaRawBt(ticket);
     }
     else {
-      if (this.enableQz)
+      if (this.enableWebPrinter)
         this.printInPC(ticketHtml);
     }
   }

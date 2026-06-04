@@ -20,11 +20,13 @@ import { FormNavigatorComponent } from './forms-navigator/forms-navigator.compon
 import { ReturnsComponent } from './admin/returns/returns.component';
 import { ReturnsReportComponent } from './admin/returns-report/returns-report.component';
 import { CompanyReportComponent } from './admin/company-report/company-report.component';
+import { LandingComponent } from './home/landing/landing.component';
 
 
 
 export const routes: Routes = [
-    { path: '', redirectTo: 'login', pathMatch: 'full' },
+    { path: '', redirectTo: 'home', pathMatch: 'full' },
+    { path: 'home', component: LandingComponent },
     { path: 'login', component: LoginComponent },
     { path: 'verification', component: VerifyCodeComponent },
 

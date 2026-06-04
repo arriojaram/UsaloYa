@@ -13,6 +13,7 @@ import { Router } from '@angular/router';
 import { SharedDataService } from '../services/shared-data.service';
 import { TranslateService } from '@ngx-translate/core';
 import { FormValidationService } from '../services/form-validation.service';
+
 @Component({
   selector: 'app-register-company',
   standalone: true,

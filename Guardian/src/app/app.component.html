@@ -1,7 +1,25 @@
 <!-- Modern Professional Navbar -->
-<nav class="sb-topnav navbar navbar-expand-md" [ngClass]="environmentClass"
-    style="background: var(--usalo-primary-gradient); border-bottom: 3px solid rgba(255,255,255,0.1);">
-    <div class="d-flex w-100 align-items-center">
+<nav class="sb-topnav navbar navbar-expand-md ">
+     <div class="container"  *ngIf="this.userStateUI?.notInHomePage === true">
+      <a class="navbar-brand d-flex align-items-center" href="#">
+        <img src="assets/images/Logo_200_194.jpg" alt="UsaloYa Logo" class="navbar-logo d-block d-md-none"
+          style="height: 40px; width: auto;">
+        <img src="assets/images/Logo_661_640.png" alt="UsaloYa Logo" class="navbar-logo d-none d-md-block"
+          style="height: 50px; width: auto;">
+        <span class="fw-bold ms-2">UsaloYa</span>
+      </a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navMenu">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="#benefits">C&oacute;mo funciona</a></li>
+          <li class="nav-item"><a class="nav-link" href="#projects">Clientes</a></li>
+          <li class="nav-item"><a class="nav-link" href="#contact">Contacto</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="d-flex w-100 align-items-center"  *ngIf="this.userStateUI?.notInHomePage === false">
         <!-- Enhanced Sidebar Toggle -->
         <button class="btn btn-outline-light btn-sm me-3 rounded-3 shadow-sm" id="sidebarToggle"
             (click)="toggleSidebar()" [class.sidebar-open]="sidebarVisible"
@@ -93,15 +111,14 @@
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" (click)="closeAlert()"></button>
 </div>
 
+<!-- *ngIf="this.userStateUI?.statusId === uStatus.Conectado"  [class]="'d-lg-block ' + (sidebarVisible ? 'd-block' : 'd-none')" -->
 <div id="layoutSidenav" class="position-relative">
-    <div id="layoutSidenav_nav" *ngIf="this.userStateUI?.statusId === uStatus.Conectado"
-        [class]="'d-lg-block ' + (sidebarVisible ? 'd-block' : 'd-none')"
+    <div id="layoutSidenav_nav" *ngIf="this.userStateUI?.statusId === uStatus.Conectado" [class.d-block]="sidebarVisible"
         style="background: var(--usalo-bg-gray); border-right: 1px solid var(--usalo-gray); box-shadow: 2px 0 10px var(--usalo-shadow-light);">
-
         <nav class="sb-sidenav accordion" id="sidenavAccordion" style="background: transparent; border: none;">
             <!-- Navigation Menu -->
             <div class="sb-sidenav-menu p-2">
-                <div class="nav flex-column">
+                <div class="nav flex-column" *ngIf="this.userStateUI?.statusId === this.uStatus.Conectado">
                     <!-- Main Section Header -->
                     <div class="nav-section-header px-3 py-2 mb-2">
                         <small class="text-muted fw-semibold text-uppercase ls-1"
@@ -300,18 +317,18 @@
         </nav>
     </div>
     <!-- Enhanced Main Content Area -->
-    <div id="layoutSidenav_content" [class.sidebar-open]="sidebarVisible"
-        style="transition: margin-left 0.3s ease; background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);">
+    <div id="layoutSidenav_content" [class.on-home-page]="userStateUI?.notInHomePage === false"
+        style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);">
 
         <!-- Modern Main Content -->
         <main>
             <div class="container-fluid px-4">
-                <h1 class="mt-1">{{ this.currentPath }}</h1>
-                
+                <h1 class="mt-1" *ngIf="this.currentPath">{{ this.currentPath }}</h1>
+
                 <div class="card-body">
                     <mat-spinner *ngIf="loading_i$ | async" class="loading-spinner"></mat-spinner>
                     <router-outlet></router-outlet>
-                </div>    
+                </div>
             </div>
         </main>
 

@@ -12,7 +12,6 @@ import { TokenDto } from '../dto/authenticateDto';
 import { loginResponseDto } from '../dto/loginReponseDto';
 import { AlertLevel } from '../Enums/enums';
 
-
 @Component({
     selector: 'app-login',
     imports: [RouterModule, ReactiveFormsModule, NgIf],
@@ -24,14 +23,14 @@ export class LoginComponent implements OnInit, OnDestroy {
   private unsubscribe$: Subject<void> = new Subject();
   loading: boolean = false;
 
-  constructor(private fb: FormBuilder, 
+  constructor(private fb: FormBuilder,
     private router: Router,
     private authService: AuthorizationService,
     private userStateService: UserStateService,
     private navigation: NavigationService,
-   
+
   ) {
-    
+
     this.loginForm = this.fb.group({
       username: ['', Validators.required],
       token: ['', Validators.required]
@@ -39,7 +38,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-  
+
     if(!this.navigation.getItemWithExpiry('deviceId'))
     {
       let deviceId = this.authService.generateDeviceId();
@@ -48,15 +47,15 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    
+
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
   }
 
-onSubmit(): void {
- 
+  onSubmit(): void {
+
   if (this.loginForm.valid) {
-     
+
     this.loading = true;
     const loginData: TokenDto = this.loginForm.value;
 
@@ -68,6 +67,7 @@ onSubmit(): void {
 
         if (loginResults.id && loginResults.id > 0) {
           // Continuar para obtener los datos del usuario
+
           return this.userStateService.getLoggedUser(loginResults.id);
         } else {
           // Usuario no válido
@@ -94,6 +94,7 @@ onSubmit(): void {
     ).subscribe({
       next: (userResults: userDto | null) => {
         if (userResults) {
+          userResults.notInHomePage = true;
           this.userStateService.setUserStateLocalStorage(userResults);
           this.navigation.setUserState(userResults);
           this.router.navigate(['/main']);
@@ -119,5 +120,5 @@ iraRegisterComponent() {
 }
 
 
-  
+
 }

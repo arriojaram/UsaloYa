@@ -5,14 +5,14 @@ import { Router, RouterStateSnapshot } from "@angular/router";
 
 export const AuthGuard = (state: RouterStateSnapshot) => {
 
-   
-    const publicRoutes = ['policy', 'agreements','register','verification','register-company','questions','forms-navigator'];
+
+    const publicRoutes = ['policy', 'agreements','register','verification','register-company','questions','forms-navigator', 'home'];
     const currentUrl = state.url.toString();
     const normalizedUrl = currentUrl.startsWith("/") ? state.url.substring(1) : state.url;
     if (publicRoutes.includes(normalizedUrl.toString()))  {
       return true;
     }
-    
+
     const authService = inject(AuthorizationService);
     const router = inject(Router);
 

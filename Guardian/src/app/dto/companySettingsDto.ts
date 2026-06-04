@@ -13,6 +13,7 @@ export interface pairSettingsDto
 
 export interface settingsDto
 {
+    activarImpresionMobile: boolean;
     activarImpresionWeb: boolean;
     impresoraWeb: string;
     maxDaysToRefund: number;

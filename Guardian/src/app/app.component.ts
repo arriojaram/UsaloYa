@@ -64,7 +64,7 @@ export class AppComponent implements OnInit, OnDestroy {
       this.loading_i$ = this.loadingService.loading$;
     }, 10);
 
-    this.userStateUI = { userId: 0, userName: '', roleId: 0, companyId: 0, groupId: 0, statusId: 0, companyName: "" };
+    this.userStateUI = { userId: 0, userName: '', roleId: 0, companyId: 0, groupId: 0, statusId: 0, companyName: "", notInHomePage: true };
 
     // Init network status monitor
     this.connectionService.monitor()
@@ -90,10 +90,11 @@ export class AppComponent implements OnInit, OnDestroy {
         case "policy":
         case "agreements":
         case "register":
-          case"verification":
-          case"register-company":
-          case"questions":
-          case"forms-navigator":
+        case"home":
+        case"verification":
+        case"register-company":
+        case"questions":
+        case"forms-navigator":
           this.currentPath = "";
           break;
         default:
@@ -138,7 +139,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   manageLogoutUI() {
     if (this.userStateUI) {
-      
+
       this.userStateUI.statusId = this.uStatus.Desconectado;
       this.userStateUI.userId = 0;
       this.authService.clearStorageVariables();
@@ -148,12 +149,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
 
 setUserDetailsUI() {
-  
     const storedUserInfo = this.userStateService.getUserStateLocalStorage();
-
-  
+    let isOnHomePage = false;
     if (!storedUserInfo || storedUserInfo.userId === 0) {
-   
+
       if (!['/register'].includes(this.router.url)) {
         this.router.navigate(['/login']);
       }
@@ -173,8 +172,8 @@ setUserDetailsUI() {
     }
 
     this.userRol = Roles[this.userStateUI.roleId];
-  
-  
+
+
 }
 
 
