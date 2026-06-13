@@ -20,7 +20,7 @@
                 </div>
               </div>
             </div>
-            
+
             <div class="instructions-steps">
               <div class="step-item d-flex align-items-start mb-3 p-3 bg-light rounded">
                 <div class="step-number bg-usalo-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 32px; height: 32px; min-width: 32px;">
@@ -37,8 +37,8 @@
                   <small class="fw-bold">2</small>
                 </div>
                 <div>
-                  <h6 class="mb-1 fw-semibold">Copia el código de verificación</h6>
-                  <small class="text-muted">El código tiene 6 dígitos y aparece destacado en el correo</small>
+                  <h6 class="mb-1 fw-semibold">Usa el link de Verificación</h6>
+                  <small class="text-muted">Haz clic en el link de verificación que recibiste en tu correo</small>
                 </div>
               </div>
 
@@ -48,7 +48,7 @@
                 </div>
                 <div>
                   <h6 class="mb-1 fw-semibold">Completa la verificación</h6>
-                  <small class="text-muted">Ingresa el código en el formulario de abajo junto con tu correo</small>
+                  <small class="text-muted">Ingresa el código en el formulario</small>
                 </div>
               </div>
 
@@ -57,7 +57,7 @@
                   <i class="bi bi-exclamation-triangle-fill me-2 text-usalo-warning"></i>
                   <div>
                     <small><strong>¿No encuentras el correo?</strong><br>
-                    Revisa tu carpeta de spam o correo no deseado. El remitente es <strong>donotreply&#64;usaloya.biz</strong></small>
+                    Revisa tu carpeta de spam o correo no deseado. El remitente es <strong>mail&#64;usaloya.biz</strong></small>
                   </div>
                 </div>
               </div>
@@ -65,8 +65,11 @@
           </div>
         </div>
 
+        <div class="text-center mb-4 bg-primary p-3 rounded">
+          <a class="register-link text-white fs-5" href="login">Entrar</a>
+        </div>
         <!-- Verification Form -->
-        <div class="card shadow-lg border-0">
+        <div class="card shadow-lg border-0" *ngIf="false">
           <div class="card-header bg-usalo-info-gradient text-white">
             <div class="d-flex align-items-center justify-content-between">
               <div class="d-flex align-items-center">
@@ -88,13 +91,13 @@
                     <span class="input-group-text bg-usalo-primary-10 border-usalo-primary">
                       <i class="bi bi-shield-check text-usalo-primary"></i>
                     </span>
-                    <input 
-                      type="text" 
-                      id="Code" 
-                      class="form-control border-usalo-primary" 
-                      [class.is-invalid]="verificationForm.get('Code')?.invalid && verificationForm.get('Code')?.touched" 
-                      formControlName="Code" 
-                      placeholder="Ingresa el código de 8 dígitos" 
+                    <input
+                      type="text"
+                      id="Code"
+                      class="form-control border-usalo-primary"
+                      [class.is-invalid]="verificationForm.get('Code')?.invalid && verificationForm.get('Code')?.touched"
+                      formControlName="Code"
+                      placeholder="Ingresa el código de 8 dígitos"
                       maxlength="8"
                       style="font-size: 1.1rem; letter-spacing: 0.2em; text-align: center;"
                     />
@@ -118,13 +121,13 @@
                     <span class="input-group-text bg-usalo-info-10 border-usalo-info">
                       <i class="bi bi-at text-usalo-info"></i>
                     </span>
-                    <input 
-                      type="email" 
-                      id="Email" 
-                      class="form-control border-usalo-info" 
-                      [class.is-invalid]="verificationForm.get('Email')?.invalid && verificationForm.get('Email')?.touched" 
-                      formControlName="Email" 
-                      placeholder="Confirma tu correo electrónico" 
+                    <input
+                      type="email"
+                      id="Email"
+                      class="form-control border-usalo-info"
+                      [class.is-invalid]="verificationForm.get('Email')?.invalid && verificationForm.get('Email')?.touched"
+                      formControlName="Email"
+                      placeholder="Confirma tu correo electrónico"
                     />
                   </div>
                   <div class="invalid-feedback d-block" *ngIf="verificationForm.get('Email')?.hasError('required') && verificationForm.get('Email')?.touched">
@@ -150,8 +153,8 @@
                   Verificar y Activar Cuenta
                   <span class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
                 </button>
-                
-              
+
+
               </div>
 
               <div class="card bg-usalo-neutral-light border-0 mt-4">

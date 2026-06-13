@@ -10934,7 +10934,7 @@ body {
 }
 .sb-nav-fixed #layoutSidenav #layoutSidenav_content {
 
-  top: 56px;
+  top: 60px;
 }
 
 #layoutError {
@@ -10961,7 +10961,7 @@ body {
 
 .sb-topnav {
   padding-left: 0;
-  height: 66px;
+  height: 56px;
   z-index: 1039;
 }
 .sb-topnav .navbar-brand {

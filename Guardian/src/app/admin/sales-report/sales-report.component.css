@@ -4,7 +4,7 @@
     top: 50px;       /* Espacio desde el top */
     left: 20px;      /* Espacio desde la izquierda */
     z-index: 1000;   /* Asegura que el botón esté sobre otros elementos */
-    background-color: #007bff; /* Color de fondo */
+    background-color: #1E88E5; /* Color de fondo */
     color: white;    /* Color del texto */
     border: none;    /* Sin bordes */
     border-radius: 8px; /* Bordes redondeados */
@@ -13,7 +13,7 @@
   }
   
   .back-button:hover {
-    background-color: #0056b3; /* Cambia el color al pasar el mouse */
+    background-color: #1565C0; /* Cambia el color al pasar el mouse */
   }
   
   /* Clases personalizadas para el color del toggle */

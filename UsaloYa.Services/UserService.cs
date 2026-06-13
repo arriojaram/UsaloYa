@@ -54,7 +54,9 @@ namespace UsaloYa.Services
                         CreationDate = Utils.GetMxDateTime(),
                         RoleId = userDto.RoleId,
                         CodeVerification = userDto.CodeVerification,
-                        CanMakeReturns = userDto.CanMakeReturns
+                        CanMakeReturns = userDto.CanMakeReturns,
+                        IsVerifiedCode = userDto.IsVerifiedCode
+
                     };
                 if (userDto.LastUpdatedBy == 0 || userDto.CreatedBy == 0 || userDto.GroupId == 0)
                 {
@@ -238,7 +240,8 @@ namespace UsaloYa.Services
 
             if (!(user.IsEnabled ?? false)) return (false, "Usuario no válido", 0);
 
-            if (!(user.IsVerifiedCode ?? false)) return (false, "Verifique su correo", 0);
+            if (!(user.IsVerifiedCode ?? false)) 
+                return (false, "Verifique su correo", 0);
 
             var userRol = EConverter.GetEnumFromValue<Role>(user.RoleId ?? 0);
             var companyInfo = await GetCompanyStatus(user.CompanyId);
@@ -381,7 +384,8 @@ namespace UsaloYa.Services
                 LastUpdatedBy = 0,
                 GroupId = 0,
                 RoleId = (int)Role.Admin,
-                IsEnabled = true
+                IsEnabled = true,
+                IsVerifiedCode = true,
             };
 
             var user = await this.SaveUser(userDto);

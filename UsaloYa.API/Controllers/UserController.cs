@@ -226,11 +226,6 @@ namespace UsaloYa.API.Controllers
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Error al enviar correo al nuevo usuario {Email}", result.Email);
-                    return StatusCode(500, new
-                    {
-                        success = false,
-                        message = "email_send_error_user"
-                    });
                 }
 
                
@@ -241,11 +236,7 @@ namespace UsaloYa.API.Controllers
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Error al notificar a los administradores sobre el nuevo usuario {Email}", result.Email);
-                    return StatusCode(500, new
-                    {
-                        success = false,
-                        message = "email_send_error_admins"
-                    });
+                   
                 }
 
                 return Ok(new

@@ -44,32 +44,32 @@
 
 /* Gradiente Primary */
 .bgc-primary {
-  background: linear-gradient(45deg, rgba(13,110,253,0.8), rgba(13,110,253,0.9));
-  color: #fff; /* Texto blanco, igual que btn-primary */
+  background: linear-gradient(45deg, rgba(30,136,229,0.8), rgba(30,136,229,0.9));
+  color: #fff;
   transition: background 0.3s ease;
 }
 .bgc-primary:hover {
-  background: linear-gradient(45deg, rgba(11,94,215,0.8), rgba(11,94,215,0.9));
+  background: linear-gradient(45deg, rgba(21,101,192,0.8), rgba(21,101,192,0.9));
 }
 
 /* Gradiente Success */
 .bgc-success {
-  background: linear-gradient(45deg, rgba(25,135,84,0.8), rgba(25,135,84,0.9));
-  color: #fff; /* Texto blanco, igual que btn-success */
+  background: linear-gradient(45deg, rgba(16,185,129,0.8), rgba(16,185,129,0.9));
+  color: #fff;
   transition: background 0.3s ease;
 }
 .bgc-success:hover {
-  background: linear-gradient(45deg, rgba(21,115,71,0.8), rgba(21,115,71,0.9));
+  background: linear-gradient(45deg, rgba(5,150,105,0.8), rgba(5,150,105,0.9));
 }
 
 /* Gradiente Danger */
 .bgc-danger {
-  background: linear-gradient(45deg, rgba(220,53,69,0.8), rgba(220,53,69,0.9));
-  color: #fff; /* Texto blanco, igual que btn-danger */
+  background: linear-gradient(45deg, rgba(239,68,68,0.8), rgba(239,68,68,0.9));
+  color: #fff;
   transition: background 0.3s ease;
 }
 .bgc-danger:hover {
-  background: linear-gradient(45deg, rgba(187,45,59,0.8), rgba(187,45,59,0.9));
+  background: linear-gradient(45deg, rgba(220,38,38,0.8), rgba(220,38,38,0.9));
 }
 
 /* Gradiente Warning */

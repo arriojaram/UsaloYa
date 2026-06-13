@@ -189,7 +189,7 @@
 
 /* Footer Links Hover Effects */
 .hover-link:hover {
-    color: #667eea !important;
+    color: #1E88E5 !important;
     transform: translateY(-1px);
 }
 
@@ -216,12 +216,24 @@ footer .btn-success:hover {
         height: 60px !important;
         min-height: 60px !important;
         max-height: 60px !important;
-        overflow: hidden !important;
+        overflow: visible !important;
         position: fixed !important;
         top: 0 !important;
         left: 0 !important;
         right: 0 !important;
         z-index: 1039 !important;
+    }
+
+    #navMenu.show {
+        position: fixed;
+        top: 60px;
+        left: 0;
+        right: 0;
+        background: white;
+        z-index: 1040;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        padding: 0.5rem 1rem;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
     }
 
     .sb-topnav .d-flex {
@@ -301,7 +313,19 @@ footer .btn-success:hover {
         height: 56px !important;
         min-height: 56px !important;
         max-height: 56px !important;
-        overflow: hidden !important;
+        overflow: visible !important;
+    }
+
+    #navMenu.show {
+        position: fixed;
+        top: 56px;
+        left: 0;
+        right: 0;
+        background: white;
+        z-index: 1040;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        padding: 0.5rem 1rem;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
     }
 
     .sb-topnav .d-flex {

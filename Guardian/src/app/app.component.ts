@@ -90,12 +90,16 @@ export class AppComponent implements OnInit, OnDestroy {
         case "policy":
         case "agreements":
         case "register":
-        case"home":
-        case"verification":
-        case"register-company":
-        case"questions":
-        case"forms-navigator":
+        case "verification":
+        case "register-company":
+        case "questions":
+        case "forms-navigator":
+        case "home":
+        case "login":
           this.currentPath = "";
+          if(this.userStateUI){
+            this.userStateUI.notInHomePage = false;
+          }
           break;
         default:
           this.setUserDetailsUI();
@@ -148,7 +152,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
 
-setUserDetailsUI() {
+  setUserDetailsUI() {
     const storedUserInfo = this.userStateService.getUserStateLocalStorage();
     let isOnHomePage = false;
     if (!storedUserInfo || storedUserInfo.userId === 0) {
@@ -156,6 +160,7 @@ setUserDetailsUI() {
       if (!['/register'].includes(this.router.url)) {
         this.router.navigate(['/login']);
       }
+
       return;
     }
 
@@ -172,9 +177,7 @@ setUserDetailsUI() {
     }
 
     this.userRol = Roles[this.userStateUI.roleId];
-
-
-}
+  }
 
 
   closeAlert() {

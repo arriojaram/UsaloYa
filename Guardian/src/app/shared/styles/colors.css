@@ -2,75 +2,75 @@
 
 /* Primary Brand Colors */
 :root {
-  /* Brand Primary - Purple-Blue Gradient */
-  --usalo-primary: #667eea;
-  --usalo-primary-dark: #764ba2;
-  --usalo-primary-light: #8b9aed;
-  --usalo-primary-gradient: linear-gradient(135deg, #307ac8  0%, #8ad5d6  100%);
-  --usalo-primary-gradient-hover: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
-  
+  /* Brand Primary - Blue Gradient */
+  --usalo-primary: #1E88E5;
+  --usalo-primary-dark: #1565C0;
+  --usalo-primary-light: #64B5F6;
+  --usalo-primary-gradient: linear-gradient(135deg, #1E88E5 0%, #1565C0 100%);
+  --usalo-primary-gradient-hover: linear-gradient(135deg, #1565C0 0%, #0D47A1 100%);
+
   /* Secondary Colors */
-  --usalo-secondary-gradient: linear-gradient(135deg, #667eea  0%, #764ba2  100%);
+  --usalo-secondary-gradient: linear-gradient(135deg, #1E88E5 0%, #1565C0 100%);
   --usalo-secondary: #6c757d;
   --usalo-secondary-light: #adb5bd;
   --usalo-secondary-dark: #495057;
-  
-  /* Success Colors - Green System */
-  --usalo-success: #28a745;
-  --usalo-success-light: #20c997;
-  --usalo-success-dark: #198754;
-  --usalo-success-gradient: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-  
-  /* Warning Colors - Orange System */
-  --usalo-warning: #ffc107;
-  --usalo-warning-light: #ffecb3;
-  --usalo-warning-dark: #e67e22;
-  --usalo-warning-gradient: linear-gradient(135deg, #ffc107 0%, #e67e22 100%);
-  
+
+  /* Success Colors - Emerald System */
+  --usalo-success: #10b981;
+  --usalo-success-light: #34d399;
+  --usalo-success-dark: #059669;
+  --usalo-success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+
+  /* Warning Colors - Amber System */
+  --usalo-warning: #f59e0b;
+  --usalo-warning-light: #fef3c7;
+  --usalo-warning-dark: #d97706;
+  --usalo-warning-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+
   /* Danger Colors - Red System */
-  --usalo-danger: #dc3545;
-  --usalo-danger-light: #f8d7da;
-  --usalo-danger-dark: #c82333;
-  --usalo-danger-gradient: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-  
-  /* Info Colors - Blue System */
-  --usalo-info: #17a2b8;
-  --usalo-info-light: #d1ecf1;
-  --usalo-info-dark: #138496;
-  --usalo-info-gradient: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
-  
+  --usalo-danger: #ef4444;
+  --usalo-danger-light: #fee2e2;
+  --usalo-danger-dark: #dc2626;
+  --usalo-danger-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+
+  /* Info Colors - Light Blue System */
+  --usalo-info: #64B5F6;
+  --usalo-info-light: #DBEAFE;
+  --usalo-info-dark: #1E88E5;
+  --usalo-info-gradient: linear-gradient(135deg, #64B5F6 0%, #1E88E5 100%);
+
   /* Neutral Colors */
   --usalo-white: #ffffff;
-  --usalo-light: #f8f9fa;
+  --usalo-light: #EBF4FD;
   --usalo-light-gray: #e9ecef;
   --usalo-gray: #dee2e6;
   --usalo-dark-gray: #ced4da;
-  --usalo-dark: #343a40;
+  --usalo-dark: #0D1F3C;
   --usalo-black: #000000;
-  
+
   /* Background Gradients */
-  --usalo-bg-light: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  --usalo-bg-light: linear-gradient(135deg, #1E88E5  0%, #5a67d8 100%);
   --usalo-bg-gray: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  --usalo-bg-dark: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-  
+  --usalo-bg-dark: linear-gradient(1deg, #2c3e50 0%, #5c7085 100%);
+
   /* Special Purpose Colors */
   --usalo-whatsapp: #25d366;
   --usalo-whatsapp-dark: #128c7e;
   --usalo-whatsapp-gradient: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
-  
+
   /* Transparency Variants */
-  --usalo-primary-10: rgba(102, 126, 234, 0.1);
-  --usalo-primary-20: rgba(102, 126, 234, 0.2);
-  --usalo-primary-30: rgba(102, 126, 234, 0.3);
-  --usalo-success-10: rgba(40, 167, 69, 0.1);
-  --usalo-success-20: rgba(40, 167, 69, 0.2);
-  --usalo-warning-10: rgba(255, 193, 7, 0.1);
-  --usalo-warning-20: rgba(255, 193, 7, 0.2);
-  --usalo-danger-10: rgba(220, 53, 69, 0.1);
-  --usalo-danger-20: rgba(220, 53, 69, 0.2);
-  --usalo-info-10: rgba(23, 162, 184, 0.1);
-  --usalo-info-20: rgba(23, 162, 184, 0.2);
-  
+  --usalo-primary-10: rgba(30, 136, 229, 0.1);
+  --usalo-primary-20: rgba(30, 136, 229, 0.2);
+  --usalo-primary-30: rgba(30, 136, 229, 0.3);
+  --usalo-success-10: rgba(16, 185, 129, 0.1);
+  --usalo-success-20: rgba(16, 185, 129, 0.2);
+  --usalo-warning-10: rgba(245, 158, 11, 0.1);
+  --usalo-warning-20: rgba(245, 158, 11, 0.2);
+  --usalo-danger-10: rgba(239, 68, 68, 0.1);
+  --usalo-danger-20: rgba(239, 68, 68, 0.2);
+  --usalo-info-10: rgba(100, 181, 246, 0.1);
+  --usalo-info-20: rgba(100, 181, 246, 0.2);
+
   /* Text Colors */
   --usalo-text-primary: var(--usalo-primary);
   --usalo-text-secondary: var(--usalo-secondary);
@@ -81,7 +81,7 @@
   --usalo-text-light: var(--usalo-secondary-light);
   --usalo-text-dark: var(--usalo-dark);
   --usalo-text-white: var(--usalo-white);
-  
+
   /* Border Colors */
   --usalo-border-primary: var(--usalo-primary);
   --usalo-border-success: var(--usalo-success);
@@ -90,13 +90,13 @@
   --usalo-border-info: var(--usalo-info);
   --usalo-border-light: var(--usalo-gray);
   --usalo-border-dark: var(--usalo-secondary);
-  
+
   /* Shadow Colors */
-  --usalo-shadow-primary: rgba(102, 126, 234, 0.3);
-  --usalo-shadow-success: rgba(40, 167, 69, 0.3);
-  --usalo-shadow-warning: rgba(255, 193, 7, 0.3);
-  --usalo-shadow-danger: rgba(220, 53, 69, 0.3);
-  --usalo-shadow-info: rgba(23, 162, 184, 0.3);
+  --usalo-shadow-primary: rgba(30, 136, 229, 0.3);
+  --usalo-shadow-success: rgba(16, 185, 129, 0.3);
+  --usalo-shadow-warning: rgba(245, 158, 11, 0.3);
+  --usalo-shadow-danger: rgba(239, 68, 68, 0.3);
+  --usalo-shadow-info: rgba(100, 181, 246, 0.3);
   --usalo-shadow-dark: rgba(0, 0, 0, 0.15);
   --usalo-shadow-light: rgba(0, 0, 0, 0.1);
 }
@@ -284,14 +284,14 @@
 }
 
 .btn-ghost:hover {
-  background-color: rgba(102, 126, 234, 0.1);
+  background-color: rgba(30, 136, 229, 0.1);
   transform: translateY(-1px);
   color: var(--usalo-primary-dark);
 }
 
 .btn-ghost:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+  box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.2);
 }
 
 /* Icon Container */
@@ -305,13 +305,13 @@
   justify-content: center;
   font-size: 1.25rem;
   color: white;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 2px 8px rgba(30, 136, 229, 0.3);
   transition: all 0.15s ease;
 }
 
 .icon-container:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(30, 136, 229, 0.4);
 }
 
 /* Toolbar Title Group */
@@ -343,13 +343,13 @@
 .toolbar-actions .btn-usalo-primary {
   background: linear-gradient(135deg, var(--usalo-primary), var(--usalo-primary-dark));
   border: none;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 2px 8px rgba(30, 136, 229, 0.3);
   transition: all 0.15s ease;
 }
 
 .toolbar-actions .btn-usalo-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(30, 136, 229, 0.4);
   background: linear-gradient(135deg, var(--usalo-primary-dark), var(--usalo-primary));
 }
 
@@ -359,17 +359,17 @@
     padding-left: 1rem;
     padding-right: 1rem;
   }
-  
+
   .toolbar-title-group h4 {
     font-size: 1.25rem;
   }
-  
+
   .icon-container {
     width: 2rem;
     height: 2rem;
     font-size: 1rem;
   }
-  
+
   .toolbar-actions {
     gap: 0.5rem !important;
   }

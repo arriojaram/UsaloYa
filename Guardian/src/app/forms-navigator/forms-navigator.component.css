@@ -74,15 +74,15 @@ body {
 }
 
 .step-horizontal.active .step-icon {
-  background: #4361ee;
-  border-color: #4361ee;
+  background: #1E88E5;
+  border-color: #1E88E5;
   color: white;
-  box-shadow: 0 0 0 5px rgba(67, 97, 238, 0.2);
+  box-shadow: 0 0 0 5px rgba(30, 136, 229, 0.2);
 }
 
 .step-horizontal.complete .step-icon {
-  background: #2ecc71;
-  border-color: #2ecc71;
+  background: #10b981;
+  border-color: #10b981;
   color: white;
 }
 
@@ -117,9 +117,9 @@ body {
 }
 
 .stepper-buttons button:not(:disabled):hover {
-  background-color: #4361ee;
+  background-color: #1E88E5;
   color: white;
-  box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3);
+  box-shadow: 0 4px 10px rgba(30, 136, 229, 0.3);
 }
 
 /* Media query solo para reducir texto si es necesario */

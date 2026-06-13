@@ -55,7 +55,13 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private initRevealOnScroll(): void {
+    const isMobile = window.innerWidth < 768;
     const revealEls = document.querySelectorAll<HTMLElement>('.reveal-on-scroll');
+
+    if (isMobile) {
+      return;
+    }
+
     revealEls.forEach(el => {
       el.style.opacity = '0';
       el.style.transform = 'translateY(28px)';

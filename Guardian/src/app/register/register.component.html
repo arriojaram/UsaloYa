@@ -21,23 +21,6 @@
       </div>
     </div>
 
-    <!-- Email -->
-    <div class="form-group">
-      <label for="email" class="form-label">E-mail</label>
-      <input type="email" id="email" class="input" formControlName="email" aria-describedby="emailHelp emailError"
-        [class.input-error]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" />
-      <small id="emailHelp" class="text-muted">Ejemplo: correo&#64;ejemplo.com</small>
-      <div
-        *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.errors && !registerForm.get('email')?.errors?.['emailTaken']"
-        class="error-msg" id="emailError">
-        El e-mail es requerido y debe ser válido
-      </div>
-      <div *ngIf="registerForm.get('email')?.errors?.['emailTaken'] && registerForm.get('email')?.touched"
-        class="error-msg">
-        Este correo electrónico ya está en uso.
-      </div>
-    </div>
-
     <!-- Usuario -->
     <div class="form-group">
       <label for="username" class="form-label">Usuario</label>
@@ -65,6 +48,23 @@
       <div *ngIf="registerForm.get('token')?.invalid && registerForm.get('token')?.touched" class="error-msg"
         id="tokenError">
         La contraseña es requerida, mínimo 8 caracteres con al menos una letra y un número
+      </div>
+    </div>
+
+    <!-- Email -->
+    <div class="form-group">
+      <label for="email" class="form-label">E-mail</label>
+      <input type="email" id="email" class="input" formControlName="email" aria-describedby="emailHelp emailError"
+        [class.input-error]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" />
+      <small id="emailHelp" class="text-muted">Ejemplo: correo&#64;ejemplo.com</small>
+      <div
+        *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.errors && !registerForm.get('email')?.errors?.['emailTaken']"
+        class="error-msg" id="emailError">
+        El e-mail es requerido y debe ser válido
+      </div>
+      <div *ngIf="registerForm.get('email')?.errors?.['emailTaken'] && registerForm.get('email')?.touched"
+        class="error-msg">
+        Este correo electrónico ya está en uso.
       </div>
     </div>
 

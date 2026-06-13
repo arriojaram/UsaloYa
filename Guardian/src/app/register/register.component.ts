@@ -41,7 +41,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
     const savedData = this.registerDataService.getUserData();
     this.registerForm = this.fb.group({
       name: [savedData?.firstName || '', [Validators.required, Validators.minLength(3)]],
-      email: [savedData?.email || '', [Validators.required, Validators.email], [this.emailValidator()]],
+      email: [savedData?.email || '', [Validators.email, Validators.required], [this.emailValidator()]],
       username: [savedData?.userName || '', [Validators.required, Validators.pattern(/^[a-zA-Z0-9._-]{4,20}$/)], [this.usernameValidator()]],
       token: ['', [Validators.required, Validators.minLength(4)]]
     });

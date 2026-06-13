@@ -84,7 +84,7 @@ namespace UsaloYa.Services
                     Name = companyDto.Name,
                     CreatedBy = companyDto.CreatedBy,
                     CreationDate = Utils.GetMxDateTime(),
-                    ExpirationDate = Utils.GetMxDateTime().AddDays(45),
+                    ExpirationDate = Utils.GetMxDateTime().AddDays(360),
                     StatusId = (int)CompanyStatus.Active,
                     PhoneNumber = companyDto.TelNumber,
                     CelphoneNumber = companyDto.CelNumber,

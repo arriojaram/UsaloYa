@@ -41,7 +41,7 @@ export class RegisterCompanyComponent implements OnInit, OnDestroy {
     this.companyForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)], [this.nameValidator()]],
       address: [''],
-      telNumber: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(15)]],
+      telNumber: ['', [Validators.minLength(10), Validators.maxLength(15)]],
       celNumber: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(15)]],
       email: [{ value: '', disabled: true }, [Validators.email]],
       ownerInfo: [''],

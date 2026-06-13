@@ -13,7 +13,7 @@
 .register-link {
   display: inline-block;
   margin-left: 6px;
-  color: royalblue;
+  color: #1E88E5;
   font-weight: 600;
   cursor: pointer;
   text-decoration: none;
@@ -21,7 +21,7 @@
 }
 
 .register-link:hover {
-  color: rgb(56, 90, 194);
+  color: #1565C0;
   text-decoration: underline;
 }
 /* Más espacio entre el botón y el enlace de registro */

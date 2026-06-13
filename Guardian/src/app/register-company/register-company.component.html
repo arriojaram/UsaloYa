@@ -6,7 +6,7 @@
 
     <!-- Nombre de la Compañía -->
     <div class="form-group">
-      <label for="name" class="form-label">Nombre de la Compañía</label>
+      <label for="name" class="form-label">Nombre del Negocio</label>
       <input type="text" id="name" class="input" formControlName="name" aria-describedby="nameHelp nameError"
         [class.input-error]="companyForm.get('name')?.invalid && companyForm.get('name')?.touched" />
       <small id="nameHelp" class="text-muted">Ejemplo: Grupo Alimentos S.A. de C.V.</small>
@@ -19,32 +19,6 @@
         Este nombre de compañía ya está en uso.
       </div>
     </div>
-
-    <!-- Dirección -->
-    <div class="form-group">
-      <label for="address" class="form-label">Dirección</label>
-      <input type="text" id="address" class="input" formControlName="address" aria-describedby="addressHelp"
-        [class.input-error]="companyForm.get('address')?.invalid && companyForm.get('address')?.touched" />
-      <small id="addressHelp" class="text-muted">Ejemplo: Av. Reforma 123, Col. Centro, CDMX</small>
-    </div>
-
-<!-- Teléfono -->
-<div class="form-group">
-  <label for="phoneNumber" class="form-label">Teléfono</label>
-  <input
-    type="tel"
-    id="phoneNumber"
-    class="input"
-    formControlName="telNumber"
-    aria-describedby="phoneHelp phoneError"
-    maxlength="10"
-    [class.input-error]="companyForm.get('phoneNumber')?.invalid && companyForm.get('phoneNumber')?.touched"
-  />
-  <small id="phoneHelp" class="text-muted">Ejemplo: 5588776655</small>
-  <div *ngIf="companyForm.get('phoneNumber')?.invalid && companyForm.get('phoneNumber')?.touched" class="error-msg" id="phoneError">
-    Ingresa un número de teléfono válido (10 dígitos)
-  </div>
-</div>
 
 <!-- Celular -->
 <div class="form-group">
@@ -75,14 +49,6 @@
         id="emailError">
         El correo debe ser válido
       </div>
-    </div>
-
-    <!-- Información del Dueño -->
-    <div class="form-group">
-      <label for="ownerInfo" class="form-label">Información del Dueño</label>
-      <input type="text" id="ownerInfo" class="input" formControlName="ownerInfo" aria-describedby="ownerHelp"
-        [class.input-error]="companyForm.get('ownerInfo')?.invalid && companyForm.get('ownerInfo')?.touched" />
-      <small id="ownerHelp" class="text-muted">Ejemplo: María López, CEO</small>
     </div>
 
     <button type="submit" class="submit" [disabled]="companyForm.invalid || loading">

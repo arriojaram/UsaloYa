@@ -1,6 +1,6 @@
 <!-- Modern Professional Navbar -->
-<nav class="sb-topnav navbar navbar-expand-md ">
-     <div class="container"  *ngIf="this.userStateUI?.notInHomePage === true">
+<nav class="sb-topnav navbar navbar-expand-md">
+    <div class="d-flex w-100 align-items-center bg-white mx-3" *ngIf="this.userStateUI?.notInHomePage === false">
       <a class="navbar-brand d-flex align-items-center" href="#">
         <img src="assets/images/Logo_200_194.jpg" alt="UsaloYa Logo" class="navbar-logo d-block d-md-none"
           style="height: 40px; width: auto;">
@@ -16,10 +16,11 @@
           <li class="nav-item"><a class="nav-link" href="#benefits">C&oacute;mo funciona</a></li>
           <li class="nav-item"><a class="nav-link" href="#projects">Clientes</a></li>
           <li class="nav-item"><a class="nav-link" href="#contact">Contacto</a></li>
+          <li class="nav-item"><a class="nav-link" href="login">Entrar</a></li>
         </ul>
       </div>
     </div>
-    <div class="d-flex w-100 align-items-center"  *ngIf="this.userStateUI?.notInHomePage === false">
+    <div class="d-flex w-100 align-items-center" style="background: var(--usalo-bg-light);" *ngIf="this.userStateUI?.notInHomePage === true">
         <!-- Enhanced Sidebar Toggle -->
         <button class="btn btn-outline-light btn-sm me-3 rounded-3 shadow-sm" id="sidebarToggle"
             (click)="toggleSidebar()" [class.sidebar-open]="sidebarVisible"
@@ -33,7 +34,7 @@
                 <picture>
                     <source srcset="assets/icons/logos/logo.png" media="(max-width: 320px)">
                     <source srcset="assets/icons/logos/logo-192x192.png" media="(max-width: 480px)">
-                    <img src="assets/icons/logos/logo-512x512.png" alt="Logo"
+                    <img src="assets/images/Logo_661_640.png" alt="Logo"
                         style="height: 35px; width: 35px; object-fit: contain;">
                 </picture>
             </div>
@@ -332,21 +333,18 @@
             </div>
         </main>
 
-        <!-- Enhanced Professional Footer -->
-        <footer class="mt-auto"
-            style="background: var(--usalo-bg-dark); color: white; border-top: 3px solid var(--usalo-primary);">
-            <div class="container-fluid px-4 py-2">
-                <div class="row align-items-center">
-                    <!-- Copyright Section -->
-                    <div class="col-12 col-md-4 text-center text-md-start mb-3 mb-md-0">
-                        <div class="d-flex align-items-center justify-content-center justify-content-md-start">
 
-                            <div>
-                                <div class="fw-bold" style="font-size: 0.9rem;">UsaloYa</div>
-                                <small class="text-white-50" style="font-size: 0.75rem;">© 2024 Todos los derechos
-                                    reservados</small>
-                            </div>
-                        </div>
+        <!-- Enhanced Professional Footer -->
+        <footer class="my-2" style="background: var(--usalo-bg-dark); color: white; border-top: 3px solid var(--usalo-primary);">
+            <div class="container-fluid w-100 px-1 py-1">
+                <div class="row align-items-center">
+                    <!-- Logo Section -->
+                    <div class="col-12 col-md-4 text-center text-md-start mb-3 mb-md-0 ms-3">
+                       <div class="d-flex align-items-center justify-content-center justify-content-md-start">
+                        <img src="assets/images/Logo_661_640-i.png" alt="UsaloYa Logo" class="footer-logo d-none d-md-block"
+                          style="height: 30px; width: auto; margin-right: 12px;">
+                        <span class="fw-bold" style="font-size: 1rem;">UsaloYa</span>
+                      </div>
                     </div>
 
                     <!-- Links Section -->
@@ -354,39 +352,20 @@
                         <div class="footer-links d-flex justify-content-center gap-3">
                             <a href="policy" target="_blank" rel="noopener noreferrer"
                                 class="text-white-75 text-decoration-none hover-link"
-                                style="font-size: 0.85rem; transition: color 0.3s ease;">
+                                style="font-size: 0.75rem; transition: color 0.3s ease; color:white;">
                                 <i class="bi bi-shield-check me-1"></i>Privacidad
                             </a>
-                            <span class="text-white-50">•</span>
+
                             <a href="agreements" target="_blank" rel="noopener noreferrer"
                                 class="text-white-75 text-decoration-none hover-link"
-                                style="font-size: 0.85rem; transition: color 0.3s ease;">
+                                style="font-size: 0.75rem; transition: color 0.3s ease; color:white;">
                                 <i class="bi bi-file-text me-1"></i>Términos
                             </a>
                         </div>
-                    </div>
 
-                    <!-- Support Section -->
-                    <div class="col-12 col-md-4 text-center text-md-end">
-                        <div class="support-section" *ngIf="(userStateUI?.userId ?? 0) > 0">
-                            <a [href]="whatsAppUrl" target="_blank"
-                                class="btn btn-success btn-sm d-inline-flex align-items-center rounded-pill px-3 py-2"
-                                style="background: linear-gradient(135deg, #25d366, #128c7e); border: none; font-size: 0.85rem; transition: all 0.3s ease;">
-                                <i class="bi bi-whatsapp me-2" style="font-size: 1rem;"></i>
-                                <span class="fw-medium">Soporte WhatsApp</span>
-                            </a>
-                        </div>
                     </div>
                 </div>
 
-                <!-- Footer Bottom -->
-                <div class="row mt-3 pt-3  border-top border-secondary">
-                    <div class="col-12 text-center">
-                        <small class="text-white-50" style="font-size: 0.75rem;">
-                            Desarrollado con <i class="bi bi-heart-fill text-danger mx-1"></i> para impulsar tu negocio
-                        </small>
-                    </div>
-                </div>
             </div>
         </footer>
     </div>
